@@ -1,0 +1,59 @@
+"""FastAPI application entrypoint for Online Lerncampus."""
+
+from fastapi import FastAPI, HTTPException, status
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
+
+from app.api.routes import api_router
+from app.core.config import get_settings
+
+
+def create_app() -> FastAPI:
+    """Create and configure the FastAPI application."""
+    settings = get_settings()
+    app = FastAPI(
+        title=settings.app_name,
+        debug=settings.app_debug,
+        version="0.1.0",
+        description="Lernplattform fuer technische Ausbildungsberufe.",
+    )
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=settings.allowed_origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    app.include_router(api_router, prefix="/api")
+    app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
+
+    @app.get(
+        "/{page:path}",
+        include_in_schema=False,
+    )
+    def index(page: str = "") -> FileResponse:
+        """Serve the routed web app for all frontend page routes."""
+        allowed_pages = {
+            "",
+            "funktionen",
+            "login",
+            "dashboard",
+            "lernreise",
+            "lernen",
+            "pruefungen",
+            "defizite",
+            "review",
+            "datenschutz",
+        }
+        if page in allowed_pages:
+            return FileResponse("app/web/index.html")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Page not found.",
+        )
+
+    return app
+
+
+app = create_app()

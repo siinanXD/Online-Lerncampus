@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>BZE Online Campus</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="site-nav">
+      <a class="brand" href="/" aria-label="BZE Online Campus">
+        <span class="brand-mark">B</span>
+        <span><strong>BZE</strong> Online Campus</span>
+      </a>
+      <nav class="nav-links" aria-label="Hauptnavigation">
+        <a href="/funktionen" data-page-link>Features</a>
+        <a href="/login" data-page-link>Login</a>
+        <a href="/dashboard" data-page-link>Dashboard</a>
+        <a href="/docs">API</a>
+      </nav>
+      <a class="nav-cta" href="/login" data-page-link>Kostenlos starten</a>
+    </header>
+
+    <main id="top">
+      <section class="hero-section">
+        <div class="hero-copy">
+          <p class="pill">Game Mode: spielerisch bestehen</p>
+          <h1>Die Pruefungsvorbereitung, die sich wie ein Spiel anfuehlt.</h1>
+          <p class="hero-subtitle">
+            IHK Maschinen- und Anlagenfuehrer - spielerisch lernen, sicher
+            bestehen.
+          </p>
+          <div class="hero-stats" aria-label="Kennzahlen">
+            <span><strong>120+</strong> pruefungsrelevante Startfragen</span>
+            <span><strong>20</strong> Testpruefungen</span>
+            <span><strong>240</strong> Kategorien</span>
+          </div>
+          <div class="hero-actions">
+            <a class="primary-button" href="/login" data-page-link>Login starten</a>
+            <a class="secondary-button" href="/dashboard" data-login-demo>
+              Demo direkt oeffnen
+            </a>
+          </div>
+        </div>
+
+        <div id="demo-phone" class="phone-stage" aria-label="App Demo">
+          <div class="orbit-glow"></div>
+          <div class="float-badge xp-badge">Star +50 XP</div>
+          <div class="float-badge streak-badge">
+            <span>8</span>
+            <div><strong>Streak Meister</strong><small>7 Tage aktiv</small></div>
+          </div>
+          <div class="float-badge bonus-badge">+100</div>
+          <div class="phone-shell">
+            <div class="phone-screen">
+              <div class="phone-status">
+                <span>09:41</span>
+                <span>LTE 100%</span>
+              </div>
+              <div class="level-card">
+                <strong>LEVEL 12</strong>
+                <span>3.400 XP</span>
+              </div>
+              <div class="mini-question">
+                <span>MASCHINENKUNDE</span>
+                <strong>Welches Bauteil verhindert ungewollten Ruecklauf?</strong>
+              </div>
+              <button class="mini-answer correct">A) Rueckschlagventil</button>
+              <button class="mini-answer">B) Drosselventil</button>
+              <div class="mini-progress"><span></span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="features-section">
+        <article class="feature-card">
+          <span class="feature-icon">AI</span>
+          <h2>Intelligentes Lernen</h2>
+          <p>
+            Der Campus wiederholt gezielt Schwachstellen und fuehrt Azubis bis
+            zur Pruefungsreife.
+          </p>
+        </article>
+        <article class="feature-card">
+          <span class="feature-icon">XP</span>
+          <h2>Gamification</h2>
+          <p>
+            XP, Level, Streaks und Checkpoints machen Fachkunde kurz, klar und
+            motivierend.
+          </p>
+        </article>
+        <article class="feature-card">
+          <span class="feature-icon">QS</span>
+          <h2>Pruefungsreife</h2>
+          <p>
+            Fehler werden nach Kategorien sichtbar, damit Defizite konkret
+            trainiert werden koennen.
+          </p>
+        </article>
+      </section>
+
+      <section id="auth-screens" class="screen-gallery">
+        <div class="gallery-heading">
+          <p class="eyebrow">Auth und Onboarding</p>
+          <h2>Login, Sprachwahl und Level-Up im BZE Designsystem</h2>
+        </div>
+        <div class="mobile-screen-grid">
+          <article class="mobile-device login-screen">
+            <div class="ios-status"><span>9:41</span><span>LTE 100%</span></div>
+            <div class="logo-stack">
+              <span class="app-logo">BZE</span>
+              <h3>Online Campus</h3>
+              <p>Maschinen- &amp; Anlagenfuehrer</p>
+            </div>
+            <form id="login-form" class="auth-form">
+              <div>
+                <h3>Willkommen zurueck</h3>
+                <p>Melde dich an, um weiterzulernen.</p>
+              </div>
+              <label>
+                <span>E-Mail oder Benutzername</span>
+                <input
+                  name="identifier"
+                  value="demo-azubi"
+                  autocomplete="username"
+                  aria-label="Benutzername"
+                />
+              </label>
+              <label>
+                <span>Passwort</span>
+                <input
+                  name="password"
+                  value="demo-pass"
+                  type="password"
+                  autocomplete="current-password"
+                  aria-label="Passwort"
+                />
+              </label>
+              <label>
+                <span>Kohortencode optional</span>
+                <input name="cohort" value="BZE-2026-F" aria-label="Kohorte" />
+              </label>
+              <button class="screen-primary" type="submit">Anmelden</button>
+              <button class="screen-secondary" type="button" data-login-demo>
+                Mit Demo-Zugang anmelden
+              </button>
+              <p id="login-feedback" class="form-feedback"></p>
+            </form>
+            <small class="screen-footer">Powered by BZE Digital</small>
+          </article>
+
+          <article class="mobile-device language-screen">
+            <div class="ios-status"><span>9:41</span><span>LTE 100%</span></div>
+            <div class="step-dots"><span></span><i></i><i></i></div>
+            <div class="onboarding-copy">
+              <span class="soft-icon globe">DE</span>
+              <h3>Sprache waehlen</h3>
+              <p>Waehle deine bevorzugte Sprache fuer die Plattform.</p>
+            </div>
+            <div class="language-list">
+              <button class="selected">Deutsch <span>OK</span></button>
+              <button>English <span></span></button>
+              <button>Tuerkce <span></span></button>
+              <button>Arabisch <span></span></button>
+              <button>Ukrainisch <span></span></button>
+            </div>
+            <div class="cohort-box">
+              <strong>Kohortencode optional</strong>
+              <input value="BZE-2026-F" aria-label="Kohortencode" />
+              <p>Falls du einen Code von deinem Ausbilder erhalten hast.</p>
+            </div>
+            <button class="screen-primary">Weiter</button>
+          </article>
+
+          <article class="mobile-device welcome-screen">
+            <div class="ios-status"><span>9:41</span><span>LTE 100%</span></div>
+            <div class="step-dots"><span></span><i></i><i></i></div>
+            <div class="mascot">
+              <div class="helmet"></div>
+              <div class="face"></div>
+            </div>
+            <div class="welcome-copy">
+              <h3>Willkommen bei BZE!</h3>
+              <p>Dein persoenlicher Lernbegleiter fuer die IHK-Pruefung.</p>
+            </div>
+            <div class="feature-list">
+              <span>Pruefungsfragen mit sofortigem Feedback</span>
+              <span>Fortschritt verfolgen und Schwaechen erkennen</span>
+              <span>KI-Coach fuer individuelle Erklaerungen</span>
+            </div>
+            <button class="screen-primary">Los geht's!</button>
+            <button class="skip-button">Ueberspringen</button>
+          </article>
+
+          <article class="mobile-device level-screen">
+            <div class="confetti" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <div class="ios-status"><span>9:41</span><span>LTE 100%</span></div>
+            <div class="level-celebration">
+              <div class="badge-ring"><span>8</span></div>
+              <h3>LEVEL UP!</h3>
+              <p>Level 8 erreicht!</p>
+              <small>Neuer Titel: Facharbeiter</small>
+            </div>
+            <div class="reward-card">
+              <strong>Belohnungen:</strong>
+              <span>+100 Bonus-XP</span>
+              <span>Neues Abzeichen freigeschaltet</span>
+              <span>Freischaltung: Hydraulik</span>
+            </div>
+            <button class="screen-primary">Weiter</button>
+            <small class="level-next">Level 9 in 1.550 XP</small>
+          </article>
+        </div>
+      </section>
+
+      <section id="campus-app" class="campus-app">
+        <div class="app-header">
+          <div>
+            <p class="eyebrow">Dashboard</p>
+            <h2 id="page-title">Dashboard</h2>
+          </div>
+          <div class="stats">
+            <span><strong id="mastered-count">0</strong> gemeistert</span>
+            <span><strong id="wrong-count">0</strong> Fehler</span>
+          </div>
+        </div>
+
+        <div class="app-layout">
+          <aside class="app-sidebar">
+            <nav class="nav-tabs" aria-label="Lernbereiche">
+              <a class="nav-tab active" href="/dashboard" data-page-link data-view="dashboard">
+                Dashboard
+              </a>
+              <a class="nav-tab" href="/lernreise" data-page-link data-view="journey">
+                Lernreise
+              </a>
+              <a class="nav-tab" href="/lernen" data-page-link data-view="learn">
+                Lernen
+              </a>
+              <a class="nav-tab" href="/pruefungen" data-page-link data-view="exam">
+                Pruefen
+              </a>
+              <a class="nav-tab" href="/defizite" data-page-link data-view="progress">
+                Defizite
+              </a>
+              <a class="nav-tab" href="/review" data-page-link data-view="admin">
+                Review
+              </a>
+              <a class="nav-tab" href="/datenschutz" data-page-link data-view="privacy">
+                Datenschutz
+              </a>
+            </nav>
+            <section class="privacy-note">
+              <strong>DSGVO-sparsam</strong>
+              <p>
+                Das Backend speichert nur eine pseudonyme Lerner-ID, Versuche
+                und Fortschritt. Keine Klartext-E-Mail.
+              </p>
+              <div class="privacy-actions">
+                <button id="accept-privacy" class="mini-button" type="button">
+                  Datenschutz bestaetigen
+                </button>
+                <button id="export-data" class="mini-button" type="button">
+                  Daten exportieren
+                </button>
+                <button id="logout" class="mini-button" type="button">
+                  Logout
+                </button>
+                <button id="delete-account" class="danger-button" type="button">
+                  Konto loeschen
+                </button>
+              </div>
+              <p id="privacy-feedback" class="form-feedback"></p>
+            </section>
+
+            <section id="journey-view" class="view">
+              <section class="journey-panel full-panel">
+                <div class="section-header">
+                  <div>
+                    <p class="eyebrow">Lernreise</p>
+                    <h3>24 Monate Ausbildung</h3>
+                  </div>
+                </div>
+                <div id="journey-map-full" class="journey-map journey-map-full"></div>
+              </section>
+            </section>
+          </aside>
+
+          <section class="app-content">
+            <section id="dashboard-view" class="view active">
+              <div class="dashboard-grid">
+                <article class="metric-card">
+                  <span>Level</span>
+                  <strong id="dashboard-level">1</strong>
+                </article>
+                <article class="metric-card">
+                  <span>XP</span>
+                  <strong id="dashboard-xp">0</strong>
+                </article>
+                <article class="metric-card">
+                  <span>Gemeistert</span>
+                  <strong id="dashboard-mastered">0</strong>
+                </article>
+                <article class="metric-card">
+                  <span>Offen</span>
+                  <strong id="dashboard-open">0</strong>
+                </article>
+              </div>
+              <div class="dashboard-panels">
+                <section class="journey-panel">
+                  <div class="section-header">
+                    <div>
+                      <p class="eyebrow">Lernreise</p>
+                      <h3>24 Monate Ausbildung</h3>
+                    </div>
+                  </div>
+                  <div id="journey-map" class="journey-map"></div>
+                </section>
+                <section class="weak-panel">
+                  <p class="eyebrow">Analyse</p>
+                  <h3>Defizite</h3>
+                  <p id="dashboard-rule"></p>
+                  <ul id="weak-list"></ul>
+                </section>
+              </div>
+            </section>
+
+            <section id="learn-view" class="view">
+              <div class="learn-hero">
+                <div>
+                  <p class="eyebrow">Fabrikreise</p>
+                  <h3 id="chapter-title">Kapitel wird geladen</h3>
+                  <p id="chapter-goal"></p>
+                </div>
+                <div class="factory-animation" aria-hidden="true">
+                  <span></span><span></span><span></span>
+                  <div class="belt"></div>
+                </div>
+              </div>
+              <div id="lesson-copy" class="lesson-copy"></div>
+              <div class="split">
+                <section>
+                  <h3>10 Unterkapitel</h3>
+                  <div id="subchapter-list" class="subchapter-list"></div>
+                </section>
+                <section class="question-card">
+                  <div class="question-header">
+                    <span id="question-category">Training</span>
+                    <span id="question-state">0/2 richtig</span>
+                  </div>
+                  <h3 id="question-prompt">Frage wird geladen</h3>
+                  <div id="answer-options" class="answer-options"></div>
+                  <p id="answer-feedback" class="feedback"></p>
+                  <button id="next-question" class="primary-button">
+                    Naechste Frage
+                  </button>
+                </section>
+              </div>
+            </section>
+
+            <section id="exam-view" class="view">
+              <div class="section-header">
+                <div>
+                  <p class="eyebrow">20 Testpruefungen</p>
+                  <h3>PAL-aehnliches Training</h3>
+                </div>
+                <select id="exam-select" aria-label="Pruefung auswaehlen"></select>
+              </div>
+              <div id="exam-panel" class="exam-panel"></div>
+            </section>
+
+            <section id="progress-view" class="view">
+              <div class="section-header">
+                <div>
+                  <p class="eyebrow">Fuehrerschein-App Prinzip</p>
+                  <h3>Defizite und offene Fragen</h3>
+                </div>
+                <button id="reset-progress" class="secondary-button">
+                  Lernstand zuruecksetzen
+                </button>
+              </div>
+              <div id="progress-grid" class="progress-grid"></div>
+            </section>
+
+            <section id="admin-view" class="view">
+              <div class="section-header">
+                <div>
+                  <p class="eyebrow">Content Factory</p>
+                  <h3>Freigabe vor Veroeffentlichung</h3>
+                </div>
+                <button id="generate-draft" class="primary-button">
+                  Mission 08 erzeugen
+                </button>
+              </div>
+              <div id="draft-output" class="admin-output"></div>
+            </section>
+
+            <section id="privacy-view" class="view">
+              <section class="privacy-detail">
+                <p class="eyebrow">DSGVO</p>
+                <h3>Datenschutz und Lernkonto</h3>
+                <p>
+                  Der MVP speichert Lernstand nur unter einer pseudonymen ID.
+                  Du kannst Einwilligung speichern, Daten exportieren, dich
+                  abmelden oder das Lernkonto loeschen.
+                </p>
+                <div class="privacy-detail-grid">
+                  <button class="mini-button" type="button" data-privacy-action="consent">
+                    Datenschutz bestaetigen
+                  </button>
+                  <button class="mini-button" type="button" data-privacy-action="export">
+                    Daten exportieren
+                  </button>
+                  <button class="mini-button" type="button" data-privacy-action="logout">
+                    Logout
+                  </button>
+                  <button class="danger-button" type="button" data-privacy-action="delete">
+                    Konto loeschen
+                  </button>
+                </div>
+              </section>
+            </section>
+          </section>
+        </div>
+      </section>
+
+      <footer class="trust-bar">
+        <span>500+ aktive Azubis</span>
+        <span>45 Betriebe bundesweit</span>
+        <span>IHK-konformer Lernstoff</span>
+      </footer>
+    </main>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

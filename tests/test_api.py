@@ -258,12 +258,13 @@ def test_delete_account_removes_private_data() -> None:
     assert export_response.status_code == 401
 
 
-def test_exams_endpoint_returns_twenty_exams() -> None:
-    """Ensure the API exposes twenty test exams."""
+def test_exams_endpoint_returns_twenty_training_exams() -> None:
+    """Ensure the API exposes the twenty short training exams."""
     client = build_client()
     response = client.get("/api/exams")
 
     assert response.status_code == 200
     payload = response.json()
-    assert len(payload) == 20
-    assert all(len(exam["questions"]) == 10 for exam in payload)
+    training = [exam for exam in payload if exam["exam_id"].startswith("exam-")]
+    assert len(training) == 20
+    assert all(len(exam["questions"]) == 10 for exam in training)

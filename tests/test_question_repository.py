@@ -14,12 +14,24 @@ def test_question_categories_cover_24_months_with_10_subchapters() -> None:
 
 
 def test_practice_exam_count_and_size() -> None:
-    """Ensure twenty practice exams with ten questions are available."""
+    """Ensure twenty short training exams with ten questions are available."""
     repository = QuestionRepository()
-    exams = repository.list_exams()
+    training = [e for e in repository.list_exams() if not e.is_checkpoint]
 
-    assert len(exams) == 20
-    assert all(len(exam.question_ids) == 10 for exam in exams)
+    assert len(training) == 20
+    assert all(len(exam.question_ids) == 10 for exam in training)
+
+
+def test_checkpoint_exams_match_written_exam_format() -> None:
+    """Checkpoints carry 50 bound plus 15 open tasks and a time limit."""
+    repository = QuestionRepository()
+    checkpoints = [e for e in repository.list_exams() if e.is_checkpoint]
+
+    assert checkpoints, "no checkpoint exams were built"
+    for exam in checkpoints:
+        assert len(exam.question_ids) == 50
+        assert len(exam.open_question_ids) == 15
+        assert exam.time_limit_minutes == 120
 
 
 def test_first_chapter_has_checkpoint_exam() -> None:

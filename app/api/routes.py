@@ -3,6 +3,7 @@
 from fastapi import APIRouter, Header, HTTPException, Query, status
 
 from app.core.config import get_settings
+from app.models.domain import LearningUnit
 from app.schemas.content import (
     ConsentRequest,
     ConsentResponse,
@@ -15,13 +16,16 @@ from app.schemas.content import (
     DataExportResponse,
     DeleteAccountResponse,
     FirstChapterResponse,
+    GradingCriterionResponse,
     HealthResponse,
     LearningJourneyMonthResponse,
     LearningModuleResponse,
+    LearningUnitResponse,
     LoginRequest,
     LoginResponse,
     LogoutResponse,
     OccupationResponse,
+    OpenQuestionResponse,
     PasswordChangeRequest,
     PasswordChangeResponse,
     PracticeExamResponse,
@@ -30,6 +34,7 @@ from app.schemas.content import (
     QuestionProgressResponse,
     QuizQuestionResponse,
     SourceDocumentResponse,
+    TheoryBlockResponse,
 )
 from app.services.auth_service import AuthService, LearnerSession
 from app.services.content_factory import ContentFactory
@@ -68,8 +73,14 @@ def raise_bad_request(error: ValueError) -> None:
     ) from error
 
 
-def build_exam_response(exam_id: str) -> PracticeExamResponse:
-    """Build one practice exam response from repository data."""
+def build_exam_response(
+    exam_id: str, include_solutions: bool = False
+) -> PracticeExamResponse:
+    """Build one practice exam response from repository data.
+
+    Sample solutions for open tasks stay hidden unless ``include_solutions``
+    is set, so a learner cannot read them out of the exam payload.
+    """
     result = question_repository.get_exam(exam_id)
     if result is None:
         raise HTTPException(
@@ -96,6 +107,58 @@ def build_exam_response(exam_id: str) -> PracticeExamResponse:
             for question in questions
         ],
         passing_score_percent=exam.passing_score_percent,
+        open_questions=[
+            OpenQuestionResponse(
+                question_id=question.question_id,
+                category_slug=question.category_slug,
+                prompt=question.prompt,
+                answer_format=question.answer_format,
+                criteria=[
+                    GradingCriterionResponse(
+                        description=criterion.description,
+                        points=criterion.points,
+                    )
+                    for criterion in question.criteria
+                ],
+                max_points=question.max_points,
+                source_keys=question.source_keys,
+                sample_solution=(
+                    question.sample_solution if include_solutions else None
+                ),
+            )
+            for question in question_repository.list_open_questions(
+                exam.open_question_ids
+            )
+        ],
+        time_limit_minutes=exam.time_limit_minutes,
+        is_checkpoint=exam.is_checkpoint,
+    )
+
+
+def build_learning_unit_response(unit: LearningUnit) -> LearningUnitResponse:
+    """Build one learning unit response from repository data."""
+    return LearningUnitResponse(
+        slug=unit.slug,
+        month=unit.month,
+        position=unit.position,
+        title=unit.title,
+        subtitle=unit.subtitle,
+        learning_goals=unit.learning_goals,
+        theory_blocks=[
+            TheoryBlockResponse(
+                heading=block.heading,
+                body=block.body,
+                key_points=block.key_points,
+                norm_references=block.norm_references,
+            )
+            for block in unit.theory_blocks
+        ],
+        practice_task=unit.practice_task,
+        glossary=unit.glossary,
+        category_slugs=unit.category_slugs,
+        source_keys=unit.source_keys,
+        review_status=unit.review_status,
+        estimated_minutes=unit.estimated_minutes,
     )
 
 
@@ -342,6 +405,30 @@ def list_sources() -> list[SourceDocumentResponse]:
 def get_first_chapter() -> FirstChapterResponse:
     """Return the first guided chapter for the learning app."""
     return question_repository.get_first_chapter()
+
+
+@api_router.get("/learning/units", response_model=list[LearningUnitResponse])
+def list_learning_units(
+    month: int | None = Query(default=None, ge=1, le=24),
+) -> list[LearningUnitResponse]:
+    """Return the ausformulierte learning units, optionally filtered by month."""
+    return [
+        build_learning_unit_response(unit)
+        for unit in question_repository.list_learning_units(month=month)
+    ]
+
+
+@api_router.get("/learning/units/{slug}", response_model=LearningUnitResponse)
+def get_learning_unit(slug: str) -> LearningUnitResponse:
+    """Return one learning unit with theory, practice task, and glossary."""
+    try:
+        unit = question_repository.get_learning_unit(slug)
+    except ValueError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Lerneinheit nicht gefunden.",
+        ) from None
+    return build_learning_unit_response(unit)
 
 
 @api_router.get("/questions/categories", response_model=list[QuestionCategoryResponse])

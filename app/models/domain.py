@@ -107,12 +107,97 @@ class QuizQuestion:
     source_keys: list[str]
 
 
+class AnswerFormat(StrEnum):
+    """How an open (ungebundene) exam task must be answered."""
+
+    SHORT_TEXT = "short_text"
+    CALCULATION = "calculation"
+    SKETCH = "sketch"
+
+
+@dataclass(frozen=True)
+class GradingCriterion:
+    """One awardable point in an open task's marking scheme."""
+
+    description: str
+    points: int
+
+
+@dataclass(frozen=True)
+class OpenQuestion:
+    """An ungebundene Aufgabe: free text, a calculation, or a sketch.
+
+    These mirror the open part of the IHK/PAL written exam. They are not
+    auto-scored; the learner self-assesses against ``criteria`` and an
+    Ausbilder can override the result later.
+    """
+
+    question_id: str
+    category_slug: str
+    prompt: str
+    answer_format: AnswerFormat
+    sample_solution: str
+    criteria: list[GradingCriterion]
+    source_keys: list[str]
+
+    @property
+    def max_points(self) -> int:
+        """Total points obtainable for this task."""
+        return sum(criterion.points for criterion in self.criteria)
+
+
+@dataclass(frozen=True)
+class TheoryBlock:
+    """One teaching step inside a learning unit."""
+
+    heading: str
+    body: str
+    key_points: list[str] = field(default_factory=list)
+    norm_references: list[str] = field(default_factory=list)
+
+
+@dataclass(frozen=True)
+class LearningUnit:
+    """A Duolingo-style learning unit on a single topic, e.g. Messschieber.
+
+    A unit teaches one topic end to end (theory, norms, practice) and then
+    hands over to its own question categories. Ten completed units unlock a
+    checkpoint exam.
+    """
+
+    slug: str
+    month: int
+    position: int
+    title: str
+    subtitle: str
+    learning_goals: list[str]
+    theory_blocks: list[TheoryBlock]
+    practice_task: str
+    glossary: dict[str, str]
+    category_slugs: list[str]
+    source_keys: list[str]
+    review_status: ReviewStatus = ReviewStatus.DRAFT
+    estimated_minutes: int = 12
+
+
 @dataclass(frozen=True)
 class PracticeExam:
-    """A generated practice exam composed from question ids."""
+    """A generated practice exam composed from question ids.
+
+    ``question_ids`` are single-choice (gebundene) tasks. ``open_question_ids``
+    are ungebundene tasks that the learner writes or sketches.
+    """
 
     exam_id: str
     title: str
     description: str
     question_ids: list[str]
     passing_score_percent: int
+    open_question_ids: list[str] = field(default_factory=list)
+    time_limit_minutes: int = 0
+    points_per_choice_question: int = 1
+
+    @property
+    def is_checkpoint(self) -> bool:
+        """True for full-length exams that also contain open tasks."""
+        return bool(self.open_question_ids)

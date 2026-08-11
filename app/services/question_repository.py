@@ -1,12 +1,23 @@
 """Repository for question categories, questions, and practice exams."""
 
+from app.data.learning_units import (
+    LEARNING_UNITS,
+    LEARNING_UNITS_BY_SLUG,
+    OPEN_QUESTIONS_BY_ID,
+)
 from app.data.question_bank import (
     FIRST_CHAPTER,
     PRACTICE_EXAMS,
     QUESTION_BANK,
     QUESTION_CATEGORIES,
 )
-from app.models.domain import PracticeExam, QuestionCategory, QuizQuestion
+from app.models.domain import (
+    LearningUnit,
+    OpenQuestion,
+    PracticeExam,
+    QuestionCategory,
+    QuizQuestion,
+)
 
 
 class QuestionRepository:
@@ -15,6 +26,28 @@ class QuestionRepository:
     def list_categories(self) -> list[QuestionCategory]:
         """Return all question categories."""
         return QUESTION_CATEGORIES
+
+    def list_learning_units(self, month: int | None = None) -> list[LearningUnit]:
+        """Return learning units, optionally restricted to one curriculum month."""
+        units = LEARNING_UNITS
+        if month is not None:
+            units = [unit for unit in units if unit.month == month]
+        return sorted(units, key=lambda unit: (unit.month, unit.position))
+
+    def get_learning_unit(self, slug: str) -> LearningUnit:
+        """Return one learning unit or raise ``ValueError`` if it is unknown."""
+        unit = LEARNING_UNITS_BY_SLUG.get(slug)
+        if unit is None:
+            raise ValueError(f"Unbekannte Lerneinheit: {slug}")
+        return unit
+
+    def list_open_questions(self, question_ids: list[str]) -> list[OpenQuestion]:
+        """Return the open tasks for the given ids, skipping unknown ones."""
+        return [
+            OPEN_QUESTIONS_BY_ID[qid]
+            for qid in question_ids
+            if qid in OPEN_QUESTIONS_BY_ID
+        ]
 
     def list_questions(
         self,

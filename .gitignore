@@ -12,3 +12,8 @@ dist/
 build/
 work/
 .DS_Store
+
+# Figma-Quelldatei: 185 MB, ueberschreitet GitHubs 100-MB-Limit.
+# Lokal behalten; generierte Artefakte (tokens.css, docs/design/screens.md)
+# sind versioniert. Neu erzeugen mit tools/figma_extract.py
+*.fig

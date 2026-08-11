@@ -1,5 +1,6 @@
 """Generated question categories and original PAL-style practice questions."""
 
+from app.data.learning_units import OPEN_QUESTIONS
 from app.data.machine_operator import MACHINE_OPERATOR_CURRICULUM
 from app.models.domain import PracticeExam, QuestionCategory, QuizQuestion
 
@@ -407,4 +408,53 @@ def _build_exams() -> list[PracticeExam]:
     return exams
 
 
-PRACTICE_EXAMS = _build_exams()
+CHECKPOINT_CHOICE_QUESTIONS = 50
+CHECKPOINT_OPEN_QUESTIONS = 15
+CHECKPOINT_TIME_LIMIT_MINUTES = 120
+UNITS_PER_CHECKPOINT = 10
+
+
+def _build_checkpoint_exams() -> list[PracticeExam]:
+    """Build full-length checkpoint exams in the format of the written IHK exam.
+
+    One checkpoint follows every ``UNITS_PER_CHECKPOINT`` learning units and
+    combines 50 gebundene (single-choice) with 15 ungebundene tasks that are
+    written, calculated, or sketched.
+    """
+    question_ids = [question.question_id for question in QUESTION_BANK]
+    open_ids = [question.question_id for question in OPEN_QUESTIONS]
+    if not open_ids:
+        return []
+
+    exams: list[PracticeExam] = []
+    checkpoint_count = max(1, len(QUESTION_CATEGORIES) // UNITS_PER_CHECKPOINT)
+    for number in range(1, checkpoint_count + 1):
+        start = (number - 1) * CHECKPOINT_CHOICE_QUESTIONS
+        selected = [
+            question_ids[(start + offset) % len(question_ids)]
+            for offset in range(CHECKPOINT_CHOICE_QUESTIONS)
+        ]
+        selected_open = [
+            open_ids[(start + offset) % len(open_ids)]
+            for offset in range(CHECKPOINT_OPEN_QUESTIONS)
+        ]
+        exams.append(
+            PracticeExam(
+                exam_id=f"checkpoint-{number:02d}",
+                title=f"Checkpoint-Pruefung {number:02d}",
+                description=(
+                    f"{CHECKPOINT_CHOICE_QUESTIONS} gebundene Aufgaben und "
+                    f"{CHECKPOINT_OPEN_QUESTIONS} ungebundene Aufgaben mit "
+                    "Kurztext, Rechnung oder Skizze - im Format der schriftlichen "
+                    "IHK-Pruefung."
+                ),
+                question_ids=selected,
+                passing_score_percent=50,
+                open_question_ids=selected_open,
+                time_limit_minutes=CHECKPOINT_TIME_LIMIT_MINUTES,
+            )
+        )
+    return exams
+
+
+PRACTICE_EXAMS = [*_build_exams(), *_build_checkpoint_exams()]

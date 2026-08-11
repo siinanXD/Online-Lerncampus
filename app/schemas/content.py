@@ -2,7 +2,7 @@
 
 from pydantic import BaseModel, Field, HttpUrl
 
-from app.models.domain import ReviewStatus
+from app.models.domain import AnswerFormat, ReviewStatus
 
 
 class HealthResponse(BaseModel):
@@ -237,6 +237,57 @@ class QuizQuestionResponse(BaseModel):
     source_keys: list[str]
 
 
+class GradingCriterionResponse(BaseModel):
+    """One awardable point in an open task's marking scheme."""
+
+    description: str
+    points: int
+
+
+class OpenQuestionResponse(BaseModel):
+    """Serializable ungebundene Aufgabe.
+
+    ``sample_solution`` stays out of the payload while the learner is still
+    working; the exam endpoints only include it once the attempt is submitted.
+    """
+
+    question_id: str
+    category_slug: str
+    prompt: str
+    answer_format: AnswerFormat
+    criteria: list[GradingCriterionResponse]
+    max_points: int
+    source_keys: list[str]
+    sample_solution: str | None = None
+
+
+class TheoryBlockResponse(BaseModel):
+    """One teaching step inside a learning unit."""
+
+    heading: str
+    body: str
+    key_points: list[str]
+    norm_references: list[str]
+
+
+class LearningUnitResponse(BaseModel):
+    """Serializable learning unit with theory, practice, and glossary."""
+
+    slug: str
+    month: int
+    position: int
+    title: str
+    subtitle: str
+    learning_goals: list[str]
+    theory_blocks: list[TheoryBlockResponse]
+    practice_task: str
+    glossary: dict[str, str]
+    category_slugs: list[str]
+    source_keys: list[str]
+    review_status: ReviewStatus
+    estimated_minutes: int
+
+
 class PracticeExamResponse(BaseModel):
     """Serializable practice exam with embedded questions."""
 
@@ -245,6 +296,9 @@ class PracticeExamResponse(BaseModel):
     description: str
     questions: list[QuizQuestionResponse]
     passing_score_percent: int
+    open_questions: list[OpenQuestionResponse] = Field(default_factory=list)
+    time_limit_minutes: int = 0
+    is_checkpoint: bool = False
 
 
 class FirstChapterResponse(BaseModel):

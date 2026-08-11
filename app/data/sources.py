@@ -58,5 +58,17 @@ TRUSTED_SOURCES: list[SourceDocument] = [
         allowed_usage="Legal curriculum and examination requirements.",
         topics=["ausbildungsrahmenplan", "pruefungsanforderungen"],
     ),
+    SourceDocument(
+        key="din-862",
+        title="DIN 862 - Messschieber, Anforderungen und Pruefung",
+        publisher="DIN Deutsches Institut fuer Normung",
+        url="https://www.beuth.de/de/norm/din-862/271946766",
+        trust_tier=1,
+        allowed_usage=(
+            "Normative reference only. The standard is copyrighted and must not be "
+            "reproduced; cite requirements in own words and link to the publisher."
+        ),
+        topics=["messschieber", "laengenpruefung", "messmittel"],
+    ),
 ]
 

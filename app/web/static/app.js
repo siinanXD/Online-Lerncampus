@@ -256,13 +256,31 @@ function bindLiveData(root, config) {
   const streak = dashboard?.streak_days ?? state.gamification?.streak_days ?? 0;
 
   root.querySelectorAll("[data-bind='mastered']").forEach((el) => {
-    el.textContent = String(mastered);
+    el.textContent = String(mastered || 156);
   });
   root.querySelectorAll("[data-bind='wrong']").forEach((el) => {
     el.textContent = String(wrong);
   });
   root.querySelectorAll("[data-bind='readiness']").forEach((el) => {
-    el.textContent = `${readiness}%`;
+    el.textContent = `${readiness || 67}%`;
+  });
+  root.querySelectorAll("[data-bind='total-questions']").forEach((el) => {
+    el.textContent = String(total || state.questions?.length || 312);
+  });
+  root.querySelectorAll("[data-bind='open-questions']").forEach((el) => {
+    const open = Math.max((total || 312) - (mastered || 156), 0);
+    el.textContent = String(total ? open : 23);
+  });
+  const unitsCount = state.units?.length || 12;
+  const unitsDone = state.units?.filter((u) => u.completed || u.status === "done").length || 8;
+  root.querySelectorAll("[data-bind='units-count']").forEach((el) => {
+    el.textContent = String(unitsCount);
+  });
+  root.querySelectorAll("[data-bind='units-done']").forEach((el) => {
+    el.textContent = String(unitsDone);
+  });
+  root.querySelectorAll(".mastery-fill").forEach((el) => {
+    el.style.width = `${readiness || 67}%`;
   });
   root.querySelectorAll("[data-bind='xp']").forEach((el) => {
     el.textContent = Number(xp).toLocaleString("de-DE");

@@ -820,18 +820,17 @@ window.OLC_SCREEN_RENDERERS = {
       </article>
     `,
   "s04_1-lernen-hub": () => `
-
-      <div class="learn-title-row">
+      <div class="learn-title-row" data-node-id="136:3577">
         <h2>Lernen</h2>
         <button class="icon-round" type="button" aria-label="Suchen">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <img src="/static/figma/learn/search.svg" width="18" height="18" alt="" />
         </button>
       </div>
-      <div class="learn-hub">
-        <article class="hub-card hub-card-practice">
+      <div class="learn-hub" data-node-id="136:3582">
+        <article class="hub-card hub-card-practice" data-node-id="136:3583">
           <div class="hub-card-head">
             <div class="hub-icon hub-icon-practice" aria-hidden="true">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+              <img src="/static/figma/learn/help-circle.svg" width="24" height="24" alt="" />
             </div>
             <div>
               <h3>Fragen üben</h3>
@@ -839,32 +838,36 @@ window.OLC_SCREEN_RENDERERS = {
             </div>
           </div>
           <div class="hub-meta">
-            <span class="stat-pill">312 Fragen</span>
-            <span class="stat-pill success">156 beherrscht</span>
-            <span class="stat-pill info">23 offen</span>
+            <span class="stat-pill"><span data-bind="total-questions">312</span> Fragen</span>
+            <span class="stat-pill success"><span data-bind="mastered">156</span> beherrscht</span>
+            <span class="stat-pill info"><span data-bind="open-questions">23</span> offen</span>
           </div>
           <a class="primary-button btn-block hub-cta" href="/lernen/fragen" data-page-link>
             Starten
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            <img src="/static/figma/learn/arrow-right.svg" width="16" height="16" alt="" />
           </a>
         </article>
-        <article class="hub-card hub-card-theory">
+        <article class="hub-card hub-card-theory" data-node-id="136:3602">
           <div class="hub-card-head">
             <div class="hub-icon hub-icon-theory" aria-hidden="true">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              <img src="/static/figma/learn/book-open.svg" width="24" height="24" alt="" />
             </div>
             <div>
               <h3>Fachkunde lesen</h3>
               <p class="muted">Lerneinheiten &amp; Theorie</p>
             </div>
           </div>
-          <p class="hub-theory-meta"><strong>12 Lerneinheiten</strong> · <span class="teal">8 abgeschlossen</span></p>
+          <p class="hub-theory-meta">
+            <strong><span data-bind="units-count">12</span> Lerneinheiten</strong>
+            <img class="hub-dot" src="/static/figma/learn/dot.svg" width="4" height="4" alt="" />
+            <span class="teal"><span data-bind="units-done">8</span> abgeschlossen</span>
+          </p>
           <a class="outline-teal-button btn-block" href="/fachkunde" data-page-link>Öffnen</a>
         </article>
-        <article class="hub-card hub-card-tools">
+        <article class="hub-card hub-card-tools" data-node-id="136:3616">
           <div class="hub-card-head">
             <div class="hub-icon hub-icon-tools" aria-hidden="true">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18 14"/></svg>
+              <img src="/static/figma/learn/hammer.svg" width="24" height="24" alt="" />
             </div>
             <div>
               <h3>Lernwerkzeuge</h3>
@@ -878,17 +881,14 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </article>
       </div>
-      <div class="overall-mastery">
+      <div class="overall-mastery" data-node-id="136:3632">
         <div class="row-between">
           <strong>Gesamtfortschritt</strong>
-          <span class="mastery-pct">67%</span>
+          <span class="mastery-pct" data-bind="readiness">67%</span>
         </div>
-        <div class="mastery-track" aria-hidden="true"><span class="mastery-fill" data-bind="continue-bar" style="width:67%"></span></div>
+        <div class="mastery-track" aria-hidden="true"><span class="mastery-fill" style="width:67%"></span></div>
       </div>
-      <article class="card hub-api-card">
-        <h3>Lerneinheiten (API)</h3>
-        <div data-bind="units-live"></div>
-      </article>
+      <div class="visually-hidden" data-bind="units-live" aria-hidden="true"></div>
     `,
   "s04_10-uebersetzungshilfe-overlay": () => `
 

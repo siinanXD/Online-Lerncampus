@@ -59,7 +59,7 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 
 | Status | Node | Name | Size |
 |--------|------|------|------|
-| [ ] | `136:3552` | 04.1 Lernen Hub | 390×844 |
+| [~] | `136:3552` | 04.1 Lernen Hub | 390×844 |
 | [ ] | `136:3719` | 04.2 Themenliste | 390×847 |
 | [ ] | `136:4019` | 04.3 Fragenliste — Alle | 390×844 |
 | [ ] | `136:4241` | 04.4 Fragenliste — Fehler | 390×844 |

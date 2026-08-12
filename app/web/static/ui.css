@@ -1851,13 +1851,25 @@ body[data-page-layout="auth"] main {
   padding: 6px 10px;
 }
 
-.hub-cta {
-  display: inline-flex;
+.hub-theory-meta {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  border-radius: 100px;
-  min-height: 40px;
+  gap: 8px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.hub-theory-meta .teal {
+  color: #0d9488;
+}
+
+.hub-dot {
+  display: block;
+  width: 4px;
+  height: 4px;
+  flex-shrink: 0;
 }
 
 .outline-teal-button {

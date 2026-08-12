@@ -474,19 +474,28 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s04_11-formeltrainer": () => `
 
-      <div class="screen-head"><p class="eyebrow">04.11 Werkzeug</p><h2>Formeltrainer</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <article class="card tool-stage">
-        <p class="eyebrow">Interaktive Uebung</p>
-        <h3>Formeltrainer</h3>
-        <p class="muted">Demo-Zustand mit realistischen Platzhaltern aus dem Designsystem.</p>
-        <div class="tool-canvas" aria-hidden="true"><span></span><span></span><span></span></div>
-        <div class="hub-meta"><span class="tool-chip">Demo</span></div>
-        <div class="row-actions">
-          <button class="primary-button" type="button" data-action="toast" data-toast="Uebung gespeichert (+15 XP)">Pruefen</button>
-          <button class="secondary-button" type="button" data-action="toast" data-toast="Naechste Aufgabe geladen">Naechste</button>
+      <div class="learn-tool-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/lernen" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <div>
+            <h2 class="page-title">Formeltrainer</h2>
+            <p class="muted">Druck · Kraft · Fläche</p>
+          </div>
         </div>
-      </article>
+        <article class="ft-card">
+          <span class="topic-pill">Aufgabe 3/12</span>
+          <h3>Berechne die Kraft F</h3>
+          <p class="muted">Gegeben: p = 6 bar, A = 12 cm². Wie groß ist F in N?</p>
+          <div class="ft-formula" aria-hidden="true">F = p × A</div>
+          <label class="field"><span>Dein Ergebnis</span><input type="number" placeholder="z. B. 720" /></label>
+          <div class="row-actions">
+            <button class="primary-button" type="button" data-action="toast" data-toast="Richtig! +15 XP">Prüfen</button>
+            <a class="secondary-button" href="/lernen/flashcard" data-page-link>Flashcards</a>
+          </div>
+        </article>
+      </div>
     `,
   "s04_12-fehlerdiagnose": () => `
 
@@ -503,16 +512,30 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s04_13-video-lektion": () => `
 
-      <div class="screen-head"><p class="eyebrow">04.13</p><h2>Video-Lektion</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <p class="muted">Produkt-UI gemaess Figma 04.13.</p>
-        <ul class="plain-list"><li>overline</li><li>points</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/lernen/frage" data-page-link>Weiterueben</a>
-          <a class="secondary-button" href="/fachkunde" data-page-link>Zur Fachkunde</a>
+      <div class="learn-tool-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/lernen" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <div>
+            <h2 class="page-title">Video-Lektion</h2>
+            <p class="muted">Pneumatik · 08:24</p>
+          </div>
         </div>
-      </article>
+        <div class="video-stage" aria-label="Videoplayer">
+          <button class="video-play" type="button" data-action="toast" data-toast="Demo-Video gestartet" aria-label="Abspielen">▶</button>
+        </div>
+        <article class="card">
+          <h3>Doppeltwirkende Zylinder</h3>
+          <p class="muted">Aufbau, Ansteuerung und typische Einsatzfälle in der Fertigung.</p>
+          <ul class="plain-list">
+            <li>00:00 Intro &amp; Lernziele</li>
+            <li>02:10 Aufbau &amp; Anschlüsse</li>
+            <li>05:40 Praxisbeispiel Montage</li>
+          </ul>
+          <a class="primary-button btn-block" href="/lernen/frage" data-page-link>Fragen dazu üben</a>
+        </article>
+      </div>
     `,
   "s04_14-lern-detail": () => `
 
@@ -558,16 +581,40 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s04_18-glossar-uebersicht": () => `
 
-      <div class="screen-head"><p class="eyebrow">04.18</p><h2>Glossar — Übersicht</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <p class="muted">Produkt-UI gemaess Figma 04.18.</p>
-        <ul class="plain-list"><li>Glossar</li><li>Fachbegriff suchen...</li><li>Alle</li><li>Metall</li><li>Kunststoff</li><li>Mathe</li><li>Abmaß</li><li>Differenz zwischen einem Grenzmaß und dem zugehörigen Nennmaß. Oberes Abmaß (ES/es), Unteres Abmaß (EI/ei).</li><li>Messtechnik</li><li>Toleranzen</li><li>Austenitisches Gefüge</li><li>Kubisch-flächenzentrierte Kristallstruktur, stabil bei hohen Temperaturen, besonders zäh und korrosionsbeständig.</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/lernen/frage" data-page-link>Weiterueben</a>
-          <a class="secondary-button" href="/fachkunde" data-page-link>Zur Fachkunde</a>
+      <div class="learn-tool-screen">
+        <div class="learn-title-row">
+          <h2 class="page-title">Glossar</h2>
+          <a class="icon-round" href="/lernen" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
         </div>
-      </article>
+        <label class="field"><span class="visually-hidden">Suchen</span>
+          <input type="search" placeholder="Fachbegriff suchen…" />
+        </label>
+        <div class="bh-filters">
+          <button class="bh-chip active" type="button">Alle</button>
+          <button class="bh-chip" type="button">Metall</button>
+          <button class="bh-chip" type="button">Kunststoff</button>
+          <button class="bh-chip" type="button">Mathe</button>
+        </div>
+        <div class="glossar-list">
+          <article class="glossar-item">
+            <strong>Abmaß</strong>
+            <p class="muted">Differenz zwischen einem Grenzmaß und dem zugehörigen Nennmaß. Oberes Abmaß (ES/es), Unteres Abmaß (EI/ei).</p>
+            <div class="hub-meta"><span class="tool-chip">Messtechnik</span><span class="tool-chip">Toleranzen</span></div>
+          </article>
+          <article class="glossar-item">
+            <strong>Austenitisches Gefüge</strong>
+            <p class="muted">Kubisch-flächenzentrierte Kristallstruktur, stabil bei hohen Temperaturen, besonders zäh und korrosionsbeständig.</p>
+            <div class="hub-meta"><span class="tool-chip">Metall</span></div>
+          </article>
+          <article class="glossar-item">
+            <strong>Doppeltwirkender Zylinder</strong>
+            <p class="muted">Pneumatikzylinder, der in beide Richtungen mit Druckluft beaufschlagt wird.</p>
+            <div class="hub-meta"><span class="tool-chip">Pneumatik</span></div>
+          </article>
+        </div>
+      </div>
     `,
   "s04_19-formeltrainer-flashcard": () => `
 
@@ -754,45 +801,74 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s04_7-feedback-richtig": () => `
 
-      <div class="screen-head"><p class="eyebrow">04.7</p><h2>Feedback — Richtig</h2></div>
-      <article class="card question-play">
-        <p class="eyebrow">Frage 3 von 20</p>
-        <h3 data-bind="live-question-prompt">Welche Funktion erfuellt das Rueckschlagventil?</h3>
-        <div class="answer-options" data-bind="live-answers">
-          <button class="answer-option" type="button">Verhindert Ruecklauf</button>
-          <button class="answer-option" type="button">Erhoeht den Druck</button>
-          <button class="answer-option" type="button">Misst den Durchfluss</button>
-          <button class="answer-option" type="button">Kuehlt das Medium</button>
+      <div class="fb-screen">
+        <div class="fb-topbar">
+          <a class="icon-round" href="/lernen/fragen" data-page-link aria-label="Schließen">×</a>
+          <div class="mastery-track fb-progress"><span class="mastery-fill" style="width:40%"></span></div>
+          <span class="fb-count">12/30</span>
+        </div>
+        <div class="row-between">
+          <span class="topic-pill">Pneumatik</span>
+          <span class="muted">Mittel</span>
+        </div>
+        <h3 class="fb-question" data-bind="live-question-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
+        <div class="fb-answers answer-options" data-bind="live-answers">
+          <div class="fb-answer correct"><span class="answer-letter">A</span><span>Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</span></div>
+          <div class="fb-answer dim"><span class="answer-letter">B</span><span>Doppeltwirkend hat zwei Kolben</span></div>
+          <div class="fb-answer dim"><span class="answer-letter">C</span><span>Einfachwirkend arbeitet mit Hydrauliköl</span></div>
+          <div class="fb-answer dim"><span class="answer-letter">D</span><span>Kein Unterschied, nur die Größe</span></div>
         </div>
         <p class="feedback" data-bind="live-feedback"></p>
-        <div class="row-actions">
-          <a class="secondary-button" href="/lernen/melden" data-page-link>Melden</a>
-          <a class="secondary-button" href="/lernen/uebersetzung" data-page-link>Uebersetzung</a>
-          <a class="primary-button" href="/lernen/fragen" data-page-link>Weiter</a>
-        </div>
-      </article>
-      <ul class="plain-list muted"><li>tracker-label</li><li>topic-text</li><li>difficulty-text</li><li>question-title</li><li>badge-letter</li><li>answer-text</li></ul>
+        <aside class="fb-sheet ok">
+          <div class="row-between">
+            <strong class="fb-title ok">Richtig!</strong>
+            <span class="xp-pill">+20 XP</span>
+          </div>
+          <article class="fb-explain">
+            <p class="fb-label">Erklärung</p>
+            <p>Einfachwirkende Zylinder werden pneumatisch nur in eine Richtung gesteuert. Die Rückstellung erfolgt über eine Feder. Doppeltwirkende nutzen Druckluft für beide Hubwege.</p>
+            <div class="fb-tip">Merksatz: Einfach = Einseitig + Feder. Doppelt = Doppelseitig Luft.</div>
+          </article>
+          <a class="success-button btn-block pill-btn" href="/lernen/frage" data-page-link>Weiter</a>
+        </aside>
+      </div>
     `,
   "s04_8-feedback-falsch": () => `
 
-      <div class="screen-head"><p class="eyebrow">04.8</p><h2>Feedback — Falsch</h2></div>
-      <article class="card question-play">
-        <p class="eyebrow">Frage 3 von 20</p>
-        <h3 data-bind="live-question-prompt">Welche Funktion erfuellt das Rueckschlagventil?</h3>
-        <div class="answer-options" data-bind="live-answers">
-          <button class="answer-option" type="button">Verhindert Ruecklauf</button>
-          <button class="answer-option" type="button">Erhoeht den Druck</button>
-          <button class="answer-option" type="button">Misst den Durchfluss</button>
-          <button class="answer-option" type="button">Kuehlt das Medium</button>
+      <div class="fb-screen">
+        <div class="fb-topbar">
+          <a class="icon-round" href="/lernen/fragen" data-page-link aria-label="Schließen">×</a>
+          <div class="mastery-track fb-progress"><span class="mastery-fill" style="width:40%"></span></div>
+          <span class="fb-count">12/30</span>
+        </div>
+        <div class="row-between">
+          <span class="topic-pill">Pneumatik</span>
+          <span class="muted">Mittel</span>
+        </div>
+        <h3 class="fb-question" data-bind="live-question-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
+        <div class="fb-answers answer-options" data-bind="live-answers">
+          <div class="fb-answer correct"><span class="answer-letter">A</span><span>Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</span></div>
+          <div class="fb-answer wrong"><span class="answer-letter">B</span><span>Doppeltwirkend hat zwei Kolben</span></div>
+          <div class="fb-answer dim"><span class="answer-letter">C</span><span>Einfachwirkend arbeitet mit Hydrauliköl</span></div>
+          <div class="fb-answer dim"><span class="answer-letter">D</span><span>Kein Unterschied, nur die Größe</span></div>
         </div>
         <p class="feedback" data-bind="live-feedback"></p>
-        <div class="row-actions">
-          <a class="secondary-button" href="/lernen/melden" data-page-link>Melden</a>
-          <a class="secondary-button" href="/lernen/uebersetzung" data-page-link>Uebersetzung</a>
-          <a class="primary-button" href="/lernen/fragen" data-page-link>Weiter</a>
-        </div>
-      </article>
-      <ul class="plain-list muted"><li>tracker-label</li><li>topic-text</li><li>difficulty-text</li><li>question-title</li><li>badge-letter</li><li>answer-text</li></ul>
+        <aside class="fb-sheet bad">
+          <div class="row-between">
+            <strong class="fb-title bad">Leider falsch</strong>
+            <span class="xp-pill muted-pill">+0 XP</span>
+          </div>
+          <article class="fb-explain">
+            <p class="fb-label">Erklärung</p>
+            <p>Antwort B ist unzutreffend. Maßgeblich ist die Wirkrichtung der Druckluft, nicht die Anzahl der Kolben.</p>
+            <div class="fb-tip">Tipp: Merke dir Feder vs. beidseitige Luftbeaufschlagung.</div>
+          </article>
+          <div class="row-actions">
+            <a class="primary-button btn-block pill-btn" href="/lernen/frage" data-page-link>Weiter</a>
+            <a class="secondary-button btn-block" href="/fachkunde" data-page-link>Zur Fachkunde</a>
+          </div>
+        </aside>
+      </div>
     `,
   "s04_9-frage-melden-overlay": () => `
 

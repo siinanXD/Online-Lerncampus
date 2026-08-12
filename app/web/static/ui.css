@@ -2906,3 +2906,77 @@ body[data-page-layout="admin"] .admin-shell {
 .mehr-logout-card { text-align: center; justify-items: center; padding: 28px 20px; }
 .mehr-logout-flame { font-size: 42px; }
 .mehr-logout-card h3 { margin: 0; font-size: 22px; }
+
+/* ——— Lernen overlays (04.7/8/11/13/18) ——— */
+.learn-tool-screen { display: grid; gap: 14px; }
+.ft-card, .glossar-item {
+  display: grid; gap: 12px; padding: 16px; border-radius: 16px;
+  background: var(--surface); border: 1px solid var(--border);
+}
+.ft-formula {
+  display: grid; place-items: center; min-height: 72px; border-radius: 12px;
+  background: var(--primary-subtle); color: var(--primary);
+  font-size: 22px; font-weight: 800;
+}
+.topic-pill {
+  display: inline-flex; width: fit-content; padding: 6px 12px; border-radius: 100px;
+  border: 1.5px solid var(--primary-border); background: var(--primary-subtle);
+  color: var(--primary); font-size: 11px; font-weight: 800; text-transform: uppercase;
+}
+.video-stage {
+  position: relative; display: grid; place-items: center;
+  aspect-ratio: 16 / 9; border-radius: 16px;
+  background: linear-gradient(160deg, #1e293b, #0f172a); color: #fff;
+}
+.video-play {
+  width: 56px; height: 56px; border-radius: 28px; border: none;
+  background: var(--primary); color: #fff; font-size: 18px; cursor: pointer;
+}
+.glossar-list { display: grid; gap: 10px; }
+.glossar-item p { margin: 0; font-size: 13px; line-height: 1.4; }
+.fb-screen { display: grid; gap: 14px; }
+.fb-topbar { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; }
+.fb-progress { height: 10px; }
+.fb-count { color: var(--primary); font-size: 12px; font-weight: 800; }
+.fb-question { margin: 0; font-size: 18px; line-height: 1.4; }
+.fb-answers { display: grid; gap: 10px; }
+.fb-answer {
+  display: flex; gap: 14px; align-items: center; padding: 14px; border-radius: 16px;
+  border: 2px solid var(--border); background: var(--surface); font-size: 14px;
+}
+.fb-answer.correct { border-color: var(--success); background: var(--success-bg); color: var(--success); }
+.fb-answer.wrong { border-color: var(--danger); background: var(--danger-bg); color: var(--danger); }
+.fb-answer.dim { opacity: 0.5; }
+.fb-sheet {
+  display: grid; gap: 14px; padding: 20px 16px; border-radius: 24px 24px 16px 16px;
+  border-top: 2px solid var(--border);
+}
+.fb-sheet.ok { background: var(--success-bg); border-color: #6ee7b7; }
+.fb-sheet.bad { background: var(--danger-bg); border-color: var(--danger-border); }
+.fb-title { font-size: 22px; }
+.fb-title.ok { color: var(--success); }
+.fb-title.bad { color: var(--danger); }
+.xp-pill {
+  display: inline-flex; padding: 6px 12px; border-radius: 12px;
+  background: #fef3c7; border: 1px solid #fde047; color: #d97706; font-size: 13px; font-weight: 800;
+}
+.muted-pill { background: var(--bg-subtle); border-color: var(--border); color: var(--fg-muted); }
+.fb-explain {
+  display: grid; gap: 10px; padding: 16px; border-radius: 16px;
+  background: var(--surface);
+}
+.fb-label { margin: 0; color: var(--primary); font-size: 13px; font-weight: 800; text-transform: uppercase; }
+.fb-tip {
+  padding: 12px; border-radius: 10px;
+  background: #fffbeb; border: 1px solid #fde047; color: #d97706;
+  font-size: 12px; font-weight: 600;
+}
+.success-button {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 52px; border: none; border-radius: 100px;
+  background: var(--success); color: #fff; font-weight: 800; text-decoration: none;
+}
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); border: 0;
+}

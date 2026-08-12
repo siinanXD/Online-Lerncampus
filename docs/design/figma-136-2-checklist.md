@@ -125,7 +125,7 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | Status | Node | Name | Size |
 |--------|------|------|------|
 | [~] | `136:9762` | 08.1 Berichtsheft — Liste | 390×1099 |
-| [ ] | `136:9912` | 08.2 Berichtsheft — Neuer Eintrag | 390×1211 |
+| [x] | `136:9912` | 08.2 Berichtsheft — Neuer Eintrag | 390×1211 |
 | [ ] | `136:9998` | 08.3 Berichtsheft — KI-Assistent | 390×897 |
 | [ ] | `136:10069` | 08.4 Berichtsheft — Unterschrift | 390×844 |
 | [ ] | `136:10142` | 08.5 Berichtsheft — Kalenderansicht | 390×844 |
@@ -226,3 +226,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Prüfung 06.3–06.9 key frames: 06.3 Übersicht [x] ~5.9%; 06.4 Timer [~] ~10.4%; 06.5 Abgabe [~] ~11.9%; 06.6 Bestanden [x] ~7.6%; 06.7 Durchgefallen [x] ~8.6%; 06.8 Schwache Themen [~] ~12.8%; 06.9 Kammertermine [x] ~7.3%
 - Fortschritt 07.2–07.3: Prüfungsreife Checkliste [~] ~13.8%; Ausstehend [~] ~11.6%
 - Fortschritt 07.4–07.6: Statistik Verlauf [x] ~6.8%; XP & Streak [x] ~6.4%; Themen Heatmap [~] ~8.8%
+- Bericht 08.2 Neuer Eintrag [x] ~7.7% (create-report API preserved)

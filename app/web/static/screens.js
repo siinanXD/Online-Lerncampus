@@ -63,7 +63,7 @@ window.OLC_ROUTE_CONFIG = {
   "/fortschritt/xp": { layout: "app", screen: "s07_5-statistik-xp-und-streak", title: "Statistik — XP & Streak", tab: "progress", num: "07.5", chrome: "fp" },
   "/fortschritt/heatmap": { layout: "app", screen: "s07_6-statistik-themen-heatmap", title: "Statistik — Themen Heatmap", tab: "progress", num: "07.6", chrome: "fp" },
   "/berichtsheft": { layout: "app", screen: "s08_1-berichtsheft-liste", title: "Berichtsheft — Liste", tab: "reports", num: "08.1", chrome: "bh" },
-  "/berichtsheft/neu": { layout: "app", screen: "s08_2-berichtsheft-neuer-eintrag", title: "Berichtsheft — Neuer Eintrag", tab: "reports", num: "08.2" },
+  "/berichtsheft/neu": { layout: "app", screen: "s08_2-berichtsheft-neuer-eintrag", title: "Berichtsheft — Neuer Eintrag", tab: "reports", num: "08.2", chrome: "bh" },
   "/berichtsheft/ki": { layout: "app", screen: "s08_3-berichtsheft-ki-assistent", title: "Berichtsheft — KI-Assistent", tab: "reports", num: "08.3" },
   "/berichtsheft/unterschrift": { layout: "app", screen: "s08_4-berichtsheft-unterschrift", title: "Berichtsheft — Unterschrift", tab: "reports", num: "08.4" },
   "/berichtsheft/kalender": { layout: "app", screen: "s08_5-berichtsheft-kalenderansicht", title: "Berichtsheft — Kalenderansicht", tab: "reports", num: "08.5" },
@@ -4005,66 +4005,96 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s08_2-berichtsheft-neuer-eintrag": () => `
-
-      <div class="bh-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/berichtsheft" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <div>
-            <h2 class="page-title">Neuer Eintrag</h2>
-            <p class="bh-subhead-note">Lücke füllen (KW 12)</p>
+      <div class="bh-ne-screen" data-node-id="136:9912">
+        <form class="bh-ne-form" data-action="create-report">
+          <div class="bh-ne-scroll">
+            <header class="bh-ne-header">
+              <a class="bh-ne-back" href="/berichtsheft" data-page-link aria-label="Zurück">
+                <img src="/static/figma/bh/bh-ne-back.svg" width="16" height="16" alt="" />
+              </a>
+              <div class="bh-ne-titles">
+                <h2>Neuer Eintrag</h2>
+                <p>Lücke füllen (KW 12)</p>
+              </div>
+            </header>
+            <div class="bh-ne-fields">
+              <label class="bh-ne-field">
+                <span>Ausbildungszeitraum</span>
+                <div class="bh-ne-select">
+                  <select name="period" aria-label="Ausbildungszeitraum">
+                    <option>KW 12 — 18.–22. März 2025</option>
+                    <option>KW 11 — 11.–15. März 2025</option>
+                    <option>KW 10 — 04.–08. März 2025</option>
+                  </select>
+                  <img src="/static/figma/bh/bh-ne-chevron.svg" width="16" height="16" alt="" />
+                </div>
+              </label>
+              <label class="bh-ne-field">
+                <span>Abteilung / Einsatzbereich</span>
+                <div class="bh-ne-select">
+                  <select name="department" aria-label="Abteilung">
+                    <option>Fertigung</option>
+                    <option>Montage</option>
+                    <option>Qualitätssicherung</option>
+                  </select>
+                  <img src="/static/figma/bh/bh-ne-chevron.svg" width="16" height="16" alt="" />
+                </div>
+              </label>
+            </div>
+            <div class="bh-ne-days">
+              <p class="bh-ne-section">Tägliche Tätigkeiten</p>
+              <article class="bh-ne-day filled">
+                <div class="bh-ne-day-head">
+                  <div class="bh-ne-day-label"><i class="ok"></i><strong>Montag</strong></div>
+                  <span>98/250</span>
+                </div>
+                <textarea name="mon" maxlength="250" rows="3">Drehmaschine einrichten, Werkstück spannen, Schnittdaten berechnen und Probedurchlauf durchgeführt.</textarea>
+              </article>
+              <article class="bh-ne-day filled">
+                <div class="bh-ne-day-head">
+                  <div class="bh-ne-day-label"><i class="ok"></i><strong>Dienstag</strong></div>
+                  <span>81/250</span>
+                </div>
+                <textarea name="tue" maxlength="250" rows="3">Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt. Kanten entgratet und Maße kontrolliert.</textarea>
+              </article>
+              <article class="bh-ne-day">
+                <div class="bh-ne-day-head">
+                  <div class="bh-ne-day-label"><i></i><strong>Mittwoch</strong></div>
+                  <span>0/250</span>
+                </div>
+                <textarea name="wed" maxlength="250" rows="3" placeholder="Tätigkeiten am Mittwoch eintragen..."></textarea>
+              </article>
+              <article class="bh-ne-day">
+                <div class="bh-ne-day-head">
+                  <div class="bh-ne-day-label"><i></i><strong>Donnerstag</strong></div>
+                  <span>0/250</span>
+                </div>
+                <textarea name="thu" maxlength="250" rows="3" placeholder="Tätigkeiten am Donnerstag eintragen..."></textarea>
+              </article>
+              <article class="bh-ne-day">
+                <div class="bh-ne-day-head">
+                  <div class="bh-ne-day-label"><i></i><strong>Freitag</strong></div>
+                  <span>0/250</span>
+                </div>
+                <textarea name="fri" maxlength="250" rows="3" placeholder="Tätigkeiten am Freitag eintragen..."></textarea>
+              </article>
+            </div>
+            <div class="bh-ne-hours">
+              <span>Wochenstunden gesamt</span>
+              <label class="bh-ne-hours-box">
+                <input type="number" name="hours" min="1" max="60" step="0.5" value="39" required aria-label="Wochenstunden" />
+                <em>h</em>
+                <span>Soll: 39h</span>
+              </label>
+            </div>
+            <input type="hidden" name="report_date" value="2025-03-18" />
+            <textarea name="activities" hidden>Drehmaschine einrichten, Werkstück spannen, Schnittdaten berechnen und Probedurchlauf durchgeführt. Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt. Kanten entgratet und Maße kontrolliert.</textarea>
           </div>
-        </div>
-        <form class="bh-form stack-form" data-action="create-report">
-          <label class="field"><span>Ausbildungszeitraum</span>
-            <select name="period" class="bh-select">
-              <option>KW 12 — 18.–22. März 2025</option>
-              <option>KW 11 — 11.–15. März 2025</option>
-              <option>KW 10 — 04.–08. März 2025</option>
-            </select>
-          </label>
-          <label class="field"><span>Abteilung / Einsatzbereich</span>
-            <select name="department" class="bh-select">
-              <option>Fertigung</option>
-              <option>Montage</option>
-              <option>Qualitätssicherung</option>
-            </select>
-          </label>
-          <p class="bh-section-label">Tägliche Tätigkeiten</p>
-          <article class="bh-day filled">
-            <div class="bh-day-head"><span class="bh-day-dot filled"></span><strong>Montag</strong><span class="muted">98/250</span></div>
-            <textarea name="mon" rows="2" maxlength="250">Drehmaschine einrichten, Werkstück spannen, Schnittdaten berechnen und Probedurchlauf durchgeführt.</textarea>
-          </article>
-          <article class="bh-day filled">
-            <div class="bh-day-head"><span class="bh-day-dot filled"></span><strong>Dienstag</strong><span class="muted">81/250</span></div>
-            <textarea name="tue" rows="2" maxlength="250">Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt. Kanten entgratet und Maße kontrolliert.</textarea>
-          </article>
-          <article class="bh-day">
-            <div class="bh-day-head"><span class="bh-day-dot"></span><strong>Mittwoch</strong><span class="muted">0/250</span></div>
-            <textarea name="wed" rows="2" maxlength="250" placeholder="Tätigkeiten am Mittwoch eintragen..."></textarea>
-          </article>
-          <article class="bh-day">
-            <div class="bh-day-head"><span class="bh-day-dot"></span><strong>Donnerstag</strong><span class="muted">0/250</span></div>
-            <textarea name="thu" rows="2" maxlength="250" placeholder="Tätigkeiten am Donnerstag eintragen..."></textarea>
-          </article>
-          <article class="bh-day">
-            <div class="bh-day-head"><span class="bh-day-dot"></span><strong>Freitag</strong><span class="muted">0/250</span></div>
-            <textarea name="fri" rows="2" maxlength="250" placeholder="Tätigkeiten am Freitag eintragen..."></textarea>
-          </article>
-          <div class="bh-hours-row">
-            <span class="muted">Wochenstunden gesamt</span>
-            <label class="bh-hours-box"><input type="number" name="hours" min="1" max="60" step="0.5" value="39" required /><span class="muted">Soll: 39h</span></label>
+          <div class="bh-ne-actions">
+            <button class="bh-ne-draft" type="button" data-action="toast" data-toast="Entwurf gespeichert">Als Entwurf speichern</button>
+            <button class="bh-ne-submit" type="submit">Zur Prüfung einreichen</button>
+            <p class="feedback" data-feedback hidden></p>
           </div>
-          <label class="field"><span>Datum (API)</span><input type="date" name="report_date" required /></label>
-          <label class="field"><span>Zusammenfassung Tätigkeiten (API)</span>
-            <textarea name="activities" rows="3" required placeholder="Kurzbeschreibung der Woche für den Nachweis…"></textarea>
-          </label>
-          <div class="bh-bottom-actions">
-            <button class="secondary-button btn-block pill-btn" type="button" data-action="toast" data-toast="Entwurf gespeichert">Als Entwurf speichern</button>
-            <button class="primary-button btn-block pill-btn" type="submit">Zur Prüfung einreichen</button>
-          </div>
-          <p class="feedback" data-feedback></p>
         </form>
       </div>
     `,

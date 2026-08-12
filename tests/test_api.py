@@ -39,47 +39,16 @@ def test_health_endpoint() -> None:
 
 
 def test_frontend_page_routes_return_app_shell() -> None:
-    """Ensure browser page routes are directly reachable."""
+    """Ensure every allowlisted browser page route serves the SPA shell."""
+    from app.web.pages import allowed_frontend_pages
+
     client = build_client()
-    page_routes = [
-        "/",
-        "/funktionen",
-        "/login",
-        "/passwort",
-        "/sprache",
-        "/onboarding",
-        "/level-up",
-        "/dashboard",
-        "/dashboard/streak",
-        "/lernreise",
-        "/lernen",
-        "/lernen/themen",
-        "/lernen/frage",
-        "/fachkunde",
-        "/fachkunde/toleranz",
-        "/pruefungen",
-        "/pruefungen/kammertermine",
-        "/berichtsheft",
-        "/berichtsheft/neu",
-        "/fortschritt",
-        "/fortschritt/heatmap",
-        "/defizite",
-        "/mehr",
-        "/mehr/coach",
-        "/gamification",
-        "/review",
-        "/ausbilder",
-        "/ausbilder/review",
-        "/ausbilder/generator",
-        "/admin",
-        "/admin/nutzer",
-        "/admin/content",
-        "/datenschutz",
-    ]
+    pages = allowed_frontend_pages()
+    assert len(pages) >= 100
 
-    for page_route in page_routes:
+    for page in sorted(pages):
+        page_route = "/" if page == "" else f"/{page}"
         response = client.get(page_route)
-
         assert response.status_code == 200, page_route
         assert "BZE Online Campus" in response.text
 
@@ -94,6 +63,88 @@ def test_figma_screen_allowlist_is_wired() -> None:
     assert "admin/nutzer" in pages
     assert "lernen/formeltrainer" in pages
     assert len(pages) >= 100
+
+
+def test_route_config_matches_page_allowlist() -> None:
+    """Ensure screens.js routeConfig keys stay in sync with allowed_pages.json."""
+    import json
+    import re
+    from pathlib import Path
+
+    from app.web.pages import allowed_frontend_pages
+
+    screens_js = Path("app/web/static/screens.js").read_text(encoding="utf-8")
+    route_keys = re.findall(r'^\s*"(/[^"]*)"\s*:', screens_js, re.M)
+    route_paths = {"" if key == "/" else key.lstrip("/") for key in route_keys}
+    allowed = allowed_frontend_pages()
+
+    assert route_paths == allowed
+    assert json.loads(Path("app/web/allowed_pages.json").read_text(encoding="utf-8")) == sorted(
+        allowed
+    )
+
+
+def test_frontend_api_calls_have_backend_routes() -> None:
+    """Ensure every fetchJson /api call in static JS maps to a FastAPI route."""
+    import re
+    from pathlib import Path
+
+    from app.api.routes import api_router
+
+    backend: set[tuple[str, str]] = set()
+    for route in api_router.routes:
+        methods = getattr(route, "methods", None) or set()
+        path = getattr(route, "path", None)
+        if not path:
+            continue
+        for method in methods:
+            if method in {"HEAD", "OPTIONS"}:
+                continue
+            backend.add((method.upper(), f"/api{path}"))
+
+    calls: set[tuple[str, str]] = set()
+    for js_path in Path("app/web/static").glob("*.js"):
+        text = js_path.read_text(encoding="utf-8")
+        for match in re.finditer(r"fetchJson\s*\(", text):
+            start = match.end()
+            depth = 1
+            end = start
+            while end < len(text) and depth:
+                if text[end] == "(":
+                    depth += 1
+                elif text[end] == ")":
+                    depth -= 1
+                end += 1
+            window = text[start:end]
+            url_match = re.search(r"""(?:`|"|')(/api/[^`'"]+)(?:`|"|')""", window)
+            if not url_match:
+                continue
+            method_match = re.search(r"""method:\s*['"](\w+)""", window)
+            method = (method_match.group(1) if method_match else "GET").upper()
+            raw = url_match.group(1).split("?", 1)[0]
+            normalized = re.sub(r"\$\{[^}]+\}", "{param}", raw)
+            calls.add((method, normalized))
+
+    assert calls, "expected frontend API calls"
+
+    def parts_match(front: str, back: str) -> bool:
+        front_parts = front.split("/")
+        back_parts = back.split("/")
+        if len(front_parts) != len(back_parts):
+            return False
+        for fp, bp in zip(front_parts, back_parts):
+            if fp == bp or fp.startswith("{") or bp.startswith("{"):
+                continue
+            return False
+        return True
+
+    missing = [
+        f"{method} {url}"
+        for method, url in sorted(calls)
+        if not any(bm == method and parts_match(url, bu) for bm, bu in backend)
+    ]
+    assert not missing, f"frontend API calls without backend routes: {missing}"
+
 
 def test_unknown_frontend_route_returns_404() -> None:
     """Ensure unknown frontend routes do not silently return the app shell."""

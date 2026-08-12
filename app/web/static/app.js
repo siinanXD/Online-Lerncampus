@@ -450,12 +450,16 @@ async function answerQuestion(index) {
 async function saveTrainingReport(formElement) {
   await requireAuth();
   const form = new FormData(formElement);
+  const activities = String(form.get("activities") || "").trim();
+  if (activities.length < 10) {
+    throw new Error("Taetigkeiten muessen mindestens 10 Zeichen haben.");
+  }
   await fetchJson("/api/training-reports", {
     method: "POST",
     headers: { ...authHeaders(), "Content-Type": "application/json" },
     body: JSON.stringify({
       report_date: String(form.get("report_date")),
-      activities: String(form.get("activities")),
+      activities,
       hours: Number(form.get("hours")),
     }),
   });
@@ -516,7 +520,10 @@ async function loadReviews() {
   }
   output.innerHTML = rows.length
     ? `<ul class="plain-list">${rows
-        .map((row) => `<li>${row.entity_type}: ${row.entity_key} · ${row.status}</li>`)
+        .map(
+          (row) =>
+            `<li>${row.entity_type}: ${row.entity_key} · ${row.review_status || row.status || "?"}</li>`,
+        )
         .join("")}</ul>`
     : `<p class="muted">Keine offenen Reviews (oder keine Berechtigung).</p>`;
 }
@@ -653,6 +660,12 @@ document.addEventListener("click", async (event) => {
     return;
   }
   try {
+    // Exam start must run before data-page-link; several screens combine both.
+    if (target.dataset.action === "exam-start-shortcut" || target.id === "exam-start") {
+      event.preventDefault();
+      await startExamSession();
+      return;
+    }
     if (target.matches("[data-page-link]")) {
       event.preventDefault();
       if (target.dataset.qIndex) {
@@ -689,11 +702,6 @@ document.addEventListener("click", async (event) => {
     }
     if (target.dataset.action === "load-reviews") {
       await loadReviews();
-      return;
-    }
-    if (target.dataset.action === "exam-start-shortcut" || target.id === "exam-start") {
-      event.preventDefault();
-      await startExamSession();
       return;
     }
     if (target.id === "exam-submit") {

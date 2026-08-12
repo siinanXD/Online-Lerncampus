@@ -1294,168 +1294,532 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s08_1-berichtsheft-liste": () => `
 
-      <div class="screen-head"><p class="eyebrow">08 Berichtsheft</p><h2>Ausbildungsnachweis</h2>
-        <a class="primary-button" href="/berichtsheft/neu" data-page-link>Neuer Eintrag</a></div>
-      <div data-bind="reports-live"></div>
-      <div class="link-grid">
-        <a href="/berichtsheft/ki" data-page-link>KI-Assistent</a>
-        <a href="/berichtsheft/kalender" data-page-link>Kalender</a>
-        <a href="/berichtsheft/unterschrift" data-page-link>Unterschrift</a>
-        <a href="/berichtsheft/export" data-page-link>PDF-Export</a>
-        <a href="/berichtsheft/leer" data-page-link>Leerzustand</a>
+      <div class="bh-screen">
+        <div class="learn-title-row">
+          <div class="bh-brand">
+            <span class="bh-logo" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </span>
+            <h2 class="page-title">Berichtsheft</h2>
+          </div>
+          <a class="icon-round primary" href="/berichtsheft/neu" data-page-link aria-label="Neuer Eintrag">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          </a>
+        </div>
+        <div class="bh-filters" role="tablist" aria-label="Filter">
+          <button class="bh-chip active" type="button">Alle</button>
+          <button class="bh-chip" type="button">Lücken</button>
+          <button class="bh-chip" type="button">Entwürfe</button>
+          <button class="bh-chip" type="button">Freigegeben</button>
+        </div>
+        <a class="bh-warn-banner" href="/berichtsheft/neu" data-page-link>
+          <div class="bh-warn-top">
+            <span class="bh-warn-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+            </span>
+            <div>
+              <strong>3 fehlende Einträge</strong>
+              <span class="muted">KW 10, KW 11, KW 12</span>
+            </div>
+          </div>
+          <span class="bh-warn-cta">Jetzt ausfüllen und einreichen <span aria-hidden="true">→</span></span>
+        </a>
+        <p class="bh-section-label">Berichte Chronologisch</p>
+        <div class="bh-entry-list">
+          <a class="bh-entry" href="/berichtsheft/unterschrift" data-page-link>
+            <div class="bh-entry-top"><div class="bh-entry-dates"><strong>KW 13</strong><span>25.–29.03.</span></div><span class="bh-status draft">Entwurf</span></div>
+            <div class="bh-entry-bottom"><div><p>Montage Grundlagen, Pneumatik-Übung</p><span class="muted">Letzte Änderung gestern</span></div><span class="bh-chevron" aria-hidden="true">›</span></div>
+          </a>
+          <a class="bh-entry gap" href="/berichtsheft/neu" data-page-link>
+            <div class="bh-entry-top"><div class="bh-entry-dates"><strong>KW 12</strong><span>18.–22.03.</span></div><span class="bh-status gap">Lücke</span></div>
+            <div class="bh-entry-bottom"><div><p class="danger-text">Eintrag fehlt!</p><span class="muted">Fällig seit 4 Tagen</span></div><span class="bh-fill-btn">Ausfüllen</span></div>
+          </a>
+          <a class="bh-entry gap" href="/berichtsheft/neu" data-page-link>
+            <div class="bh-entry-top"><div class="bh-entry-dates"><strong>KW 11</strong><span>11.–15.03.</span></div><span class="bh-status gap">Lücke</span></div>
+            <div class="bh-entry-bottom"><div><p class="danger-text">Eintrag fehlt!</p><span class="muted">Fällig seit 11 Tagen</span></div><span class="bh-fill-btn">Ausfüllen</span></div>
+          </a>
+          <a class="bh-entry" href="/berichtsheft/unterschrift" data-page-link>
+            <div class="bh-entry-top"><div class="bh-entry-dates"><strong>KW 10</strong><span>04.–08.03.</span></div><span class="bh-status ok">Freigegeben</span></div>
+            <div class="bh-entry-bottom"><div><p>Werkstoffprüfung, Messtechnik Labor</p><span class="muted">Freigegeben durch H. Müller</span></div><span class="bh-chevron" aria-hidden="true">›</span></div>
+          </a>
+          <a class="bh-entry" href="/berichtsheft/unterschrift" data-page-link>
+            <div class="bh-entry-top"><div class="bh-entry-dates"><strong>KW 9</strong><span>25.–29.02.</span></div><span class="bh-status ok">Freigegeben</span></div>
+            <div class="bh-entry-bottom"><div><p>Drehen und Fräsen, Qualitätskontrolle</p><span class="muted">Freigegeben durch H. Müller</span></div><span class="bh-chevron" aria-hidden="true">›</span></div>
+          </a>
+        </div>
+        <div class="bh-progress-footer">
+          <div class="row-between"><span class="muted">Dokumentierter Fortschritt</span><strong class="bh-progress-pct">12 von 24 Wochen (50%)</strong></div>
+          <div class="mastery-track"><span class="mastery-fill" style="width:50%"></span></div>
+        </div>
+        <article class="card hub-api-card">
+          <h3>Meine Einträge (API)</h3>
+          <div data-bind="reports-live"></div>
+        </article>
+        <div class="link-grid">
+          <a href="/berichtsheft/ki" data-page-link>KI-Assistent</a>
+          <a href="/berichtsheft/kalender" data-page-link>Kalender</a>
+          <a href="/berichtsheft/export" data-page-link>PDF-Export</a>
+          <a href="/berichtsheft/leer" data-page-link>Leerzustand</a>
+        </div>
       </div>
     `,
   "s08_2-berichtsheft-neuer-eintrag": () => `
 
-      <div class="screen-head"><p class="eyebrow">08.2</p><h2>Berichtsheft — Neuer Eintrag</h2>
-        <a class="secondary-button" href="/berichtsheft" data-page-link>Zur Liste</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Neuer Eintrag</li><li>Lücke füllen (KW 12)</li><li>Ausbildungszeitraum</li><li>KW 12 — 18.–22. März 2025</li><li>Abteilung / Einsatzbereich</li><li>Fertigung</li><li>Tägliche Tätigkeiten</li><li>Montag</li><li>98/250</li><li>Drehmaschine einrichten, Werkstück spannen, Schnittdaten berechnen und Probedurchlauf durchgeführt.</li><li>Dienstag</li><li>81/250</li></ul>
-        <form class='stack-form' data-action='create-report'><label class='field'><span>Datum</span><input type='date' name='report_date' required /></label><label class='field'><span>Stunden</span><input type='number' name='hours' min='1' max='12' step='0.5' value='8' required /></label><label class='field'><span>Taetigkeiten</span><textarea name='activities' rows='5' required></textarea></label><button class='primary-button' type='submit'>Speichern</button></form>
-        <p class="feedback" data-feedback></p>
-      </article>
+      <div class="bh-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/berichtsheft" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <div>
+            <h2 class="page-title">Neuer Eintrag</h2>
+            <p class="bh-subhead-note">Lücke füllen (KW 12)</p>
+          </div>
+        </div>
+        <form class="bh-form stack-form" data-action="create-report">
+          <label class="field"><span>Ausbildungszeitraum</span>
+            <select name="period" class="bh-select">
+              <option>KW 12 — 18.–22. März 2025</option>
+              <option>KW 11 — 11.–15. März 2025</option>
+              <option>KW 10 — 04.–08. März 2025</option>
+            </select>
+          </label>
+          <label class="field"><span>Abteilung / Einsatzbereich</span>
+            <select name="department" class="bh-select">
+              <option>Fertigung</option>
+              <option>Montage</option>
+              <option>Qualitätssicherung</option>
+            </select>
+          </label>
+          <p class="bh-section-label">Tägliche Tätigkeiten</p>
+          <article class="bh-day filled">
+            <div class="bh-day-head"><span class="bh-day-dot filled"></span><strong>Montag</strong><span class="muted">98/250</span></div>
+            <textarea name="mon" rows="2" maxlength="250">Drehmaschine einrichten, Werkstück spannen, Schnittdaten berechnen und Probedurchlauf durchgeführt.</textarea>
+          </article>
+          <article class="bh-day filled">
+            <div class="bh-day-head"><span class="bh-day-dot filled"></span><strong>Dienstag</strong><span class="muted">81/250</span></div>
+            <textarea name="tue" rows="2" maxlength="250">Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt. Kanten entgratet und Maße kontrolliert.</textarea>
+          </article>
+          <article class="bh-day">
+            <div class="bh-day-head"><span class="bh-day-dot"></span><strong>Mittwoch</strong><span class="muted">0/250</span></div>
+            <textarea name="wed" rows="2" maxlength="250" placeholder="Tätigkeiten am Mittwoch eintragen..."></textarea>
+          </article>
+          <article class="bh-day">
+            <div class="bh-day-head"><span class="bh-day-dot"></span><strong>Donnerstag</strong><span class="muted">0/250</span></div>
+            <textarea name="thu" rows="2" maxlength="250" placeholder="Tätigkeiten am Donnerstag eintragen..."></textarea>
+          </article>
+          <article class="bh-day">
+            <div class="bh-day-head"><span class="bh-day-dot"></span><strong>Freitag</strong><span class="muted">0/250</span></div>
+            <textarea name="fri" rows="2" maxlength="250" placeholder="Tätigkeiten am Freitag eintragen..."></textarea>
+          </article>
+          <div class="bh-hours-row">
+            <span class="muted">Wochenstunden gesamt</span>
+            <label class="bh-hours-box"><input type="number" name="hours" min="1" max="60" step="0.5" value="39" required /><span class="muted">Soll: 39h</span></label>
+          </div>
+          <label class="field"><span>Datum (API)</span><input type="date" name="report_date" required /></label>
+          <label class="field"><span>Zusammenfassung Tätigkeiten (API)</span>
+            <textarea name="activities" rows="3" required placeholder="Kurzbeschreibung der Woche für den Nachweis…"></textarea>
+          </label>
+          <div class="bh-bottom-actions">
+            <button class="secondary-button btn-block pill-btn" type="button" data-action="toast" data-toast="Entwurf gespeichert">Als Entwurf speichern</button>
+            <button class="primary-button btn-block pill-btn" type="submit">Zur Prüfung einreichen</button>
+          </div>
+          <p class="feedback" data-feedback></p>
+        </form>
+      </div>
     `,
   "s08_3-berichtsheft-ki-assistent": () => `
 
-      <div class="screen-head"><p class="eyebrow">08.3</p><h2>Berichtsheft — KI-Assistent</h2>
-        <a class="secondary-button" href="/berichtsheft" data-page-link>Zur Liste</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Eintrag bearbeiten</li><li>KW 12 — Fertigung</li><li>Montag</li><li>25/250</li><li>drehmaschine eingerichtet</li><li>Dienstag</li><li>81/250</li><li>Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt. Kanten entgratet und Maße kontrolliert.</li><li>Mittwoch</li><li>0/250</li><li>Text</li><li>KI-Formulierungshilfe</li></ul>
-        
-        <p class="feedback" data-feedback></p>
-      </article>
+      <div class="bh-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/berichtsheft/neu" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <div>
+            <h2 class="page-title">Eintrag bearbeiten</h2>
+            <p class="muted">KW 12 — Fertigung</p>
+          </div>
+        </div>
+        <p class="bh-section-label">Tägliche Tätigkeiten</p>
+        <article class="bh-day">
+          <div class="bh-day-head"><span class="bh-day-dot filled"></span><strong>Montag</strong><span class="muted">25/250</span></div>
+          <div class="bh-day-text">drehmaschine eingerichtet</div>
+        </article>
+        <article class="bh-day filled">
+          <div class="bh-day-head"><span class="bh-day-dot filled"></span><strong>Dienstag</strong><span class="muted">81/250</span></div>
+          <div class="bh-day-text">Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt. Kanten entgratet und Maße kontrolliert.</div>
+        </article>
+        <article class="bh-day">
+          <div class="bh-day-head"><span class="bh-day-dot"></span><strong>Mittwoch</strong><span class="muted">0/250</span></div>
+          <div class="bh-day-text muted">Tätigkeiten am Mittwoch eintragen...</div>
+        </article>
+        <article class="bh-ai-card">
+          <div class="bh-ai-head">
+            <span class="bh-ai-icon" aria-hidden="true">✨</span>
+            <div>
+              <strong>KI-Formulierungshilfe</strong>
+              <p class="muted">Verbessere deinen Montag-Eintrag</p>
+            </div>
+          </div>
+          <div class="bh-ai-bubble">
+            <p class="muted">Original</p>
+            <p>„drehmaschine eingerichtet“</p>
+          </div>
+          <div class="bh-ai-bubble suggest">
+            <p class="muted">Vorschlag</p>
+            <p>„Drehmaschine gemäß Arbeitsauftrag eingerichtet, Werkstück gespannt und Probedurchlauf dokumentiert.“</p>
+          </div>
+          <div class="row-actions">
+            <button class="primary-button" type="button" data-action="toast" data-toast="Vorschlag übernommen">Übernehmen</button>
+            <button class="secondary-button" type="button" data-action="toast" data-toast="Neuer Vorschlag">Neu generieren</button>
+          </div>
+        </article>
+        <div class="link-grid">
+          <a href="/berichtsheft/neu" data-page-link>Zum Eintrag</a>
+          <a href="/berichtsheft" data-page-link>Zur Liste</a>
+        </div>
+      </div>
     `,
   "s08_4-berichtsheft-unterschrift": () => `
 
-      <div class="screen-head"><p class="eyebrow">08.4</p><h2>Berichtsheft — Unterschrift</h2>
-        <a class="secondary-button" href="/berichtsheft" data-page-link>Zur Liste</a></div>
-      <p class="muted">Entwuerfe koennen hier eingereicht werden.</p>
-      <div data-bind="reports-live"></div>
+      <div class="bh-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/berichtsheft" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <div>
+            <h2 class="page-title">Unterschrift</h2>
+            <p class="muted">KW 13 — Entwurf einreichen</p>
+          </div>
+        </div>
+        <article class="bh-sign-card">
+          <div class="row-between">
+            <div><strong>Wochenbericht KW 13</strong><p class="muted">25.–29.03. · Fertigung</p></div>
+            <span class="bh-status draft">Entwurf</span>
+          </div>
+          <p>Montage Grundlagen, Pneumatik-Übung, Drehmaschine eingerichtet und Probedurchläufe dokumentiert.</p>
+          <div class="bh-sign-pad" aria-label="Unterschriftsfeld">
+            <span class="muted">Hier unterschreiben / bestätigen</span>
+          </div>
+          <div class="bh-bottom-actions">
+            <button class="primary-button btn-block pill-btn" type="button" data-action="toast" data-toast="Zur Unterschrift eingereicht">Einreichen</button>
+            <a class="secondary-button btn-block pill-btn" href="/berichtsheft" data-page-link>Abbrechen</a>
+          </div>
+        </article>
+        <p class="muted">Entwürfe aus der API können hier eingereicht werden.</p>
+        <div data-bind="reports-live"></div>
+      </div>
     `,
   "s08_5-berichtsheft-kalenderansicht": () => `
 
-      <div class="screen-head"><p class="eyebrow">08.5</p><h2>Berichtsheft — Kalenderansicht</h2>
-        <a class="secondary-button" href="/berichtsheft" data-page-link>Zur Liste</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Berichtsheft</li><li>August 2026</li><li>Liste</li><li>Kalender</li><li>Mo</li><li>Di</li><li>Mi</li><li>Do</li><li>Fr</li><li>Sa</li><li>So</li><li>27</li></ul>
-        
-        <p class="feedback" data-feedback></p>
-      </article>
+      <div class="bh-screen">
+        <div class="learn-title-row">
+          <h2 class="page-title">Berichtsheft</h2>
+          <a class="icon-round primary" href="/berichtsheft/neu" data-page-link aria-label="Neuer Eintrag">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          </a>
+        </div>
+        <div class="bh-month-nav">
+          <button class="icon-round" type="button" aria-label="Vorheriger Monat">‹</button>
+          <strong>August 2026</strong>
+          <button class="icon-round" type="button" aria-label="Nächster Monat">›</button>
+        </div>
+        <div class="bh-view-toggle">
+          <a class="bh-chip" href="/berichtsheft" data-page-link>Liste</a>
+          <span class="bh-chip active">Kalender</span>
+        </div>
+        <div class="bh-cal" aria-label="Kalender August 2026">
+          <div class="bh-cal-head"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+          <div class="bh-cal-grid">
+            <span class="muted">27</span><span class="muted">28</span><span class="muted">29</span><span class="muted">30</span><span class="muted">31</span><span>1</span><span>2</span>
+            <span>3</span><span>4</span><span class="has-entry">5</span><span>6</span><span class="has-entry">7</span><span>8</span><span>9</span>
+            <span>10</span><span class="has-entry">11</span><span>12</span><span>13</span><span class="today">14</span><span>15</span><span>16</span>
+            <span class="gap-day">17</span><span class="gap-day">18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
+            <span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
+            <span>31</span>
+          </div>
+        </div>
+        <div class="bh-cal-legend">
+          <span><i class="dot ok"></i> Eintrag</span>
+          <span><i class="dot warn"></i> Heute</span>
+          <span><i class="dot danger"></i> Lücke</span>
+        </div>
+        <div class="link-grid">
+          <a href="/berichtsheft" data-page-link>Zur Liste</a>
+          <a href="/berichtsheft/neu" data-page-link>Neuer Eintrag</a>
+        </div>
+      </div>
     `,
   "s08_6-pdf-export": () => `
 
-      <div class="screen-head"><p class="eyebrow">08.6</p><h2>PDF-Export</h2>
-        <a class="secondary-button" href="/berichtsheft" data-page-link>Zur Liste</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Berichtsheft</li><li>PDF Export</li><li>Zeitraum</li><li>Von</li><li>01.07.2026</li><li>Bis</li><li>31.07.2026</li><li>Letzte Woche</li><li>Letzter Monat</li><li>Quartal</li><li>Alles</li><li>Berichtsheft-Format</li></ul>
-        
-        <p class="feedback" data-feedback></p>
-      </article>
+      <div class="bh-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/berichtsheft" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <div>
+            <h2 class="page-title">PDF Export</h2>
+            <p class="muted">Berichtsheft herunterladen</p>
+          </div>
+        </div>
+        <article class="card bh-export-card">
+          <h3>Zeitraum</h3>
+          <div class="bh-date-row">
+            <label class="field"><span>Von</span><input type="date" value="2026-07-01" /></label>
+            <label class="field"><span>Bis</span><input type="date" value="2026-07-31" /></label>
+          </div>
+          <div class="bh-filters">
+            <button class="bh-chip" type="button">Letzte Woche</button>
+            <button class="bh-chip active" type="button">Letzter Monat</button>
+            <button class="bh-chip" type="button">Quartal</button>
+            <button class="bh-chip" type="button">Alles</button>
+          </div>
+          <h3>Format</h3>
+          <label class="bh-radio"><input type="radio" name="export-fmt" checked /> Berichtsheft-Format (IHK)</label>
+          <label class="bh-radio"><input type="radio" name="export-fmt" /> Kompakte Übersicht</label>
+          <label class="bh-radio"><input type="radio" name="export-fmt" /> Nur freigegebene Wochen</label>
+          <div class="bh-bottom-actions">
+            <button class="primary-button btn-block pill-btn" type="button" data-action="toast" data-toast="PDF wird vorbereitet…">PDF erstellen</button>
+            <a class="secondary-button btn-block pill-btn" href="/berichtsheft" data-page-link>Abbrechen</a>
+          </div>
+        </article>
+      </div>
     `,
   "s08_7-berichtsheft-leerzustand": () => `
 
-      <div class="screen-head"><p class="eyebrow">08.7</p><h2>Berichtsheft — Leerzustand</h2>
-        <a class="secondary-button" href="/berichtsheft" data-page-link>Zur Liste</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Berichtsheft</li><li>Noch keine Einträge</li><li>Dein digitales Berichtsheft ist bereit! Dokumentiere hier deine täglichen Tätigkeiten.</li><li>TIPP</li><li>Trage am besten jeden Tag ein, was du gemacht hast. Das macht die wöchentliche Zusammenfassung einfacher!</li><li>Ersten Eintrag erstellen</li><li>Wie funktioniert es?</li><li>Lernen</li><li>Bericht</li><li>Mehr</li></ul>
-        
-        <p class="feedback" data-feedback></p>
-      </article>
+      <div class="bh-screen bh-empty">
+        <div class="learn-title-row">
+          <div class="bh-brand">
+            <span class="bh-logo" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </span>
+            <h2 class="page-title">Berichtsheft</h2>
+          </div>
+        </div>
+        <div class="bh-empty-body">
+          <div class="bh-empty-icon" aria-hidden="true">
+            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
+          </div>
+          <h3>Noch keine Einträge</h3>
+          <p class="muted">Dein digitales Berichtsheft ist bereit! Dokumentiere hier deine täglichen Tätigkeiten.</p>
+          <article class="bh-tip">
+            <span class="bh-tip-label">Tipp</span>
+            <p>Trage am besten jeden Tag ein, was du gemacht hast. Das macht die wöchentliche Zusammenfassung einfacher!</p>
+          </article>
+          <a class="primary-button btn-block pill-btn" href="/berichtsheft/neu" data-page-link>Ersten Eintrag erstellen</a>
+          <button class="text-link" type="button" data-action="toast" data-toast="Hilfe: Wöchentlich eintragen, dann zur Unterschrift">Wie funktioniert es?</button>
+        </div>
+      </div>
     `,
   "s09_1-mehr-und-profil-uebersicht": () => `
 
-      <div class="screen-head"><p class="eyebrow">09 Mehr</p><h2>Profil &amp; Konto</h2></div>
-      <article class="card">
-        <p data-bind="profile-summary" class="muted">Nicht angemeldet.</p>
-        <p class="muted">Rolle: <span data-bind="role">learner</span></p>
-        <div class="settings-list">
-          <a href="/mehr/ausbilder-sicht" data-page-link>Was sieht der Ausbilder?</a>
-          <a href="/mehr/coach" data-page-link>KI-Coach</a>
-          <a href="/mehr/lernplan" data-page-link>Lernplan</a>
-          <a href="/mehr/export" data-page-link>Datenexport</a>
-          <a href="/gamification" data-page-link>Gamification</a>
-          <a href="/passwort" data-page-link>Passwort aendern</a>
-          <a href="/sprache" data-page-link>Sprache</a>
-          <a href="/ausbilder" data-page-link>Ausbilder-Bereich</a>
-          <a href="/admin" data-page-link>Admin-Bereich</a>
-          <a href="/mehr/logout" data-page-link>Abmelden</a>
-          <a href="/mehr/loeschen" data-page-link>Konto loeschen</a>
-        </div>
-      </article>
+      <div class="mehr-screen">
+        <h2 class="page-title mehr-title">Mehr</h2>
+        <article class="mehr-profile-card">
+          <div class="mehr-avatar" aria-hidden="true">MM</div>
+          <div class="mehr-profile-meta">
+            <strong data-bind="profile-summary">Max Mustermann</strong>
+            <div class="mehr-badges">
+              <span class="chip-level">Lv <span data-bind="level">7</span></span>
+              <span class="xp-inline"><span data-bind="xp">2450</span> XP</span>
+            </div>
+            <p class="muted">Rolle: <span data-bind="role">learner</span></p>
+          </div>
+          <a class="text-link" href="/passwort" data-page-link>Bearbeiten</a>
+        </article>
+        <p class="bh-section-label">Konto</p>
+        <nav class="mehr-list">
+          <a href="/passwort" data-page-link><span class="mehr-ico">👤</span><span>Profil</span><span class="bh-chevron">›</span></a>
+          <a href="/sprache" data-page-link><span class="mehr-ico">🎨</span><span>Darstellung</span><span class="bh-chevron">›</span></a>
+          <a href="/mehr" data-page-link data-action="toast" data-toast="Benachrichtigungen folgen in einer späteren Version"><span class="mehr-ico">🔔</span><span>Benachrichtigungen</span><span class="bh-chevron">›</span></a>
+          <a href="/sprache" data-page-link><span class="mehr-ico">🌐</span><span>Sprache</span><em>Deutsch</em><span class="bh-chevron">›</span></a>
+        </nav>
+        <p class="bh-section-label">Lernen &amp; Fortschritt</p>
+        <nav class="mehr-list">
+          <a href="/mehr/coach" data-page-link><span class="mehr-ico">🤖</span><span>KI-Coach</span><span class="bh-chevron">›</span></a>
+          <a href="/mehr/lernplan" data-page-link><span class="mehr-ico">🗺️</span><span>Lernplan</span><span class="bh-chevron">›</span></a>
+          <a href="/gamification" data-page-link><span class="mehr-ico">🏆</span><span>Gamification</span><span class="bh-chevron">›</span></a>
+        </nav>
+        <p class="bh-section-label">Transparenz</p>
+        <nav class="mehr-list">
+          <a href="/mehr/ausbilder-sicht" data-page-link><span class="mehr-ico">👁</span><span>Was sieht mein Ausbilder?</span><span class="bh-chevron">›</span></a>
+          <a href="/mehr/export" data-page-link><span class="mehr-ico">📦</span><span>Datenexport</span><span class="bh-chevron">›</span></a>
+        </nav>
+        <p class="bh-section-label">Rechtliches &amp; Zugang</p>
+        <nav class="mehr-list">
+          <a href="/mehr/export" data-page-link><span class="mehr-ico">🔒</span><span>Datenschutz</span><span class="bh-chevron">›</span></a>
+          <a href="/ausbilder" data-page-link><span class="mehr-ico">🧑‍🏫</span><span>Ausbilder-Bereich</span><span class="bh-chevron">›</span></a>
+          <a href="/admin" data-page-link><span class="mehr-ico">⚙️</span><span>Admin-Bereich</span><span class="bh-chevron">›</span></a>
+          <a href="/mehr/logout" data-page-link><span class="mehr-ico">🚪</span><span>Abmelden</span><span class="bh-chevron">›</span></a>
+          <a class="danger-link" href="/mehr/loeschen" data-page-link><span class="mehr-ico">🗑</span><span>Konto löschen</span><span class="bh-chevron">›</span></a>
+        </nav>
+      </div>
     `,
   "s09_2-was-sieht-der-ausbilder": () => `
 
-      <div class="screen-head"><p class="eyebrow">09.2</p><h2>Was sieht der Ausbilder</h2>
-        <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <p>Dein Ausbilder sieht aggregierte Kennzahlen, keine Chat-Inhalte.</p>
-        <div class="metric-grid">
-          <article class="metric-card"><strong data-bind="readiness">0%</strong><span>Pruefungsreife</span></article>
-          <article class="metric-card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
-          <article class="metric-card"><strong data-bind="streak">0</strong><span>Streak</span></article>
+      <div class="mehr-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <h2 class="page-title">Was sieht der Ausbilder</h2>
         </div>
-      </article>
+        <article class="mehr-info-banner">
+          <strong>Transparenz-Hinweis</strong>
+          <p class="muted">Dein Ausbilder sieht aggregierte Kennzahlen und Prüfungsreife — keine Chat-Inhalte und keine privaten Notizen.</p>
+        </article>
+        <div class="metric-grid">
+          <article class="metric-card card"><strong data-bind="readiness">0%</strong><span>Prüfungsreife</span></article>
+          <article class="metric-card card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
+          <article class="metric-card card"><strong data-bind="streak">0</strong><span>Streak</span></article>
+        </div>
+        <article class="card">
+          <h3>Sichtbar</h3>
+          <ul class="plain-list">
+            <li>Themenfortschritt &amp; Schwächen</li>
+            <li>Prüfungsergebnisse (aggregiert)</li>
+            <li>Berichtsheft-Status (Lücken / Freigaben)</li>
+          </ul>
+          <h3>Nicht sichtbar</h3>
+          <ul class="plain-list">
+            <li>KI-Coach-Chats</li>
+            <li>Persönliche Notizen</li>
+            <li>Einzelne Übungssessions im Detail</li>
+          </ul>
+        </article>
+      </div>
     `,
   "s09_3-ki-coach-chat": () => `
 
-      <div class="screen-head"><p class="eyebrow">09.3</p><h2>KI-Coach — Chat</h2>
-        <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <div data-bind="coach-live"></div>
+      <div class="mehr-screen coach-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <div>
+            <h2 class="page-title">KI-Coach</h2>
+            <p class="muted">Lernhilfe &amp; Tipps</p>
+          </div>
+        </div>
+        <div class="coach-thread">
+          <div class="coach-bubble coach">Hallo! Ich helfe dir bei Schwachstellen und deinem Wochenplan. Was möchtest du üben?</div>
+          <div class="coach-bubble me">Zeig mir, wo ich in Pneumatik nacharbeiten sollte.</div>
+          <div class="coach-bubble coach">Du hast 3 offene Fehler in Pneumatik-Grundlagen. Soll ich einen 15-Minuten-Block vorschlagen?</div>
+        </div>
+        <div data-bind="coach-live"></div>
+        <div class="coach-composer">
+          <input type="text" placeholder="Nachricht an den Coach…" aria-label="Nachricht" />
+          <button class="primary-button" type="button" data-action="toast" data-toast="Nachricht gesendet (Demo)">Senden</button>
+        </div>
+        <div class="link-grid">
+          <a href="/mehr/lernplan" data-page-link>Zum Lernplan</a>
+        </div>
+      </div>
     `,
   "s09_4-ki-coach-lernplan": () => `
 
-      <div class="screen-head"><p class="eyebrow">09.4</p><h2>KI-Coach — Lernplan</h2>
-        <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <div data-bind="coach-live"></div>
-      <article class="card">
-        <h3>Lernreise</h3>
-        <div data-bind="journey-live"></div>
-      </article>
+      <div class="mehr-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/mehr/coach" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <div>
+            <h2 class="page-title">Dein Lernplan</h2>
+            <p class="muted">KI-Empfehlung für diese Woche</p>
+          </div>
+        </div>
+        <article class="mehr-plan-hero">
+          <strong>Fokus: Pneumatik &amp; Hydraulik</strong>
+          <p class="muted">3 Sessions · ca. 45 Min · +180 XP möglich</p>
+          <div class="mastery-track"><span class="mastery-fill" style="width:40%"></span></div>
+        </article>
+        <div class="mehr-plan-list">
+          <article class="mehr-plan-item done"><strong>Mo</strong><div><p>Pneumatik Grundlagen wiederholen</p><span class="muted">12 Min · erledigt</span></div></article>
+          <article class="mehr-plan-item active"><strong>Di</strong><div><p>Hydraulik Schwachstellen üben</p><span class="muted">15 Min · heute</span></div></article>
+          <article class="mehr-plan-item"><strong>Mi</strong><div><p>Formeltrainer Druck &amp; Kraft</p><span class="muted">10 Min</span></div></article>
+          <article class="mehr-plan-item"><strong>Fr</strong><div><p>Mini-Prüfung Steuerungstechnik</p><span class="muted">20 Min</span></div></article>
+        </div>
+        <div data-bind="coach-live"></div>
+        <article class="card">
+          <h3>Lernreise</h3>
+          <div data-bind="journey-live"></div>
+        </article>
+      </div>
     `,
   "s09_5-datenexport": () => `
 
-      <div class="screen-head"><p class="eyebrow">09.5</p><h2>Datenexport</h2>
-        <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Zurück</li><li>Datenexport</li><li>Du kannst all deine Daten herunterladen. Der Export enthält deine Lernhistorie, Berichtshefte und persönlichen Einstellu</li><li>Lernfortschritt & XP-Historie</li><li>Alle Antworten, Level, Streaks</li><li>Berichtsheft</li><li>Alle Einträge als PDF + Rohdaten</li><li>Persönliche Daten</li><li>Profil, E-Mail, Einstellungen</li><li>Statistiken</li><li>Detaillierte Auswertungen</li><li>Exportformat</li></ul>
-        <div class="row-actions">
-          
-          
-          <button class='primary-button' type='button' data-action='export-data'>Export laden</button>
-          
+      <div class="mehr-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <h2 class="page-title">Datenexport</h2>
+        </div>
+        <p class="muted">Du kannst all deine Daten herunterladen. Der Export enthält Lernhistorie, Berichtshefte und persönliche Einstellungen.</p>
+        <nav class="mehr-list export-list">
+          <div><span class="mehr-ico">📈</span><div><strong>Lernfortschritt &amp; XP-Historie</strong><span class="muted">Alle Antworten, Level, Streaks</span></div></div>
+          <div><span class="mehr-ico">📒</span><div><strong>Berichtsheft</strong><span class="muted">Alle Einträge als PDF + Rohdaten</span></div></div>
+          <div><span class="mehr-ico">👤</span><div><strong>Persönliche Daten</strong><span class="muted">Profil, E-Mail, Einstellungen</span></div></div>
+          <div><span class="mehr-ico">📊</span><div><strong>Statistiken</strong><span class="muted">Detaillierte Auswertungen</span></div></div>
+        </nav>
+        <p class="bh-section-label">Exportformat</p>
+        <label class="bh-radio"><input type="radio" name="exp" checked /> JSON (maschinenlesbar)</label>
+        <label class="bh-radio"><input type="radio" name="exp" /> ZIP mit PDF</label>
+        <div class="bh-bottom-actions">
+          <button class="primary-button btn-block pill-btn" type="button" data-action="export-data">Export laden</button>
         </div>
         <pre class="export-pre" data-bind="export-pre" hidden></pre>
-      </article>
+      </div>
     `,
   "s09_6-konto-loeschen": () => `
 
-      <div class="screen-head"><p class="eyebrow">09.6</p><h2>Konto löschen</h2>
-        <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Konto löschen</li><li>Achtung: Diese Aktion ist unwiderruflich!</li><li>Wenn du dein Konto löschst, werden folgende Daten dauerhaft entfernt:</li><li>Lernfortschritt & XP (Level 6, 4.230 XP)</li><li>Alle Berichtshefte (23 Einträge)</li><li>Badges & Achievements (8 Abzeichen)</li><li>Streak-Historie (max: 34 Tage)</li><li>Persönliche Einstellungen</li><li>Ich verstehe, dass alle Daten unwiderruflich gelöscht werden</li><li>Bitte gib LÖSCHEN ein zur Bestätigung</li><li>Bestätigungstext...</li><li>Konto endgültig löschen</li></ul>
-        <div class="row-actions">
-          
-          <button class='primary-button' type='button' data-action='delete-account'>Konto loeschen</button>
-          
-          
+      <div class="mehr-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <h2 class="page-title">Konto löschen</h2>
+        </div>
+        <article class="mehr-danger-banner">
+          <strong>Achtung: Diese Aktion ist unwiderruflich!</strong>
+          <p>Wenn du dein Konto löschst, werden folgende Daten dauerhaft entfernt:</p>
+        </article>
+        <ul class="mehr-danger-list">
+          <li>Lernfortschritt &amp; XP</li>
+          <li>Alle Berichtshefte</li>
+          <li>Badges &amp; Achievements</li>
+          <li>Streak-Historie</li>
+          <li>Persönliche Einstellungen</li>
+        </ul>
+        <label class="bh-radio"><input type="checkbox" /> Ich verstehe, dass alle Daten unwiderruflich gelöscht werden</label>
+        <label class="field"><span>Bitte gib LÖSCHEN ein zur Bestätigung</span>
+          <input type="text" placeholder="Bestätigungstext…" aria-label="Bestätigung" />
+        </label>
+        <div class="bh-bottom-actions">
+          <button class="danger-button btn-block pill-btn" type="button" data-action="delete-account">Konto endgültig löschen</button>
+          <a class="secondary-button btn-block pill-btn" href="/mehr" data-page-link>Abbrechen</a>
         </div>
         <pre class="export-pre" data-bind="export-pre" hidden></pre>
-      </article>
+      </div>
     `,
   "s09_7-logout-bestaetigung": () => `
 
-      <div class="screen-head"><p class="eyebrow">09.7</p><h2>Logout Bestätigung</h2>
-        <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Wirklich abmelden?</li><li>Dein Streak von 14 Tagen bleibt erhalten, wenn du morgen wiederkommst!</li><li>🔥 14 Tage</li><li>Abmelden</li><li>Doch nicht</li><li>Start</li><li>Lernen</li><li>Fortschritt</li><li>Bericht</li><li>Mehr</li></ul>
-        <div class="row-actions">
-          <button class='primary-button' type='button' data-action='logout'>Abmelden</button>
-          
-          
-          
+      <div class="mehr-screen mehr-logout">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+          </a>
+          <h2 class="page-title">Abmelden</h2>
         </div>
-        <pre class="export-pre" data-bind="export-pre" hidden></pre>
-      </article>
+        <article class="mehr-logout-card">
+          <div class="mehr-logout-flame" aria-hidden="true">🔥</div>
+          <h3>Wirklich abmelden?</h3>
+          <p class="muted">Dein Streak von <strong data-bind="streak">14</strong> Tagen bleibt erhalten, wenn du morgen wiederkommst!</p>
+          <div class="bh-bottom-actions">
+            <button class="primary-button btn-block pill-btn" type="button" data-action="logout">Abmelden</button>
+            <a class="secondary-button btn-block pill-btn" href="/mehr" data-page-link>Doch nicht</a>
+          </div>
+        </article>
+      </div>
     `,
   "s11_1-ausbilder-cockpit": () => `
 

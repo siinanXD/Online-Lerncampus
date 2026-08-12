@@ -378,32 +378,45 @@ function renderStats() {
   `;
 }
 
+function reportStatusMeta(status) {
+  const key = String(status || "draft").toLowerCase();
+  if (key === "approved" || key === "freigegeben") {
+    return { label: "Freigegeben", cls: "ok" };
+  }
+  if (key === "submitted" || key === "pending" || key === "eingereicht") {
+    return { label: "Eingereicht", cls: "info" };
+  }
+  return { label: "Entwurf", cls: "draft" };
+}
+
 function renderReportsMarkup() {
+  if (!state.trainingReports.length) {
+    return `<article class="bh-empty-api"><p class="muted">Noch keine Berichtsheft-Eintraege.</p>
+      <a class="primary-button" href="/berichtsheft/neu" data-page-link>Ersten Eintrag schreiben</a></article>`;
+  }
   return `
-    <div class="report-list">
-      ${
-        state.trainingReports
-          .map(
-            (report) => `
-          <article class="report-card card" data-report-id="${report.id}">
-            <header>
-              <strong>${escapeHtml(report.report_date)}</strong>
-              <span>${report.hours} h · ${escapeHtml(report.status)}</span>
-            </header>
-            <p>${escapeHtml(report.activities)}</p>
-            <div class="row-actions">
+    <div class="bh-entry-list report-list">
+      ${state.trainingReports
+        .map((report) => {
+          const meta = reportStatusMeta(report.status);
+          const preview = escapeHtml(report.activities || "").slice(0, 80);
+          return `
+          <article class="bh-entry" data-report-id="${report.id}">
+            <div class="bh-entry-top">
+              <div class="bh-entry-dates"><strong>${escapeHtml(report.report_date)}</strong><span>${report.hours} h</span></div>
+              <span class="bh-status ${meta.cls}">${meta.label}</span>
+            </div>
+            <div class="bh-entry-bottom">
+              <div><p>${preview || "Ohne Beschreibung"}</p><span class="muted">${escapeHtml(report.status)}</span></div>
               ${
                 report.status === "draft"
-                  ? `<button class="primary-button" type="button" data-action="submit-report" data-report-id="${report.id}">Zur Unterschrift einreichen</button>`
-                  : `<span class="badge ok">Eingereicht</span>`
+                  ? `<button class="bh-fill-btn" type="button" data-action="submit-report" data-report-id="${report.id}">Einreichen</button>`
+                  : `<span class="bh-chevron" aria-hidden="true">›</span>`
               }
             </div>
-          </article>`,
-          )
-          .join("") ||
-        `<article class="card"><p class="muted">Noch keine Berichtsheft-Eintraege.</p>
-          <a class="primary-button" href="/berichtsheft/neu" data-page-link>Ersten Eintrag schreiben</a></article>`
-      }
+          </article>`;
+        })
+        .join("")}
     </div>`;
 }
 

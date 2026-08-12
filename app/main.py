@@ -9,6 +9,7 @@ from fastapi.staticfiles import StaticFiles
 
 from app.api.routes import api_router, bootstrap_content_store
 from app.core.config import get_settings
+from app.web.pages import allowed_frontend_pages
 
 
 @asynccontextmanager
@@ -44,21 +45,7 @@ def create_app() -> FastAPI:
     )
     def index(page: str = "") -> FileResponse:
         """Serve the routed web app for all frontend page routes."""
-        allowed_pages = {
-            "",
-            "funktionen",
-            "login",
-            "dashboard",
-            "lernreise",
-            "lernen",
-            "pruefungen",
-            "berichtsheft",
-            "defizite",
-            "review",
-            "datenschutz",
-            "mehr",
-        }
-        if page in allowed_pages:
+        if page in allowed_frontend_pages():
             return FileResponse("app/web/index.html")
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

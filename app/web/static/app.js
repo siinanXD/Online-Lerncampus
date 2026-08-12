@@ -15,31 +15,23 @@ const state = {
   examOpenAnswers: {},
   examResult: null,
   examTimerHandle: null,
-  learnMode: "hub",
   accessToken: localStorage.getItem("ol_access_token"),
   learnerId: localStorage.getItem("ol_learner_id"),
+  currentPath: "/",
 };
 
-const routeConfig = {
-  "/": { layout: "landing", title: "BZE Online Campus" },
-  "/funktionen": { layout: "landing", title: "Features" },
-  "/login": { layout: "login", title: "Login" },
-  "/dashboard": { layout: "app", view: "dashboard", title: "Start" },
-  "/lernreise": { layout: "app", view: "journey", title: "Lernreise" },
-  "/lernen": { layout: "app", view: "learn", title: "Lernen" },
-  "/pruefungen": { layout: "app", view: "exam", title: "Pruefen" },
-  "/berichtsheft": { layout: "app", view: "reports", title: "Berichtsheft" },
-  "/defizite": { layout: "app", view: "progress", title: "Fortschritt" },
-  "/mehr": { layout: "app", view: "profile", title: "Mehr" },
-  "/review": { layout: "app", view: "admin", title: "Review" },
-  "/datenschutz": { layout: "app", view: "privacy", title: "Datenschutz" },
-};
+const routeConfig = window.OLC_ROUTE_CONFIG || {};
 
-const viewRoutes = Object.fromEntries(
-  Object.entries(routeConfig)
-    .filter(([, config]) => config.view)
-    .map(([path, config]) => [config.view, path]),
-);
+function resolveRoute(pathname = window.location.pathname) {
+  let config = routeConfig[pathname];
+  let guard = 0;
+  while (config?.aliasOf && guard < 5) {
+    pathname = config.aliasOf;
+    config = routeConfig[pathname];
+    guard += 1;
+  }
+  return { pathname, config: config || routeConfig["/"] || { layout: "landing", title: "BZE" } };
+}
 
 function authHeaders() {
   return state.accessToken ? { Authorization: `Bearer ${state.accessToken}` } : {};
@@ -53,8 +45,17 @@ function clearSession() {
   document.body.classList.remove("is-authenticated");
 }
 
-function getRouteConfig(pathname = window.location.pathname) {
-  return routeConfig[pathname] || routeConfig["/"];
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  if (!toast) {
+    return;
+  }
+  toast.hidden = false;
+  toast.textContent = message;
+  window.clearTimeout(showToast._timer);
+  showToast._timer = window.setTimeout(() => {
+    toast.hidden = true;
+  }, 2400);
 }
 
 async function fetchJson(url, options = {}) {
@@ -106,88 +107,113 @@ async function refreshPrivateData() {
   state.trainingReports = await fetchJson("/api/training-reports", {
     headers: authHeaders(),
   }).catch(() => []);
-  renderDashboard();
   renderStats();
-  renderJourney();
 }
 
-async function navigateTo(pathname, pushState = true) {
-  const config = getRouteConfig(pathname);
-  if (pushState && window.location.pathname !== pathname) {
-    window.history.pushState({}, "", pathname);
+function mountRoot(layout) {
+  if (layout === "auth") {
+    return document.getElementById("auth-root");
   }
-  document.body.dataset.pageLayout = config.layout;
-  document.title = `${config.title} | BZE Online Campus`;
-  if (config.layout === "app") {
-    if (state.accessToken) {
-      try {
-        await ensureAuthenticated();
-      } catch (error) {
-        clearSession();
-      }
+  if (layout === "trainer") {
+    return document.getElementById("trainer-root");
+  }
+  if (layout === "admin") {
+    return document.getElementById("admin-root");
+  }
+  return document.getElementById("screen-root");
+}
+
+function renderScreen(config) {
+  const layout = config.layout || "app";
+  const root = mountRoot(layout);
+  if (!root) {
+    return;
+  }
+  if (layout === "landing" || layout === "login") {
+    root.innerHTML = "";
+    return;
+  }
+  const renderer = window.OLC_SCREEN_RENDERERS?.[config.screen];
+  root.innerHTML = renderer ? renderer() : `<article class="card"><p>Screen fehlt: ${config.screen || "?"}</p></article>`;
+  bindLiveData(root, config);
+}
+
+function bindLiveData(root, config) {
+  const dashboard = state.dashboard;
+  const mastered = dashboard?.mastered_questions || 0;
+  const wrong = dashboard?.wrong_answers || 0;
+  const total = dashboard?.total_questions || 0;
+  const readiness = total ? Math.round((mastered / total) * 100) : 0;
+
+  root.querySelectorAll("[data-bind='mastered']").forEach((el) => {
+    el.textContent = String(mastered);
+  });
+  root.querySelectorAll("[data-bind='wrong']").forEach((el) => {
+    el.textContent = String(wrong);
+  });
+  root.querySelectorAll("[data-bind='readiness']").forEach((el) => {
+    el.textContent = `${readiness}%`;
+  });
+  root.querySelectorAll("[data-bind='profile-summary']").forEach((el) => {
+    el.textContent = state.accessToken
+      ? `Angemeldet als ${state.learnerId || "Azubi"}.`
+      : "Nicht angemeldet.";
+  });
+
+  const questionList = root.querySelector("[data-bind='question-list']");
+  if (questionList) {
+    const source =
+      config.path === "/lernen/fragen/fehler" || config.screen?.includes("fehler")
+        ? state.questions.slice(0, 8)
+        : state.questions.slice(0, 12);
+    questionList.innerHTML = source.length
+      ? source
+          .map(
+            (question, index) => `
+          <a class="list-row" href="/lernen/frage" data-page-link data-q-index="${index}">
+            <strong>${index + 1}. ${question.prompt}</strong>
+            <span class="muted">${question.category_slug || "Frage"}</span>
+          </a>`,
+          )
+          .join("")
+      : `<article class="list-row"><strong>Keine Fragen geladen</strong><span class="muted">Demo</span></article>`;
+  }
+
+  const livePrompt = root.querySelector("[data-bind='live-question-prompt']");
+  const liveAnswers = root.querySelector("[data-bind='live-answers']");
+  if (livePrompt && state.questions.length) {
+    const question = state.questions[state.currentQuestionIndex % state.questions.length];
+    livePrompt.textContent = question.prompt;
+    if (liveAnswers) {
+      liveAnswers.innerHTML = question.options
+        .map(
+          (option, index) => `
+          <button class="answer-option" type="button" data-index="${index}">
+            ${index + 1}. ${option}
+          </button>`,
+        )
+        .join("");
     }
-    switchView(config.view, false);
   }
-  if (config.layout === "login") {
-    document.title = "Login | BZE Online Campus";
-  }
-}
 
-function switchView(viewName, updateRoute = true) {
-  document.querySelectorAll(".tab-bar a").forEach((link) => {
-    link.classList.toggle("active", link.dataset.view === viewName);
-  });
-  document.querySelectorAll(".view").forEach((view) => {
-    view.classList.toggle("active", view.id === `${viewName}-view`);
-  });
-  const titleMap = {
-    dashboard: "Start",
-    journey: "Lernreise",
-    learn: "Lernen",
-    exam: "Pruefen",
-    reports: "Berichtsheft",
-    progress: "Fortschritt",
-    admin: "Review",
-    profile: "Mehr",
-    privacy: "Datenschutz",
-  };
-  const eyebrowMap = {
-    dashboard: "03 Start",
-    journey: "Lernreise",
-    learn: "04 / 05 Lernen",
-    exam: "06 Pruefung",
-    reports: "08 Berichtsheft",
-    progress: "07 Fortschritt",
-    admin: "12 Review",
-    profile: "09 Mehr",
-    privacy: "Legal",
-  };
-  document.getElementById("page-title").textContent = titleMap[viewName] || "App";
-  document.getElementById("page-eyebrow").textContent =
-    eyebrowMap[viewName] || "Teilnehmer";
-  if (updateRoute && viewRoutes[viewName]) {
-    window.history.pushState({}, "", viewRoutes[viewName]);
-    document.title = `${titleMap[viewName]} | BZE Online Campus`;
+  const examLive = root.querySelector("[data-bind='exam-live']");
+  if (examLive) {
+    renderExamInto(examLive);
   }
-  if (viewName === "progress") {
-    renderProgress();
+
+  const reportsLive = root.querySelector("[data-bind='reports-live']");
+  if (reportsLive) {
+    reportsLive.innerHTML = renderReportsMarkup();
   }
-  if (viewName === "reports") {
-    renderTrainingReports();
-  }
-  if (viewName === "profile") {
-    renderProfile();
-  }
-  if (viewName === "learn") {
-    renderLearnView();
+
+  const levelRing = document.querySelector("#level-pill .level-ring");
+  if (levelRing) {
+    levelRing.textContent = String(Math.max(1, Math.min(99, Math.floor(mastered / 20) + 1)));
   }
 }
 
 function renderStats() {
-  const dashboard = state.dashboard || {
-    mastered_questions: 0,
-    wrong_answers: 0,
-  };
+  const dashboard = state.dashboard || { mastered_questions: 0, wrong_answers: 0 };
   const stats = document.getElementById("app-stats");
   if (!stats) {
     return;
@@ -198,352 +224,26 @@ function renderStats() {
   `;
 }
 
-function renderDashboard() {
-  const open = state.dashboard
-    ? state.dashboard.total_questions - state.dashboard.mastered_questions
-    : 0;
-  const mastered = state.dashboard?.mastered_questions || 0;
-  const wrong = state.dashboard?.wrong_answers || 0;
-  const total = state.dashboard?.total_questions || 0;
-  const readiness = total ? Math.round((mastered / total) * 100) : 0;
-  const dailyDone = Math.min(5, Math.max(0, Math.round((mastered % 5))));
-  document.getElementById("dashboard-greeting").textContent = state.accessToken
-    ? "Hallo!"
-    : "Willkommen";
-  document.getElementById("dashboard-summary").textContent =
-    state.dashboard?.mastery_rule ||
-    "Bereit fuer deine taegliche Dosis Wissen?";
-  const weak = state.dashboard?.weak_categories || [];
-  if (weak.length) {
-    document.getElementById("dashboard-summary").textContent =
-      `Schwachstelle: ${weak[0].category_slug} (${weak[0].wrong_count} Fehler)`;
-  }
-  document.getElementById("greeting-chips").innerHTML = `
-    <span>${wrong} Fehler</span>
-    <span>${mastered} XP</span>
-  `;
-  document.getElementById("dashboard-metrics").innerHTML = `
-    <article class="metric-card card">
-      <strong>${readiness}%</strong>
-      <span>Pruefungsreife</span>
-    </article>
-    <article class="metric-card card">
-      <strong>${open}</strong>
-      <span>Offene Fragen</span>
-    </article>
-  `;
-  const firstUnit = state.units?.[0];
-  if (firstUnit) {
-    document.getElementById("continue-title").textContent = firstUnit.title;
-    document.getElementById("continue-copy").textContent = firstUnit.subtitle;
-  }
-  document.getElementById("daily-goal-label").textContent =
-    `${dailyDone} von 5 Lektionen heute`;
-  document.getElementById("daily-goal-hint").textContent =
-    dailyDone >= 5
-      ? "Tagesziel erreicht."
-      : `Noch ${5 - dailyDone} fuer dein Tagesziel`;
-  document.querySelectorAll("#daily-goal-bar span").forEach((segment, index) => {
-    segment.classList.toggle("filled", index < dailyDone);
-  });
-  const reports = state.trainingReports || [];
-  document.getElementById("week-summary").textContent = reports.length
-    ? `${reports.length} Eintraege`
-    : "diese Woche";
-  const level = Math.max(1, Math.min(99, Math.floor(mastered / 20) + 1));
-  const levelRing = document.querySelector("#level-pill .level-ring");
-  if (levelRing) {
-    levelRing.textContent = String(level);
-  }
-}
-
-function renderLearnHub() {
-  const hub = document.getElementById("learn-hub");
-  const detail = document.getElementById("learn-detail");
-  if (!hub || !detail) {
-    return;
-  }
-  const unitCount = state.units.length;
-  const questionCount = state.questions.length;
-  hub.hidden = false;
-  detail.hidden = true;
-  hub.innerHTML = `
-    <article class="hub-card">
-      <p class="eyebrow">Ueben</p>
-      <h3>Fragenpraxis</h3>
-      <p class="muted">PAL-aehnliche Single-Choice mit Mastery-Tracking.</p>
-      <div class="hub-meta">
-        <span>${questionCount} Fragen</span>
-        <span>Monat ${state.learnMonth}</span>
-      </div>
-      <div class="hub-actions">
-        <button class="primary-button" type="button" data-learn-mode="questions">
-          Starten
-        </button>
-      </div>
-    </article>
-    <article class="hub-card">
-      <p class="eyebrow">Fachkunde</p>
-      <h3>Lerneinheiten</h3>
-      <p class="muted">Theorie, Glossar und Uebungen.</p>
-      <div class="hub-meta">
-        <span>${unitCount} Einheiten</span>
-        <span>${state.chapter?.title || ""}</span>
-      </div>
-      <div class="hub-actions">
-        <button class="secondary-button" type="button" data-learn-mode="units">
-          Oeffnen
-        </button>
-      </div>
-    </article>
-    <article class="hub-card">
-      <p class="eyebrow">Werkzeuge</p>
-      <h3>Hilfsmittel</h3>
-      <div class="hub-meta">
-        <span class="tool-chip">Glossar</span>
-        <span class="tool-chip">Formeltrainer</span>
-        <span class="tool-chip">Fehlerdiagnose</span>
-      </div>
-      <div class="hub-actions">
-        <button class="secondary-button" type="button" data-learn-mode="units">
-          Zu den Einheiten
-        </button>
-      </div>
-    </article>
-  `;
-}
-
-function renderLearnView() {
-  if (state.learnMode === "hub") {
-    renderLearnHub();
-    return;
-  }
-  const hub = document.getElementById("learn-hub");
-  const detail = document.getElementById("learn-detail");
-  if (hub) {
-    hub.hidden = true;
-  }
-  if (detail) {
-    detail.hidden = false;
-  }
-  renderChapter();
-  renderUnitList();
-  if (state.learnMode === "questions") {
-    document.getElementById("unit-list").hidden = true;
-    document.getElementById("unit-detail").hidden = true;
-  }
-  renderQuestion();
-}
-
-function renderProfile() {
-  const target = document.getElementById("profile-summary");
-  if (!target) {
-    return;
-  }
-  if (!state.accessToken) {
-    target.textContent = "Nicht angemeldet.";
-    return;
-  }
-  target.textContent = `Angemeldet als ${state.learnerId || "Azubi"}.`;
-}
-
-function renderJourney() {
-  const grid = document.getElementById("journey-grid");
-  if (!grid) {
-    return;
-  }
-  grid.innerHTML = state.journey
-    .map(
-      (month) => `
-        <article class="journey-card card">
-          <strong>Monat ${String(month.month).padStart(2, "0")}${
-            month.checkpoint ? " · Checkpoint" : ""
-          }</strong>
-          <p>${month.title}</p>
-          <small class="muted">${month.completed_categories}/${
-            month.total_categories
-          } Kategorien</small>
-        </article>
-      `,
-    )
-    .join("");
-}
-
-function renderChapter() {
-  const panel = document.getElementById("chapter-panel");
-  if (!panel || !state.chapter) {
-    return;
-  }
-  panel.innerHTML = `
-    <button class="secondary-button" type="button" data-learn-mode="hub">Zurueck zum Lern-Hub</button>
-    <p class="eyebrow">Kapitel</p>
-    <h3>${state.chapter.title}</h3>
-    <p class="muted">${state.chapter.mission_goal}</p>
-    <div class="unit-list">
-      ${state.chapter.subchapters
-        .map(
-          (category) => `
-            <div class="unit-card">
-              <strong>${category.subchapter_number}. ${category.title}</strong>
-              <span class="muted">Monat ${category.month}</span>
-            </div>
-          `,
-        )
-        .join("")}
-    </div>
-  `;
-}
-
-function renderUnitList() {
-  const list = document.getElementById("unit-list");
-  const detail = document.getElementById("unit-detail");
-  if (!list || !detail) {
-    return;
-  }
-  if (state.activeUnit) {
-    list.hidden = true;
-    detail.hidden = false;
-    return;
-  }
-  list.hidden = false;
-  detail.hidden = true;
-  list.innerHTML = state.units
-    .map(
-      (unit) => `
-        <button class="unit-card" type="button" data-unit-slug="${unit.slug}">
-          <strong>${unit.position}. ${unit.title}</strong>
-          <span class="muted">${unit.subtitle}</span>
-          <small>${unit.estimated_minutes} Min</small>
-        </button>
-      `,
-    )
-    .join("");
-}
-
-function renderUnitDetail(unit) {
-  const detail = document.getElementById("unit-detail");
-  if (!detail) {
-    return;
-  }
-  detail.hidden = false;
-  document.getElementById("unit-list").hidden = true;
-  detail.innerHTML = `
-    <button id="unit-back" class="secondary-button" type="button">Zurueck zur Liste</button>
-    <h3>${unit.title}</h3>
-    <p class="muted">${unit.subtitle}</p>
-    <h4>Lernziele</h4>
-    <ul>${unit.learning_goals.map((goal) => `<li>${goal}</li>`).join("")}</ul>
-    ${unit.theory_blocks
-      .map(
-        (block) => `
-          <article class="theory-block">
-            <h4>${block.heading}</h4>
-            <p>${block.body.replace(/\n\n/g, "</p><p>")}</p>
-            <ul>${block.key_points.map((point) => `<li>${point}</li>`).join("")}</ul>
-            ${
-              block.norm_references.length
-                ? `<p class="muted">Normen: ${block.norm_references.join(", ")}</p>`
-                : ""
-            }
-          </article>
-        `,
-      )
-      .join("")}
-    <h4>Glossar</h4>
-    <div class="glossary-grid">
-      ${Object.entries(unit.glossary)
-        .map(
-          ([term, definition]) => `
-            <div class="glossary-item"><strong>${term}</strong><p class="muted">${definition}</p></div>
-          `,
-        )
-        .join("")}
-    </div>
-    <h4>Uebung</h4>
-    <p>${unit.practice_task}</p>
-  `;
-}
-
-async function loadLearnMonth(month) {
-  state.learnMonth = month;
-  state.activeUnit = null;
-  state.learnMode = "hub";
-  state.currentQuestionIndex = 0;
-  const [chapter, units, questions] = await Promise.all([
-    fetchJson(`/api/occupations/maschinen-und-anlagenfuehrer/curriculum`).then(
-      (curriculum) => {
-        const entry = curriculum.find((item) => item.month === month);
-        return {
-          title: `Monat ${month}: ${entry.title}`,
-          mission_goal: entry.learning_goals.join(" "),
-          subchapters: state.chapter?.subchapters?.length
-            ? state.chapter.subchapters
-            : [],
-        };
-      },
-    ),
-    fetchJson(`/api/learning/units?month=${month}`),
-    fetchJson(`/api/questions?month=${month}`),
-  ]);
-  const categories = await fetchJson(`/api/questions/categories?month=${month}`);
-  state.chapter = {
-    ...chapter,
-    subchapters: categories,
-  };
-  state.units = units;
-  state.questions = questions;
-  renderChapter();
-  renderUnitList();
-  renderQuestion();
-  document.getElementById("page-title").textContent = `Monat ${month} | Lernen`;
-  renderLearnView();
-}
-
-function renderQuestion() {
-  if (!state.questions.length) {
-    return;
-  }
-  const question = state.questions[state.currentQuestionIndex % state.questions.length];
-  document.getElementById("question-state").textContent =
-    question.category_slug || "Backend Tracking";
-  document.getElementById("question-prompt").textContent = question.prompt;
-  document.getElementById("answer-feedback").textContent = "";
-  document.getElementById("answer-options").innerHTML = question.options
-    .map(
-      (option, index) => `
-        <button class="answer-option" type="button" data-index="${index}">
-          ${index + 1}. ${option}
-        </button>
-      `,
-    )
-    .join("");
-}
-
-async function answerQuestion(index) {
-  await requireAuth();
-  const question = state.questions[state.currentQuestionIndex % state.questions.length];
-  const result = await fetchJson("/api/progress/attempt", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({
-      question_id: question.question_id,
-      selected_option_index: index,
-    }),
-  });
-  document.querySelectorAll(".answer-option").forEach((button) => {
-    const optionIndex = Number(button.dataset.index);
-    button.disabled = true;
-    if (optionIndex === result.correct_option_index) {
-      button.classList.add("correct");
-    }
-    if (optionIndex === index && !result.is_correct) {
-      button.classList.add("wrong");
-    }
-  });
-  document.getElementById("question-state").textContent =
-    `${result.correct_streak}/2 richtig`;
-  document.getElementById("answer-feedback").textContent = result.explanation;
-  await refreshPrivateData();
+function renderReportsMarkup() {
+  return `
+    <div class="report-list">
+      ${
+        state.trainingReports
+          .map(
+            (report) => `
+          <article class="report-card card">
+            <header>
+              <strong>${report.report_date}</strong>
+              <span>${report.hours} h · ${report.status}</span>
+            </header>
+            <p>${report.activities}</p>
+          </article>`,
+          )
+          .join("") ||
+        `<article class="card"><p class="muted">Noch keine Berichtsheft-Eintraege.</p>
+          <a class="primary-button" href="/berichtsheft/neu" data-page-link>Ersten Eintrag schreiben</a></article>`
+      }
+    </div>`;
 }
 
 function clearExamTimer() {
@@ -575,12 +275,12 @@ function formatExamTimer(expiresAt) {
   return `${minutes}:${seconds}`;
 }
 
-function startExamTimer() {
+function startExamTimer(root) {
   clearExamTimer();
   if (!state.examSession?.expires_at) {
     return;
   }
-  const timerElement = document.getElementById("exam-timer");
+  const timerElement = root.querySelector("#exam-timer");
   if (!timerElement) {
     return;
   }
@@ -591,177 +291,91 @@ function startExamTimer() {
   state.examTimerHandle = window.setInterval(tick, 1000);
 }
 
-function renderExamSelect() {
-  const select = document.getElementById("exam-select");
-  select.innerHTML = state.exams
-    .map((exam) => `<option value="${exam.exam_id}">${exam.title}</option>`)
-    .join("");
-  state.activeExam = state.exams[0];
-  resetExamAttempt();
-  renderExam();
-}
-
-function renderExamResult() {
-  const result = state.examResult;
-  document.getElementById("exam-panel").innerHTML = `
-    <div class="exam-result">
-      <h3>Ergebnis: ${result.passed ? "Bestanden" : "Nicht bestanden"}</h3>
-      <p><strong>${result.score_percent}%</strong> (${result.choice_correct}/${result.choice_total} SC richtig)</p>
-      <p>Bestehensgrenze: ${result.passing_score_percent}%</p>
-      ${
-        result.open_max_points
-          ? `<p>Offene Aufgaben: ${result.open_score}/${result.open_max_points} Punkte</p>`
-          : ""
-      }
-      ${
-        result.weak_categories.length
-          ? `<div class="exam-weaknesses">
-              <h4>Schwache Bereiche</h4>
-              <ul>${result.weak_categories
-                .map(
-                  (item) =>
-                    `<li>${item.category_slug}: ${item.wrong_count} Fehler</li>`,
-                )
-                .join("")}</ul>
-            </div>`
-          : "<p>Keine auffaelligen Schwaechen in den SC-Aufgaben.</p>"
-      }
-      <button id="exam-restart" class="primary-button">Neue Session starten</button>
-    </div>
-  `;
-}
-
-function renderExamSession() {
-  const exam = state.examSession.exam;
-  const choiceMarkup = exam.questions
-    .map((question, index) => {
-      const selected = state.examChoiceAnswers[question.question_id];
-      return `
-        <li class="exam-question">
-          <strong>${index + 1}. ${question.prompt}</strong>
-          <div class="answer-options">
-            ${question.options
-              .map(
-                (option, optionIndex) => `
-                  <button
-                    type="button"
-                    class="exam-answer-option ${
-                      selected === optionIndex ? "selected" : ""
-                    }"
-                    data-exam-action="choice"
-                    data-question-id="${question.question_id}"
-                    data-index="${optionIndex}"
-                  >
-                    ${optionIndex + 1}. ${option}
-                  </button>
-                `,
-              )
-              .join("")}
-          </div>
-        </li>
-      `;
-    })
-    .join("");
-
-  const openMarkup = (exam.open_questions || [])
-    .map((question, index) => {
-      const saved = state.examOpenAnswers[question.question_id];
-      return `
-        <li class="exam-open-question">
-          <strong>Offen ${index + 1}. ${question.prompt}</strong>
-          <p>Max. ${question.max_points} Punkte</p>
-          <textarea
-            class="exam-open-input"
-            data-question-id="${question.question_id}"
-            rows="4"
-            placeholder="Deine Antwort..."
-          >${saved?.learner_answer || ""}</textarea>
-          <label>
-            Selbsteinschaetzung (0-${question.max_points})
-            <input
-              type="number"
-              min="0"
-              max="${question.max_points}"
-              class="exam-open-score"
-              data-question-id="${question.question_id}"
-              value="${saved?.self_score ?? ""}"
-            />
-          </label>
-          <button
-            type="button"
-            class="secondary-button"
-            data-exam-action="open"
-            data-question-id="${question.question_id}"
-          >
-            Offene Antwort speichern
-          </button>
-        </li>
-      `;
-    })
-    .join("");
-
-  document.getElementById("exam-panel").innerHTML = `
-    <div class="exam-session">
-      <div class="exam-session-header">
-        <div>
-          <h3>${exam.title}</h3>
-          <p>${exam.description}</p>
-        </div>
-        <div class="exam-session-meta">
-          <span id="exam-timer">${formatExamTimer(state.examSession.expires_at)}</span>
-          <span>Bestehen: ${state.examSession.passing_score_percent}%</span>
-        </div>
-      </div>
-      <ol class="exam-list">${choiceMarkup}</ol>
-      ${
-        openMarkup
-          ? `<h4>Offene Aufgaben</h4><ol class="exam-open-list">${openMarkup}</ol>`
-          : ""
-      }
-      <div class="exam-actions">
-        <button id="exam-submit" class="primary-button">Pruefung abgeben</button>
-        <button id="exam-cancel" class="secondary-button">Abbrechen</button>
-      </div>
-      <p id="exam-feedback" class="feedback"></p>
-    </div>
-  `;
-  startExamTimer();
-}
-
-function renderExamPreview() {
-  const exam = state.activeExam;
-  document.getElementById("exam-panel").innerHTML = `
-    <div class="exam-preview">
-      <h3>${exam.title}</h3>
-      <p>${exam.description}</p>
-      <p>${exam.questions.length} Single-Choice-Fragen${
-        exam.open_questions?.length
-          ? `, ${exam.open_questions.length} offene Aufgaben`
-          : ""
-      }${
-        exam.time_limit_minutes
-          ? `, Zeitlimit ${exam.time_limit_minutes} Minuten`
-          : ", ohne Zeitlimit"
-      }.</p>
-      <button id="exam-start" class="primary-button">Pruefung starten</button>
-      <p id="exam-feedback" class="feedback"></p>
-    </div>
-  `;
-}
-
-function renderExam() {
-  if (state.examResult) {
-    renderExamResult();
-    return;
-  }
-  if (state.examSession) {
-    renderExamSession();
+function renderExamInto(target) {
+  if (!state.exams.length) {
+    target.innerHTML = `<p class="muted">Keine Pruefungen geladen.</p>`;
     return;
   }
   if (!state.activeExam) {
+    state.activeExam = state.exams[0];
+  }
+  if (state.examResult) {
+    const result = state.examResult;
+    target.innerHTML = `
+      <div class="exam-result card">
+        <h3>Ergebnis: ${result.passed ? "Bestanden" : "Nicht bestanden"}</h3>
+        <p><strong>${result.score_percent}%</strong> (${result.choice_correct}/${result.choice_total} SC richtig)</p>
+        <p>Bestehensgrenze: ${result.passing_score_percent}%</p>
+        <div class="row-actions">
+          <button id="exam-restart" class="primary-button" type="button">Neue Session</button>
+          <a class="secondary-button" href="/pruefungen/schwach" data-page-link>Schwache Themen</a>
+        </div>
+      </div>`;
     return;
   }
-  renderExamPreview();
+  if (state.examSession) {
+    const exam = state.examSession.exam;
+    const choiceMarkup = exam.questions
+      .map((question, index) => {
+        const selected = state.examChoiceAnswers[question.question_id];
+        return `
+          <li class="exam-question">
+            <strong>${index + 1}. ${question.prompt}</strong>
+            <div class="answer-options">
+              ${question.options
+                .map(
+                  (option, optionIndex) => `
+                    <button type="button" class="exam-answer-option ${
+                      selected === optionIndex ? "selected" : ""
+                    }" data-exam-action="choice" data-question-id="${question.question_id}" data-index="${optionIndex}">
+                      ${optionIndex + 1}. ${option}
+                    </button>`,
+                )
+                .join("")}
+            </div>
+          </li>`;
+      })
+      .join("");
+    target.innerHTML = `
+      <div class="exam-session card">
+        <div class="exam-session-header">
+          <div><h3>${exam.title}</h3><p>${exam.description}</p></div>
+          <div class="exam-session-meta">
+            <span id="exam-timer">${formatExamTimer(state.examSession.expires_at)}</span>
+            <span>Bestehen: ${state.examSession.passing_score_percent}%</span>
+          </div>
+        </div>
+        <ol class="exam-list">${choiceMarkup}</ol>
+        <div class="exam-actions">
+          <button id="exam-submit" class="primary-button" type="button">Pruefung abgeben</button>
+          <button id="exam-cancel" class="secondary-button" type="button">Abbrechen</button>
+        </div>
+        <p id="exam-feedback" class="feedback"></p>
+      </div>`;
+    startExamTimer(target);
+    return;
+  }
+
+  const options = state.exams
+    .map(
+      (exam) =>
+        `<option value="${exam.exam_id}" ${
+          exam.exam_id === state.activeExam.exam_id ? "selected" : ""
+        }>${exam.title}</option>`,
+    )
+    .join("");
+  const exam = state.activeExam;
+  target.innerHTML = `
+    <label class="field"><span>Pruefung</span><select id="exam-select">${options}</select></label>
+    <div class="exam-preview card">
+      <h3>${exam.title}</h3>
+      <p>${exam.description}</p>
+      <p>${exam.questions.length} Single-Choice-Fragen${
+        exam.open_questions?.length ? `, ${exam.open_questions.length} offene Aufgaben` : ""
+      }${exam.time_limit_minutes ? `, Zeitlimit ${exam.time_limit_minutes} Minuten` : ", ohne Zeitlimit"}.</p>
+      <button id="exam-start" class="primary-button" type="button">Pruefung starten</button>
+      <p id="exam-feedback" class="feedback"></p>
+    </div>`;
 }
 
 async function startExamSession() {
@@ -772,7 +386,7 @@ async function startExamSession() {
     headers: authHeaders(),
   });
   state.examSession = payload;
-  renderExam();
+  await navigateTo("/pruefungen", false);
 }
 
 async function saveExamChoiceAnswer(questionId, optionIndex) {
@@ -781,53 +395,14 @@ async function saveExamChoiceAnswer(questionId, optionIndex) {
   }
   await fetchJson(`/api/exams/sessions/${state.examSession.session_id}/answers`, {
     method: "POST",
-    headers: {
-      ...authHeaders(),
-      "Content-Type": "application/json",
-    },
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
     body: JSON.stringify({
       question_id: questionId,
       selected_option_index: optionIndex,
     }),
   });
   state.examChoiceAnswers[questionId] = optionIndex;
-  renderExamSession();
-}
-
-async function saveExamOpenAnswer(questionId) {
-  if (!state.examSession) {
-    return;
-  }
-  const answerInput = document.querySelector(
-    `.exam-open-input[data-question-id="${questionId}"]`,
-  );
-  const scoreInput = document.querySelector(
-    `.exam-open-score[data-question-id="${questionId}"]`,
-  );
-  const learnerAnswer = answerInput.value.trim();
-  const selfScoreRaw = scoreInput.value.trim();
-  const selfScore = selfScoreRaw === "" ? null : Number(selfScoreRaw);
-  await fetchJson(
-    `/api/exams/sessions/${state.examSession.session_id}/open-answers`,
-    {
-      method: "POST",
-      headers: {
-        ...authHeaders(),
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        question_id: questionId,
-        learner_answer: learnerAnswer,
-        self_score: selfScore,
-      }),
-    },
-  );
-  state.examOpenAnswers[questionId] = {
-    learner_answer: learnerAnswer,
-    self_score: selfScore,
-  };
-  document.getElementById("exam-feedback").textContent =
-    "Offene Antwort gespeichert.";
+  await navigateTo("/pruefungen", false);
 }
 
 async function submitExamSession() {
@@ -837,55 +412,47 @@ async function submitExamSession() {
   clearExamTimer();
   state.examResult = await fetchJson(
     `/api/exams/sessions/${state.examSession.session_id}/submit`,
-    {
-      method: "POST",
-      headers: authHeaders(),
-    },
+    { method: "POST", headers: authHeaders() },
   );
   state.examSession = null;
-  renderExam();
+  await navigateTo(state.examResult.passed ? "/pruefungen/bestanden" : "/pruefungen/durchgefallen");
 }
 
-function renderTrainingReports() {
-  const panel = document.getElementById("reports-panel");
-  if (!panel) {
-    return;
-  }
-  panel.innerHTML = `
-    <form id="report-form" class="report-form">
-      <label>Datum<input type="date" name="report_date" required /></label>
-      <label>Stunden<input type="number" name="hours" min="1" max="12" step="0.5" value="8" required /></label>
-      <label>Taetigkeiten<textarea name="activities" rows="5" required placeholder="Was hast du heute gelernt und gemacht?"></textarea></label>
-      <button type="submit" class="primary-button">Eintrag speichern</button>
-    </form>
-    <div class="report-list">
-      ${state.trainingReports
-        .map(
-          (report) => `
-            <article class="report-card">
-              <header>
-                <strong>${report.report_date}</strong>
-                <span>${report.hours} h · ${report.status}</span>
-              </header>
-              <p>${report.activities}</p>
-            </article>
-          `,
-        )
-        .join("") || "<p>Noch keine Berichtsheft-Eintraege.</p>"}
-    </div>
-  `;
-}
-
-async function saveTrainingReport(event) {
-  event.preventDefault();
+async function answerQuestion(index) {
   await requireAuth();
-  const form = new FormData(event.currentTarget);
+  const question = state.questions[state.currentQuestionIndex % state.questions.length];
+  const result = await fetchJson("/api/progress/attempt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({
+      question_id: question.question_id,
+      selected_option_index: index,
+    }),
+  });
+  document.querySelectorAll(".answer-option").forEach((button) => {
+    const optionIndex = Number(button.dataset.index);
+    button.disabled = true;
+    if (optionIndex === result.correct_option_index) {
+      button.classList.add("correct");
+    }
+    if (optionIndex === index && !result.is_correct) {
+      button.classList.add("wrong");
+    }
+  });
+  const feedback = document.querySelector("[data-bind='live-feedback']");
+  if (feedback) {
+    feedback.textContent = result.explanation;
+  }
+  await refreshPrivateData();
+  showToast(result.is_correct ? "Richtig! +XP" : "Leider falsch");
+}
+
+async function saveTrainingReport(formElement) {
+  await requireAuth();
+  const form = new FormData(formElement);
   await fetchJson("/api/training-reports", {
     method: "POST",
-    headers: {
-      ...authHeaders(),
-      "Content-Type": "application/json",
-    },
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
     body: JSON.stringify({
       report_date: String(form.get("report_date")),
       activities: String(form.get("activities")),
@@ -893,31 +460,28 @@ async function saveTrainingReport(event) {
     }),
   });
   await refreshPrivateData();
-  renderTrainingReports();
+  showToast("Berichtsheft-Eintrag gespeichert");
+  await navigateTo("/berichtsheft");
 }
 
-function cancelExamSession() {
-  resetExamAttempt();
-  renderExam();
-}
-
-function renderProgress() {
-  if (!state.dashboard) {
-    return;
+async function changePassword(formElement) {
+  await requireAuth();
+  const form = new FormData(formElement);
+  const next = String(form.get("next"));
+  const confirm = String(form.get("confirm"));
+  if (next !== confirm) {
+    throw new Error("Passwoerter stimmen nicht ueberein.");
   }
-  document.getElementById("progress-grid").innerHTML = [
-    ["Offene Fragen", state.dashboard.total_questions - state.dashboard.mastered_questions],
-    ["Fragen mit Fehlern", state.dashboard.wrong_answers],
-    ["Regel", state.dashboard.mastery_rule],
-  ]
-    .map(
-      ([label, value]) => `
-      <div class="progress-item">
-        <strong>${value}</strong>
-        <span>${label}</span>
-      </div>`,
-    )
-    .join("");
+  await fetchJson("/api/auth/password", {
+    method: "POST",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      current_password: String(form.get("current")),
+      new_password: next,
+      repeated_password: confirm,
+    }),
+  });
+  showToast("Passwort gespeichert");
 }
 
 async function generateDraft() {
@@ -931,57 +495,41 @@ async function generateDraft() {
       learner_level: "azubi",
     }),
   });
-  document.getElementById("draft-output").innerHTML = `
-    <h3>${draft.title}</h3>
-    <p><strong>Lernziel:</strong> ${draft.learning_goal}</p>
-    <p>${draft.fachkunde}</p>
-    <p><strong>Status:</strong> ${draft.review_status}</p>
-    <p><strong>Quellen:</strong> ${draft.source_keys.join(", ")}</p>
-  `;
+  const output = document.querySelector("[data-bind='trainer-output']");
+  if (output) {
+    output.innerHTML = `
+      <h3>${draft.title}</h3>
+      <p><strong>Lernziel:</strong> ${draft.learning_goal}</p>
+      <p>${draft.fachkunde}</p>
+      <p><strong>Status:</strong> ${draft.review_status}</p>`;
+  }
 }
 
-async function resetProgress() {
+async function loadReviews() {
   await requireAuth();
-  await fetchJson("/api/progress/reset", {
-    method: "POST",
-    headers: authHeaders(),
-  });
-  await refreshPrivateData();
-  renderProgress();
-  renderQuestion();
-}
-
-function setPrivacyFeedback(message) {
-  document.getElementById("privacy-feedback").textContent = message;
-}
-
-async function acceptPrivacyNotice() {
-  await requireAuth();
-  await fetchJson("/api/privacy/consent", {
-    method: "POST",
-    headers: { "Content-Type": "application/json", ...authHeaders() },
-    body: JSON.stringify({ accepted: true }),
-  });
-  setPrivacyFeedback("Datenschutzbestaetigung gespeichert.");
+  const rows = await fetchJson("/api/content/review/pending", { headers: authHeaders() }).catch(
+    () => [],
+  );
+  const output = document.querySelector("[data-bind='trainer-output']");
+  if (!output) {
+    return;
+  }
+  output.innerHTML = rows.length
+    ? `<ul class="plain-list">${rows
+        .map((row) => `<li>${row.entity_type}: ${row.entity_key} · ${row.status}</li>`)
+        .join("")}</ul>`
+    : `<p class="muted">Keine offenen Reviews (oder keine Berechtigung).</p>`;
 }
 
 async function exportLearnerData() {
   await requireAuth();
-  const exportPayload = await fetchJson("/api/privacy/export", {
-    headers: authHeaders(),
-  });
-  const output = document.getElementById("draft-output");
-  output.replaceChildren();
-  const title = document.createElement("h3");
-  const description = document.createElement("p");
-  const pre = document.createElement("pre");
-  title.textContent = "Dein Datenexport";
-  description.textContent =
-    "Der Export enthaelt Profil, Lernstand, Einwilligungen und Kennzahlen.";
-  pre.textContent = JSON.stringify(exportPayload.data, null, 2);
-  output.append(title, description, pre);
-  setPrivacyFeedback("Datenexport im Review-Bereich angezeigt.");
-  switchView("admin");
+  const exportPayload = await fetchJson("/api/privacy/export", { headers: authHeaders() });
+  const pre = document.querySelector("[data-bind='export-pre']");
+  if (pre) {
+    pre.hidden = false;
+    pre.textContent = JSON.stringify(exportPayload.data, null, 2);
+  }
+  showToast("Datenexport geladen");
 }
 
 async function logout() {
@@ -992,7 +540,8 @@ async function logout() {
     }).catch(() => null);
   }
   clearSession();
-  setPrivacyFeedback("Abgemeldet. Demo-Zugang kann jederzeit neu gestartet werden.");
+  showToast("Abgemeldet");
+  await navigateTo("/login");
 }
 
 async function deleteAccount() {
@@ -1001,7 +550,6 @@ async function deleteAccount() {
     "Lernkonto wirklich loeschen? Fortschritt, Sessions und Einwilligungen werden entfernt.",
   );
   if (!confirmed) {
-    setPrivacyFeedback("Loeschung abgebrochen.");
     return;
   }
   await fetchJson("/api/privacy/account", {
@@ -1009,9 +557,78 @@ async function deleteAccount() {
     headers: authHeaders(),
   });
   clearSession();
-  setPrivacyFeedback("Lernkonto geloescht.");
+  showToast("Lernkonto geloescht");
   await navigateTo("/login");
-  renderProgress();
+}
+
+function updateChrome(config, pathname) {
+  document.body.dataset.pageLayout = config.layout || "landing";
+  document.title = `${config.title || "BZE"} | BZE Online Campus`;
+  const title = document.getElementById("page-title");
+  const eyebrow = document.getElementById("page-eyebrow");
+  if (title) {
+    title.textContent = config.title || "App";
+  }
+  if (eyebrow) {
+    eyebrow.textContent = config.num ? `${config.num}` : "Teilnehmer";
+  }
+  const tab = config.tab;
+  document.querySelectorAll(".tab-bar a").forEach((link) => {
+    const view = link.dataset.view;
+    const active =
+      (tab === "dashboard" && view === "dashboard") ||
+      (tab === "learn" && view === "learn") ||
+      (tab === "exam" && view === "exam") ||
+      (tab === "reports" && view === "reports") ||
+      (tab === "progress" && view === "profile" ? false : tab === "profile" && view === "profile") ||
+      (pathname.startsWith("/fortschritt") && view === "profile" && false);
+    const mapped =
+      (tab === "dashboard" && view === "dashboard") ||
+      (tab === "learn" && view === "learn") ||
+      (tab === "exam" && view === "exam") ||
+      (tab === "reports" && view === "reports") ||
+      ((tab === "profile" || tab === "progress") && view === "profile");
+    link.classList.toggle("active", Boolean(mapped));
+  });
+  document.querySelectorAll(".desk-nav a").forEach((link) => {
+    link.classList.toggle("active", link.getAttribute("href") === pathname);
+  });
+}
+
+async function navigateTo(pathname, pushState = true) {
+  const resolved = resolveRoute(pathname);
+  const config = { ...resolved.config, path: resolved.pathname };
+  if (pushState && window.location.pathname !== resolved.pathname) {
+    window.history.pushState({}, "", resolved.pathname);
+  } else if (pushState && pathname !== resolved.pathname && routeConfig[pathname]?.aliasOf) {
+    window.history.replaceState({}, "", resolved.pathname);
+  }
+  state.currentPath = resolved.pathname;
+  if (["app", "trainer", "admin"].includes(config.layout) && state.accessToken) {
+    try {
+      await ensureAuthenticated();
+    } catch (error) {
+      clearSession();
+    }
+  }
+  updateChrome(config, resolved.pathname);
+  renderScreen(config);
+}
+
+async function loadLearnMonth(month) {
+  state.learnMonth = month;
+  state.currentQuestionIndex = 0;
+  const [units, questions, categories] = await Promise.all([
+    fetchJson(`/api/learning/units?month=${month}`),
+    fetchJson(`/api/questions?month=${month}`),
+    fetchJson(`/api/questions/categories?month=${month}`),
+  ]);
+  state.units = units;
+  state.questions = questions;
+  state.chapter = {
+    title: `Monat ${month}`,
+    subchapters: categories,
+  };
 }
 
 async function init() {
@@ -1019,12 +636,7 @@ async function init() {
   state.questions = await fetchJson("/api/questions?month=1");
   state.units = await fetchJson("/api/learning/units?month=1");
   state.exams = await fetchJson("/api/exams");
-  const monthSelect = document.getElementById("learn-month-select");
-  monthSelect.innerHTML = Array.from({ length: 24 }, (_, index) => {
-    const month = index + 1;
-    return `<option value="${month}">Monat ${month}</option>`;
-  }).join("");
-  monthSelect.value = "1";
+  state.activeExam = state.exams[0] || null;
   if (state.accessToken) {
     try {
       await refreshPrivateData();
@@ -1032,12 +644,6 @@ async function init() {
       clearSession();
     }
   }
-  renderChapter();
-  renderUnitList();
-  renderQuestion();
-  renderExamSelect();
-  renderLearnHub();
-  renderDashboard();
   await navigateTo(window.location.pathname, false);
 }
 
@@ -1046,127 +652,123 @@ document.addEventListener("click", async (event) => {
   if (!target) {
     return;
   }
-  if (target.matches("[data-page-link]")) {
-    event.preventDefault();
-    await navigateTo(new URL(target.href).pathname);
-    return;
-  }
-  if (target.matches(".unit-card")) {
-    const slug = target.dataset.unitSlug;
-    state.activeUnit = state.units.find((unit) => unit.slug === slug);
-    if (state.activeUnit) {
-      renderUnitDetail(state.activeUnit);
-      renderUnitList();
+  try {
+    if (target.matches("[data-page-link]")) {
+      event.preventDefault();
+      if (target.dataset.qIndex) {
+        state.currentQuestionIndex = Number(target.dataset.qIndex);
+      }
+      await navigateTo(new URL(target.href, window.location.origin).pathname);
+      return;
     }
-    return;
-  }
-  if (target.dataset.learnMode) {
-    state.learnMode = target.dataset.learnMode;
-    if (state.learnMode === "hub") {
-      state.activeUnit = null;
+    if (target.matches("[data-login-demo]")) {
+      event.preventDefault();
+      await login("demo-azubi", "demo-pass", "BZE-2026-F");
+      await navigateTo("/dashboard");
+      return;
     }
-    renderLearnView();
-    return;
-  }
-  if (target.id === "unit-back") {
-    state.activeUnit = null;
-    renderUnitList();
-    return;
-  }
-  if (target.matches(".answer-option")) {
-    await answerQuestion(Number(target.dataset.index));
-  }
-  if (target.id === "report-form" || target.closest("#report-form")) {
-    return;
-  }
-  if (target.id === "exam-start") {
-    try {
+    if (target.dataset.action === "toast") {
+      showToast(target.dataset.toast || "OK");
+      return;
+    }
+    if (target.dataset.action === "logout") {
+      await logout();
+      return;
+    }
+    if (target.dataset.action === "delete-account") {
+      await deleteAccount();
+      return;
+    }
+    if (target.dataset.action === "export-data") {
+      await exportLearnerData();
+      return;
+    }
+    if (target.dataset.action === "generate-draft") {
+      await generateDraft();
+      return;
+    }
+    if (target.dataset.action === "load-reviews") {
+      await loadReviews();
+      return;
+    }
+    if (target.dataset.action === "exam-start-shortcut" || target.id === "exam-start") {
+      event.preventDefault();
       await startExamSession();
-    } catch (error) {
-      document.getElementById("exam-feedback").textContent = error.message;
+      return;
     }
-  }
-  if (target.id === "exam-submit") {
-    try {
+    if (target.id === "exam-submit") {
       await submitExamSession();
-    } catch (error) {
-      document.getElementById("exam-feedback").textContent = error.message;
+      return;
     }
-  }
-  if (target.id === "exam-cancel" || target.id === "exam-restart") {
-    cancelExamSession();
-  }
-  if (target.matches(".exam-answer-option")) {
-    try {
+    if (target.id === "exam-cancel" || target.id === "exam-restart") {
+      resetExamAttempt();
+      await navigateTo("/pruefungen", false);
+      return;
+    }
+    if (target.matches(".exam-answer-option")) {
       await saveExamChoiceAnswer(target.dataset.questionId, Number(target.dataset.index));
-    } catch (error) {
-      document.getElementById("exam-feedback").textContent = error.message;
+      return;
+    }
+    if (target.matches(".answer-option") && target.dataset.index !== undefined) {
+      await answerQuestion(Number(target.dataset.index));
+      return;
+    }
+    if (target.matches(".lang-option")) {
+      document.querySelectorAll(".lang-option").forEach((el) => el.classList.remove("active"));
+      target.classList.add("active");
+      showToast(`Sprache: ${target.textContent}`);
+    }
+  } catch (error) {
+    showToast(error.message);
+    const feedback = document.getElementById("exam-feedback");
+    if (feedback) {
+      feedback.textContent = error.message;
     }
   }
-  if (target.dataset.examAction === "open") {
-    try {
-      await saveExamOpenAnswer(target.dataset.questionId);
-    } catch (error) {
-      document.getElementById("exam-feedback").textContent = error.message;
-    }
-  }
-  if (target.matches("[data-login-demo]")) {
-    event.preventDefault();
-    await login("demo-azubi", "demo-pass", "BZE-2026-F");
-    await navigateTo("/dashboard");
-  }
-  if (target.dataset.privacyAction === "consent") {
-    await acceptPrivacyNotice();
-  }
-  if (target.dataset.privacyAction === "export") {
-    await exportLearnerData();
-  }
-  if (target.dataset.privacyAction === "logout") {
-    await logout();
-  }
-  if (target.dataset.privacyAction === "delete") {
-    await deleteAccount();
+});
+
+document.addEventListener("change", (event) => {
+  if (event.target.id === "exam-select") {
+    state.activeExam = state.exams.find((exam) => exam.exam_id === event.target.value);
+    resetExamAttempt();
+    navigateTo("/pruefungen", false);
   }
 });
 
-document.getElementById("login-form").addEventListener("submit", async (event) => {
-  event.preventDefault();
-  const form = new FormData(event.currentTarget);
-  await login(
-    String(form.get("identifier")),
-    String(form.get("password")),
-    String(form.get("cohort")),
-  );
-  document.getElementById("login-feedback").textContent =
-    "Angemeldet. Serverseitiger Lernstand ist aktiv.";
-  await navigateTo("/dashboard");
-});
-
-document.getElementById("learn-month-select").addEventListener("change", async (event) => {
-  await loadLearnMonth(Number(event.target.value));
-});
-
-document.getElementById("next-question").addEventListener("click", () => {
-  state.currentQuestionIndex += 1;
-  renderQuestion();
-});
-
-document.getElementById("exam-select").addEventListener("change", (event) => {
-  state.activeExam = state.exams.find((exam) => exam.exam_id === event.target.value);
-  resetExamAttempt();
-  renderExam();
-});
-
-document.getElementById("reset-progress").addEventListener("click", resetProgress);
-document.getElementById("generate-draft").addEventListener("click", generateDraft);
-document.getElementById("accept-privacy").addEventListener("click", acceptPrivacyNotice);
-document.getElementById("export-data").addEventListener("click", exportLearnerData);
-document.getElementById("logout").addEventListener("click", logout);
-document.getElementById("delete-account").addEventListener("click", deleteAccount);
 document.addEventListener("submit", async (event) => {
-  if (event.target.id === "report-form") {
-    event.preventDefault();
-    await saveTrainingReport(event);
+  const form = event.target;
+  if (!(form instanceof HTMLFormElement)) {
+    return;
+  }
+  try {
+    if (form.id === "login-form") {
+      event.preventDefault();
+      const data = new FormData(form);
+      await login(String(data.get("identifier")), String(data.get("password")), String(data.get("cohort")));
+      document.getElementById("login-feedback").textContent =
+        "Angemeldet. Serverseitiger Lernstand ist aktiv.";
+      await navigateTo("/dashboard");
+      return;
+    }
+    if (form.dataset.action === "change-password") {
+      event.preventDefault();
+      await changePassword(form);
+      const feedback = form.parentElement.querySelector("[data-feedback]");
+      if (feedback) {
+        feedback.textContent = "Passwort gespeichert.";
+      }
+      return;
+    }
+    if (form.dataset.action === "create-report") {
+      event.preventDefault();
+      await saveTrainingReport(form);
+    }
+  } catch (error) {
+    showToast(error.message);
+    const feedback = form.parentElement?.querySelector("[data-feedback]");
+    if (feedback) {
+      feedback.textContent = error.message;
+    }
   }
 });
 

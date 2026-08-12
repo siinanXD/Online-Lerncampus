@@ -45,23 +45,55 @@ def test_frontend_page_routes_return_app_shell() -> None:
         "/",
         "/funktionen",
         "/login",
+        "/passwort",
+        "/sprache",
+        "/onboarding",
+        "/level-up",
         "/dashboard",
+        "/dashboard/streak",
         "/lernreise",
         "/lernen",
+        "/lernen/themen",
+        "/lernen/frage",
+        "/fachkunde",
+        "/fachkunde/toleranz",
         "/pruefungen",
+        "/pruefungen/kammertermine",
         "/berichtsheft",
+        "/berichtsheft/neu",
+        "/fortschritt",
+        "/fortschritt/heatmap",
         "/defizite",
-        "/review",
         "/mehr",
+        "/mehr/coach",
+        "/gamification",
+        "/review",
+        "/ausbilder",
+        "/ausbilder/review",
+        "/ausbilder/generator",
+        "/admin",
+        "/admin/nutzer",
+        "/admin/content",
         "/datenschutz",
     ]
 
     for page_route in page_routes:
         response = client.get(page_route)
 
-        assert response.status_code == 200
+        assert response.status_code == 200, page_route
         assert "BZE Online Campus" in response.text
 
+
+def test_figma_screen_allowlist_is_wired() -> None:
+    """Ensure the generated Figma allowlist is loaded by the app."""
+    from app.web.pages import allowed_frontend_pages
+
+    pages = allowed_frontend_pages()
+    assert "" in pages
+    assert "ausbilder" in pages
+    assert "admin/nutzer" in pages
+    assert "lernen/formeltrainer" in pages
+    assert len(pages) >= 100
 
 def test_unknown_frontend_route_returns_404() -> None:
     """Ensure unknown frontend routes do not silently return the app shell."""

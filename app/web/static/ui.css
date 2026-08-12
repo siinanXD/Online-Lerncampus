@@ -1165,6 +1165,101 @@ body[data-page-layout="auth"] main {
   color: var(--streak-fg);
 }
 
+.chip-streak.chip-streak-danger {
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #ef4444;
+}
+
+.streak-urgent-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, #f97316 0%, #ef4444 100%);
+  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.19);
+  color: #fff;
+}
+
+.streak-urgent-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.streak-urgent-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.13);
+  flex-shrink: 0;
+}
+
+.streak-urgent-banner strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.streak-urgent-banner p {
+  margin: 2px 0 0;
+  font-size: 11px;
+  color: #fee2e2;
+}
+
+.streak-urgent-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  border-radius: 10px;
+  background: #fff;
+  color: #ef4444;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.tagesziel-card.tagesziel-danger {
+  border: 1px solid #ef4444;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tagesziel-card.tagesziel-danger .row-between {
+  margin-bottom: 0;
+}
+
+.tagesziel-card.tagesziel-danger .tagesziel-meta {
+  color: #ef4444;
+  font-weight: 700;
+}
+
+.tagesziel-card.tagesziel-danger .segmented-progress {
+  margin-bottom: 0;
+}
+
+.tagesziel-card.tagesziel-danger .segmented-progress span {
+  background: #fee2e2;
+}
+
+.tagesziel-card.tagesziel-danger > p {
+  color: #ef4444;
+}
+
+.stat-tile.danger strong {
+  color: #ef4444;
+}
+
+.stat-icon.danger {
+  background: #fee2e2;
+  color: #ef4444;
+}
+
 .chip-xp {
   background: var(--xp-bg);
   color: var(--fg);
@@ -1181,6 +1276,63 @@ body[data-page-layout="auth"] main {
   display: flex;
   gap: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.02);
+}
+
+.fortsetzen-card.fortsetzen-stack {
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fortsetzen-stack .topic-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fortsetzen-stack .topic-row h3 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--fg);
+}
+
+.fortsetzen-stack .progress-track {
+  margin-top: 6px;
+}
+
+.motivation-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid #f59e0b;
+  border-radius: 16px;
+  background: #fef3c7;
+  color: #ea580c;
+}
+
+.motivation-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  background: #fef3c7;
+  flex-shrink: 0;
+}
+
+.motivation-banner strong {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.motivation-banner p {
+  margin: 2px 0 0;
+  font-size: 11px;
+  font-weight: 400;
+  line-height: normal;
 }
 
 .topic-icon {
@@ -1292,6 +1444,60 @@ body[data-page-layout="auth"] main {
   color: var(--accent-blue);
   font-size: 13px;
   font-weight: 700;
+}
+
+.tagesziel-card.tagesziel-open {
+  border: 1.5px solid #ea580c;
+  box-shadow: 0 6px 16px rgba(249, 115, 22, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tagesziel-card.tagesziel-open .row-between {
+  margin-bottom: 0;
+}
+
+.tagesziel-card.tagesziel-open .tagesziel-meta {
+  color: #ea580c;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.tagesziel-card.tagesziel-open .segmented-progress {
+  margin-bottom: 0;
+}
+
+.tagesziel-card.tagesziel-open .segmented-progress span {
+  height: 8px;
+  border-radius: 4px;
+  background: #e7e5e4;
+}
+
+.tagesziel-card.tagesziel-open .segmented-progress span.filled {
+  background: #ea580c;
+}
+
+.tagesziel-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 42px;
+  border-radius: 12px;
+  background: #ea580c;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.wiederholung-card.wiederholung-plain {
+  display: block;
+}
+
+.wiederholung-plain .wiederholung-body {
+  padding-left: 8px;
+  gap: 4px;
 }
 
 .wochenbericht-card .row-between span {

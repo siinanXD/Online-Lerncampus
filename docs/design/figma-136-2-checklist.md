@@ -47,8 +47,8 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | Status | Node | Name | Size | Route |
 |--------|------|------|------|-------|
 | [~] | `136:5326` | 03.1 Dashboard - Default | 390×859 | `/dashboard` |
-| [ ] | `136:5471` | 03.2 Dashboard - Tagesziel | 390×981 | `/dashboard/tagesziel` |
-| [ ] | `136:5621` | 03.3 Dashboard - Streak | 390×1010 | `/dashboard/streak` |
+| [x] | `136:5471` | 03.2 Dashboard - Tagesziel | 390×981 | `/dashboard/tagesziel` |
+| [x] | `136:5621` | 03.3 Dashboard - Streak | 390×1010 | `/dashboard/streak` |
 | [ ] | `136:5773` | 03.4 Design Canvas | 2218×1104 | (reference) |
 | [ ] | `136:6151` | 03.5 Fortsetzen Varianten | 390×885 | `/dashboard/fortsetzen` |
 | [ ] | `136:6285` | 03.6 Wochenbericht Karte | 390×844 | `/dashboard/wochenbericht` |

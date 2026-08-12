@@ -518,8 +518,219 @@ window.OLC_SCREEN_RENDERERS = {
         </div>
       </article>
     `,
-  "s03_2-dashboard-tagesziel": () => window.OLC_SCREEN_RENDERERS["s03_1-dashboard-default"](),
-  "s03_3-dashboard-streak": () => window.OLC_SCREEN_RENDERERS["s03_1-dashboard-default"](),
+  "s03_2-dashboard-tagesziel": () => `
+      <section class="dash-greeting">
+        <div>
+          <h2 data-bind="greeting-name">Hallo, Max!</h2>
+          <p>Bereit für deine tägliche Dosis Wissen?</p>
+        </div>
+        <div class="dash-chips">
+          <span class="chip-streak" title="Streak">
+            <img src="/static/figma/dash/fire.svg" width="16" height="16" alt="" />
+            <span data-bind="streak">12</span>
+          </span>
+          <span class="chip-xp" title="XP">
+            <img src="/static/figma/dash/coins.svg" width="16" height="16" alt="" />
+            <span data-bind="xp">2.450</span>
+          </span>
+        </div>
+      </section>
+      <aside class="motivation-banner" data-node-id="136:5508">
+        <span class="motivation-icon" aria-hidden="true">
+          <img src="/static/figma/dash/hourglass.svg" width="20" height="20" alt="" />
+        </span>
+        <div>
+          <strong>Noch 4 Lektionen verbleibend!</strong>
+          <p>Du schaffst das! • 6h verbleibend</p>
+        </div>
+      </aside>
+      <article class="dash-card fortsetzen-card fortsetzen-stack" data-node-id="136:5515">
+        <div class="topic-row">
+          <div class="topic-icon blue" aria-hidden="true">
+            <img src="/static/figma/dash/gauge.svg" width="20" height="20" alt="" />
+          </div>
+          <h3 data-bind="continue-title">Pneumatik - Schaltpläne</h3>
+        </div>
+        <div>
+          <div class="progress-meta">
+            <span>Fortschritt</span>
+            <strong data-bind="continue-progress">12/30 Fragen</strong>
+          </div>
+          <div class="progress-track"><span data-bind="continue-bar" style="width:40%"></span></div>
+        </div>
+        <div class="fortsetzen-actions">
+          <a class="primary-button fortsetzen-btn" href="/lernen" data-page-link>Fortsetzen</a>
+          <span class="xp-badge">
+            <img src="/static/figma/dash/bolt.svg" width="14" height="14" alt="" />
+            +50 XP
+          </span>
+        </div>
+      </article>
+      <article class="dash-card tagesziel-card tagesziel-open" data-node-id="136:5534">
+        <div class="row-between">
+          <strong>Tagesziel</strong>
+          <span class="tagesziel-meta">1 von 5 Lektionen heute</span>
+        </div>
+        <div class="segmented-progress tagesziel-segments">
+          <span class="filled"></span><span></span><span></span><span></span><span></span>
+        </div>
+        <a class="tagesziel-cta" href="/lernen" data-page-link>Jetzt lernen</a>
+      </article>
+      <div class="dash-stats">
+        <article class="stat-tile success">
+          <div class="stat-tile-top">
+            <strong data-bind="readiness">67%</strong>
+            <span class="stat-icon success" aria-hidden="true">
+              <img src="/static/figma/dash/check.svg" width="14" height="14" alt="" />
+            </span>
+          </div>
+          <span>Prüfungsreife</span>
+        </article>
+        <article class="stat-tile info">
+          <div class="stat-tile-top">
+            <strong>10 Min</strong>
+            <span class="stat-icon info" aria-hidden="true">
+              <img src="/static/figma/dash/clock.svg" width="14" height="14" alt="" />
+            </span>
+          </div>
+          <span>Lernzeit heute</span>
+        </article>
+      </div>
+      <article class="dash-card wochenbericht-card">
+        <div class="row-between">
+          <strong>Wochenbericht</strong>
+          <span>2h 45min diese Woche</span>
+        </div>
+        <div class="week-bars" aria-label="Wochenaktivität">
+          <div class="week-bar"><i style="height:32px"></i><span>Mo</span></div>
+          <div class="week-bar"><i style="height:45px"></i><span>Di</span></div>
+          <div class="week-bar"><i style="height:20px"></i><span>Mi</span></div>
+          <div class="week-bar"><i style="height:55px"></i><span>Do</span></div>
+          <div class="week-bar"><i style="height:40px"></i><span>Fr</span></div>
+          <div class="week-bar"><i class="empty" style="height:8px"></i><span>Sa</span></div>
+          <div class="week-bar"><i class="empty" style="height:4px"></i><span>So</span></div>
+        </div>
+      </article>
+      <article class="dash-card wiederholung-card wiederholung-plain">
+        <div class="wiederholung-body">
+          <h3>Wiederholung: Werkstoffkunde</h3>
+          <div class="wiederholung-meta">
+            <span class="danger"><span data-bind="wrong">3</span> Fehler zuletzt</span>
+            <a href="/lernen/fragen/fehler" data-page-link>Wiederholen
+              <img src="/static/figma/dash/chevron.svg" width="10" height="10" alt="" />
+            </a>
+          </div>
+        </div>
+      </article>
+    `,
+  "s03_3-dashboard-streak": () => `
+      <section class="dash-greeting">
+        <div>
+          <h2 data-bind="greeting-name">Hallo, Max!</h2>
+          <p>Bereit für deine tägliche Dosis Wissen?</p>
+        </div>
+        <div class="dash-chips">
+          <span class="chip-streak chip-streak-danger" title="Streak">
+            <img src="/static/figma/dash/fire.svg" width="16" height="16" alt="" />
+            <span data-bind="streak">12</span>
+          </span>
+          <span class="chip-xp" title="XP">
+            <img src="/static/figma/dash/coins.svg" width="16" height="16" alt="" />
+            <span data-bind="xp">2.450</span>
+          </span>
+        </div>
+      </section>
+      <aside class="streak-urgent-banner" data-node-id="136:5658">
+        <div class="streak-urgent-top">
+          <span class="streak-urgent-icon" aria-hidden="true">
+            <img src="/static/figma/dash/fire-white.svg" width="24" height="24" alt="" />
+          </span>
+          <div>
+            <strong>Dein 12-Tage Streak endet heute!</strong>
+            <p>Starte jetzt eine Lektion um ihn zu behalten.</p>
+          </div>
+        </div>
+        <a class="streak-urgent-cta" href="/lernen" data-page-link>Jetzt starten</a>
+      </aside>
+      <article class="dash-card fortsetzen-card fortsetzen-stack">
+        <div class="topic-row">
+          <div class="topic-icon blue" aria-hidden="true">
+            <img src="/static/figma/dash/gauge.svg" width="20" height="20" alt="" />
+          </div>
+          <h3 data-bind="continue-title">Pneumatik - Schaltpläne</h3>
+        </div>
+        <div>
+          <div class="progress-meta">
+            <span>Fortschritt</span>
+            <strong data-bind="continue-progress">12/30 Fragen</strong>
+          </div>
+          <div class="progress-track"><span data-bind="continue-bar" style="width:40%"></span></div>
+        </div>
+        <div class="fortsetzen-actions">
+          <a class="primary-button fortsetzen-btn" href="/lernen" data-page-link>Fortsetzen</a>
+          <span class="xp-badge">
+            <img src="/static/figma/dash/bolt.svg" width="14" height="14" alt="" />
+            +50 XP
+          </span>
+        </div>
+      </article>
+      <article class="dash-card tagesziel-card tagesziel-danger" data-node-id="136:5687">
+        <div class="row-between">
+          <strong>Tagesziel</strong>
+          <span class="tagesziel-meta">0 von 5 Lektionen heute</span>
+        </div>
+        <div class="segmented-progress">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <p>Keine Aktivität verzeichnet</p>
+      </article>
+      <div class="dash-stats">
+        <article class="stat-tile success">
+          <div class="stat-tile-top">
+            <strong data-bind="readiness">67%</strong>
+            <span class="stat-icon success" aria-hidden="true">
+              <img src="/static/figma/dash/check.svg" width="14" height="14" alt="" />
+            </span>
+          </div>
+          <span>Prüfungsreife</span>
+        </article>
+        <article class="stat-tile danger">
+          <div class="stat-tile-top">
+            <strong>0 Min</strong>
+            <span class="stat-icon danger" aria-hidden="true">
+              <img src="/static/figma/dash/clock.svg" width="14" height="14" alt="" />
+            </span>
+          </div>
+          <span>Lernzeit heute</span>
+        </article>
+      </div>
+      <article class="dash-card wochenbericht-card">
+        <div class="row-between">
+          <strong>Wochenbericht</strong>
+          <span>2h 35min diese Woche</span>
+        </div>
+        <div class="week-bars" aria-label="Wochenaktivität">
+          <div class="week-bar"><i style="height:32px"></i><span>Mo</span></div>
+          <div class="week-bar"><i style="height:45px"></i><span>Di</span></div>
+          <div class="week-bar"><i style="height:20px"></i><span>Mi</span></div>
+          <div class="week-bar"><i style="height:55px"></i><span>Do</span></div>
+          <div class="week-bar"><i style="height:40px"></i><span>Fr</span></div>
+          <div class="week-bar"><i class="empty" style="height:8px"></i><span>Sa</span></div>
+          <div class="week-bar"><i class="empty" style="height:4px"></i><span>So</span></div>
+        </div>
+      </article>
+      <article class="dash-card wiederholung-card wiederholung-plain">
+        <div class="wiederholung-body">
+          <h3>Wiederholung: Werkstoffkunde</h3>
+          <div class="wiederholung-meta">
+            <span class="danger"><span data-bind="wrong">3</span> Fehler zuletzt</span>
+            <a href="/lernen/fragen/fehler" data-page-link>Wiederholen
+              <img src="/static/figma/dash/chevron.svg" width="10" height="10" alt="" />
+            </a>
+          </div>
+        </div>
+      </article>
+    `,
   "s03_5-fortsetzen-varianten": () => `
 
       <div class="screen-head">

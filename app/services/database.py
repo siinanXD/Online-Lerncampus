@@ -11,6 +11,7 @@ from pathlib import Path
 from threading import RLock
 from typing import Any
 
+from app.db.content_schema import initialize_content_schema
 from app.services.progress_service import QuestionProgress
 
 
@@ -116,6 +117,7 @@ class Database:
                 """
             )
             self._ensure_password_hash_column(connection)
+            initialize_content_schema(connection)
 
     def _ensure_password_hash_column(self, connection: sqlite3.Connection) -> None:
         """Add password_hash when upgrading an existing local database."""

@@ -6,6 +6,8 @@ __pycache__/
 venv/
 .env
 local.db
+alembic-test.db
+*.db-journal
 *.sqlite
 *.sqlite3
 dist/

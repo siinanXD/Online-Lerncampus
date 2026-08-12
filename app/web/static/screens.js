@@ -32,11 +32,11 @@ window.OLC_ROUTE_CONFIG = {
   "/lernen/themen": { layout: "app", screen: "s04_2-themenliste", title: "Themenliste", tab: "learn", num: "04.2", chrome: "learn-drill" },
   "/lernen/fragen": { layout: "app", screen: "s04_3-fragenliste-alle", title: "Fragenliste — Alle", tab: "learn", num: "04.3", chrome: "learn-drill" },
   "/lernen/fragen/fehler": { layout: "app", screen: "s04_4-fragenliste-fehler", title: "Fragenliste — Fehler", tab: "learn", num: "04.4", chrome: "learn-drill" },
-  "/lernen/frage": { layout: "app", screen: "s04_5-frage-multiple-choice", title: "Frage — Multiple Choice", tab: "learn", num: "04.5" },
-  "/lernen/frage/freitext": { layout: "app", screen: "s04_6-frage-freitext", title: "Frage — Freitext", tab: "learn", num: "04.6" },
-  "/lernen/feedback/richtig": { layout: "app", screen: "s04_7-feedback-richtig", title: "Feedback — Richtig", tab: "learn", num: "04.7" },
-  "/lernen/feedback/falsch": { layout: "app", screen: "s04_8-feedback-falsch", title: "Feedback — Falsch", tab: "learn", num: "04.8" },
-  "/lernen/melden": { layout: "app", screen: "s04_9-frage-melden-overlay", title: "Frage melden Overlay", tab: "learn", num: "04.9" },
+  "/lernen/frage": { layout: "app", screen: "s04_5-frage-multiple-choice", title: "Frage — Multiple Choice", tab: "learn", num: "04.5", chrome: "q-play" },
+  "/lernen/frage/freitext": { layout: "app", screen: "s04_6-frage-freitext", title: "Frage — Freitext", tab: "learn", num: "04.6", chrome: "q-play" },
+  "/lernen/feedback/richtig": { layout: "app", screen: "s04_7-feedback-richtig", title: "Feedback — Richtig", tab: "learn", num: "04.7", chrome: "q-play" },
+  "/lernen/feedback/falsch": { layout: "app", screen: "s04_8-feedback-falsch", title: "Feedback — Falsch", tab: "learn", num: "04.8", chrome: "q-play" },
+  "/lernen/melden": { layout: "app", screen: "s04_9-frage-melden-overlay", title: "Frage melden Overlay", tab: "learn", num: "04.9", chrome: "q-play" },
   "/fachkunde": { layout: "app", screen: "s05_1-fachkunde-einstieg", title: "Fachkunde — Einstieg", tab: "learn", num: "05.1" },
   "/fachkunde/freigabe": { layout: "app", screen: "s05_10-lerneinheit-freigabe", title: "Lerneinheit — Freigabe", tab: "learn", num: "05.10" },
   "/fachkunde/lernpfad": { layout: "app", screen: "s05_2-fachkunde-lernpfad", title: "Fachkunde — Lernpfad", tab: "learn", num: "05.2" },
@@ -1375,184 +1375,318 @@ window.OLC_SCREEN_RENDERERS = {
       </section>
     `,
   "s04_3-fragenliste-alle": () => `
-      <section class="learn-drill" data-node-id="136:4019">
-        <header class="learn-drill-header">
-          <a class="learn-back" href="/lernen/themen" data-page-link>
-            <img src="/static/figma/learn2/q-arrow-left.svg" width="20" height="20" alt="" />
-            Pneumatik
-          </a>
-          <div class="learn-drill-actions">
-            <div class="learn-pct-ring" aria-label="Fortschritt 67%">
-              <img class="learn-pct-track" src="/static/figma/learn2/q-ring-track.svg" width="36" height="36" alt="" />
-              <img class="learn-pct-fill" src="/static/figma/learn2/q-ring-fill.svg" width="36" height="36" alt="" />
-              <strong>67%</strong>
+      <section class="learn-drill fragen-alle" data-node-id="136:4019">
+        <div class="learn-drill-top">
+          <header class="learn-drill-header">
+            <a class="learn-back" href="/lernen/themen" data-page-link>
+              <img src="/static/figma/learn2/q-arrow-left.svg" width="20" height="20" alt="" />
+              Pneumatik
+            </a>
+            <div class="learn-drill-actions">
+              <div class="learn-pct-ring" aria-label="Fortschritt 67%">
+                <img class="learn-pct-track" src="/static/figma/learn2/q-ring-track.svg" width="36" height="36" alt="" />
+                <img class="learn-pct-fill" src="/static/figma/learn2/q-ring-fill.svg" width="36" height="36" alt="" />
+                <strong>67%</strong>
+              </div>
+              <a class="learn-menu-btn" href="/mehr" data-page-link aria-label="Menue">
+                <img src="/static/figma/learn2/q-menu.svg" width="20" height="20" alt="" />
+              </a>
             </div>
-            <a class="learn-menu-btn" href="/mehr" data-page-link aria-label="Menue">
-              <img src="/static/figma/learn2/q-menu.svg" width="20" height="20" alt="" />
+          </header>
+          <div class="topic-stats figma-topic-stats">
+            <div class="row-between"><strong>30 Fragen — 12 beherrscht</strong><span class="mastery-pct">40%</span></div>
+            <div class="mastery-track"><span class="mastery-fill" style="width:40%"></span></div>
+          </div>
+          <div class="filter-pills learn-filters">
+            <a class="filter-pill active" href="/lernen/fragen" data-page-link>Alle</a>
+            <button type="button" class="filter-pill">Offen</button>
+            <a class="filter-pill" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
+            <button type="button" class="filter-pill">Beherrscht</button>
+          </div>
+          <div class="question-list figma-qlist" data-static="figma" data-bind="question-list">
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-green.svg" width="10" height="10" alt="" />
+              <span>Was ist der Unterschied zwischen 2/2 und 3/2-Wegeventilen?</span>
+              <span class="diff-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-green.svg" width="10" height="10" alt="" />
+              <span>Wie berechnet man die Kolbenkraft eines Zylinders?</span>
+              <span class="diff-bars d2" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-green.svg" width="10" height="10" alt="" />
+              <span>Welche Aufgabe hat das Wegeventil in der Pneumatik?</span>
+              <span class="diff-bars d1" aria-hidden="true"><i></i><i class="off"></i><i class="off"></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-blue.svg" width="10" height="10" alt="" />
+              <span>Was passiert bei Druckabfall im System?</span>
+              <span class="diff-bars d2" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-blue.svg" width="10" height="10" alt="" />
+              <span>Welche Funktion hat ein Drosselrückschlagventil?</span>
+              <span class="diff-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-gray.svg" width="10" height="10" alt="" />
+              <span>Wie funktioniert die indirekte Steuerung?</span>
+              <span class="diff-bars d2" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-gray.svg" width="10" height="10" alt="" />
+              <span>Nenne die Normen für Schaltzeichen der Fluidtechnik.</span>
+              <span class="diff-bars d1" aria-hidden="true"><i></i><i class="off"></i><i class="off"></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-red.svg" width="10" height="10" alt="" />
+              <span>Wozu dient der Kondensatablass in Wartungseinheiten?</span>
+              <span class="diff-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
             </a>
           </div>
-        </header>
-        <div class="topic-stats figma-topic-stats">
-          <div class="row-between"><strong>30 Fragen — 12 beherrscht</strong><span class="mastery-pct">40%</span></div>
-          <div class="mastery-track"><span class="mastery-fill" style="width:40%"></span></div>
-        </div>
-        <div class="filter-pills learn-filters">
-          <a class="filter-pill active" href="/lernen/fragen" data-page-link>Alle</a>
-          <button type="button" class="filter-pill">Offen</button>
-          <a class="filter-pill" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
-          <button type="button" class="filter-pill">Beherrscht</button>
-        </div>
-        <div class="question-list figma-qlist" data-bind="question-list">
-          <a class="q-row" href="/lernen/frage" data-page-link>
-            <img class="q-dot" src="/static/figma/learn2/dot-green.svg" width="10" height="10" alt="" />
-            <span>Was ist der Unterschied zwischen 2/2 und 3/2-Wegeventilen?</span>
-            <span class="diff-bars" aria-hidden="true"><i></i><i></i><i></i></span>
-            <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
-          </a>
         </div>
         <a class="primary-button btn-block hub-cta learn-all-btn" href="/lernen/frage" data-page-link>Alle lernen</a>
       </section>
     `,
   "s04_4-fragenliste-fehler": () => `
-
-      <a class="back-link" href="/lernen/themen" data-page-link>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-        Fehler
-      </a>
-      <div class="filter-pills">
-        <a class="filter-pill" href="/lernen/fragen" data-page-link>Alle</a>
-        <button type="button" class="filter-pill">Offen</button>
-        <a class="filter-pill active" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
-        <button type="button" class="filter-pill">Beherrscht</button>
-      </div>
-      <div class="question-list" data-bind="question-list">
-        <article class="list-row"><strong>Frage wird geladen …</strong><span class="muted">API</span></article>
-      </div>
-      <a class="primary-button btn-block hub-cta" href="/lernen/frage" data-page-link>Fehler üben</a>
+      <section class="learn-drill fragen-fehler" data-node-id="136:4241">
+        <div class="learn-drill-top">
+          <header class="learn-drill-header">
+            <a class="learn-back" href="/lernen/themen" data-page-link>
+              <img src="/static/figma/learn2/q-arrow-left.svg" width="20" height="20" alt="" />
+              Pneumatik
+            </a>
+            <div class="learn-drill-actions">
+              <div class="learn-pct-ring" aria-label="Fortschritt 67%">
+                <img class="learn-pct-track" src="/static/figma/learn2/q-ring-track.svg" width="36" height="36" alt="" />
+                <img class="learn-pct-fill" src="/static/figma/learn2/q-ring-fill.svg" width="36" height="36" alt="" />
+                <strong>67%</strong>
+              </div>
+              <a class="learn-menu-btn" href="/mehr" data-page-link aria-label="Menue">
+                <img src="/static/figma/learn2/q-menu.svg" width="20" height="20" alt="" />
+              </a>
+            </div>
+          </header>
+          <div class="error-alert-banner">
+            <img src="/static/figma/learn2/alert-triangle.svg" width="18" height="18" alt="" />
+            <p>4 Fehler in Pneumatik — Wiederholung empfohlen!</p>
+          </div>
+          <div class="filter-pills learn-filters">
+            <a class="filter-pill" href="/lernen/fragen" data-page-link>Alle</a>
+            <button type="button" class="filter-pill">Offen</button>
+            <a class="filter-pill active error" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
+            <button type="button" class="filter-pill">Beherrscht</button>
+          </div>
+          <div class="question-list figma-qlist" data-static="figma" data-bind="question-list">
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-red.svg" width="10" height="10" alt="" />
+              <span>Wozu dient der Kondensatablass in Wartungseinheiten?</span>
+              <span class="diff-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-red.svg" width="10" height="10" alt="" />
+              <span>Warum verbrennt Öl bei pneumatischer Kompression?</span>
+              <span class="diff-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-red.svg" width="10" height="10" alt="" />
+              <span>Welches Symbol beschreibt ein Wechselventil nach ISO 1219?</span>
+              <span class="diff-bars d2" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+            <a class="q-row" href="/lernen/frage" data-page-link>
+              <img class="q-dot" src="/static/figma/learn2/dot-red.svg" width="10" height="10" alt="" />
+              <span>Welcher Leitungsdurchmesser minimiert Strömungsverluste?</span>
+              <span class="diff-bars d2" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
+              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+            </a>
+          </div>
+        </div>
+        <a class="primary-button btn-block hub-cta learn-all-btn error-retry-btn" href="/lernen/frage" data-page-link>Fehler wiederholen</a>
+      </section>
     `,
   "s04_5-frage-multiple-choice": () => `
-
-      <div class="q-session">
-        <div class="q-session-header">
-          <a class="icon-round" href="/lernen/fragen" data-page-link aria-label="Schliessen">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          </a>
-          <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:40%"></span></div>
-          <span class="q-tracker" data-bind="q-tracker">12/30</span>
+      <div class="q-play" data-node-id="136:4345">
+        <div class="q-play-main">
+          <div class="q-session-header">
+            <a class="q-close-btn" href="/lernen/fragen" data-page-link aria-label="Schliessen">
+              <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
+            </a>
+            <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:40%"></span></div>
+            <span class="q-tracker" data-bind="q-tracker">12/30</span>
+          </div>
+          <div class="q-play-body">
+            <div class="q-meta-row">
+              <span class="topic-pill">Pneumatik</span>
+              <span class="difficulty-group">
+                <img class="diff-dots-img" src="/static/figma/learn2/q-diff-mittel.svg" width="26" height="6" alt="" />
+                Mittel
+              </span>
+            </div>
+            <h3 class="q-prompt" data-bind="live-question-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
+            <div class="answer-options" data-bind="live-answers">
+              <button class="answer-option" type="button" data-index="0"><span class="answer-letter">A</span><span class="answer-text">Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</span></button>
+              <button class="answer-option" type="button" data-index="1"><span class="answer-letter">B</span><span class="answer-text">Doppeltwirkend hat zwei Kolben</span></button>
+              <button class="answer-option" type="button" data-index="2"><span class="answer-letter">C</span><span class="answer-text">Einfachwirkend arbeitet mit Hydrauliköl</span></button>
+              <button class="answer-option" type="button" data-index="3"><span class="answer-letter">D</span><span class="answer-text">Kein Unterschied, nur die Größe</span></button>
+            </div>
+            <p class="feedback" data-bind="live-feedback" hidden></p>
+          </div>
         </div>
-        <div class="q-meta-row">
-          <span class="topic-pill">Pneumatik</span>
-          <span class="difficulty-group">
-            <span class="diff-dots" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
-            Mittel
-          </span>
-        </div>
-        <h3 class="q-prompt" data-bind="live-question-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
-        <div class="answer-options" data-bind="live-answers">
-          <button class="answer-option" type="button" data-index="0"><span class="answer-letter">A</span><span class="answer-text">Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</span></button>
-          <button class="answer-option" type="button" data-index="1"><span class="answer-letter">B</span><span class="answer-text">Doppeltwirkend hat zwei Kolben</span></button>
-          <button class="answer-option" type="button" data-index="2"><span class="answer-letter">C</span><span class="answer-text">Einfachwirkend arbeitet mit Hydrauliköl</span></button>
-          <button class="answer-option" type="button" data-index="3"><span class="answer-letter">D</span><span class="answer-text">Kein Unterschied, nur die Größe</span></button>
-        </div>
-        <p class="feedback" data-bind="live-feedback"></p>
         <div class="q-bottom-actions">
           <button class="primary-button btn-block btn-confirm" type="button" data-action="confirm-answer" disabled>Bestätigen</button>
           <a class="ghost-link" href="/lernen/fragen" data-page-link>Überspringen</a>
-          <div class="row-actions q-aux-actions">
-            <a class="secondary-button" href="/lernen/melden" data-page-link>Melden</a>
-            <a class="secondary-button" href="/lernen/uebersetzung" data-page-link>Übersetzung</a>
-          </div>
         </div>
       </div>
     `,
   "s04_6-frage-freitext": () => `
-
-      <div class="screen-head"><p class="eyebrow">04.6</p><h2>Frage — Freitext</h2></div>
-      <article class="card question-play">
-        <p class="eyebrow">Frage 3 von 20</p>
-        <h3 data-bind="live-question-prompt">Welche Funktion erfuellt das Rueckschlagventil?</h3>
-        <div class="answer-options" data-bind="live-answers">
-          <button class="answer-option" type="button">Verhindert Ruecklauf</button>
-          <button class="answer-option" type="button">Erhoeht den Druck</button>
-          <button class="answer-option" type="button">Misst den Durchfluss</button>
-          <button class="answer-option" type="button">Kuehlt das Medium</button>
+      <div class="q-play" data-node-id="136:4401">
+        <div class="q-play-main">
+          <div class="q-session-header">
+            <a class="q-close-btn" href="/lernen/fragen" data-page-link aria-label="Schliessen">
+              <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
+            </a>
+            <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:40%"></span></div>
+            <span class="q-tracker">13/30</span>
+          </div>
+          <div class="q-play-body">
+            <div class="q-meta-row">
+              <span class="topic-pill">Arbeitsschutz</span>
+              <span class="difficulty-group">
+                <img class="diff-dots-img" src="/static/figma/learn2/q-diff-schwer.svg" width="26" height="6" alt="" />
+                Schwer
+              </span>
+            </div>
+            <h3 class="q-prompt">Nenne drei Schutzmaßnahmen beim Arbeiten an drehenden Maschinenteilen.</h3>
+            <div class="freetext-box">
+              <textarea class="freetext-input" rows="5" maxlength="500" placeholder="Deine Antwort..." data-bind="freetext-answer" aria-label="Freitext Antwort"></textarea>
+              <div class="freetext-meta">
+                <span>Mindestens 3 Punkte nennen</span>
+                <span data-bind="freetext-count">0/500</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <p class="feedback" data-bind="live-feedback"></p>
-        <div class="row-actions">
-          <a class="secondary-button" href="/lernen/melden" data-page-link>Melden</a>
-          <a class="secondary-button" href="/lernen/uebersetzung" data-page-link>Uebersetzung</a>
-          <a class="primary-button" href="/lernen/fragen" data-page-link>Weiter</a>
+        <div class="q-bottom-actions">
+          <a class="primary-button btn-block btn-confirm-active" href="/lernen/feedback/richtig" data-page-link>Antwort prüfen</a>
+          <a class="ghost-link" href="/lernen/fragen" data-page-link>Überspringen</a>
         </div>
-      </article>
-      <ul class="plain-list muted"><li>tracker-label</li><li>topic-text</li><li>difficulty-text</li><li>question-title</li><li>placeholder</li><li>hint-text</li></ul>
+      </div>
     `,
   "s04_7-feedback-richtig": () => `
-
-      <div class="fb-screen">
-        <div class="fb-topbar">
-          <a class="icon-round" href="/lernen/fragen" data-page-link aria-label="Schließen">×</a>
-          <div class="mastery-track fb-progress"><span class="mastery-fill" style="width:40%"></span></div>
-          <span class="fb-count">12/30</span>
+      <div class="q-play fb-play ok" data-node-id="136:4446">
+        <div class="q-play-main">
+          <div class="q-session-header">
+            <a class="q-close-btn" href="/lernen/fragen" data-page-link aria-label="Schliessen">
+              <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
+            </a>
+            <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:43%"></span></div>
+            <span class="q-tracker">12/30</span>
+          </div>
+          <div class="q-play-body fb-body">
+            <div class="q-meta-row">
+              <span class="topic-pill">Pneumatik</span>
+              <span class="difficulty-group">
+                <img class="diff-dots-img" src="/static/figma/learn2/q-diff-mittel.svg" width="26" height="6" alt="" />
+                Mittel
+              </span>
+            </div>
+            <h3 class="q-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
+            <div class="fb-answers">
+              <div class="fb-answer correct">
+                <span class="answer-letter">A</span>
+                <span class="answer-text">Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</span>
+                <img class="fb-mark" src="/static/figma/learn2/q-check-green.svg" width="18" height="18" alt="" />
+              </div>
+              <div class="fb-answer dim"><span class="answer-letter">B</span><span class="answer-text">Doppeltwirkend hat zwei Kolben</span></div>
+              <div class="fb-answer dim"><span class="answer-letter">C</span><span class="answer-text">Einfachwirkend arbeitet mit Hydrauliköl</span></div>
+              <div class="fb-answer dim"><span class="answer-letter">D</span><span class="answer-text">Kein Unterschied, nur die Größe</span></div>
+            </div>
+          </div>
         </div>
-        <div class="row-between">
-          <span class="topic-pill">Pneumatik</span>
-          <span class="muted">Mittel</span>
-        </div>
-        <h3 class="fb-question" data-bind="live-question-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
-        <div class="fb-answers answer-options" data-bind="live-answers">
-          <div class="fb-answer correct"><span class="answer-letter">A</span><span>Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</span></div>
-          <div class="fb-answer dim"><span class="answer-letter">B</span><span>Doppeltwirkend hat zwei Kolben</span></div>
-          <div class="fb-answer dim"><span class="answer-letter">C</span><span>Einfachwirkend arbeitet mit Hydrauliköl</span></div>
-          <div class="fb-answer dim"><span class="answer-letter">D</span><span>Kein Unterschied, nur die Größe</span></div>
-        </div>
-        <p class="feedback" data-bind="live-feedback"></p>
         <aside class="fb-sheet ok">
-          <div class="row-between">
-            <strong class="fb-title ok">Richtig!</strong>
+          <div class="fb-sheet-head">
+            <div class="fb-heading">
+              <span class="fb-success-circle"><img src="/static/figma/learn2/q-check-white.svg" width="16" height="16" alt="" /></span>
+              <strong class="fb-title ok">Richtig!</strong>
+            </div>
             <span class="xp-pill">+20 XP</span>
           </div>
           <article class="fb-explain">
-            <p class="fb-label">Erklärung</p>
-            <p>Einfachwirkende Zylinder werden pneumatisch nur in eine Richtung gesteuert. Die Rückstellung erfolgt über eine Feder. Doppeltwirkende nutzen Druckluft für beide Hubwege.</p>
-            <div class="fb-tip">Merksatz: Einfach = Einseitig + Feder. Doppelt = Doppelseitig Luft.</div>
+            <p class="fb-label"><img src="/static/figma/learn2/q-book-open.svg" width="16" height="16" alt="" /> Erklärung</p>
+            <p>Einfachwirkende Zylinder werden pneumatisch nur in eine Richtung gesteuert. Die mechanische Rückstellung erfolgt über eine interne Rückstellfeder. Doppeltwirkende Zylinder nutzen Druckluft für beide Hubwege.</p>
+            <div class="fb-tip">
+              <img src="/static/figma/learn2/q-lightbulb.svg" width="18" height="18" alt="" />
+              <span>Merksatz: Einfach = Einseitig + Feder. Doppelt = Doppelseitig Luft.</span>
+            </div>
           </article>
-          <a class="success-button btn-block pill-btn" href="/lernen/frage" data-page-link>Weiter</a>
+          <a class="success-button btn-block" href="/lernen/frage" data-page-link>Weiter</a>
         </aside>
       </div>
     `,
   "s04_8-feedback-falsch": () => `
-
-      <div class="fb-screen">
-        <div class="fb-topbar">
-          <a class="icon-round" href="/lernen/fragen" data-page-link aria-label="Schließen">×</a>
-          <div class="mastery-track fb-progress"><span class="mastery-fill" style="width:40%"></span></div>
-          <span class="fb-count">12/30</span>
+      <div class="q-play fb-play bad" data-node-id="136:4520">
+        <div class="q-play-main">
+          <div class="q-session-header">
+            <a class="q-close-btn" href="/lernen/fragen" data-page-link aria-label="Schliessen">
+              <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
+            </a>
+            <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:40%"></span></div>
+            <span class="q-tracker">12/30</span>
+          </div>
+          <div class="q-play-body fb-body">
+            <div class="q-meta-row">
+              <span class="topic-pill">Pneumatik</span>
+              <span class="difficulty-group">
+                <img class="diff-dots-img" src="/static/figma/learn2/q-diff-mittel.svg" width="26" height="6" alt="" />
+                Mittel
+              </span>
+            </div>
+            <h3 class="q-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
+            <div class="fb-answers">
+              <div class="fb-answer correct">
+                <span class="answer-letter">A</span>
+                <span class="answer-text">Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</span>
+                <img class="fb-mark" src="/static/figma/learn2/q-check-green.svg" width="18" height="18" alt="" />
+              </div>
+              <div class="fb-answer wrong">
+                <span class="answer-letter">B</span>
+                <span class="answer-text">Doppeltwirkend hat zwei Kolben</span>
+                <img class="fb-mark" src="/static/figma/learn2/q-x-red.svg" width="18" height="18" alt="" />
+              </div>
+              <div class="fb-answer dim"><span class="answer-letter">C</span><span class="answer-text">Einfachwirkend arbeitet mit Hydrauliköl</span></div>
+              <div class="fb-answer dim"><span class="answer-letter">D</span><span class="answer-text">Kein Unterschied, nur die Größe</span></div>
+            </div>
+          </div>
         </div>
-        <div class="row-between">
-          <span class="topic-pill">Pneumatik</span>
-          <span class="muted">Mittel</span>
-        </div>
-        <h3 class="fb-question" data-bind="live-question-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
-        <div class="fb-answers answer-options" data-bind="live-answers">
-          <div class="fb-answer correct"><span class="answer-letter">A</span><span>Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</span></div>
-          <div class="fb-answer wrong"><span class="answer-letter">B</span><span>Doppeltwirkend hat zwei Kolben</span></div>
-          <div class="fb-answer dim"><span class="answer-letter">C</span><span>Einfachwirkend arbeitet mit Hydrauliköl</span></div>
-          <div class="fb-answer dim"><span class="answer-letter">D</span><span>Kein Unterschied, nur die Größe</span></div>
-        </div>
-        <p class="feedback" data-bind="live-feedback"></p>
         <aside class="fb-sheet bad">
-          <div class="row-between">
-            <strong class="fb-title bad">Leider falsch</strong>
-            <span class="xp-pill muted-pill">+0 XP</span>
+          <div class="fb-sheet-head">
+            <div class="fb-heading">
+              <span class="fb-error-circle"><img src="/static/figma/learn2/q-x-white.svg" width="14" height="14" alt="" /></span>
+              <strong class="fb-title bad">Leider falsch</strong>
+            </div>
+            <a class="merklist-btn" href="/dashboard/merksaetze" data-page-link>Zur Merkliste</a>
           </div>
           <article class="fb-explain">
-            <p class="fb-label">Erklärung</p>
-            <p>Antwort B ist unzutreffend. Maßgeblich ist die Wirkrichtung der Druckluft, nicht die Anzahl der Kolben.</p>
-            <div class="fb-tip">Tipp: Merke dir Feder vs. beidseitige Luftbeaufschlagung.</div>
+            <p class="fb-label ok-label"><img src="/static/figma/learn2/q-check-answer.svg" width="14" height="14" alt="" /> Die richtige Antwort:</p>
+            <p class="fb-correct-answer">A) Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</p>
+            <hr class="fb-divider" />
+            <p class="fb-explain-text">Doppeltwirkende Zylinder haben nicht zwei Kolben, sondern eine beidseitige Kolbenfläche, die abwechselnd mit Druckluft beaufschlagt wird.</p>
           </article>
-          <div class="row-actions">
-            <a class="primary-button btn-block pill-btn" href="/lernen/frage" data-page-link>Weiter</a>
-            <a class="secondary-button btn-block" href="/fachkunde" data-page-link>Zur Fachkunde</a>
+          <div class="fb-actions-row">
+            <a class="retry-outline-btn" href="/lernen/frage" data-page-link>Nochmal</a>
+            <a class="primary-button btn-continue" href="/lernen/frage" data-page-link>Weiter</a>
           </div>
         </aside>
       </div>

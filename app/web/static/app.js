@@ -325,7 +325,7 @@ function bindLiveData(root, config) {
   });
 
   const questionList = root.querySelector("[data-bind='question-list']");
-  if (questionList) {
+  if (questionList && questionList.dataset.static !== "figma") {
     const source =
       config.path === "/lernen/fragen/fehler" || config.screen?.includes("fehler")
         ? state.questions.slice(0, 8)
@@ -351,10 +351,15 @@ function bindLiveData(root, config) {
 
   const livePrompt = root.querySelector("[data-bind='live-question-prompt']");
   const liveAnswers = root.querySelector("[data-bind='live-answers']");
-  if (livePrompt && state.questions.length) {
+  const isFeedbackScreen = Boolean(config.screen?.includes("feedback"));
+  if (livePrompt && state.questions.length && !isFeedbackScreen) {
     const question = state.questions[state.currentQuestionIndex % state.questions.length];
-    livePrompt.textContent = question.prompt;
-    if (liveAnswers) {
+    // Keep Figma demo copy on MC pixel frame when prompt already matches design.
+    const keepFigmaCopy = config.path === "/lernen/frage" && livePrompt.textContent.includes("einfach- und doppeltwirkendem");
+    if (!keepFigmaCopy) {
+      livePrompt.textContent = question.prompt;
+    }
+    if (liveAnswers && !keepFigmaCopy) {
       const letters = ["A", "B", "C", "D", "E", "F"];
       liveAnswers.innerHTML = question.options
         .map(
@@ -366,6 +371,16 @@ function bindLiveData(root, config) {
         )
         .join("");
     }
+  }
+
+  const freetextInput = root.querySelector("[data-bind='freetext-answer']");
+  const freetextCount = root.querySelector("[data-bind='freetext-count']");
+  if (freetextInput && freetextCount) {
+    const syncCount = () => {
+      freetextCount.textContent = `${freetextInput.value.length}/500`;
+    };
+    freetextInput.addEventListener("input", syncCount);
+    syncCount();
   }
 
   const examLive = root.querySelector("[data-bind='exam-live']");
@@ -1357,16 +1372,20 @@ function updateChrome(config, pathname) {
   }
   const mainTabs = document.querySelector(".tab-bar-main");
   const campusTabs = document.querySelector(".tab-bar-campus");
+  const learnTabs = document.querySelector(".tab-bar-learn");
   const levelPill = document.getElementById("level-pill");
   const campusXpEl = document.getElementById("campus-xp-pill");
   if (mainTabs) {
-    mainTabs.hidden = chrome === "campus" || chrome === "tablet";
+    mainTabs.hidden = chrome === "campus" || chrome === "tablet" || chrome === "q-play" || chrome === "learn-drill";
   }
   if (campusTabs) {
     campusTabs.hidden = chrome !== "campus";
   }
+  if (learnTabs) {
+    learnTabs.hidden = chrome !== "learn-drill";
+  }
   if (levelPill) {
-    levelPill.hidden = chrome === "campus" || chrome === "tablet" || chrome === "learn-drill";
+    levelPill.hidden = chrome === "campus" || chrome === "tablet" || chrome === "learn-drill" || chrome === "q-play";
   }
   if (campusXpEl) {
     campusXpEl.hidden = chrome !== "campus";

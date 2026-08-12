@@ -70,12 +70,12 @@ window.OLC_ROUTE_CONFIG = {
   "/berichtsheft/export": { layout: "app", screen: "s08_6-pdf-export", title: "PDF-Export", tab: "reports", num: "08.6", chrome: "bh" },
   "/berichtsheft/leer": { layout: "app", screen: "s08_7-berichtsheft-leerzustand", title: "Berichtsheft — Leerzustand", tab: "reports", num: "08.7", chrome: "bh" },
   "/mehr": { layout: "app", screen: "s09_1-mehr-und-profil-uebersicht", title: "Mehr & Profil — Übersicht", tab: "profile", num: "09.1", chrome: "mehr" },
-  "/mehr/ausbilder-sicht": { layout: "app", screen: "s09_2-was-sieht-der-ausbilder", title: "Was sieht der Ausbilder", tab: "profile", num: "09.2" },
+  "/mehr/ausbilder-sicht": { layout: "app", screen: "s09_2-was-sieht-der-ausbilder", title: "Was sieht der Ausbilder", tab: "profile", num: "09.2", chrome: "mehr" },
   "/mehr/coach": { layout: "app", screen: "s09_3-ki-coach-chat", title: "KI-Coach — Chat", tab: "profile", num: "09.3" },
   "/mehr/lernplan": { layout: "app", screen: "s09_4-ki-coach-lernplan", title: "KI-Coach — Lernplan", tab: "profile", num: "09.4" },
   "/mehr/export": { layout: "app", screen: "s09_5-datenexport", title: "Datenexport", tab: "profile", num: "09.5" },
   "/mehr/loeschen": { layout: "app", screen: "s09_6-konto-loeschen", title: "Konto löschen", tab: "profile", num: "09.6" },
-  "/mehr/logout": { layout: "app", screen: "s09_7-logout-bestaetigung", title: "Logout Bestätigung", tab: "profile", num: "09.7" },
+  "/mehr/logout": { layout: "app", screen: "s09_7-logout-bestaetigung", title: "Logout Bestätigung", tab: "profile", num: "09.7", chrome: "mehr" },
   "/ausbilder": { layout: "trainer", screen: "s11_1-ausbilder-cockpit", title: "Ausbilder — Cockpit", tab: null, num: "11.1" },
   "/ausbilder/teilnehmer": { layout: "trainer", screen: "s11_2-teilnehmer-detail", title: "Teilnehmer Detail", tab: null, num: "11.2" },
   "/ausbilder/pruefungsreife": { layout: "trainer", screen: "s11_3-pruefungsreife-dialog", title: "Prüfungsreife Dialog", tab: null, num: "11.3" },
@@ -4443,37 +4443,60 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s09_2-was-sieht-der-ausbilder": () => `
-
-      <div class="mehr-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <h2 class="page-title">Was sieht der Ausbilder</h2>
+      <div class="tr-screen" data-node-id="136:11038">
+        <div class="tr-main">
+          <header class="tr-header">
+            <div class="tr-header-left">
+              <a class="tr-back" href="/mehr" data-page-link aria-label="Zurück">
+                <img src="/static/figma/mehr/tr-back.svg" width="20" height="20" alt="" />
+              </a>
+              <h2>Transparenz</h2>
+            </div>
+            <span class="tr-badge">BZE Safe</span>
+          </header>
+          <div class="tr-scroll">
+            <article class="tr-hero">
+              <div class="tr-hero-top">
+                <span class="tr-hero-ico"><img src="/static/figma/mehr/tr-eye.svg" width="16" height="16" alt="" /></span>
+                <strong>Was sieht dein Ausbilder?</strong>
+              </div>
+              <p>Hier siehst du genau, welche Daten für deinen Ausbilder sichtbar sind. Wir schützen deine Privatsphäre.</p>
+            </article>
+            <section class="tr-section">
+              <p class="tr-label ok">Sichtbar für Ausbilder</p>
+              <div class="tr-list">
+                <div class="tr-row"><div><img src="/static/figma/mehr/tr-check.svg" width="16" height="16" alt="" /><span>Gesamtfortschritt (%)</span></div><em>Dein Ausbilder sieht: 67%</em></div>
+                <div class="tr-row"><div><img src="/static/figma/mehr/tr-check.svg" width="16" height="16" alt="" /><span>Prüfungsreife (%)</span></div><em data-bind="readiness">67%</em></div>
+                <div class="tr-row"><div><img src="/static/figma/mehr/tr-check.svg" width="16" height="16" alt="" /><span>Lernzeit (gesamt)</span></div><em>42h</em></div>
+                <div class="tr-row"><div><img src="/static/figma/mehr/tr-check.svg" width="16" height="16" alt="" /><span>Berichtsheft-Einträge</span></div><em>Status und Inhalt</em></div>
+                <div class="tr-row"><div><img src="/static/figma/mehr/tr-check.svg" width="16" height="16" alt="" /><span>Prüfungsergebnisse</span></div><em>Note und Datum</em></div>
+                <div class="tr-row"><div><img src="/static/figma/mehr/tr-check.svg" width="16" height="16" alt="" /><span>Letzte Aktivität</span></div><em>vor 2 Stunden</em></div>
+                <div class="tr-row"><div><img src="/static/figma/mehr/tr-check.svg" width="16" height="16" alt="" /><span>Schwache Themen</span></div><em>Top 3</em></div>
+              </div>
+            </section>
+            <section class="tr-section">
+              <p class="tr-label danger">Nicht sichtbar (Privat)</p>
+              <div class="tr-list">
+                <div class="tr-row stack"><div><img src="/static/figma/mehr/tr-x.svg" width="16" height="16" alt="" /><div><span>Einzelne Antworten</span><small>Nur du siehst deine Fehler im Detail</small></div></div></div>
+                <div class="tr-row stack"><div><img src="/static/figma/mehr/tr-x.svg" width="16" height="16" alt="" /><div><span>Lernzeit pro Tag</span><small>Nur Gesamt sichtbar</small></div></div></div>
+                <div class="tr-row stack"><div><img src="/static/figma/mehr/tr-x.svg" width="16" height="16" alt="" /><div><span>Chat mit KI-Coach</span><small>Deine Gespräche sind privat</small></div></div></div>
+                <div class="tr-row stack"><div><img src="/static/figma/mehr/tr-x.svg" width="16" height="16" alt="" /><div><span>Merklisten &amp; Notizen</span><small>Nur für dich</small></div></div></div>
+                <div class="tr-row stack"><div><img src="/static/figma/mehr/tr-x.svg" width="16" height="16" alt="" /><div><span>Streak-Details</span><small>Nur du siehst deinen Streak</small></div></div></div>
+              </div>
+            </section>
+            <article class="tr-note">
+              <img src="/static/figma/mehr/tr-info.svg" width="18" height="18" alt="" />
+              <p>Dein Ausbilder kann dich nicht überwachen. Er sieht nur zusammengefasste Daten, um dich besser zu unterstützen.</p>
+            </article>
+          </div>
         </div>
-        <article class="mehr-info-banner">
-          <strong>Transparenz-Hinweis</strong>
-          <p class="muted">Dein Ausbilder sieht aggregierte Kennzahlen und Prüfungsreife — keine Chat-Inhalte und keine privaten Notizen.</p>
-        </article>
-        <div class="metric-grid">
-          <article class="metric-card card"><strong data-bind="readiness">0%</strong><span>Prüfungsreife</span></article>
-          <article class="metric-card card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
-          <article class="metric-card card"><strong data-bind="streak">0</strong><span>Streak</span></article>
-        </div>
-        <article class="card">
-          <h3>Sichtbar</h3>
-          <ul class="plain-list">
-            <li>Themenfortschritt &amp; Schwächen</li>
-            <li>Prüfungsergebnisse (aggregiert)</li>
-            <li>Berichtsheft-Status (Lücken / Freigaben)</li>
-          </ul>
-          <h3>Nicht sichtbar</h3>
-          <ul class="plain-list">
-            <li>KI-Coach-Chats</li>
-            <li>Persönliche Notizen</li>
-            <li>Einzelne Übungssessions im Detail</li>
-          </ul>
-        </article>
+        <nav class="tr-tabs" aria-label="Navigation">
+          <a href="/lernen" data-page-link><img src="/static/figma/mehr/tr-book.svg" width="20" height="20" alt="" /><span>Lernen</span></a>
+          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/tr-chart.svg" width="20" height="20" alt="" /><span>Statistik</span></a>
+          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/tr-award.svg" width="20" height="20" alt="" /><span>Campus</span></a>
+          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/tr-menu.svg" width="20" height="20" alt="" /><span>Mehr</span></a>
+        </nav>
+        <div class="tr-home" aria-hidden="true"><i></i></div>
       </div>
     `,
   "s09_3-ki-coach-chat": () => `
@@ -4590,23 +4613,27 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s09_7-logout-bestaetigung": () => `
-
-      <div class="mehr-screen mehr-logout">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <h2 class="page-title">Abmelden</h2>
-        </div>
-        <article class="mehr-logout-card">
-          <div class="mehr-logout-flame" aria-hidden="true">🔥</div>
-          <h3>Wirklich abmelden?</h3>
-          <p class="muted">Dein Streak von <strong data-bind="streak">14</strong> Tagen bleibt erhalten, wenn du morgen wiederkommst!</p>
-          <div class="bh-bottom-actions">
-            <button class="primary-button btn-block pill-btn" type="button" data-action="logout">Abmelden</button>
-            <a class="secondary-button btn-block pill-btn" href="/mehr" data-page-link>Doch nicht</a>
+      <div class="lo-screen" data-node-id="136:11535">
+        <div class="lo-dim">
+          <div class="lo-spacer"></div>
+          <div class="lo-modal" role="dialog" aria-labelledby="lo-title">
+            <div class="lo-ico"><img src="/static/figma/mehr/lo-hand.svg" width="40" height="40" alt="" /></div>
+            <h2 id="lo-title">Wirklich abmelden?</h2>
+            <p>Dein Streak von 14 Tagen bleibt erhalten, wenn du morgen wiederkommst!</p>
+            <div class="lo-streak"><img src="/static/figma/mehr/lo-flame.svg" width="16" height="16" alt="" /><span>🔥 14 Tage</span></div>
+            <div class="lo-actions">
+              <button class="lo-yes" type="button" data-action="logout">Abmelden</button>
+              <a class="lo-no" href="/mehr" data-page-link>Doch nicht</a>
+            </div>
           </div>
-        </article>
+          <nav class="lo-tabs" aria-label="Hauptnavigation">
+            <a href="/dashboard" data-page-link><img src="/static/figma/mehr/lo-house.svg" width="22" height="22" alt="" /><span>Start</span></a>
+            <a href="/lernen" data-page-link><img src="/static/figma/mehr/lo-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
+            <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/lo-trend.svg" width="22" height="22" alt="" /><span>Fortschritt</span></a>
+            <a href="/berichtsheft" data-page-link><img src="/static/figma/mehr/lo-file.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
+            <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/lo-menu.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
+          </nav>
+        </div>
       </div>
     `,
   "s11_1-ausbilder-cockpit": () => olcDeskPage("Mein Cockpit", "Kohorte 2024-A — 12 Teilnehmer", olcCockpitTable(false)),

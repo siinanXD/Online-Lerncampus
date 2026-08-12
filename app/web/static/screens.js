@@ -48,14 +48,14 @@ window.OLC_ROUTE_CONFIG = {
   "/fachkunde/spritzguss": { layout: "app", screen: "s05_8-spritzgiesszyklus-phasenansicht", title: "Spritzgießzyklus — Phasenansicht", tab: "learn", num: "05.8", chrome: "fk" },
   "/fachkunde/messschieber": { layout: "app", screen: "s05_9-messschieber-uebung", title: "Messschieber — Übung", tab: "learn", num: "05.9", chrome: "fk" },
   "/pruefungen": { layout: "app", screen: "s06_1-pruefungsliste", title: "Prüfungsliste", tab: "exam", num: "06.1", chrome: "exam" },
-  "/pruefungen/frage": { layout: "app", screen: "s06_2-pruefung-frage", title: "Prüfung — Frage", tab: "exam", num: "06.2" },
-  "/pruefungen/uebersicht": { layout: "app", screen: "s06_3-pruefung-uebersicht", title: "Prüfung — Übersicht", tab: "exam", num: "06.3" },
-  "/pruefungen/timer": { layout: "app", screen: "s06_4-pruefung-timer", title: "Prüfung — Timer", tab: "exam", num: "06.4" },
-  "/pruefungen/abgabe": { layout: "app", screen: "s06_5-abgabe-bestaetigung", title: "Abgabe Bestätigung", tab: "exam", num: "06.5" },
-  "/pruefungen/bestanden": { layout: "app", screen: "s06_6-ergebnis-bestanden", title: "Ergebnis — Bestanden", tab: "exam", num: "06.6" },
-  "/pruefungen/durchgefallen": { layout: "app", screen: "s06_7-ergebnis-durchgefallen", title: "Ergebnis — Durchgefallen", tab: "exam", num: "06.7" },
-  "/pruefungen/schwach": { layout: "app", screen: "s06_8-schwache-themen", title: "Schwache Themen", tab: "exam", num: "06.8" },
-  "/pruefungen/kammertermine": { layout: "app", screen: "s06_9-kammertermine", title: "Kammertermine", tab: "exam", num: "06.9" },
+  "/pruefungen/frage": { layout: "app", screen: "s06_2-pruefung-frage", title: "Prüfung — Frage", tab: "exam", num: "06.2", chrome: "exam" },
+  "/pruefungen/uebersicht": { layout: "app", screen: "s06_3-pruefung-uebersicht", title: "Prüfung — Übersicht", tab: "exam", num: "06.3", chrome: "exam" },
+  "/pruefungen/timer": { layout: "app", screen: "s06_4-pruefung-timer", title: "Prüfung — Timer", tab: "exam", num: "06.4", chrome: "exam" },
+  "/pruefungen/abgabe": { layout: "app", screen: "s06_5-abgabe-bestaetigung", title: "Abgabe Bestätigung", tab: "exam", num: "06.5", chrome: "exam" },
+  "/pruefungen/bestanden": { layout: "app", screen: "s06_6-ergebnis-bestanden", title: "Ergebnis — Bestanden", tab: "exam", num: "06.6", chrome: "exam" },
+  "/pruefungen/durchgefallen": { layout: "app", screen: "s06_7-ergebnis-durchgefallen", title: "Ergebnis — Durchgefallen", tab: "exam", num: "06.7", chrome: "exam" },
+  "/pruefungen/schwach": { layout: "app", screen: "s06_8-schwache-themen", title: "Schwache Themen", tab: "exam", num: "06.8", chrome: "exam" },
+  "/pruefungen/kammertermine": { layout: "app", screen: "s06_9-kammertermine", title: "Kammertermine", tab: "exam", num: "06.9", chrome: "exam" },
   "/fortschritt": { layout: "app", screen: "s07_1-fortschritt-uebersicht", title: "Fortschritt — Übersicht", tab: "progress", num: "07.1", chrome: "fp" },
   "/fortschritt/pruefungsreife": { layout: "app", screen: "s07_2-pruefungsreife-checkliste", title: "Prüfungsreife — Checkliste", tab: "progress", num: "07.2" },
   "/fortschritt/ausstehend": { layout: "app", screen: "s07_3-pruefungsreife-ausstehend", title: "Prüfungsreife — Ausstehend", tab: "progress", num: "07.3" },
@@ -2836,28 +2836,45 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s06_2-pruefung-frage": () => `
-      <div class="exam-session-screen">
-        <div class="exam-session-header">
-          <a class="icon-round" href="/pruefungen" data-page-link aria-label="Zurück">‹</a>
-          <div class="exam-session-meta">
-            <span class="exam-timer">47:23</span>
-            <span>8/45</span>
+      <div class="ex-screen ex-q-screen" data-node-id="136:8115">
+        <header class="ex-q-header">
+          <a class="ex-q-close" href="/pruefungen" data-page-link aria-label="Schließen">
+            <img src="/static/figma/exam/ex-q-close.svg" width="20" height="20" alt="" />
+          </a>
+          <div class="ex-q-timer">
+            <img src="/static/figma/exam/ex-q-alarm.svg" width="18" height="18" alt="" />
+            <strong>47:23</strong>
+          </div>
+          <span class="ex-q-progress">8/45</span>
+        </header>
+        <div class="ex-q-body">
+          <article class="ex-q-card">
+            <div class="ex-q-meta">
+              <div class="ex-q-diff">
+                <span>Frage 8</span>
+                <i></i><i></i><i class="off"></i>
+              </div>
+              <em>Arbeitssicherheit</em>
+            </div>
+            <p>Welche Schutzmaßnahme ist beim Arbeiten an drehenden Maschinenteilen ZWINGEND vorgeschrieben?</p>
+          </article>
+          <div class="ex-q-options">
+            <button type="button" class="ex-q-opt selected"><span>A</span><strong>Eng anliegende Kleidung tragen</strong></button>
+            <button type="button" class="ex-q-opt"><span>B</span><strong>Schutzbrille aufsetzen</strong></button>
+            <button type="button" class="ex-q-opt"><span>C</span><strong>Gehörschutz verwenden</strong></button>
+            <button type="button" class="ex-q-opt"><span>D</span><strong>Sicherheitsschuhe anziehen</strong></button>
           </div>
         </div>
-        <article class="card exam-panel">
-          <p class="eyebrow">Frage 8 · Arbeitssicherheit</p>
-          <h3>Welche Schutzmaßnahme ist beim Arbeiten an drehenden Maschinenteilen ZWINGEND vorgeschrieben?</h3>
-          <div class="exam-answers">
-            <button class="exam-answer-option" type="button"><span class="answer-letter">A</span><span>Eng anliegende Kleidung tragen</span></button>
-            <button class="exam-answer-option selected" type="button"><span class="answer-letter">B</span><span>Schutzbrille aufsetzen</span></button>
-            <button class="exam-answer-option" type="button"><span class="answer-letter">C</span><span>Gehörschutz verwenden</span></button>
-            <button class="exam-answer-option" type="button"><span class="answer-letter">D</span><span>Keine besonderen Maßnahmen</span></button>
+        <footer class="ex-q-footer">
+          <div class="ex-q-nav">
+            <a class="ex-q-back" href="/pruefungen/uebersicht" data-page-link>Zurück</a>
+            <button class="ex-q-flag" type="button" aria-label="Markieren">
+              <img src="/static/figma/exam/ex-q-bookmark.svg" width="18" height="18" alt="" />
+            </button>
+            <a class="ex-q-next" href="/pruefungen/uebersicht" data-page-link>Weiter</a>
           </div>
-          <div class="row-actions exam-actions">
-            <a class="secondary-button" href="/pruefungen/uebersicht" data-page-link>Übersicht</a>
-            <a class="primary-button" href="/pruefungen/abgabe" data-page-link>Weiter</a>
-          </div>
-        </article>
+          <div class="ex-home-indicator" aria-hidden="true"></div>
+        </footer>
       </div>
     `,
   "s06_3-pruefung-uebersicht": () => `

@@ -100,7 +100,7 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | Status | Node | Name | Size |
 |--------|------|------|------|
 | [~] | `136:7988` | 06.1 Prüfungsliste | 390×906 |
-| [ ] | `136:8115` | 06.2 Prüfung — Frage | 390×844 |
+| [x] | `136:8115` | 06.2 Prüfung — Frage | 390×844 |
 | [ ] | `136:8178` | 06.3 Prüfung — Übersicht | 390×844 |
 | [ ] | `136:8326` | 06.4 Prüfung — Timer | 390×844 |
 | [ ] | `136:8398` | 06.5 Abgabe Bestätigung | 390×844 |
@@ -222,3 +222,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Fachkunde 05.1 Einstieg [~] ~8.4% from Figma (grid + intro + Lernen/Praxis/Glossar/Profil tabs)
 - Fachkunde 05.2 Lernpfad [x] ~6.6%; 05.3 Lerneinheit [~] ~10.7%; 05.4 Glossar [x] ~7.4%; Prüfung 06.1 [~] ~9.9%; Fortschritt 07.1 [~] ~12.7%; Bericht 08.1 [~] ~10.0%
 - Fachkunde 05.5–05.10 key frames: 05.6 Lernbausteine [x] ~7.6%; 05.5 Abschluss [~] ~9.9%; 05.7 Toleranz [~] ~13.4%; 05.8 Spritzguss [~] ~12.5%; 05.9 Messschieber [~] ~19.1%; 05.10 Freigabe [~] ~10.5%
+- Prüfung 06.2 Frage [x] ~8.0%

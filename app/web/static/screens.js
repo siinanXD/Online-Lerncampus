@@ -64,12 +64,12 @@ window.OLC_ROUTE_CONFIG = {
   "/fortschritt/heatmap": { layout: "app", screen: "s07_6-statistik-themen-heatmap", title: "Statistik — Themen Heatmap", tab: "progress", num: "07.6", chrome: "fp" },
   "/berichtsheft": { layout: "app", screen: "s08_1-berichtsheft-liste", title: "Berichtsheft — Liste", tab: "reports", num: "08.1", chrome: "bh" },
   "/berichtsheft/neu": { layout: "app", screen: "s08_2-berichtsheft-neuer-eintrag", title: "Berichtsheft — Neuer Eintrag", tab: "reports", num: "08.2", chrome: "bh" },
-  "/berichtsheft/ki": { layout: "app", screen: "s08_3-berichtsheft-ki-assistent", title: "Berichtsheft — KI-Assistent", tab: "reports", num: "08.3" },
-  "/berichtsheft/unterschrift": { layout: "app", screen: "s08_4-berichtsheft-unterschrift", title: "Berichtsheft — Unterschrift", tab: "reports", num: "08.4" },
-  "/berichtsheft/kalender": { layout: "app", screen: "s08_5-berichtsheft-kalenderansicht", title: "Berichtsheft — Kalenderansicht", tab: "reports", num: "08.5" },
-  "/berichtsheft/export": { layout: "app", screen: "s08_6-pdf-export", title: "PDF-Export", tab: "reports", num: "08.6" },
-  "/berichtsheft/leer": { layout: "app", screen: "s08_7-berichtsheft-leerzustand", title: "Berichtsheft — Leerzustand", tab: "reports", num: "08.7" },
-  "/mehr": { layout: "app", screen: "s09_1-mehr-und-profil-uebersicht", title: "Mehr & Profil — Übersicht", tab: "profile", num: "09.1" },
+  "/berichtsheft/ki": { layout: "app", screen: "s08_3-berichtsheft-ki-assistent", title: "Berichtsheft — KI-Assistent", tab: "reports", num: "08.3", chrome: "bh" },
+  "/berichtsheft/unterschrift": { layout: "app", screen: "s08_4-berichtsheft-unterschrift", title: "Berichtsheft — Unterschrift", tab: "reports", num: "08.4", chrome: "bh" },
+  "/berichtsheft/kalender": { layout: "app", screen: "s08_5-berichtsheft-kalenderansicht", title: "Berichtsheft — Kalenderansicht", tab: "reports", num: "08.5", chrome: "bh" },
+  "/berichtsheft/export": { layout: "app", screen: "s08_6-pdf-export", title: "PDF-Export", tab: "reports", num: "08.6", chrome: "bh" },
+  "/berichtsheft/leer": { layout: "app", screen: "s08_7-berichtsheft-leerzustand", title: "Berichtsheft — Leerzustand", tab: "reports", num: "08.7", chrome: "bh" },
+  "/mehr": { layout: "app", screen: "s09_1-mehr-und-profil-uebersicht", title: "Mehr & Profil — Übersicht", tab: "profile", num: "09.1", chrome: "mehr" },
   "/mehr/ausbilder-sicht": { layout: "app", screen: "s09_2-was-sieht-der-ausbilder", title: "Was sieht der Ausbilder", tab: "profile", num: "09.2" },
   "/mehr/coach": { layout: "app", screen: "s09_3-ki-coach-chat", title: "KI-Coach — Chat", tab: "profile", num: "09.3" },
   "/mehr/lernplan": { layout: "app", screen: "s09_4-ki-coach-lernplan", title: "KI-Coach — Lernplan", tab: "profile", num: "09.4" },
@@ -4099,229 +4099,346 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s08_3-berichtsheft-ki-assistent": () => `
-
-      <div class="bh-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/berichtsheft/neu" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <div>
-            <h2 class="page-title">Eintrag bearbeiten</h2>
-            <p class="muted">KW 12 — Fertigung</p>
-          </div>
-        </div>
-        <p class="bh-section-label">Tägliche Tätigkeiten</p>
-        <article class="bh-day">
-          <div class="bh-day-head"><span class="bh-day-dot filled"></span><strong>Montag</strong><span class="muted">25/250</span></div>
-          <div class="bh-day-text">drehmaschine eingerichtet</div>
-        </article>
-        <article class="bh-day filled">
-          <div class="bh-day-head"><span class="bh-day-dot filled"></span><strong>Dienstag</strong><span class="muted">81/250</span></div>
-          <div class="bh-day-text">Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt. Kanten entgratet und Maße kontrolliert.</div>
-        </article>
-        <article class="bh-day">
-          <div class="bh-day-head"><span class="bh-day-dot"></span><strong>Mittwoch</strong><span class="muted">0/250</span></div>
-          <div class="bh-day-text muted">Tätigkeiten am Mittwoch eintragen...</div>
-        </article>
-        <article class="bh-ai-card">
-          <div class="bh-ai-head">
-            <span class="bh-ai-icon" aria-hidden="true">✨</span>
-            <div>
-              <strong>KI-Formulierungshilfe</strong>
-              <p class="muted">Verbessere deinen Montag-Eintrag</p>
+      <div class="bh-ki-screen" data-node-id="136:9998">
+        <div class="bh-ki-body">
+          <header class="bh-ki-header">
+            <a class="bh-ki-back" href="/berichtsheft/neu" data-page-link aria-label="Zurück">
+              <img src="/static/figma/bh/bh-ki-back.svg" width="16" height="16" alt="" />
+            </a>
+            <div class="bh-ki-titles">
+              <h2>Eintrag bearbeiten</h2>
+              <p>KW 12 — Fertigung</p>
             </div>
+          </header>
+          <div class="bh-ki-days">
+            <article class="bh-ki-day active">
+              <div class="bh-ki-day-head">
+                <div class="bh-ki-day-label"><i class="ok"></i><strong>Montag</strong></div>
+                <span>25/250</span>
+              </div>
+              <div class="bh-ki-textarea active">
+                <span>drehmaschine eingerichtet</span><i class="caret" aria-hidden="true"></i>
+              </div>
+            </article>
+            <article class="bh-ki-day">
+              <div class="bh-ki-day-head">
+                <div class="bh-ki-day-label"><i class="ok"></i><strong>Dienstag</strong></div>
+                <span>81/250</span>
+              </div>
+              <div class="bh-ki-textarea">Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt. Kanten entgratet und Maße kontrolliert.</div>
+            </article>
+            <article class="bh-ki-day">
+              <div class="bh-ki-day-head">
+                <div class="bh-ki-day-label"><i></i><strong>Mittwoch</strong></div>
+                <span>0/250</span>
+              </div>
+              <div class="bh-ki-textarea empty"></div>
+            </article>
           </div>
-          <div class="bh-ai-bubble">
-            <p class="muted">Original</p>
-            <p>„drehmaschine eingerichtet“</p>
-          </div>
-          <div class="bh-ai-bubble suggest">
-            <p class="muted">Vorschlag</p>
-            <p>„Drehmaschine gemäß Arbeitsauftrag eingerichtet, Werkstück gespannt und Probedurchlauf dokumentiert.“</p>
-          </div>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="toast" data-toast="Vorschlag übernommen">Übernehmen</button>
-            <button class="secondary-button" type="button" data-action="toast" data-toast="Neuer Vorschlag">Neu generieren</button>
-          </div>
-        </article>
-        <div class="link-grid">
-          <a href="/berichtsheft/neu" data-page-link>Zum Eintrag</a>
-          <a href="/berichtsheft" data-page-link>Zur Liste</a>
         </div>
+        <aside class="bh-ki-sheet" aria-label="KI-Formulierungshilfe">
+          <div class="bh-ki-sheet-head">
+            <span class="bh-ki-badge"><img src="/static/figma/bh/bh-ki-sparkles.svg" width="14" height="14" alt="" />KI-Formulierungshilfe</span>
+            <a class="bh-ki-close" href="/berichtsheft/neu" data-page-link aria-label="Schließen">
+              <img src="/static/figma/bh/bh-ki-x.svg" width="16" height="16" alt="" />
+            </a>
+          </div>
+          <div class="bh-ki-suggest">
+            <p class="bh-ki-suggest-label">Besserer Formulierungsvorschlag:</p>
+            <div class="bh-ki-suggest-box">Konventionelle Drehmaschine für Außenrunddrehen eingerichtet. Werkstück nach Zeichnung Nr. 4.2 im Dreibackenfutter gespannt und auf Rundlauf geprüft.</div>
+            <p class="bh-ki-suggest-meta">💡 Basierend auf deinem Ausbildungsrahmenplan KW 12</p>
+          </div>
+          <div class="bh-ki-actions">
+            <button class="bh-ki-ghost" type="button" data-action="toast" data-toast="Vorschlag verworfen">Verwerfen</button>
+            <button class="bh-ki-primary" type="button" data-action="toast" data-toast="Vorschlag übernommen">Übernehmen</button>
+          </div>
+          <div class="bh-ki-tip">
+            <span aria-hidden="true">💡</span>
+            <p><strong>Tipp:</strong> Beschreibe immer kurz WAS du getan hast, WOMIT und WARUM (Zweck/Ziel).</p>
+          </div>
+        </aside>
       </div>
     `,
   "s08_4-berichtsheft-unterschrift": () => `
-
-      <div class="bh-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/berichtsheft" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <div>
-            <h2 class="page-title">Unterschrift</h2>
-            <p class="muted">KW 13 — Entwurf einreichen</p>
+      <div class="bh-sig-screen" data-node-id="136:10069">
+        <div class="bh-sig-scroll">
+          <header class="bh-sig-header">
+            <a class="bh-sig-back" href="/berichtsheft" data-page-link aria-label="Zurück">
+              <img src="/static/figma/bh/bh-sig-back.svg" width="16" height="16" alt="" />
+            </a>
+            <h2>Bericht freigeben</h2>
+          </header>
+          <div class="bh-sig-preview">
+            <article class="bh-sig-card">
+              <div class="bh-sig-card-head">
+                <div>
+                  <strong>Berichtswoche KW 12</strong>
+                  <span>Abteilung: Fertigung</span>
+                </div>
+                <em>39 Stunden</em>
+              </div>
+              <hr class="bh-sig-rule" />
+              <div class="bh-sig-days">
+                <div><b>Mo</b><span>Konventionelle Drehmaschine eingerichtet &amp; Werkstück gespannt.</span></div>
+                <div><b>Di</b><span>Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt.</span></div>
+                <div><b>Mi</b><span>Schaltungen für Pneumatik-Übung verkabelt &amp; getestet.</span></div>
+                <div><b>Do</b><span>Arbeitsschutz-Unterweisung im Betriebsbereich 2.</span></div>
+                <div><b>Fr</b><span>Wochenbericht gepflegt und Werkzeuge gereinigt.</span></div>
+              </div>
+            </article>
           </div>
+          <div class="bh-sig-tracker">
+            <p class="bh-sig-label">Unterschriften-Status</p>
+            <div class="bh-sig-row ok">
+              <img src="/static/figma/bh/bh-sig-check-circle.svg" width="18" height="18" alt="" />
+              <div><strong>Azubi unterschrieben</strong><span>Digital bestätigt am 08/01/2026</span></div>
+            </div>
+            <div class="bh-sig-row warn">
+              <img src="/static/figma/bh/bh-sig-clock.svg" width="18" height="18" alt="" />
+              <div><strong>Ausbilder-Freigabe ausstehend</strong><span>Wird nach deiner Signatur benachrichtigt</span></div>
+            </div>
+          </div>
+          <div class="bh-sig-pad-section">
+            <p class="bh-sig-label">Signieren &amp; Bestätigen</p>
+            <div class="bh-sig-pad" aria-label="Unterschriftsfeld">
+              <img src="/static/figma/bh/bh-sig-edit.svg" width="64" height="40" alt="" />
+              <span>Oder hier handschriftlich zeichnen</span>
+            </div>
+            <label class="bh-sig-check">
+              <span class="bh-sig-box" aria-hidden="true"><img src="/static/figma/bh/bh-sig-check.svg" width="12" height="12" alt="" /></span>
+              <input type="checkbox" checked hidden />
+              Ich bestätige die Richtigkeit der Angaben digital.
+            </label>
+          </div>
+          <div class="visually-hidden" data-bind="reports-live" aria-hidden="true"></div>
         </div>
-        <article class="bh-sign-card">
-          <div class="row-between">
-            <div><strong>Wochenbericht KW 13</strong><p class="muted">25.–29.03. · Fertigung</p></div>
-            <span class="bh-status draft">Entwurf</span>
-          </div>
-          <p>Montage Grundlagen, Pneumatik-Übung, Drehmaschine eingerichtet und Probedurchläufe dokumentiert.</p>
-          <div class="bh-sign-pad" aria-label="Unterschriftsfeld">
-            <span class="muted">Hier unterschreiben / bestätigen</span>
-          </div>
-          <div class="bh-bottom-actions">
-            <button class="primary-button btn-block pill-btn" type="button" data-action="toast" data-toast="Zur Unterschrift eingereicht">Einreichen</button>
-            <a class="secondary-button btn-block pill-btn" href="/berichtsheft" data-page-link>Abbrechen</a>
-          </div>
-        </article>
-        <p class="muted">Entwürfe aus der API können hier eingereicht werden.</p>
-        <div data-bind="reports-live"></div>
+        <div class="bh-sig-actions">
+          <button class="bh-sig-submit" type="button" data-action="toast" data-toast="Zur Unterschrift eingereicht">Unterschreiben &amp; Einreichen</button>
+        </div>
       </div>
     `,
   "s08_5-berichtsheft-kalenderansicht": () => `
-
-      <div class="bh-screen">
-        <div class="learn-title-row">
-          <h2 class="page-title">Berichtsheft</h2>
-          <a class="icon-round primary" href="/berichtsheft/neu" data-page-link aria-label="Neuer Eintrag">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
-          </a>
-        </div>
-        <div class="bh-month-nav">
-          <button class="icon-round" type="button" aria-label="Vorheriger Monat">‹</button>
-          <strong>August 2026</strong>
-          <button class="icon-round" type="button" aria-label="Nächster Monat">›</button>
-        </div>
-        <div class="bh-view-toggle">
-          <a class="bh-chip" href="/berichtsheft" data-page-link>Liste</a>
-          <span class="bh-chip active">Kalender</span>
-        </div>
-        <div class="bh-cal" aria-label="Kalender August 2026">
-          <div class="bh-cal-head"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
-          <div class="bh-cal-grid">
-            <span class="muted">27</span><span class="muted">28</span><span class="muted">29</span><span class="muted">30</span><span class="muted">31</span><span>1</span><span>2</span>
-            <span>3</span><span>4</span><span class="has-entry">5</span><span>6</span><span class="has-entry">7</span><span>8</span><span>9</span>
-            <span>10</span><span class="has-entry">11</span><span>12</span><span>13</span><span class="today">14</span><span>15</span><span>16</span>
-            <span class="gap-day">17</span><span class="gap-day">18</span><span>19</span><span>20</span><span>21</span><span>22</span><span>23</span>
-            <span>24</span><span>25</span><span>26</span><span>27</span><span>28</span><span>29</span><span>30</span>
-            <span>31</span>
+      <div class="bh-cal-screen" data-node-id="136:10142">
+        <div class="bh-cal-main">
+          <div class="bh-cal-top">
+            <div class="bh-cal-title-row">
+              <h2>Berichtsheft</h2>
+              <a href="/berichtsheft/neu" data-page-link aria-label="Neuer Eintrag">
+                <img src="/static/figma/bh/bh-cal-calendar.svg" width="24" height="24" alt="" />
+              </a>
+            </div>
+            <div class="bh-cal-nav-row">
+              <div class="bh-cal-month">
+                <button type="button" aria-label="Vorheriger Monat"><img src="/static/figma/bh/bh-cal-chevron-left.svg" width="16" height="16" alt="" /></button>
+                <strong>August 2026</strong>
+                <button type="button" aria-label="Nächster Monat"><img src="/static/figma/bh/bh-cal-chevron-right.svg" width="16" height="16" alt="" /></button>
+              </div>
+              <div class="bh-cal-toggle" role="tablist" aria-label="Ansicht">
+                <a class="bh-cal-tog" href="/berichtsheft" data-page-link>Liste</a>
+                <span class="bh-cal-tog active">Kalender</span>
+              </div>
+            </div>
+          </div>
+          <div class="bh-cal-card">
+            <div class="bh-cal-weekdays"><span>Mo</span><span>Di</span><span>Mi</span><span>Do</span><span>Fr</span><span>Sa</span><span>So</span></div>
+            <div class="bh-cal-weeks">
+              <div class="bh-cal-week"><div class="bh-cal-cell"><div class="bh-cal-num"><span class="muted">27</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="muted">28</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="muted">29</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="muted">30</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="muted">31</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num selected"><span class="on">1</span></div><div class="bh-cal-ind"><span class="bh-cal-tag b">B</span></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">2</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div></div>
+              <div class="bh-cal-week"><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">3</span></div><div class="bh-cal-ind"><span class="bh-cal-tag s">S</span></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">4</span></div><div class="bh-cal-ind"><span class="bh-cal-tag s">S</span></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">5</span></div><div class="bh-cal-ind"><span class="bh-cal-tag b">B</span></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">6</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">7</span></div><div class="bh-cal-ind"><span class="bh-cal-tag k">K</span></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">8</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">9</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div></div>
+              <div class="bh-cal-week"><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">10</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot-green.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">11</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot-green.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">12</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">13</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">14</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">15</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div><div class="bh-cal-cell"><div class="bh-cal-num"><span class="">16</span></div><div class="bh-cal-ind"><img class="bh-cal-dot" src="/static/figma/bh/bh-cal-dot.svg" width="4" height="4" alt="" /></div></div></div>
+            </div>
+          </div>
+          <div class="bh-cal-preview">
+            <p class="bh-cal-preview-label">Vorschau Heutiger Eintrag</p>
+            <article class="bh-cal-entry">
+              <div class="bh-cal-entry-head">
+                <div>
+                  <strong>Fr, 01. August 2026</strong>
+                  <span>Betrieblicher Tag</span>
+                </div>
+                <em>Eingereicht</em>
+              </div>
+              <p>Hydraulikzylinder gewartet, Dichtungen getauscht</p>
+              <hr />
+              <div class="bh-cal-entry-foot">
+                <span><img src="/static/figma/bh/bh-cal-clock.svg" width="16" height="16" alt="" />8 Std</span>
+                <a href="/berichtsheft/neu" data-page-link><img src="/static/figma/bh/bh-cal-pen.svg" width="14" height="14" alt="" />Bearbeiten</a>
+              </div>
+            </article>
+          </div>
+          <div class="bh-cal-stats">
+            <div class="bh-cal-stats-row"><strong>KW 31</strong><span>4/5 Tage erfasst</span></div>
+            <div class="bh-cal-bar"><i style="width:280px"></i></div>
           </div>
         </div>
-        <div class="bh-cal-legend">
-          <span><i class="dot ok"></i> Eintrag</span>
-          <span><i class="dot warn"></i> Heute</span>
-          <span><i class="dot danger"></i> Lücke</span>
-        </div>
-        <div class="link-grid">
-          <a href="/berichtsheft" data-page-link>Zur Liste</a>
-          <a href="/berichtsheft/neu" data-page-link>Neuer Eintrag</a>
-        </div>
+        <nav class="bh-cal-tabs" aria-label="Hauptnavigation">
+          <a href="/dashboard" data-page-link><img src="/static/figma/bh/bh-cal-house.svg" width="22" height="22" alt="" /><span>Start</span></a>
+          <a href="/lernen" data-page-link><img src="/static/figma/bh/bh-cal-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
+          <a href="/fortschritt" data-page-link><img src="/static/figma/bh/bh-cal-trending.svg" width="22" height="22" alt="" /><span>Fortschritt</span></a>
+          <a href="/berichtsheft" data-page-link class="active"><img src="/static/figma/bh/bh-cal-file.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
+          <a href="/mehr" data-page-link><img src="/static/figma/bh/bh-cal-menu.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
+        </nav>
       </div>
     `,
   "s08_6-pdf-export": () => `
-
-      <div class="bh-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/berichtsheft" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <div>
-            <h2 class="page-title">PDF Export</h2>
-            <p class="muted">Berichtsheft herunterladen</p>
+      <div class="bh-pdf-screen" data-node-id="136:10353">
+        <div class="bh-pdf-dim">
+          <div class="bh-pdf-top">
+            <div class="bh-pdf-bg-head">
+              <h2>Berichtsheft</h2>
+              <img src="/static/figma/bh/bh-pdf-calendar.svg" width="24" height="24" alt="" />
+            </div>
+          </div>
+          <div class="bh-pdf-bottom">
+            <div class="bh-pdf-sheet">
+              <div class="bh-pdf-handle" aria-hidden="true"></div>
+              <div class="bh-pdf-title-row">
+                <h3>PDF Export</h3>
+                <a class="bh-pdf-close" href="/berichtsheft" data-page-link aria-label="Schließen">
+                  <img src="/static/figma/bh/bh-pdf-x.svg" width="14" height="14" alt="" />
+                </a>
+              </div>
+              <div class="bh-pdf-section">
+                <p class="bh-pdf-label">Zeitraum</p>
+                <div class="bh-pdf-dates">
+                  <label class="bh-pdf-date"><span>Von</span><strong>01.07.2026</strong></label>
+                  <label class="bh-pdf-date"><span>Bis</span><strong>31.07.2026</strong></label>
+                </div>
+              </div>
+              <div class="bh-pdf-pills">
+                <button type="button">Letzte Woche</button>
+                <button type="button" class="active">Letzter Monat</button>
+                <button type="button">Quartal</button>
+                <button type="button">Alles</button>
+              </div>
+              <div class="bh-pdf-section">
+                <p class="bh-pdf-label">Berichtsheft-Format</p>
+                <div class="bh-pdf-formats">
+                  <label class="bh-pdf-fmt active">
+                    <img src="/static/figma/bh/bh-pdf-radio-on.svg" width="12" height="12" alt="" />
+                    <span>IHK-Standard</span>
+                    <input type="radio" name="export-fmt" value="ihk" checked hidden />
+                  </label>
+                  <label class="bh-pdf-fmt">
+                    <img src="/static/figma/bh/bh-pdf-radio-off.svg" width="12" height="12" alt="" />
+                    <span>Kompakt</span>
+                    <input type="radio" name="export-fmt" value="compact" hidden />
+                  </label>
+                </div>
+              </div>
+              <div class="bh-pdf-toggles">
+                <div class="bh-pdf-tog"><span>Unterschriften einblenden</span><img src="/static/figma/bh/bh-pdf-toggle-on.svg" width="44" height="24" alt="" /></div>
+                <div class="bh-pdf-tog"><span>Kommentare des Ausbilders</span><img src="/static/figma/bh/bh-pdf-toggle-on.svg" width="44" height="24" alt="" /></div>
+                <div class="bh-pdf-tog"><span>Abwesenheiten markieren</span><img src="/static/figma/bh/bh-pdf-toggle-off.svg" width="44" height="24" alt="" /></div>
+              </div>
+              <div class="bh-pdf-cta-row">
+                <div class="bh-pdf-thumb" aria-hidden="true">
+                  <i></i><i></i><i></i>
+                  <div><b></b><div><i></i><i></i></div></div>
+                </div>
+                <div class="bh-pdf-cta">
+                  <button type="button" data-action="toast" data-toast="PDF wird vorbereitet…">PDF erstellen</button>
+                  <p>Geschätzte Größe: ~12 Seiten</p>
+                </div>
+              </div>
+            </div>
+            <nav class="bh-pdf-tabs" aria-label="Hauptnavigation">
+              <a href="/dashboard" data-page-link><img src="/static/figma/bh/bh-pdf-house.svg" width="22" height="22" alt="" /><span>Start</span></a>
+              <a href="/lernen" data-page-link><img src="/static/figma/bh/bh-pdf-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
+              <a href="/fortschritt" data-page-link><img src="/static/figma/bh/bh-pdf-trending.svg" width="22" height="22" alt="" /><span>Fortschritt</span></a>
+              <a href="/berichtsheft" data-page-link class="active"><img src="/static/figma/bh/bh-pdf-file.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
+              <a href="/mehr" data-page-link><img src="/static/figma/bh/bh-pdf-menu.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
+            </nav>
           </div>
         </div>
-        <article class="card bh-export-card">
-          <h3>Zeitraum</h3>
-          <div class="bh-date-row">
-            <label class="field"><span>Von</span><input type="date" value="2026-07-01" /></label>
-            <label class="field"><span>Bis</span><input type="date" value="2026-07-31" /></label>
-          </div>
-          <div class="bh-filters">
-            <button class="bh-chip" type="button">Letzte Woche</button>
-            <button class="bh-chip active" type="button">Letzter Monat</button>
-            <button class="bh-chip" type="button">Quartal</button>
-            <button class="bh-chip" type="button">Alles</button>
-          </div>
-          <h3>Format</h3>
-          <label class="bh-radio"><input type="radio" name="export-fmt" checked /> Berichtsheft-Format (IHK)</label>
-          <label class="bh-radio"><input type="radio" name="export-fmt" /> Kompakte Übersicht</label>
-          <label class="bh-radio"><input type="radio" name="export-fmt" /> Nur freigegebene Wochen</label>
-          <div class="bh-bottom-actions">
-            <button class="primary-button btn-block pill-btn" type="button" data-action="toast" data-toast="PDF wird vorbereitet…">PDF erstellen</button>
-            <a class="secondary-button btn-block pill-btn" href="/berichtsheft" data-page-link>Abbrechen</a>
-          </div>
-        </article>
       </div>
     `,
   "s08_7-berichtsheft-leerzustand": () => `
-
-      <div class="bh-screen bh-empty">
-        <div class="learn-title-row">
-          <div class="bh-brand">
-            <span class="bh-logo" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            </span>
-            <h2 class="page-title">Berichtsheft</h2>
+      <div class="bh-empty-screen" data-node-id="136:10462">
+        <div class="bh-empty-main">
+          <header class="bh-empty-header"><h2>Berichtsheft</h2></header>
+          <div class="bh-empty-body">
+            <div class="bh-empty-hero">
+              <div class="bh-empty-illo">
+                <img src="/static/figma/bh/bh-empty-clipboard.svg" width="56" height="56" alt="" />
+              </div>
+              <h3>Noch keine Einträge</h3>
+              <p>Dein digitales Berichtsheft ist bereit! Dokumentiere hier deine täglichen Tätigkeiten.</p>
+            </div>
+            <article class="bh-empty-tip">
+              <span class="bh-empty-tip-ico"><img src="/static/figma/bh/bh-empty-bulb.svg" width="18" height="18" alt="" /></span>
+              <div>
+                <strong>TIPP</strong>
+                <p>Trage am besten jeden Tag ein, was du gemacht hast. Das macht die wöchentliche Zusammenfassung einfacher!</p>
+              </div>
+            </article>
+            <div class="bh-empty-actions">
+              <a class="bh-empty-cta" href="/berichtsheft/neu" data-page-link>
+                <img src="/static/figma/bh/bh-empty-plus.svg" width="18" height="18" alt="" />
+                Ersten Eintrag erstellen
+              </a>
+              <button class="bh-empty-help" type="button" data-action="toast" data-toast="Hilfe: Wöchentlich eintragen, dann zur Unterschrift">Wie funktioniert es?</button>
+            </div>
           </div>
         </div>
-        <div class="bh-empty-body">
-          <div class="bh-empty-icon" aria-hidden="true">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg>
-          </div>
-          <h3>Noch keine Einträge</h3>
-          <p class="muted">Dein digitales Berichtsheft ist bereit! Dokumentiere hier deine täglichen Tätigkeiten.</p>
-          <article class="bh-tip">
-            <span class="bh-tip-label">Tipp</span>
-            <p>Trage am besten jeden Tag ein, was du gemacht hast. Das macht die wöchentliche Zusammenfassung einfacher!</p>
-          </article>
-          <a class="primary-button btn-block pill-btn" href="/berichtsheft/neu" data-page-link>Ersten Eintrag erstellen</a>
-          <button class="text-link" type="button" data-action="toast" data-toast="Hilfe: Wöchentlich eintragen, dann zur Unterschrift">Wie funktioniert es?</button>
-        </div>
+        <nav class="bh-empty-tabs" aria-label="Navigation">
+          <a href="/lernen" data-page-link><img src="/static/figma/bh/bh-empty-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
+          <a href="/berichtsheft" data-page-link class="active"><img src="/static/figma/bh/bh-empty-clipboard-tab.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
+          <a href="/mehr" data-page-link><img src="/static/figma/bh/bh-empty-user.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
+        </nav>
+        <div class="bh-empty-home" aria-hidden="true"><i></i></div>
       </div>
     `,
   "s09_1-mehr-und-profil-uebersicht": () => `
-
-      <div class="mehr-screen">
-        <h2 class="page-title mehr-title">Mehr</h2>
-        <article class="mehr-profile-card">
-          <div class="mehr-avatar" aria-hidden="true">MM</div>
-          <div class="mehr-profile-meta">
-            <strong data-bind="profile-summary">Max Mustermann</strong>
-            <div class="mehr-badges">
-              <span class="chip-level">Lv <span data-bind="level">7</span></span>
-              <span class="xp-inline"><span data-bind="xp">2450</span> XP</span>
+      <div class="mehr2-screen" data-node-id="136:10523">
+        <div class="mehr2-main">
+          <header class="mehr2-header"><h2>Mehr</h2></header>
+          <div class="mehr2-scroll">
+            <a class="mehr2-profile" href="/passwort" data-page-link>
+              <img class="mehr2-avatar" src="/static/figma/mehr/mehr-avatar.png" width="56" height="56" alt="" />
+              <div class="mehr2-profile-meta">
+                <strong data-bind="profile-summary">Max Mustermann</strong>
+                <div class="mehr2-stats">
+                  <span class="mehr2-lv">Lv <span data-bind="level">7</span></span>
+                  <span class="mehr2-xp"><span data-bind="xp">2450</span> XP</span>
+                </div>
+              </div>
+              <em>Bearbeiten</em>
+            </a>
+            <section class="mehr2-section">
+              <p class="mehr2-label">Konto</p>
+              <nav class="mehr2-card">
+                <a href="/passwort" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-user.svg" width="16" height="16" alt="" /></span><span>Profil</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+                <a href="/sprache" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-eye.svg" width="16" height="16" alt="" /></span><span>Darstellung</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+                <a href="/mehr" data-page-link data-action="toast" data-toast="Benachrichtigungen folgen in einer späteren Version"><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-bell.svg" width="16" height="16" alt="" /></span><span>Benachrichtigungen</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+                <a class="last" href="/sprache" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-globe.svg" width="16" height="16" alt="" /></span><span>Sprache</span><em>Deutsch</em></a>
+              </nav>
+            </section>
+            <section class="mehr2-section">
+              <p class="mehr2-label">Transparenz</p>
+              <nav class="mehr2-card">
+                <a href="/mehr/ausbilder-sicht" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-eye.svg" width="16" height="16" alt="" /></span><span>Was sieht mein Ausbilder?</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+                <a class="last" href="/mehr/export" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-download.svg" width="16" height="16" alt="" /></span><span>Datenexport</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+              </nav>
+            </section>
+            <section class="mehr2-section">
+              <p class="mehr2-label">Rechtliches</p>
+              <nav class="mehr2-card">
+                <a href="/mehr/export" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-shield.svg" width="16" height="16" alt="" /></span><span>Datenschutz</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+                <a href="/mehr" data-page-link data-action="toast" data-toast="Impressum folgt"><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-info.svg" width="16" height="16" alt="" /></span><span>Impressum</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+                <a class="last danger" href="/mehr/loeschen" data-page-link><span class="mehr2-ico danger"><img src="/static/figma/mehr/mehr-trash.svg" width="16" height="16" alt="" /></span><span>Konto löschen</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+              </nav>
+            </section>
+            <div class="mehr2-bottom">
+              <a class="mehr2-logout" href="/mehr/logout" data-page-link>Abmelden</a>
+              <p>Version v2.1.0</p>
             </div>
-            <p class="muted">Rolle: <span data-bind="role">learner</span></p>
           </div>
-          <a class="text-link" href="/passwort" data-page-link>Bearbeiten</a>
-        </article>
-        <p class="bh-section-label">Konto</p>
-        <nav class="mehr-list">
-          <a href="/passwort" data-page-link><span class="mehr-ico">👤</span><span>Profil</span><span class="bh-chevron">›</span></a>
-          <a href="/sprache" data-page-link><span class="mehr-ico">🎨</span><span>Darstellung</span><span class="bh-chevron">›</span></a>
-          <a href="/mehr" data-page-link data-action="toast" data-toast="Benachrichtigungen folgen in einer späteren Version"><span class="mehr-ico">🔔</span><span>Benachrichtigungen</span><span class="bh-chevron">›</span></a>
-          <a href="/sprache" data-page-link><span class="mehr-ico">🌐</span><span>Sprache</span><em>Deutsch</em><span class="bh-chevron">›</span></a>
-        </nav>
-        <p class="bh-section-label">Lernen &amp; Fortschritt</p>
-        <nav class="mehr-list">
-          <a href="/mehr/coach" data-page-link><span class="mehr-ico">🤖</span><span>KI-Coach</span><span class="bh-chevron">›</span></a>
-          <a href="/mehr/lernplan" data-page-link><span class="mehr-ico">🗺️</span><span>Lernplan</span><span class="bh-chevron">›</span></a>
-          <a href="/gamification" data-page-link><span class="mehr-ico">🏆</span><span>Gamification</span><span class="bh-chevron">›</span></a>
-        </nav>
-        <p class="bh-section-label">Transparenz</p>
-        <nav class="mehr-list">
-          <a href="/mehr/ausbilder-sicht" data-page-link><span class="mehr-ico">👁</span><span>Was sieht mein Ausbilder?</span><span class="bh-chevron">›</span></a>
-          <a href="/mehr/export" data-page-link><span class="mehr-ico">📦</span><span>Datenexport</span><span class="bh-chevron">›</span></a>
-        </nav>
-        <p class="bh-section-label">Rechtliches &amp; Zugang</p>
-        <nav class="mehr-list">
-          <a href="/mehr/export" data-page-link><span class="mehr-ico">🔒</span><span>Datenschutz</span><span class="bh-chevron">›</span></a>
-          <a href="/ausbilder" data-page-link><span class="mehr-ico">🧑‍🏫</span><span>Ausbilder-Bereich</span><span class="bh-chevron">›</span></a>
-          <a href="/admin" data-page-link><span class="mehr-ico">⚙️</span><span>Admin-Bereich</span><span class="bh-chevron">›</span></a>
-          <a href="/mehr/logout" data-page-link><span class="mehr-ico">🚪</span><span>Abmelden</span><span class="bh-chevron">›</span></a>
-          <a class="danger-link" href="/mehr/loeschen" data-page-link><span class="mehr-ico">🗑</span><span>Konto löschen</span><span class="bh-chevron">›</span></a>
+        </div>
+        <nav class="mehr2-tabs" aria-label="Hauptnavigation">
+          <a href="/lernen" data-page-link><img src="/static/figma/mehr/mehr-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
+          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/mehr-grad.svg" width="22" height="22" alt="" /><span>Campus</span></a>
+          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/mehr-trophy.svg" width="22" height="22" alt="" /><span>Bestenliste</span></a>
+          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/mehr-more.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
         </nav>
       </div>
     `,

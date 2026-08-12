@@ -697,6 +697,27 @@ class Database:
                 ),
             )
 
+    def list_activity_dates(
+        self,
+        learner_id: str,
+        event_types: tuple[str, ...] | None = None,
+    ) -> list[str]:
+        """Return distinct UTC activity dates (YYYY-MM-DD) for streak calculation."""
+        types = event_types or ("progress.attempt", "exam.start", "exam.submit")
+        placeholders = ", ".join("?" for _ in types)
+        with self._transaction() as connection:
+            rows = connection.execute(
+                f"""
+                SELECT DISTINCT substr(created_at, 1, 10) AS activity_day
+                FROM audit_events
+                WHERE learner_id = ?
+                    AND event_type IN ({placeholders})
+                ORDER BY activity_day DESC
+                """,
+                (learner_id, *types),
+            ).fetchall()
+        return [str(row["activity_day"]) for row in rows]
+
     def export_learner_data(self, learner_id: str) -> dict[str, Any]:
         """Return all learner-owned data for portability/export."""
         with self._transaction() as connection:

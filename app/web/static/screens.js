@@ -173,7 +173,13 @@ window.OLC_SCREEN_RENDERERS = {
           <li>Fortschritt verfolgen &amp; Schwaechen erkennen</li>
           <li>KI-Coach fuer individuelle Erklaerungen</li>
         </ul>
-        <a class="primary-button btn-block" href="/dashboard" data-page-link>Los geht's!</a>
+        <article class="card">
+          <p>Bitte bestaetige die Datenschutzhinweise, bevor du startest.</p>
+          <div class="row-actions">
+            <button class="primary-button" type="button" data-action="privacy-consent" data-accepted="true">Einwilligen &amp; starten</button>
+            <button class="secondary-button" type="button" data-action="privacy-consent" data-accepted="false">Ablehnen</button>
+          </div>
+        </article>
         <a class="secondary-button btn-block" href="/dashboard" data-page-link>Ueberspringen</a>
       </div>
     `,
@@ -361,6 +367,10 @@ window.OLC_SCREEN_RENDERERS = {
             <a class="tool-chip" href="/lernen/fehlerdiagnose" data-page-link>Fehlerdiagnose</a></div>
         </article>
       </div>
+      <article class="card">
+        <h3>Lerneinheiten (API)</h3>
+        <div data-bind="units-live"></div>
+      </article>
     `,
   "s04_10-uebersetzungshilfe-overlay": () => `
 
@@ -447,27 +457,17 @@ window.OLC_SCREEN_RENDERERS = {
 
       <div class="screen-head"><p class="eyebrow">04.16</p><h2>Lernpfad — Map</h2>
         <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <div class="path-map">
-        <button class="path-node done" type="button">1 · Grundlagen</button>
-        <button class="path-node done" type="button">2 · Messschieber</button>
-        <button class="path-node active" type="button">3 · Toleranzen</button>
-        <button class="path-node" type="button">4 · Spritzguss</button>
-        <button class="path-node locked" type="button">5 · Pruefung</button>
-      </div>
-      <ul class="nav-list"><li>Lernpfad</li><li>Metall — Grundlagen</li><li>Modul 3 von 8 | 42% abgeschlossen</li><li>Werkstoffkunde</li><li>Metalle & Gefüge</li><li>Messtechnik Basics</li><li>Messschieber & Bügelmessschraube</li><li>3</li><li>Toleranzen & Passungen</li><li>4/7 Lerneinheiten</li></ul>
+      <div data-bind="journey-live"></div>
+      <article class="card">
+        <h3>Curriculum</h3>
+        <div data-bind="curriculum-live"></div>
+      </article>
     `,
   "s04_17-lerneinheit-detail": () => `
 
       <div class="screen-head"><p class="eyebrow">04.17</p><h2>Lerneinheit — Detail</h2>
         <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <p class="muted">Produkt-UI gemaess Figma 04.17.</p>
-        <ul class="plain-list"><li>Toleranzen</li><li>4/7</li><li>📐</li><li>ISO-Toleranzsystem</li><li>Grundlagen der Passungssysteme</li><li>~12 Min</li><li>Prüfungsrelevant</li><li>Einführung</li><li>Das ISO-Toleranzsystem normiert Maßtoleranzen weltweit. Es sorgt dafür, dass Maschinenelemente unabhängig vom Herstellun</li><li>💡</li><li>Merksatz</li><li>Das Einheitsbohrungs-System (EB) ist in der Praxis am häufigsten! Die Bohrung ist Bezugsteil.</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/lernen/frage" data-page-link>Weiterueben</a>
-          <a class="secondary-button" href="/fachkunde" data-page-link>Zur Fachkunde</a>
-        </div>
-      </article>
+      <div data-bind="unit-detail"></div>
     `,
   "s04_18-glossar-uebersicht": () => `
 
@@ -666,28 +666,22 @@ window.OLC_SCREEN_RENDERERS = {
 
       <div class="screen-head"><p class="eyebrow">05.2</p><h2>Fachkunde — Lernpfad</h2>
         <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <div class="path-map">
-        <button class="path-node done" type="button">1 · Grundlagen</button>
-        <button class="path-node done" type="button">2 · Messschieber</button>
-        <button class="path-node active" type="button">3 · Toleranzen</button>
-        <button class="path-node" type="button">4 · Spritzguss</button>
-        <button class="path-node locked" type="button">5 · Pruefung</button>
-      </div>
-      <ul class="nav-list"><li>Pneumatik Lernpfad</li><li>Einheiten Fortschritt</li><li>5 von 12 abgeschlossen</li><li>1. Einführung Pneumatik</li><li>+50 XP</li><li>2. Druckluft & Kompressoren</li><li>+50 XP</li><li>3. Pneumatische Antriebe</li><li>+60 XP</li><li>4. Zylinder Grundlagen</li></ul>
+      <div data-bind="journey-live"></div>
+      <article class="card">
+        <h3>Lerneinheiten</h3>
+        <div data-bind="units-live"></div>
+      </article>
+      <article class="card">
+        <h3>Curriculum / Quellen</h3>
+        <div data-bind="curriculum-live"></div>
+        <div data-bind="sources-live"></div>
+      </article>
     `,
   "s05_3-fachkunde-lerneinheit": () => `
 
       <div class="screen-head"><p class="eyebrow">05.3 Fachkunde</p><h2>Fachkunde — Lerneinheit</h2>
         <a class="secondary-button" href="/lernen" data-page-link>Lern-Hub</a></div>
-      <div class="card-grid">
-        <article class="hub-card"><h3>Lernpfad</h3><p class="muted">Einheiten in Reihenfolge.</p>
-          <a class="secondary-button" href="/fachkunde/lernpfad" data-page-link>Oeffnen</a></article>
-        <article class="hub-card"><h3>Glossar</h3><p class="muted">Fachbegriffe nachschlagen.</p>
-          <a class="secondary-button" href="/fachkunde/glossar" data-page-link>Oeffnen</a></article>
-        <article class="hub-card"><h3>Bausteine</h3><p class="muted">Theorie &amp; Uebungen.</p>
-          <a class="secondary-button" href="/fachkunde/bausteine" data-page-link>Oeffnen</a></article>
-      </div>
-      <article class="card"><strong>Inhalt</strong><ul class="plain-list"><li>Lerneinheit 6 von 12</li><li>Schaltpläne lesen</li><li>Pneumatische Schaltpläne lesen</li><li>Theorie & Aufbau nach DIN ISO 1219</li><li>Was ist ein Schaltplan?</li><li>Ein pneumatischer Schaltplan stellt die Verbindung zwischen Ventilen, Zylindern und Steuerungselementen grafisch dar. Er</li><li>[ DIN ISO 1219 Pneumatic Circuit Model ]</li><li>Abb. 1: Einfacher pneumatischer Schaltkreis mit Zylinder</li><li>Wichtige Symbole im Überblick</li><li>• Einfachwirkender Zylinder: ▯→</li></ul></article>
+      <div data-bind="unit-detail"></div>
     `,
   "s05_4-fachkunde-glossar": () => `
 
@@ -909,6 +903,9 @@ window.OLC_SCREEN_RENDERERS = {
           <a href="/fortschritt/xp" data-page-link>XP &amp; Streak</a>
           <a href="/fortschritt/heatmap" data-page-link>Heatmap</a>
         </div>
+        <div class="row-actions">
+          <button class="secondary-button" type="button" data-action="reset-progress">Fortschritt zuruecksetzen</button>
+        </div>
       </article>
     `,
   "s07_2-pruefungsreife-checkliste": () => `
@@ -965,19 +962,13 @@ window.OLC_SCREEN_RENDERERS = {
   "s07_5-statistik-xp-und-streak": () => `
 
       <div class="screen-head"><p class="eyebrow">07.5 Fortschritt</p><h2>Statistik — XP & Streak</h2></div>
-      <div class="metric-grid">
-        <article class="metric-card card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
-        <article class="metric-card card"><strong data-bind="wrong">0</strong><span>Fehler</span></article>
-        <article class="metric-card card"><strong data-bind="readiness">0%</strong><span>Reife</span></article>
-      </div>
-      <article class="card"><ul class="plain-list"><li>Deine Stats</li><li>Woche</li><li>Monat</li><li>Gesamt</li><li>XP-Verlauf</li><li>+1.230 XP</li><li>Tägl. Schnitt</li><li>41 XP</li><li>Bester Tag</li><li>12. März (156 XP)</li></ul>
-        <div class="link-grid">
+      <div data-bind="gamification-live"></div>
+      <div class="link-grid">
           <a href="/fortschritt/pruefungsreife" data-page-link>Pruefungsreife</a>
           <a href="/fortschritt/verlauf" data-page-link>Verlauf</a>
           <a href="/fortschritt/xp" data-page-link>XP &amp; Streak</a>
           <a href="/fortschritt/heatmap" data-page-link>Heatmap</a>
-        </div>
-      </article>
+      </div>
     `,
   "s07_6-statistik-themen-heatmap": () => `
 
@@ -1033,11 +1024,8 @@ window.OLC_SCREEN_RENDERERS = {
 
       <div class="screen-head"><p class="eyebrow">08.4</p><h2>Berichtsheft — Unterschrift</h2>
         <a class="secondary-button" href="/berichtsheft" data-page-link>Zur Liste</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Bericht freigeben</li><li>Berichtswoche KW 12</li><li>Abteilung: Fertigung</li><li>39 Stunden</li><li>Mo</li><li>Konventionelle Drehmaschine eingerichtet & Werkstück gespannt.</li><li>Di</li><li>Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt.</li><li>Mi</li><li>Schaltungen für Pneumatik-Übung verkabelt & getestet.</li><li>Do</li><li>Arbeitsschutz-Unterweisung im Betriebsbereich 2.</li></ul>
-        
-        <p class="feedback" data-feedback></p>
-      </article>
+      <p class="muted">Entwuerfe koennen hier eingereicht werden.</p>
+      <div data-bind="reports-live"></div>
     `,
   "s08_5-berichtsheft-kalenderansicht": () => `
 
@@ -1074,6 +1062,7 @@ window.OLC_SCREEN_RENDERERS = {
       <div class="screen-head"><p class="eyebrow">09 Mehr</p><h2>Profil &amp; Konto</h2></div>
       <article class="card">
         <p data-bind="profile-summary" class="muted">Nicht angemeldet.</p>
+        <p class="muted">Rolle: <span data-bind="role">learner</span></p>
         <div class="settings-list">
           <a href="/mehr/ausbilder-sicht" data-page-link>Was sieht der Ausbilder?</a>
           <a href="/mehr/coach" data-page-link>KI-Coach</a>
@@ -1094,44 +1083,28 @@ window.OLC_SCREEN_RENDERERS = {
       <div class="screen-head"><p class="eyebrow">09.2</p><h2>Was sieht der Ausbilder</h2>
         <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
       <article class="card">
-        <ul class="plain-list"><li>Transparenz</li><li>BZE Safe</li><li>Was sieht dein Ausbilder?</li><li>Hier siehst du genau, welche Daten für deinen Ausbilder sichtbar sind. Wir schützen deine Privatsphäre.</li><li>Sichtbar für Ausbilder</li><li>Gesamtfortschritt (%)</li><li>Dein Ausbilder sieht: 67%</li><li>Prüfungsreife (%)</li><li>67%</li><li>Lernzeit (gesamt)</li><li>42h</li><li>Berichtsheft-Einträge</li></ul>
-        <div class="row-actions">
-          
-          
-          
-          
+        <p>Dein Ausbilder sieht aggregierte Kennzahlen, keine Chat-Inhalte.</p>
+        <div class="metric-grid">
+          <article class="metric-card"><strong data-bind="readiness">0%</strong><span>Pruefungsreife</span></article>
+          <article class="metric-card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
+          <article class="metric-card"><strong data-bind="streak">0</strong><span>Streak</span></article>
         </div>
-        <pre class="export-pre" data-bind="export-pre" hidden></pre>
       </article>
     `,
   "s09_3-ki-coach-chat": () => `
 
       <div class="screen-head"><p class="eyebrow">09.3</p><h2>KI-Coach — Chat</h2>
         <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>KI-Coach</li><li>Hallo Max! Wie kann ich dir helfen? Ich kann Fragen erklären, Formeln ableiten oder deinen Lernplan optimieren.</li><li>14:23</li><li>Ich verstehe die Formel für Kolbenkraft nicht. Kannst du das erklären?</li><li>14:24</li><li>Klar! Die Kolbenkraft berechnet sich so:</li><li>F = p × A</li><li>•</li><li>F = Kraft in Newton [N]</li><li>•</li><li>p = Druck in Pascal oder bar</li><li>•</li></ul>
-        <div class="row-actions">
-          
-          
-          
-          <div class='chat-demo'><div class='chat-bubble bot'>Woran haengst du gerade?</div><div class='chat-bubble me'>Toleranzen H7</div><label class='field'><span>Nachricht</span><input placeholder='Frage den Coach…' /></label></div>
-        </div>
-        <pre class="export-pre" data-bind="export-pre" hidden></pre>
-      </article>
+      <div data-bind="coach-live"></div>
     `,
   "s09_4-ki-coach-lernplan": () => `
 
       <div class="screen-head"><p class="eyebrow">09.4</p><h2>KI-Coach — Lernplan</h2>
         <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
+      <div data-bind="coach-live"></div>
       <article class="card">
-        <ul class="plain-list"><li>Dein Lernplan</li><li>Erstellt von deinem KI-Coach basierend auf deinem Fortschritt</li><li>Ziel: Zwischenprüfung bestehen</li><li>Termin: 15. März 2025 — In 14 Tagen</li><li>Note 3+</li><li>67%</li><li>Prüfungsreife</li><li>Aktuell</li><li>80%</li><li>80%+</li><li>Ziel</li><li>Diese Woche</li></ul>
-        <div class="row-actions">
-          
-          
-          
-          
-        </div>
-        <pre class="export-pre" data-bind="export-pre" hidden></pre>
+        <h3>Lernreise</h3>
+        <div data-bind="journey-live"></div>
       </article>
     `,
   "s09_5-datenexport": () => `
@@ -1535,6 +1508,7 @@ window.OLC_SCREEN_RENDERERS = {
             <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
             <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
           </div>
+          <div class="admin-output" data-bind="reviews-live"></div>
           <div class="admin-output" data-bind="trainer-output"></div>
         </section>
       </div>
@@ -1580,6 +1554,7 @@ window.OLC_SCREEN_RENDERERS = {
             <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
             <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
           </div>
+          <div class="admin-output" data-bind="reviews-live"></div>
           <div class="admin-output" data-bind="trainer-output"></div>
         </section>
       </div>
@@ -2822,61 +2797,30 @@ window.OLC_SCREEN_RENDERERS = {
 
       <div class="screen-head"><p class="eyebrow">18.1</p><h2>Gamification Übersicht</h2>
         <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>XP</li><li>Level</li><li>Badges</li><li>Streaks</li><li>Leaderboard</li></ul>
-        <div class="row-actions">
-          
-          
-          
-          
-        </div>
-        <pre class="export-pre" data-bind="export-pre" hidden></pre>
-      </article>
+      <div data-bind="gamification-live"></div>
+      <div class="link-grid">
+        <a href="/gamification/xp" data-page-link>XP &amp; Level</a>
+        <a href="/gamification/badges" data-page-link>Badges</a>
+        <a href="/gamification/streaks" data-page-link>Streaks</a>
+      </div>
     `,
   "s18_2-xp-und-level": () => `
 
       <div class="screen-head"><p class="eyebrow">18.2</p><h2>XP & Level</h2>
-        <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Level</li><li>XP Fortschritt</li></ul>
-        <div class="row-actions">
-          
-          
-          
-          
-        </div>
-        <pre class="export-pre" data-bind="export-pre" hidden></pre>
-      </article>
+        <a class="secondary-button" href="/gamification" data-page-link>Zurueck</a></div>
+      <div data-bind="gamification-live"></div>
     `,
   "s18_3-badges": () => `
 
       <div class="screen-head"><p class="eyebrow">18.3</p><h2>Badges</h2>
-        <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Abzeichen</li></ul>
-        <div class="row-actions">
-          
-          
-          
-          
-        </div>
-        <pre class="export-pre" data-bind="export-pre" hidden></pre>
-      </article>
+        <a class="secondary-button" href="/gamification" data-page-link>Zurueck</a></div>
+      <div data-bind="gamification-live"></div>
     `,
   "s18_4-streaks-und-leaderboard": () => `
 
       <div class="screen-head"><p class="eyebrow">18.4</p><h2>Streaks & Leaderboard</h2>
-        <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <ul class="plain-list"><li>Streak</li><li>Rangliste</li></ul>
-        <div class="row-actions">
-          
-          
-          
-          
-        </div>
-        <pre class="export-pre" data-bind="export-pre" hidden></pre>
-      </article>
+        <a class="secondary-button" href="/gamification" data-page-link>Zurueck</a></div>
+      <div data-bind="gamification-live"></div>
     `,
 };
 

@@ -12,6 +12,8 @@ from app.schemas.content import (
     ContentReviewRequest,
     CurrentLearnerResponse,
     CurriculumMonthResponse,
+    CoachPlanResponse,
+    CoachTipResponse,
     DashboardSummaryResponse,
     DataExportResponse,
     DeleteAccountResponse,
@@ -22,6 +24,7 @@ from app.schemas.content import (
     ExamSessionStateResponse,
     ExamSubmitResponse,
     FirstChapterResponse,
+    GamificationResponse,
     GradingCriterionResponse,
     HealthResponse,
     LearningJourneyMonthResponse,
@@ -401,6 +404,31 @@ def get_dashboard(
     """Return dashboard metrics for the authenticated learner."""
     session = get_session(authorization)
     return _progress().dashboard_summary(session.learner_id)
+
+
+@api_router.get("/gamification", response_model=GamificationResponse)
+def get_gamification(
+    authorization: str | None = Header(default=None),
+) -> GamificationResponse:
+    """Return XP, level, streak, and badges for the authenticated learner."""
+    session = get_session(authorization)
+    return GamificationResponse(**_progress().gamification_summary(session.learner_id))
+
+
+@api_router.get("/coach/plan", response_model=CoachPlanResponse)
+def get_coach_plan(
+    authorization: str | None = Header(default=None),
+) -> CoachPlanResponse:
+    """Return a rule-based coaching plan from learner progress."""
+    session = get_session(authorization)
+    plan = _progress().coach_plan(session.learner_id)
+    return CoachPlanResponse(
+        greeting=str(plan["greeting"]),
+        readiness_percent=int(plan["readiness_percent"]),
+        focus_month=int(plan["focus_month"]),
+        tips=[CoachTipResponse(**tip) for tip in plan["tips"]],
+        weak_categories=list(plan["weak_categories"]),
+    )
 
 
 @api_router.get("/learning/journey", response_model=list[LearningJourneyMonthResponse])

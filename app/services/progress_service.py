@@ -78,27 +78,134 @@ class ProgressService:
 
     def dashboard_summary(self, learner_id: str) -> dict[str, object]:
         """Return dashboard metrics for one learner."""
+        gamification = self.gamification_summary(learner_id)
         learner_progress = self.database.list_question_progress(learner_id)
         questions = self.question_repository.list_questions()
         total_questions = len(questions)
+        wrong = sum(item.wrong_count for item in learner_progress.values())
+        weak_categories = self._weak_categories(learner_progress)
+        return {
+            "learner_id": learner_id,
+            "answered_questions": gamification["answered_questions"],
+            "mastered_questions": gamification["mastered_questions"],
+            "total_questions": total_questions,
+            "wrong_answers": wrong,
+            "xp": gamification["xp"],
+            "level": gamification["level"],
+            "streak_days": gamification["streak_days"],
+            "badges": gamification["badges"],
+            "mastery_rule": "1x beantworten und 2x hintereinander richtig loesen",
+            "weak_categories": weak_categories,
+        }
+
+    def gamification_summary(self, learner_id: str) -> dict[str, object]:
+        """Derive XP, level, streak, and badges from stored progress activity."""
+        learner_progress = self.database.list_question_progress(learner_id)
         answered = sum(
             1 for item in learner_progress.values() if item.answered_count > 0
         )
         mastered = sum(1 for item in learner_progress.values() if item.mastered)
         wrong = sum(item.wrong_count for item in learner_progress.values())
         xp = max(0, answered * 10 + mastered * 25 - wrong * 3)
-        level = 1 + xp // 120
-        weak_categories = self._weak_categories(learner_progress)
+        xp_per_level = 120
+        level = 1 + xp // xp_per_level
+        streak_days, longest_streak = self._streak_stats(learner_id)
+        badges = self._derive_badges(
+            answered=answered,
+            mastered=mastered,
+            streak_days=streak_days,
+            longest_streak=longest_streak,
+        )
         return {
             "learner_id": learner_id,
-            "answered_questions": answered,
-            "mastered_questions": mastered,
-            "total_questions": total_questions,
-            "wrong_answers": wrong,
             "xp": xp,
             "level": level,
-            "mastery_rule": "1x beantworten und 2x hintereinander richtig loesen",
-            "weak_categories": weak_categories,
+            "xp_into_level": xp % xp_per_level,
+            "xp_per_level": xp_per_level,
+            "streak_days": streak_days,
+            "longest_streak_days": longest_streak,
+            "badges": badges,
+            "answered_questions": answered,
+            "mastered_questions": mastered,
+        }
+
+    def coach_plan(self, learner_id: str) -> dict[str, object]:
+        """Build a simple coaching plan from weak categories and journey state."""
+        dashboard = self.dashboard_summary(learner_id)
+        journey = self.learning_journey(learner_id)
+        total = int(dashboard["total_questions"] or 1)
+        mastered = int(dashboard["mastered_questions"])
+        readiness = round((mastered / total) * 100) if total else 0
+        weak = list(dashboard["weak_categories"])
+        focus_month = next(
+            (
+                int(month["month"])
+                for month in journey
+                if not month["locked"]
+                and int(month["completed_categories"])
+                < int(month["total_categories"] or 1)
+            ),
+            1,
+        )
+        tips: list[dict[str, object]] = []
+        if weak:
+            top = weak[0]
+            slug = str(top["category_slug"])
+            tips.append(
+                {
+                    "title": f"Schwaeche: {slug}",
+                    "body": (
+                        f"Du hast {top['wrong_count']} Fehler in diesem Themenfeld. "
+                        "Wiederhole 5 Fragen und schaue danach in die Lerneinheit."
+                    ),
+                    "category_slug": slug,
+                    "action_href": "/lernen/fragen/fehler",
+                }
+            )
+        tips.append(
+            {
+                "title": f"Fokus Monat {focus_month}",
+                "body": (
+                    "Arbeite die offenen Kategorien des aktuellen Ausbildungsmonats ab, "
+                    "bevor du zur naechsten Pruefungssession gehst."
+                ),
+                "category_slug": None,
+                "action_href": f"/lernen?month={focus_month}",
+            }
+        )
+        if readiness < 60:
+            tips.append(
+                {
+                    "title": "Pruefungsreife steigern",
+                    "body": (
+                        f"Aktuelle Reife: {readiness}%. Meistere zusaetzliche Fragen "
+                        "(2x hintereinander richtig), um auf 60%+ zu kommen."
+                    ),
+                    "category_slug": None,
+                    "action_href": "/fortschritt/pruefungsreife",
+                }
+            )
+        else:
+            tips.append(
+                {
+                    "title": "Checkpoint-Pruefung",
+                    "body": (
+                        f"Mit {readiness}% Reife bist du bereit fuer eine Checkpoint-Session "
+                        "mit offenen Aufgaben."
+                    ),
+                    "category_slug": None,
+                    "action_href": "/pruefungen",
+                }
+            )
+        return {
+            "greeting": (
+                f"Hallo! Level {dashboard['level']} · {dashboard['xp']} XP · "
+                f"{dashboard['streak_days']} Tage Streak."
+            ),
+            "readiness_percent": readiness,
+            "focus_month": focus_month,
+            "tips": tips,
+            "weak_categories": weak,
         }
 
     def learning_journey(self, learner_id: str) -> list[dict[str, object]]:
@@ -210,3 +317,57 @@ class ProgressService:
                 reverse=True,
             )[:5]
         ]
+
+    def _streak_stats(self, learner_id: str) -> tuple[int, int]:
+        """Compute current and longest consecutive activity-day streaks."""
+        from datetime import date, timedelta
+
+        days = self.database.list_activity_dates(learner_id)
+        if not days:
+            return 0, 0
+        parsed = sorted({date.fromisoformat(day) for day in days}, reverse=True)
+        today = date.today()
+        current = 0
+        if parsed[0] in {today, today - timedelta(days=1)}:
+            expected = parsed[0]
+            for day in parsed:
+                if day == expected:
+                    current += 1
+                    expected = day - timedelta(days=1)
+                elif day < expected:
+                    break
+        longest = 1
+        run = 1
+        chronological = list(reversed(parsed))
+        for index in range(1, len(chronological)):
+            if chronological[index] == chronological[index - 1] + timedelta(days=1):
+                run += 1
+                longest = max(longest, run)
+            else:
+                run = 1
+        longest = max(longest, current)
+        return current, longest
+
+    @staticmethod
+    def _derive_badges(
+        *,
+        answered: int,
+        mastered: int,
+        streak_days: int,
+        longest_streak: int,
+    ) -> list[str]:
+        """Return unlocked badge labels for the learner."""
+        badges: list[str] = []
+        if answered >= 1:
+            badges.append("Erster Schritt")
+        if mastered >= 5:
+            badges.append("5x gemeistert")
+        if mastered >= 20:
+            badges.append("Fachkunde-Starter")
+        if streak_days >= 3:
+            badges.append("3-Tage-Streak")
+        if longest_streak >= 7:
+            badges.append("Wochen-Streak")
+        if answered >= 50:
+            badges.append("Fleissig")
+        return badges

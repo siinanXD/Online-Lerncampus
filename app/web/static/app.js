@@ -7,6 +7,13 @@ const state = {
   exams: [],
   journey: [],
   dashboard: null,
+  profile: null,
+  gamification: null,
+  coachPlan: null,
+  pendingReviews: [],
+  occupations: [],
+  curriculum: [],
+  sources: [],
   trainingReports: [],
   currentQuestionIndex: 0,
   activeExam: null,
@@ -17,10 +24,13 @@ const state = {
   examTimerHandle: null,
   accessToken: localStorage.getItem("ol_access_token"),
   learnerId: localStorage.getItem("ol_learner_id"),
+  role: localStorage.getItem("ol_role") || "learner",
+  displayName: localStorage.getItem("ol_display_name") || "",
   currentPath: "/",
 };
 
 const routeConfig = window.OLC_ROUTE_CONFIG || {};
+const STAFF_ROLES = new Set(["reviewer", "trainer", "admin"]);
 
 function resolveRoute(pathname = window.location.pathname) {
   let config = routeConfig[pathname];
@@ -40,8 +50,17 @@ function authHeaders() {
 function clearSession() {
   state.accessToken = null;
   state.learnerId = null;
+  state.role = "learner";
+  state.displayName = "";
+  state.profile = null;
+  state.dashboard = null;
+  state.gamification = null;
+  state.coachPlan = null;
+  state.pendingReviews = [];
   localStorage.removeItem("ol_access_token");
   localStorage.removeItem("ol_learner_id");
+  localStorage.removeItem("ol_role");
+  localStorage.removeItem("ol_display_name");
   document.body.classList.remove("is-authenticated");
 }
 
@@ -58,11 +77,26 @@ function showToast(message) {
   }, 2400);
 }
 
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
+}
+
 async function fetchJson(url, options = {}) {
   const response = await fetch(url, options);
   if (!response.ok) {
     const payload = await response.json().catch(() => ({}));
-    throw new Error(payload.detail || `API Fehler: ${response.status}`);
+    const detail = payload.detail;
+    const message =
+      typeof detail === "string"
+        ? detail
+        : Array.isArray(detail)
+          ? detail.map((item) => item.msg || JSON.stringify(item)).join("; ")
+          : `API Fehler: ${response.status}`;
+    throw new Error(message);
   }
   if (response.status === 204) {
     return null;
@@ -82,8 +116,12 @@ async function login(identifier, password, cohortCode) {
   });
   state.accessToken = session.access_token;
   state.learnerId = session.learner_id;
+  state.role = session.role || "learner";
+  state.displayName = session.display_name || "";
   localStorage.setItem("ol_access_token", session.access_token);
   localStorage.setItem("ol_learner_id", session.learner_id);
+  localStorage.setItem("ol_role", state.role);
+  localStorage.setItem("ol_display_name", state.displayName);
   document.body.classList.add("is-authenticated");
   await refreshPrivateData();
 }
@@ -101,12 +139,36 @@ async function requireAuth() {
   await ensureAuthenticated();
 }
 
+function requireStaff() {
+  if (!STAFF_ROLES.has(state.role)) {
+    throw new Error("Nur fuer Reviewer, Trainer oder Admin.");
+  }
+}
+
 async function refreshPrivateData() {
+  state.profile = await fetchJson("/api/auth/me", { headers: authHeaders() });
+  state.learnerId = state.profile.learner_id;
+  state.role = state.profile.role || "learner";
+  state.displayName = state.profile.display_name || "";
+  localStorage.setItem("ol_learner_id", state.learnerId);
+  localStorage.setItem("ol_role", state.role);
+  localStorage.setItem("ol_display_name", state.displayName);
   state.dashboard = await fetchJson("/api/dashboard", { headers: authHeaders() });
   state.journey = await fetchJson("/api/learning/journey", { headers: authHeaders() });
+  state.gamification = await fetchJson("/api/gamification", { headers: authHeaders() }).catch(
+    () => null,
+  );
+  state.coachPlan = await fetchJson("/api/coach/plan", { headers: authHeaders() }).catch(() => null);
   state.trainingReports = await fetchJson("/api/training-reports", {
     headers: authHeaders(),
   }).catch(() => []);
+  if (STAFF_ROLES.has(state.role)) {
+    state.pendingReviews = await fetchJson("/api/content/review/pending", {
+      headers: authHeaders(),
+    }).catch(() => []);
+  } else {
+    state.pendingReviews = [];
+  }
   renderStats();
 }
 
@@ -134,7 +196,9 @@ function renderScreen(config) {
     return;
   }
   const renderer = window.OLC_SCREEN_RENDERERS?.[config.screen];
-  root.innerHTML = renderer ? renderer() : `<article class="card"><p>Screen fehlt: ${config.screen || "?"}</p></article>`;
+  root.innerHTML = renderer
+    ? renderer()
+    : `<article class="card"><p>Screen fehlt: ${config.screen || "?"}</p></article>`;
   bindLiveData(root, config);
 }
 
@@ -144,6 +208,9 @@ function bindLiveData(root, config) {
   const wrong = dashboard?.wrong_answers || 0;
   const total = dashboard?.total_questions || 0;
   const readiness = total ? Math.round((mastered / total) * 100) : 0;
+  const xp = dashboard?.xp ?? state.gamification?.xp ?? 0;
+  const level = dashboard?.level ?? state.gamification?.level ?? 1;
+  const streak = dashboard?.streak_days ?? state.gamification?.streak_days ?? 0;
 
   root.querySelectorAll("[data-bind='mastered']").forEach((el) => {
     el.textContent = String(mastered);
@@ -154,10 +221,22 @@ function bindLiveData(root, config) {
   root.querySelectorAll("[data-bind='readiness']").forEach((el) => {
     el.textContent = `${readiness}%`;
   });
+  root.querySelectorAll("[data-bind='xp']").forEach((el) => {
+    el.textContent = String(xp);
+  });
+  root.querySelectorAll("[data-bind='level']").forEach((el) => {
+    el.textContent = String(level);
+  });
+  root.querySelectorAll("[data-bind='streak']").forEach((el) => {
+    el.textContent = String(streak);
+  });
   root.querySelectorAll("[data-bind='profile-summary']").forEach((el) => {
     el.textContent = state.accessToken
-      ? `Angemeldet als ${state.learnerId || "Azubi"}.`
+      ? `${state.displayName || "Azubi"} · ${state.role} · ${state.learnerId || ""}`
       : "Nicht angemeldet.";
+  });
+  root.querySelectorAll("[data-bind='role']").forEach((el) => {
+    el.textContent = state.role || "learner";
   });
 
   const questionList = root.querySelector("[data-bind='question-list']");
@@ -171,8 +250,8 @@ function bindLiveData(root, config) {
           .map(
             (question, index) => `
           <a class="list-row" href="/lernen/frage" data-page-link data-q-index="${index}">
-            <strong>${index + 1}. ${question.prompt}</strong>
-            <span class="muted">${question.category_slug || "Frage"}</span>
+            <strong>${index + 1}. ${escapeHtml(question.prompt)}</strong>
+            <span class="muted">${escapeHtml(question.category_slug || "Frage")}</span>
           </a>`,
           )
           .join("")
@@ -189,7 +268,7 @@ function bindLiveData(root, config) {
         .map(
           (option, index) => `
           <button class="answer-option" type="button" data-index="${index}">
-            ${index + 1}. ${option}
+            ${index + 1}. ${escapeHtml(option)}
           </button>`,
         )
         .join("");
@@ -206,14 +285,60 @@ function bindLiveData(root, config) {
     reportsLive.innerHTML = renderReportsMarkup();
   }
 
+  const unitsLive = root.querySelector("[data-bind='units-live']");
+  if (unitsLive) {
+    unitsLive.innerHTML = renderUnitsMarkup();
+  }
+
+  const unitDetail = root.querySelector("[data-bind='unit-detail']");
+  if (unitDetail) {
+    unitDetail.innerHTML = renderUnitDetailMarkup();
+  }
+
+  const journeyLive = root.querySelector("[data-bind='journey-live']");
+  if (journeyLive) {
+    journeyLive.innerHTML = renderJourneyMarkup();
+  }
+
+  const gamificationLive = root.querySelector("[data-bind='gamification-live']");
+  if (gamificationLive) {
+    gamificationLive.innerHTML = renderGamificationMarkup();
+  }
+
+  const coachLive = root.querySelector("[data-bind='coach-live']");
+  if (coachLive) {
+    coachLive.innerHTML = renderCoachMarkup();
+  }
+
+  const curriculumLive = root.querySelector("[data-bind='curriculum-live']");
+  if (curriculumLive) {
+    curriculumLive.innerHTML = renderCurriculumMarkup();
+  }
+
+  const sourcesLive = root.querySelector("[data-bind='sources-live']");
+  if (sourcesLive) {
+    sourcesLive.innerHTML = renderSourcesMarkup();
+  }
+
+  const reviewsLive = root.querySelector("[data-bind='reviews-live']");
+  if (reviewsLive) {
+    reviewsLive.innerHTML = renderReviewsMarkup();
+  }
+
+  const trainerOutput = root.querySelector("[data-bind='trainer-output']");
+  if (trainerOutput && state.pendingReviews.length && !trainerOutput.dataset.filled) {
+    trainerOutput.innerHTML = renderReviewsMarkup();
+    trainerOutput.dataset.filled = "1";
+  }
+
   const levelRing = document.querySelector("#level-pill .level-ring");
   if (levelRing) {
-    levelRing.textContent = String(Math.max(1, Math.min(99, Math.floor(mastered / 20) + 1)));
+    levelRing.textContent = String(level);
   }
 }
 
 function renderStats() {
-  const dashboard = state.dashboard || { mastered_questions: 0, wrong_answers: 0 };
+  const dashboard = state.dashboard || { mastered_questions: 0, wrong_answers: 0, xp: 0 };
   const stats = document.getElementById("app-stats");
   if (!stats) {
     return;
@@ -221,6 +346,7 @@ function renderStats() {
   stats.innerHTML = `
     <span class="stat-chip">${dashboard.mastered_questions} gemeistert</span>
     <span class="stat-chip">${dashboard.wrong_answers} Fehler</span>
+    <span class="stat-chip">${dashboard.xp || 0} XP</span>
   `;
 }
 
@@ -231,12 +357,19 @@ function renderReportsMarkup() {
         state.trainingReports
           .map(
             (report) => `
-          <article class="report-card card">
+          <article class="report-card card" data-report-id="${report.id}">
             <header>
-              <strong>${report.report_date}</strong>
-              <span>${report.hours} h · ${report.status}</span>
+              <strong>${escapeHtml(report.report_date)}</strong>
+              <span>${report.hours} h · ${escapeHtml(report.status)}</span>
             </header>
-            <p>${report.activities}</p>
+            <p>${escapeHtml(report.activities)}</p>
+            <div class="row-actions">
+              ${
+                report.status === "draft"
+                  ? `<button class="primary-button" type="button" data-action="submit-report" data-report-id="${report.id}">Zur Unterschrift einreichen</button>`
+                  : `<span class="badge ok">Eingereicht</span>`
+              }
+            </div>
           </article>`,
           )
           .join("") ||
@@ -244,6 +377,185 @@ function renderReportsMarkup() {
           <a class="primary-button" href="/berichtsheft/neu" data-page-link>Ersten Eintrag schreiben</a></article>`
       }
     </div>`;
+}
+
+function renderUnitsMarkup() {
+  if (!state.units.length) {
+    return `<p class="muted">Keine Lerneinheiten geladen.</p>`;
+  }
+  return `<div class="question-list">${state.units
+    .map(
+      (unit) => `
+      <a class="list-row" href="/lernen/einheit" data-page-link data-unit-slug="${escapeHtml(unit.slug)}">
+        <strong>${escapeHtml(unit.title)}</strong>
+        <span class="muted">Monat ${unit.month} · ${unit.estimated_minutes || "?"} Min · ${escapeHtml(unit.review_status)}</span>
+      </a>`,
+    )
+    .join("")}</div>`;
+}
+
+function renderUnitDetailMarkup() {
+  const unit = state.activeUnit;
+  if (!unit) {
+    return `<p class="muted">Lerneinheit waehlen.</p>
+      <div data-bind-nested="units">${renderUnitsMarkup()}</div>`;
+  }
+  const theory = (unit.theory_blocks || [])
+    .map(
+      (block) => `
+      <section class="card">
+        <h3>${escapeHtml(block.heading)}</h3>
+        <p>${escapeHtml(block.body)}</p>
+        <ul class="plain-list">${(block.key_points || [])
+          .map((point) => `<li>${escapeHtml(point)}</li>`)
+          .join("")}</ul>
+        <p class="muted">${escapeHtml((block.norm_references || []).join(" · "))}</p>
+      </section>`,
+    )
+    .join("");
+  const glossary = Object.entries(unit.glossary || {})
+    .map(([term, definition]) => `<li><strong>${escapeHtml(term)}</strong> — ${escapeHtml(definition)}</li>`)
+    .join("");
+  return `
+    <article class="card">
+      <p class="eyebrow">Monat ${unit.month} · ${escapeHtml(unit.review_status)}</p>
+      <h3>${escapeHtml(unit.title)}</h3>
+      <p class="muted">${escapeHtml(unit.subtitle || "")}</p>
+      <p><strong>Uebung:</strong> ${escapeHtml(unit.practice_task || "")}</p>
+    </article>
+    ${theory}
+    <article class="card"><h3>Glossar</h3><ul class="plain-list">${glossary || "<li>Kein Glossar</li>"}</ul></article>
+    <div class="row-actions">
+      <a class="primary-button" href="/lernen/frage" data-page-link>Fragen ueben</a>
+      <a class="secondary-button" href="/fachkunde" data-page-link>Zur Fachkunde</a>
+    </div>`;
+}
+
+function renderJourneyMarkup() {
+  if (!state.journey.length) {
+    return `<p class="muted">Lernreise nicht geladen.</p>`;
+  }
+  return `<div class="path-map">${state.journey
+    .slice(0, 12)
+    .map((month) => {
+      const done = month.total_categories > 0 && month.completed_categories >= month.total_categories;
+      const cls = month.locked ? "locked" : done ? "done" : "active";
+      return `<button class="path-node ${cls}" type="button" data-action="load-month" data-month="${month.month}">
+        ${month.month} · ${escapeHtml(month.title || `Monat ${month.month}`)}
+      </button>`;
+    })
+    .join("")}</div>`;
+}
+
+function renderGamificationMarkup() {
+  const g = state.gamification || state.dashboard;
+  if (!g) {
+    return `<p class="muted">Gamification nach Login verfuegbar.</p>`;
+  }
+  const badges = (g.badges || []).map((badge) => `<li>${escapeHtml(badge)}</li>`).join("") ||
+    "<li>Noch keine Badges</li>";
+  const into = g.xp_into_level ?? (g.xp || 0) % 120;
+  const per = g.xp_per_level || 120;
+  return `
+    <div class="metric-grid">
+      <article class="metric-card card"><strong data-bind="level">${g.level}</strong><span>Level</span></article>
+      <article class="metric-card card"><strong data-bind="xp">${g.xp}</strong><span>XP</span></article>
+      <article class="metric-card card"><strong data-bind="streak">${g.streak_days || 0}</strong><span>Streak</span></article>
+      <article class="metric-card card"><strong>${g.longest_streak_days || g.streak_days || 0}</strong><span>Longest</span></article>
+    </div>
+    <article class="card">
+      <p>Fortschritt im Level: ${into} / ${per} XP</p>
+      <div class="segmented-progress" aria-hidden="true">
+        ${Array.from({ length: 5 }, (_, index) => {
+          const filled = into / per > (index + 1) / 5;
+          return `<span class="${filled ? "filled" : ""}"></span>`;
+        }).join("")}
+      </div>
+      <h3>Badges</h3>
+      <ul class="plain-list">${badges}</ul>
+    </article>`;
+}
+
+function renderCoachMarkup() {
+  const plan = state.coachPlan;
+  if (!plan) {
+    return `<p class="muted">Coach-Plan nach Login verfuegbar.</p>`;
+  }
+  return `
+    <article class="card">
+      <p>${escapeHtml(plan.greeting)}</p>
+      <p><strong>Pruefungsreife:</strong> ${plan.readiness_percent}% · Fokus Monat ${plan.focus_month}</p>
+    </article>
+    <div class="chat-demo">
+      ${(plan.tips || [])
+        .map(
+          (tip) => `
+        <div class="chat-bubble bot">
+          <strong>${escapeHtml(tip.title)}</strong><br>${escapeHtml(tip.body)}
+          ${
+            tip.action_href
+              ? `<div><a href="${escapeHtml(tip.action_href)}" data-page-link>Oeffnen</a></div>`
+              : ""
+          }
+        </div>`,
+        )
+        .join("")}
+    </div>`;
+}
+
+function renderCurriculumMarkup() {
+  if (!state.curriculum.length) {
+    return `<p class="muted">Curriculum wird geladen…</p>`;
+  }
+  return `<ul class="plain-list">${state.curriculum
+    .slice(0, 12)
+    .map(
+      (month) =>
+        `<li><strong>Monat ${month.month}:</strong> ${escapeHtml(month.title)} (${escapeHtml(month.year || "")})</li>`,
+    )
+    .join("")}</ul>`;
+}
+
+function renderSourcesMarkup() {
+  if (!state.sources.length) {
+    return `<p class="muted">Quellen werden geladen…</p>`;
+  }
+  return `<ul class="plain-list">${state.sources
+    .slice(0, 12)
+    .map(
+      (source) =>
+        `<li><strong>${escapeHtml(source.title || source.key)}</strong> · ${escapeHtml(source.key)}</li>`,
+    )
+    .join("")}</ul>`;
+}
+
+function renderReviewsMarkup() {
+  if (!STAFF_ROLES.has(state.role)) {
+    return `<p class="muted">Review-Warteschlange nur fuer Staff-Rollen.</p>`;
+  }
+  if (!state.pendingReviews.length) {
+    return `<p class="muted">Keine offenen Reviews.</p>`;
+  }
+  return `<div class="table-wrap"><table class="data-table">
+    <thead><tr><th>Typ</th><th>Key</th><th>Titel</th><th>Status</th><th>Aktion</th></tr></thead>
+    <tbody>
+      ${state.pendingReviews
+        .map(
+          (row) => `
+        <tr>
+          <td>${escapeHtml(row.entity_type)}</td>
+          <td>${escapeHtml(row.entity_key)}</td>
+          <td>${escapeHtml(row.title)}</td>
+          <td>${escapeHtml(row.review_status)}</td>
+          <td class="row-actions">
+            <button class="primary-button" type="button" data-action="review-decide" data-entity-type="${escapeHtml(row.entity_type)}" data-entity-key="${escapeHtml(row.entity_key)}" data-to-status="approved">Freigeben</button>
+            <button class="secondary-button" type="button" data-action="review-decide" data-entity-type="${escapeHtml(row.entity_type)}" data-entity-key="${escapeHtml(row.entity_key)}" data-to-status="needs_revision">Nacharbeit</button>
+          </td>
+        </tr>`,
+        )
+        .join("")}
+    </tbody>
+  </table></div>`;
 }
 
 function clearExamTimer() {
@@ -305,6 +617,7 @@ function renderExamInto(target) {
       <div class="exam-result card">
         <h3>Ergebnis: ${result.passed ? "Bestanden" : "Nicht bestanden"}</h3>
         <p><strong>${result.score_percent}%</strong> (${result.choice_correct}/${result.choice_total} SC richtig)</p>
+        <p>Offen: ${result.open_score}/${result.open_max_points} Punkte</p>
         <p>Bestehensgrenze: ${result.passing_score_percent}%</p>
         <div class="row-actions">
           <button id="exam-restart" class="primary-button" type="button">Neue Session</button>
@@ -320,7 +633,7 @@ function renderExamInto(target) {
         const selected = state.examChoiceAnswers[question.question_id];
         return `
           <li class="exam-question">
-            <strong>${index + 1}. ${question.prompt}</strong>
+            <strong>${index + 1}. ${escapeHtml(question.prompt)}</strong>
             <div class="answer-options">
               ${question.options
                 .map(
@@ -328,7 +641,7 @@ function renderExamInto(target) {
                     <button type="button" class="exam-answer-option ${
                       selected === optionIndex ? "selected" : ""
                     }" data-exam-action="choice" data-question-id="${question.question_id}" data-index="${optionIndex}">
-                      ${optionIndex + 1}. ${option}
+                      ${optionIndex + 1}. ${escapeHtml(option)}
                     </button>`,
                 )
                 .join("")}
@@ -336,16 +649,37 @@ function renderExamInto(target) {
           </li>`;
       })
       .join("");
+    const openMarkup = (exam.open_questions || [])
+      .slice(0, 5)
+      .map((question, index) => {
+        const saved = state.examOpenAnswers[question.question_id] || "";
+        return `
+          <li class="exam-question">
+            <strong>Offen ${index + 1}. ${escapeHtml(question.prompt)}</strong>
+            <p class="muted">Max. ${question.max_points} Punkte · ${escapeHtml(question.answer_format || "")}</p>
+            <label class="field">
+              <span>Antwort</span>
+              <textarea data-open-answer="${question.question_id}" rows="3">${escapeHtml(saved)}</textarea>
+            </label>
+            <label class="field">
+              <span>Selbsteinschaetzung (0–${question.max_points})</span>
+              <input type="number" min="0" max="${question.max_points}" data-open-score="${question.question_id}" value="${question.max_points}" />
+            </label>
+            <button type="button" class="secondary-button" data-action="save-open-answer" data-question-id="${question.question_id}">Antwort speichern</button>
+          </li>`;
+      })
+      .join("");
     target.innerHTML = `
       <div class="exam-session card">
         <div class="exam-session-header">
-          <div><h3>${exam.title}</h3><p>${exam.description}</p></div>
+          <div><h3>${escapeHtml(exam.title)}</h3><p>${escapeHtml(exam.description)}</p></div>
           <div class="exam-session-meta">
             <span id="exam-timer">${formatExamTimer(state.examSession.expires_at)}</span>
             <span>Bestehen: ${state.examSession.passing_score_percent}%</span>
           </div>
         </div>
         <ol class="exam-list">${choiceMarkup}</ol>
+        ${openMarkup ? `<h4>Offene Aufgaben</h4><ol class="exam-list">${openMarkup}</ol>` : ""}
         <div class="exam-actions">
           <button id="exam-submit" class="primary-button" type="button">Pruefung abgeben</button>
           <button id="exam-cancel" class="secondary-button" type="button">Abbrechen</button>
@@ -361,15 +695,15 @@ function renderExamInto(target) {
       (exam) =>
         `<option value="${exam.exam_id}" ${
           exam.exam_id === state.activeExam.exam_id ? "selected" : ""
-        }>${exam.title}</option>`,
+        }>${escapeHtml(exam.title)}</option>`,
     )
     .join("");
   const exam = state.activeExam;
   target.innerHTML = `
     <label class="field"><span>Pruefung</span><select id="exam-select">${options}</select></label>
     <div class="exam-preview card">
-      <h3>${exam.title}</h3>
-      <p>${exam.description}</p>
+      <h3>${escapeHtml(exam.title)}</h3>
+      <p>${escapeHtml(exam.description)}</p>
       <p>${exam.questions.length} Single-Choice-Fragen${
         exam.open_questions?.length ? `, ${exam.open_questions.length} offene Aufgaben` : ""
       }${exam.time_limit_minutes ? `, Zeitlimit ${exam.time_limit_minutes} Minuten` : ", ohne Zeitlimit"}.</p>
@@ -405,6 +739,30 @@ async function saveExamChoiceAnswer(questionId, optionIndex) {
   await navigateTo("/pruefungen", false);
 }
 
+async function saveExamOpenAnswer(questionId, root) {
+  if (!state.examSession) {
+    return;
+  }
+  const textarea = root.querySelector(`textarea[data-open-answer="${questionId}"]`);
+  const scoreInput = root.querySelector(`input[data-open-score="${questionId}"]`);
+  const learnerAnswer = String(textarea?.value || "").trim();
+  if (learnerAnswer.length < 1) {
+    throw new Error("Bitte eine offene Antwort eingeben.");
+  }
+  const selfScore = scoreInput ? Number(scoreInput.value) : null;
+  await fetchJson(`/api/exams/sessions/${state.examSession.session_id}/open-answers`, {
+    method: "POST",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      question_id: questionId,
+      learner_answer: learnerAnswer,
+      self_score: Number.isFinite(selfScore) ? selfScore : null,
+    }),
+  });
+  state.examOpenAnswers[questionId] = learnerAnswer;
+  showToast("Offene Antwort gespeichert");
+}
+
 async function submitExamSession() {
   if (!state.examSession) {
     return;
@@ -415,6 +773,7 @@ async function submitExamSession() {
     { method: "POST", headers: authHeaders() },
   );
   state.examSession = null;
+  await refreshPrivateData();
   await navigateTo(state.examResult.passed ? "/pruefungen/bestanden" : "/pruefungen/durchgefallen");
 }
 
@@ -461,11 +820,33 @@ async function saveTrainingReport(formElement) {
       report_date: String(form.get("report_date")),
       activities,
       hours: Number(form.get("hours")),
+      status: "draft",
     }),
   });
   await refreshPrivateData();
   showToast("Berichtsheft-Eintrag gespeichert");
   await navigateTo("/berichtsheft");
+}
+
+async function submitTrainingReport(reportId) {
+  await requireAuth();
+  const report = state.trainingReports.find((item) => String(item.id) === String(reportId));
+  if (!report) {
+    throw new Error("Eintrag nicht gefunden.");
+  }
+  await fetchJson(`/api/training-reports/${reportId}`, {
+    method: "PUT",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      report_date: report.report_date,
+      activities: report.activities,
+      hours: report.hours,
+      status: "submitted",
+    }),
+  });
+  await refreshPrivateData();
+  showToast("Bericht eingereicht");
+  await navigateTo("/berichtsheft/unterschrift");
 }
 
 async function changePassword(formElement) {
@@ -488,7 +869,49 @@ async function changePassword(formElement) {
   showToast("Passwort gespeichert");
 }
 
+async function recordConsent(accepted = true) {
+  await requireAuth();
+  await fetchJson("/api/privacy/consent", {
+    method: "POST",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ accepted }),
+  });
+  showToast(accepted ? "Datenschutz-Einwilligung gespeichert" : "Ablehnung gespeichert");
+}
+
+async function resetProgress() {
+  await requireAuth();
+  const confirmed = window.confirm("Fortschritt wirklich zuruecksetzen?");
+  if (!confirmed) {
+    return;
+  }
+  await fetchJson("/api/progress/reset", {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  await refreshPrivateData();
+  showToast("Fortschritt zurueckgesetzt");
+}
+
+async function loadUnitBySlug(slug) {
+  state.activeUnit = await fetchJson(`/api/learning/units/${slug}`);
+}
+
+async function loadCurriculumBundle() {
+  state.occupations = await fetchJson("/api/occupations").catch(() => []);
+  const occupation =
+    state.occupations.find((item) => item.slug === "maschinen-und-anlagenfuehrer") ||
+    state.occupations[0];
+  if (occupation) {
+    state.curriculum = await fetchJson(
+      `/api/occupations/${occupation.slug}/curriculum`,
+    ).catch(() => []);
+  }
+  state.sources = await fetchJson("/api/sources").catch(() => []);
+}
+
 async function generateDraft() {
+  requireStaff();
   const draft = await fetchJson("/api/content/generate", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -499,33 +922,56 @@ async function generateDraft() {
       learner_level: "azubi",
     }),
   });
+  const reviewed = await fetchJson("/api/content/review", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      draft_id: draft.draft_id,
+      approved: false,
+      reviewer_notes: "Automatische Vorpruefung aus dem Trainer-Cockpit.",
+    }),
+  }).catch(() => draft);
   const output = document.querySelector("[data-bind='trainer-output']");
   if (output) {
     output.innerHTML = `
-      <h3>${draft.title}</h3>
-      <p><strong>Lernziel:</strong> ${draft.learning_goal}</p>
-      <p>${draft.fachkunde}</p>
-      <p><strong>Status:</strong> ${draft.review_status}</p>`;
+      <h3>${escapeHtml(reviewed.title)}</h3>
+      <p><strong>Lernziel:</strong> ${escapeHtml(reviewed.learning_goal)}</p>
+      <p>${escapeHtml(reviewed.fachkunde)}</p>
+      <p><strong>Status:</strong> ${escapeHtml(reviewed.review_status)}</p>
+      <p class="muted">Draft ${escapeHtml(reviewed.draft_id)}</p>`;
   }
 }
 
 async function loadReviews() {
   await requireAuth();
-  const rows = await fetchJson("/api/content/review/pending", { headers: authHeaders() }).catch(
-    () => [],
-  );
-  const output = document.querySelector("[data-bind='trainer-output']");
-  if (!output) {
-    return;
+  requireStaff();
+  state.pendingReviews = await fetchJson("/api/content/review/pending", {
+    headers: authHeaders(),
+  });
+  const output =
+    document.querySelector("[data-bind='reviews-live']") ||
+    document.querySelector("[data-bind='trainer-output']");
+  if (output) {
+    output.innerHTML = renderReviewsMarkup();
   }
-  output.innerHTML = rows.length
-    ? `<ul class="plain-list">${rows
-        .map(
-          (row) =>
-            `<li>${row.entity_type}: ${row.entity_key} · ${row.review_status || row.status || "?"}</li>`,
-        )
-        .join("")}</ul>`
-    : `<p class="muted">Keine offenen Reviews (oder keine Berechtigung).</p>`;
+  showToast(`${state.pendingReviews.length} Reviews geladen`);
+}
+
+async function decideReview(entityType, entityKey, toStatus) {
+  await requireAuth();
+  requireStaff();
+  await fetchJson("/api/content/review/decision", {
+    method: "POST",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({
+      entity_type: entityType,
+      entity_key: entityKey,
+      to_status: toStatus,
+      notes: toStatus === "approved" ? "Fachlich freigegeben." : "Bitte nacharbeiten.",
+    }),
+  });
+  await loadReviews();
+  showToast(toStatus === "approved" ? "Freigegeben" : "Zurueck an Autor");
 }
 
 async function exportLearnerData() {
@@ -582,13 +1028,6 @@ function updateChrome(config, pathname) {
   const tab = config.tab;
   document.querySelectorAll(".tab-bar a").forEach((link) => {
     const view = link.dataset.view;
-    const active =
-      (tab === "dashboard" && view === "dashboard") ||
-      (tab === "learn" && view === "learn") ||
-      (tab === "exam" && view === "exam") ||
-      (tab === "reports" && view === "reports") ||
-      (tab === "progress" && view === "profile" ? false : tab === "profile" && view === "profile") ||
-      (pathname.startsWith("/fortschritt") && view === "profile" && false);
     const mapped =
       (tab === "dashboard" && view === "dashboard") ||
       (tab === "learn" && view === "learn") ||
@@ -618,6 +1057,37 @@ async function navigateTo(pathname, pushState = true) {
       clearSession();
     }
   }
+  if (
+    ["trainer", "admin"].includes(config.layout) &&
+    state.accessToken &&
+    !STAFF_ROLES.has(state.role)
+  ) {
+    showToast("Staff-Login erforderlich (reviewer-/trainer-/admin- Prefix).");
+    await navigateTo("/mehr", false);
+    return;
+  }
+  if (
+    ["/lernen/einheit", "/fachkunde/einheit", "/fachkunde/bausteine"].includes(resolved.pathname)
+  ) {
+    if (!state.activeUnit && state.units[0]) {
+      await loadUnitBySlug(state.units[0].slug).catch(() => null);
+    }
+  }
+  if (
+    ["/fachkunde/lernpfad", "/lernen/lernpfad", "/ausbilder/planung"].includes(resolved.pathname)
+  ) {
+    await loadCurriculumBundle();
+  }
+  if (["/gamification", "/gamification/xp", "/gamification/badges", "/gamification/streaks", "/fortschritt/xp"].includes(resolved.pathname) && state.accessToken) {
+    state.gamification = await fetchJson("/api/gamification", { headers: authHeaders() }).catch(
+      () => state.gamification,
+    );
+  }
+  if (["/mehr/coach", "/mehr/lernplan"].includes(resolved.pathname) && state.accessToken) {
+    state.coachPlan = await fetchJson("/api/coach/plan", { headers: authHeaders() }).catch(
+      () => state.coachPlan,
+    );
+  }
   updateChrome(config, resolved.pathname);
   renderScreen(config);
 }
@@ -643,7 +1113,9 @@ async function init() {
   state.questions = await fetchJson("/api/questions?month=1");
   state.units = await fetchJson("/api/learning/units?month=1");
   state.exams = await fetchJson("/api/exams");
-  state.activeExam = state.exams[0] || null;
+  state.activeExam =
+    state.exams.find((exam) => exam.exam_id === "checkpoint-01") || state.exams[0] || null;
+  await loadCurriculumBundle();
   if (state.accessToken) {
     try {
       await refreshPrivateData();
@@ -660,7 +1132,6 @@ document.addEventListener("click", async (event) => {
     return;
   }
   try {
-    // Exam start must run before data-page-link; several screens combine both.
     if (target.dataset.action === "exam-start-shortcut" || target.id === "exam-start") {
       event.preventDefault();
       await startExamSession();
@@ -670,6 +1141,9 @@ document.addEventListener("click", async (event) => {
       event.preventDefault();
       if (target.dataset.qIndex) {
         state.currentQuestionIndex = Number(target.dataset.qIndex);
+      }
+      if (target.dataset.unitSlug) {
+        await loadUnitBySlug(target.dataset.unitSlug);
       }
       await navigateTo(new URL(target.href, window.location.origin).pathname);
       return;
@@ -696,12 +1170,44 @@ document.addEventListener("click", async (event) => {
       await exportLearnerData();
       return;
     }
+    if (target.dataset.action === "privacy-consent") {
+      await recordConsent(target.dataset.accepted !== "false");
+      await navigateTo("/dashboard");
+      return;
+    }
+    if (target.dataset.action === "reset-progress") {
+      await resetProgress();
+      return;
+    }
+    if (target.dataset.action === "submit-report") {
+      await submitTrainingReport(target.dataset.reportId);
+      return;
+    }
     if (target.dataset.action === "generate-draft") {
       await generateDraft();
       return;
     }
     if (target.dataset.action === "load-reviews") {
       await loadReviews();
+      return;
+    }
+    if (target.dataset.action === "review-decide") {
+      await decideReview(
+        target.dataset.entityType,
+        target.dataset.entityKey,
+        target.dataset.toStatus,
+      );
+      return;
+    }
+    if (target.dataset.action === "load-month") {
+      await loadLearnMonth(Number(target.dataset.month || "1"));
+      showToast(`Monat ${state.learnMonth} geladen`);
+      await navigateTo("/lernen", false);
+      return;
+    }
+    if (target.dataset.action === "save-open-answer") {
+      const root = target.closest(".exam-session") || document;
+      await saveExamOpenAnswer(target.dataset.questionId, root);
       return;
     }
     if (target.id === "exam-submit") {
@@ -755,7 +1261,7 @@ document.addEventListener("submit", async (event) => {
       await login(String(data.get("identifier")), String(data.get("password")), String(data.get("cohort")));
       document.getElementById("login-feedback").textContent =
         "Angemeldet. Serverseitiger Lernstand ist aktiv.";
-      await navigateTo("/dashboard");
+      await navigateTo("/onboarding");
       return;
     }
     if (form.dataset.action === "change-password") {

@@ -18,21 +18,34 @@ Screen-Katalog: `python tools/generate_screen_catalog.py && python tools/generat
 **114 produktive Screens** aus dem Designsystem sind geroutet und gerendert
 (`app/web/static/screens.js`, Allowlist `app/web/allowed_pages.json`).
 
-Abgedeckt (App-Screens 01–16 + Gamification 18, ohne Foundations/Prototypen-Doku):
+### Live (API-verdrahtet)
 
-- Auth: Login, Passwort, Sprache, Onboarding, Level-Up, Landing
-- Teilnehmer 03–09: Dashboard-Varianten, Lernen/Fachkunde-Tools, Pruefung, Fortschritt, Berichtsheft, Mehr/Coach/Export
-- Ausbilder 10–13: Cockpit, Teilnehmer, Review, Content, Berichte/Planung
-- Admin 14–16: Nutzer, Audit, Monitoring, Content-Ops, Import/Dubletten
-- Gamification 18: Uebersicht, XP, Badges, Streaks
+- Auth: Login, Logout, Passwort, `/api/auth/me` (Profil/Rolle), Onboarding-Consent → `/api/privacy/consent`
+- Dashboard / Fortschritt: mastery, XP, Level, Streak, Reset (`POST /api/progress/reset`)
+- Lernen: Fragen + Attempt, Lerneinheiten-Liste, Unit-Detail via `/api/learning/units/{slug}`
+- Lernpfad: Journey + Curriculum/Occupations/Sources
+- Pruefung: Sessions, Choice-Answers, **Open-Answers**, Submit (Checkpoint-Exams)
+- Berichtsheft: Create + Liste + Submit/Update (`PUT /api/training-reports/{id}`)
+- Privacy: Export, Account-Delete, Consent
+- Gamification: `/api/gamification` (XP/Level/Streak/Badges aus Progress+Audit)
+- KI-Coach / Lernplan: `/api/coach/plan` (regelbasiert aus Schwaechen/Journey)
+- Ausbilder Review: Pending-Queue + Approve/Needs-Revision (`/api/content/review/decision`), Draft-Generate + `/api/content/review`
+- Rollen-Gate: Trainer/Admin-Layouts nur fuer `reviewer|trainer|admin`
 
-API-Wiring wo vorhanden: Auth, Dashboard, Fragen/Mastery, Exams, Berichtsheft, Content-Review/Generate, Privacy-Export.
+### Noch Shell / teilweise statisch
+
+- Marketing/Landing-Illustrationen, Level-Up-Animation, Sprache
+- Formeltrainer / Fehlerdiagnose / Video / Flashcard / Uebersetzungshilfe (Demo-Toasts)
+- Berichtsheft KI-Assistent, Kalender, PDF-Export-UI (ohne Server-PDF)
+- Ausbilder: Teilnehmer-CRUD, Kohorten-Risiko-Tabellen, Medien-Upload, Editor-Voll-CRUD
+- Admin: Nutzerverwaltung, Monitoring-Charts, Import/Dubletten, Audit-UI (nur Shell)
+- Gamification-Leaderboard (nur eigener Streak/Badges, keine Kohorten-Rangliste)
 
 ## Dateien
 
 - `app/web/static/tokens.css` — BZE Tokens aus `.fig`
 - `app/web/static/ui.css` — Komponenten + Shells auf Tokens
-- `app/web/static/screens.js` — generiertes Screen-Registry
+- `app/web/static/screens.js` — generiertes Screen-Registry (+ Live-Binds)
 - `app/web/static/app.js` — Routing + API-Binds
 - `app/web/index.html` — Landing/Login/App/Trainer/Admin Shells
 - `app/web/pages.py` + `allowed_pages.json` — FastAPI Page-Allowlist

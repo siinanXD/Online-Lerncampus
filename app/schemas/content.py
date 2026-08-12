@@ -118,7 +118,43 @@ class DashboardSummaryResponse(BaseModel):
     wrong_answers: int
     xp: int
     level: int
+    streak_days: int = 0
+    badges: list[str] = Field(default_factory=list)
     mastery_rule: str
+    weak_categories: list[dict[str, object]]
+
+
+class GamificationResponse(BaseModel):
+    """XP, level, streak, and badge summary derived from progress."""
+
+    learner_id: str
+    xp: int
+    level: int
+    xp_into_level: int
+    xp_per_level: int
+    streak_days: int
+    longest_streak_days: int
+    badges: list[str]
+    answered_questions: int
+    mastered_questions: int
+
+
+class CoachTipResponse(BaseModel):
+    """One rule-based coaching tip for the learner."""
+
+    title: str
+    body: str
+    category_slug: str | None = None
+    action_href: str | None = None
+
+
+class CoachPlanResponse(BaseModel):
+    """Simple coaching plan derived from weak categories and journey state."""
+
+    greeting: str
+    readiness_percent: int
+    focus_month: int
+    tips: list[CoachTipResponse]
     weak_categories: list[dict[str, object]]
 
 

@@ -114,8 +114,8 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | Status | Node | Name | Size |
 |--------|------|------|------|
 | [~] | `136:8922` | 07.1 Fortschritt — Übersicht | 390×961 |
-| [ ] | `136:9093` | 07.2 Prüfungsreife — Checkliste | 390×947 |
-| [ ] | `136:9238` | 07.3 Prüfungsreife — Ausstehend | 390×895 |
+| [~] | `136:9093` | 07.2 Prüfungsreife — Checkliste | 390×947 |
+| [~] | `136:9238` | 07.3 Prüfungsreife — Ausstehend | 390×895 |
 | [ ] | `136:9371` | 07.4 Statistik — Verlauf | 390×971 |
 | [ ] | `136:9520` | 07.5 Statistik — XP & Streak | 390×844 |
 | [ ] | `136:9624` | 07.6 Statistik — Themen Heatmap | 390×1003 |
@@ -224,3 +224,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Fachkunde 05.5–05.10 key frames: 05.6 Lernbausteine [x] ~7.6%; 05.5 Abschluss [~] ~9.9%; 05.7 Toleranz [~] ~13.4%; 05.8 Spritzguss [~] ~12.5%; 05.9 Messschieber [~] ~19.1%; 05.10 Freigabe [~] ~10.5%
 - Prüfung 06.2 Frage [x] ~8.0%
 - Prüfung 06.3–06.9 key frames: 06.3 Übersicht [x] ~5.9%; 06.4 Timer [~] ~10.4%; 06.5 Abgabe [~] ~11.9%; 06.6 Bestanden [x] ~7.6%; 06.7 Durchgefallen [x] ~8.6%; 06.8 Schwache Themen [~] ~12.8%; 06.9 Kammertermine [x] ~7.3%
+- Fortschritt 07.2–07.3: Prüfungsreife Checkliste [~] ~13.8%; Ausstehend [~] ~11.6%

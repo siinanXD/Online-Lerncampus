@@ -57,11 +57,11 @@ window.OLC_ROUTE_CONFIG = {
   "/pruefungen/schwach": { layout: "app", screen: "s06_8-schwache-themen", title: "Schwache Themen", tab: "exam", num: "06.8", chrome: "exam" },
   "/pruefungen/kammertermine": { layout: "app", screen: "s06_9-kammertermine", title: "Kammertermine", tab: "exam", num: "06.9", chrome: "exam" },
   "/fortschritt": { layout: "app", screen: "s07_1-fortschritt-uebersicht", title: "Fortschritt — Übersicht", tab: "progress", num: "07.1", chrome: "fp" },
-  "/fortschritt/pruefungsreife": { layout: "app", screen: "s07_2-pruefungsreife-checkliste", title: "Prüfungsreife — Checkliste", tab: "progress", num: "07.2" },
-  "/fortschritt/ausstehend": { layout: "app", screen: "s07_3-pruefungsreife-ausstehend", title: "Prüfungsreife — Ausstehend", tab: "progress", num: "07.3" },
-  "/fortschritt/verlauf": { layout: "app", screen: "s07_4-statistik-verlauf", title: "Statistik — Verlauf", tab: "progress", num: "07.4" },
-  "/fortschritt/xp": { layout: "app", screen: "s07_5-statistik-xp-und-streak", title: "Statistik — XP & Streak", tab: "progress", num: "07.5" },
-  "/fortschritt/heatmap": { layout: "app", screen: "s07_6-statistik-themen-heatmap", title: "Statistik — Themen Heatmap", tab: "progress", num: "07.6" },
+  "/fortschritt/pruefungsreife": { layout: "app", screen: "s07_2-pruefungsreife-checkliste", title: "Prüfungsreife — Checkliste", tab: "progress", num: "07.2", chrome: "fp" },
+  "/fortschritt/ausstehend": { layout: "app", screen: "s07_3-pruefungsreife-ausstehend", title: "Prüfungsreife — Ausstehend", tab: "progress", num: "07.3", chrome: "fp" },
+  "/fortschritt/verlauf": { layout: "app", screen: "s07_4-statistik-verlauf", title: "Statistik — Verlauf", tab: "progress", num: "07.4", chrome: "fp" },
+  "/fortschritt/xp": { layout: "app", screen: "s07_5-statistik-xp-und-streak", title: "Statistik — XP & Streak", tab: "progress", num: "07.5", chrome: "fp" },
+  "/fortschritt/heatmap": { layout: "app", screen: "s07_6-statistik-themen-heatmap", title: "Statistik — Themen Heatmap", tab: "progress", num: "07.6", chrome: "fp" },
   "/berichtsheft": { layout: "app", screen: "s08_1-berichtsheft-liste", title: "Berichtsheft — Liste", tab: "reports", num: "08.1", chrome: "bh" },
   "/berichtsheft/neu": { layout: "app", screen: "s08_2-berichtsheft-neuer-eintrag", title: "Berichtsheft — Neuer Eintrag", tab: "reports", num: "08.2" },
   "/berichtsheft/ki": { layout: "app", screen: "s08_3-berichtsheft-ki-assistent", title: "Berichtsheft — KI-Assistent", tab: "reports", num: "08.3" },
@@ -3464,51 +3464,221 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s07_2-pruefungsreife-checkliste": () => `
-      <div class="progress-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/fortschritt" data-page-link aria-label="Zurück">‹</a>
-          <div>
-            <h2 class="page-title">Prüfungsreife — Checkliste</h2>
-            <p class="muted">Ziel: 80% für Empfehlung</p>
+      <div class="fp-screen fp-pr-screen fp-pr-check" data-node-id="136:9093">
+        <div class="fp-pr-scroll">
+          <header class="fp-pr-header">
+            <a class="fp-pr-icon-btn" href="/fortschritt" data-page-link aria-label="Zurück">
+              <img src="/static/figma/fp/fp-pr-back.svg" width="20" height="20" alt="" />
+            </a>
+            <h2>Prüfungsreife</h2>
+            <button class="fp-pr-icon-btn" type="button" aria-label="Mehr">
+              <img src="/static/figma/fp/fp-pr-more.svg" width="20" height="20" alt="" />
+            </button>
+          </header>
+          <div class="fp-pr-body">
+            <article class="fp-pr-score">
+              <div class="fp-pr-ring">
+                <img class="fp-pr-ring-track" src="/static/figma/fp/fp-pr-track.svg" width="80" height="80" alt="" />
+                <img class="fp-pr-ring-fill" src="/static/figma/fp/fp-pr-progress-orange.svg" width="80" height="80" alt="" />
+                <strong>67%</strong>
+              </div>
+              <div class="fp-pr-score-info">
+                <span class="fp-pr-badge warn">Noch nicht prüfungsreif</span>
+                <p>Ziel: <strong>80%</strong> für Empfehlung</p>
+              </div>
+            </article>
+            <div class="fp-pr-section">
+              <h3>Themen-Checkliste</h3>
+              <div class="fp-pr-list">
+                <article class="fp-pr-item ok">
+                  <img src="/static/figma/fp/fp-pr-check.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Grundlagen Metall</strong><em>100%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:100%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item ok">
+                  <img src="/static/figma/fp/fp-pr-check.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Werkstoffkunde</strong><em>85%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:85%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item ok">
+                  <img src="/static/figma/fp/fp-pr-check.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Arbeitssicherheit</strong><em>92%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:92%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item warn">
+                  <img src="/static/figma/fp/fp-pr-alert.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Messtechnik</strong><em>60%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:60%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item warn">
+                  <img src="/static/figma/fp/fp-pr-alert.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Pneumatik</strong><em>40%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:40%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item bad">
+                  <img src="/static/figma/fp/fp-pr-x.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Hydraulik</strong><em>10%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:10%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item locked">
+                  <img src="/static/figma/fp/fp-pr-lock.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Steuerungstechnik</strong><em>0%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:0%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item locked">
+                  <img src="/static/figma/fp/fp-pr-lock.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Elektrotechnik</strong><em>0%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:0%"></i></div>
+                  </div>
+                </article>
+              </div>
+            </div>
+            <a class="fp-pr-cta" href="/lernen" data-page-link>
+              <img src="/static/figma/fp/fp-pr-zap.svg" width="18" height="18" alt="" />
+              Schwächstes Thema üben
+            </a>
           </div>
         </div>
-        <article class="card progress-ready-hero">
-          <div class="row-between">
-            <strong data-bind="readiness">67%</strong>
-            <span class="badge warn">Noch nicht prüfungsreif</span>
-          </div>
-          <div class="mastery-track"><span class="mastery-fill" style="width:67%"></span></div>
-        </article>
-        <div class="progress-check-list">
-          <article class="progress-check ok"><strong>Grundlagen Metall</strong><span>100%</span></article>
-          <article class="progress-check ok"><strong>Werkstoffkunde</strong><span>85%</span></article>
-          <article class="progress-check ok"><strong>Arbeitssicherheit</strong><span>92%</span></article>
-          <article class="progress-check warn"><strong>Pneumatik</strong><span>68%</span></article>
-          <article class="progress-check danger"><strong>Hydraulik</strong><span>54%</span></article>
-        </div>
-        <div class="link-grid">
-          <a href="/fortschritt/ausstehend" data-page-link>Ausstehend</a>
-          <a href="/fortschritt/verlauf" data-page-link>Verlauf</a>
-          <a href="/fortschritt/heatmap" data-page-link>Heatmap</a>
-        </div>
+        
+        <nav class="fp-pr-tabs" aria-label="Fortschritt Navigation">
+          <a href="/dashboard" data-page-link>
+            <img src="/static/figma/fp/fp-pr-tab-book.svg" width="20" height="20" alt="" />
+            Campus
+          </a>
+          <a href="/lernen" data-page-link>
+            <img src="/static/figma/fp/fp-pr-tab-edit.svg" width="20" height="20" alt="" />
+            Üben
+          </a>
+          <a href="/fortschritt" data-page-link class="active">
+            <img src="/static/figma/fp/fp-pr-tab-activity.svg" width="20" height="20" alt="" />
+            Bericht
+          </a>
+          <a href="/mehr" data-page-link>
+            <img src="/static/figma/fp/fp-pr-tab-user.svg" width="20" height="20" alt="" />
+            Profil
+          </a>
+        </nav>
+        <div class="fp-pr-home" aria-hidden="true"></div>
       </div>
     `,
   "s07_3-pruefungsreife-ausstehend": () => `
-
-      <div class="screen-head"><p class="eyebrow">07.3 Fortschritt</p><h2>Prüfungsreife — Ausstehend</h2></div>
-      <div class="metric-grid">
-        <article class="metric-card card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
-        <article class="metric-card card"><strong data-bind="wrong">0</strong><span>Fehler</span></article>
-        <article class="metric-card card"><strong data-bind="readiness">0%</strong><span>Reife</span></article>
-      </div>
-      <article class="card"><ul class="plain-list"><li>82%</li><li>Empfehlung ausstehend</li><li>Ziel erreicht! Mindestens 80% überall.</li><li>Ausbilder-Empfehlung</li><li>Status:</li><li>Warte auf Bestätigung</li><li>Ausbilder:</li><li>Hr. Schmidt</li><li>Gesendet am:</li><li>15.03.2025</li></ul>
-        <div class="link-grid">
-          <a href="/fortschritt/pruefungsreife" data-page-link>Pruefungsreife</a>
-          <a href="/fortschritt/verlauf" data-page-link>Verlauf</a>
-          <a href="/fortschritt/xp" data-page-link>XP &amp; Streak</a>
-          <a href="/fortschritt/heatmap" data-page-link>Heatmap</a>
+      <div class="fp-screen fp-pr-screen fp-pr-pending" data-node-id="136:9238">
+        <div class="fp-pr-scroll">
+          <header class="fp-pr-header">
+            <a class="fp-pr-icon-btn" href="/fortschritt" data-page-link aria-label="Zurück">
+              <img src="/static/figma/fp/fp-pr-back.svg" width="20" height="20" alt="" />
+            </a>
+            <h2>Prüfungsreife</h2>
+            <button class="fp-pr-icon-btn" type="button" aria-label="Mehr">
+              <img src="/static/figma/fp/fp-pr-more.svg" width="20" height="20" alt="" />
+            </button>
+          </header>
+          <div class="fp-pr-body">
+            <article class="fp-pr-score">
+              <div class="fp-pr-ring">
+                <img class="fp-pr-ring-track" src="/static/figma/fp/fp-pr-track.svg" width="80" height="80" alt="" />
+                <img class="fp-pr-ring-fill" src="/static/figma/fp/fp-pr-progress-green.svg" width="80" height="80" alt="" />
+                <strong>82%</strong>
+              </div>
+              <div class="fp-pr-score-info">
+                <span class="fp-pr-badge info">Empfehlung ausstehend</span>
+                <p class="plain">Ziel erreicht! Mindestens 80% überall.</p>
+              </div>
+            </article>
+            <article class="fp-pr-trainer">
+              <div class="fp-pr-trainer-top">
+                <div class="fp-pr-trainer-title">
+                  <img src="/static/figma/fp/fp-pr-user-check.svg" width="18" height="18" alt="" />
+                  <strong>Ausbilder-Empfehlung</strong>
+                </div>
+                <img src="/static/figma/fp/fp-pr-dots.svg" width="26" height="6" alt="" />
+              </div>
+              <div class="fp-pr-trainer-div" aria-hidden="true"></div>
+              <div class="fp-pr-trainer-rows">
+                <div><span>Status:</span><em class="warn">Warte auf Bestätigung</em></div>
+                <div><span>Ausbilder:</span><strong>Hr. Schmidt</strong></div>
+                <div><span>Gesendet am:</span><span>15.03.2025</span></div>
+              </div>
+            </article>
+            <p class="fp-pr-hint">Dein Ausbilder muss deine Prüfungsreife bestätigen, bevor du dich zur IHK-Prüfung anmelden kannst.</p>
+            <div class="fp-pr-section">
+              <h3>Qualifizierte Themen (5)</h3>
+              <div class="fp-pr-list">
+                <article class="fp-pr-item ok">
+                  <img src="/static/figma/fp/fp-pr-check.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Grundlagen Metall</strong><em>100%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:100%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item ok">
+                  <img src="/static/figma/fp/fp-pr-check.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Werkstoffkunde</strong><em>88%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:88%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item ok">
+                  <img src="/static/figma/fp/fp-pr-check.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Arbeitssicherheit</strong><em>95%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:95%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item ok">
+                  <img src="/static/figma/fp/fp-pr-check.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Messtechnik</strong><em>82%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:82%"></i></div>
+                  </div>
+                </article>
+                <article class="fp-pr-item ok">
+                  <img src="/static/figma/fp/fp-pr-check.svg" width="20" height="20" alt="" />
+                  <div class="fp-pr-item-body">
+                    <div class="fp-pr-item-top"><strong>Pneumatik</strong><em>80%</em></div>
+                    <div class="fp-pr-item-bar"><i style="width:80%"></i></div>
+                  </div>
+                </article>
+              </div>
+            </div>
+          </div>
         </div>
-      </article>
+        
+        <nav class="fp-pr-tabs" aria-label="Fortschritt Navigation">
+          <a href="/dashboard" data-page-link>
+            <img src="/static/figma/fp/fp-pr-tab-book.svg" width="20" height="20" alt="" />
+            Campus
+          </a>
+          <a href="/lernen" data-page-link>
+            <img src="/static/figma/fp/fp-pr-tab-edit.svg" width="20" height="20" alt="" />
+            Üben
+          </a>
+          <a href="/fortschritt" data-page-link class="active">
+            <img src="/static/figma/fp/fp-pr-tab-activity.svg" width="20" height="20" alt="" />
+            Bericht
+          </a>
+          <a href="/mehr" data-page-link>
+            <img src="/static/figma/fp/fp-pr-tab-user.svg" width="20" height="20" alt="" />
+            Profil
+          </a>
+        </nav>
+        <div class="fp-pr-home" aria-hidden="true"></div>
+      </div>
     `,
   "s07_4-statistik-verlauf": () => `
 

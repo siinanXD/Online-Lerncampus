@@ -39,14 +39,14 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 
 | Status | Node | Name | Size |
 |--------|------|------|------|
-| [ ] | `136:3108` | 02.1 Tab Bar — Alle Zustände | 390×961 |
-| [ ] | `136:3302` | 02.2 Status Bar + Header Varianten | 390×994 |
+| [~] | `136:3108` | 02.1 Tab Bar — Alle Zustände | 390×961 |
+| [~] | `136:3302` | 02.2 Status Bar + Header Varianten | 390×994 |
 
 ## 03 Teilnehmer — Start (priority 2)
 
 | Status | Node | Name | Size | Route |
 |--------|------|------|------|-------|
-| [ ] | `136:5326` | 03.1 Dashboard - Default | 390×859 | `/dashboard` |
+| [~] | `136:5326` | 03.1 Dashboard - Default | 390×859 | `/dashboard` |
 | [ ] | `136:5471` | 03.2 Dashboard - Tagesziel | 390×981 | `/dashboard/tagesziel` |
 | [ ] | `136:5621` | 03.3 Dashboard - Streak | 390×1010 | `/dashboard/streak` |
 | [ ] | `136:5773` | 03.4 Design Canvas | 2218×1104 | (reference) |
@@ -213,4 +213,5 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 
 ## Commits
 
-- Auth: pixel Login 01.1 + checklist inventory; Passwort/Sprache/Onboarding shells rebuilt from Figma
+- `6298693` Auth: pixel Login 01.1 + checklist inventory; Passwort/Sprache/Onboarding shells from Figma
+- Start: Dashboard shell + Figma tab bar (Prüfung) + 03.1 cards/assets

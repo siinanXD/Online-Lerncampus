@@ -1291,8 +1291,7 @@ function updateChrome(config, pathname) {
     const mapped =
       (tab === "dashboard" && view === "dashboard") ||
       (tab === "learn" && view === "learn") ||
-      (tab === "progress" && view === "progress") ||
-      (tab === "exam" && view === "progress") ||
+      (tab === "exam" && view === "exam") ||
       (tab === "reports" && view === "reports") ||
       (tab === "profile" && view === "profile");
     link.classList.toggle("active", Boolean(mapped));

@@ -827,12 +827,17 @@ body[data-page-layout="auth"] main {
 
 .app-frame {
   width: min(100%, 390px);
-  min-height: 100vh;
+  min-height: max(100vh, 859px);
   margin: 0 auto;
-  display: grid;
-  grid-template-rows: auto 1fr auto;
-  background: var(--bg);
-  border-inline: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  background: #fafaf9;
+  border-inline: 0;
+  font-family: var(--font-sans);
+}
+
+.app-status {
+  flex-shrink: 0;
 }
 
 .app-topbar {
@@ -845,7 +850,83 @@ body[data-page-layout="auth"] main {
   gap: var(--space-3);
   height: 56px;
   padding: 0 20px;
-  background: var(--bg);
+  background: #fafaf9;
+}
+
+.level-ring-wrap {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+}
+
+.level-ring-track,
+.level-ring-progress {
+  position: absolute;
+  inset: 0;
+  width: 32px;
+  height: 32px;
+}
+
+.level-ring {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  color: #1c1917;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.app-content {
+  flex: 1;
+  overflow: auto;
+}
+
+.app-home-indicator {
+  width: 134px;
+  height: 5px;
+  margin: 0 auto 8px;
+  border-radius: 10px;
+  background: #e7e5e4;
+}
+
+.tab-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0;
+  padding: 10px 0 0;
+  background: #fff;
+  border-top: 1px solid #e7e5e4;
+}
+
+.tab-bar a {
+  width: 70px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  color: #78716c;
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.tab-bar a.active {
+  color: #3b82f6;
+  font-weight: 700;
+}
+
+.tab-bar .tab-badge[hidden],
+.tab-bar .tab-dot[hidden] {
+  display: none !important;
 }
 
 .bze-badge {

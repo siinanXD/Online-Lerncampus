@@ -420,23 +420,23 @@ window.OLC_SCREEN_RENDERERS = {
   "s03_1-dashboard-default": () => `
       <section class="dash-greeting">
         <div>
-          <h2 data-bind="greeting-name">Hallo!</h2>
+          <h2 data-bind="greeting-name">Hallo, Max!</h2>
           <p>Bereit für deine tägliche Dosis Wissen?</p>
         </div>
         <div class="dash-chips">
           <span class="chip-streak" title="Streak">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M12 2c1 3 2 5 0 8 3-1 5 1 5 4a5 5 0 1 1-10 0c0-2 1-3 2-4-2 1-3 3-3 5a6 6 0 0 0 12 0c0-4-3-6-6-13z"/></svg>
-            <span data-bind="streak">0</span>
+            <img src="/static/figma/dash/fire.svg" width="16" height="16" alt="" />
+            <span data-bind="streak">12</span>
           </span>
           <span class="chip-xp" title="XP">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18"/><path d="M7 6h1v4"/><path d="M16.71 13.88h.01"/></svg>
-            <span data-bind="xp">0</span>
+            <img src="/static/figma/dash/coins.svg" width="16" height="16" alt="" />
+            <span data-bind="xp">2.450</span>
           </span>
         </div>
       </section>
       <article class="dash-card fortsetzen-card">
         <div class="topic-icon blue" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/><path d="M12 14v-4"/></svg>
+          <img src="/static/figma/dash/gauge.svg" width="22" height="22" alt="" />
         </div>
         <div class="fortsetzen-body">
           <h3 data-bind="continue-title">Pneumatik - Schaltpläne</h3>
@@ -448,9 +448,9 @@ window.OLC_SCREEN_RENDERERS = {
             <div class="progress-track"><span data-bind="continue-bar" style="width:40%"></span></div>
           </div>
           <div class="fortsetzen-actions">
-            <a class="primary-button" href="/lernen" data-page-link>Fortsetzen</a>
+            <a class="primary-button fortsetzen-btn" href="/lernen" data-page-link>Fortsetzen</a>
             <span class="xp-badge">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2 3 14h8l-1 8 11-14h-8l1-6z"/></svg>
+              <img src="/static/figma/dash/bolt.svg" width="14" height="14" alt="" />
               +50 XP
             </span>
           </div>
@@ -459,7 +459,7 @@ window.OLC_SCREEN_RENDERERS = {
       <article class="dash-card tagesziel-card">
         <div class="row-between">
           <strong>Tagesziel</strong>
-          <span data-bind="daily-goal">3 von 5 Lektionen heute</span>
+          <span class="tagesziel-meta" data-bind="daily-goal">3 von 5 Lektionen heute</span>
         </div>
         <div class="segmented-progress" data-bind="daily-segments">
           <span class="filled"></span><span class="filled"></span><span class="filled"></span><span></span><span></span>
@@ -469,9 +469,9 @@ window.OLC_SCREEN_RENDERERS = {
       <div class="dash-stats">
         <article class="stat-tile success">
           <div class="stat-tile-top">
-            <strong data-bind="readiness">0%</strong>
+            <strong data-bind="readiness">67%</strong>
             <span class="stat-icon success" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+              <img src="/static/figma/dash/check.svg" width="14" height="14" alt="" />
             </span>
           </div>
           <span>Prüfungsreife</span>
@@ -480,7 +480,7 @@ window.OLC_SCREEN_RENDERERS = {
           <div class="stat-tile-top">
             <strong data-bind="study-minutes">45 Min</strong>
             <span class="stat-icon info" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+              <img src="/static/figma/dash/clock.svg" width="14" height="14" alt="" />
             </span>
           </div>
           <span>Lernzeit heute</span>
@@ -503,14 +503,14 @@ window.OLC_SCREEN_RENDERERS = {
       </article>
       <article class="dash-card wiederholung-card">
         <div class="topic-icon rose" aria-hidden="true">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m21 16-9 5-9-5"/><path d="m21 12-9 5-9-5"/><path d="M3 8l9-5 9 5-9 5z"/></svg>
+          <img src="/static/figma/dash/cuboid.svg" width="22" height="22" alt="" />
         </div>
         <div class="wiederholung-body">
           <h3>Wiederholung: Werkstoffkunde</h3>
           <div class="wiederholung-meta">
-            <span class="danger"><span data-bind="wrong">0</span> Fehler zuletzt</span>
+            <span class="danger"><span data-bind="wrong">3</span> Fehler zuletzt</span>
             <a href="/lernen/fragen/fehler" data-page-link>Wiederholen
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m9 18 6-6-6-6"/></svg>
+              <img src="/static/figma/dash/chevron.svg" width="10" height="10" alt="" />
             </a>
           </div>
         </div>

@@ -13,7 +13,7 @@ def _cat(title: str) -> list[str]:
 
 UNITS = [
     unit(
-        slug=slugify(_TITLES[0]),
+        slug=slugify(title),
         month=_MONTH,
         position=i + 1,
         title=title,

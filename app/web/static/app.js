@@ -1376,7 +1376,7 @@ function updateChrome(config, pathname) {
   const levelPill = document.getElementById("level-pill");
   const campusXpEl = document.getElementById("campus-xp-pill");
   if (mainTabs) {
-    mainTabs.hidden = chrome === "campus" || chrome === "tablet" || chrome === "q-play" || chrome === "learn-drill" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld";
+    mainTabs.hidden = chrome === "campus" || chrome === "tablet" || chrome === "q-play" || chrome === "learn-drill" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld" || chrome === "fk";
   }
   if (campusTabs) {
     campusTabs.hidden = chrome !== "campus";
@@ -1385,7 +1385,7 @@ function updateChrome(config, pathname) {
     learnTabs.hidden = chrome !== "learn-drill";
   }
   if (levelPill) {
-    levelPill.hidden = chrome === "campus" || chrome === "tablet" || chrome === "learn-drill" || chrome === "q-play" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld";
+    levelPill.hidden = chrome === "campus" || chrome === "tablet" || chrome === "learn-drill" || chrome === "q-play" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld" || chrome === "fk";
   }
   if (campusXpEl) {
     campusXpEl.hidden = chrome !== "campus";

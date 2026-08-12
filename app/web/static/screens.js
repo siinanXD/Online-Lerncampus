@@ -37,7 +37,7 @@ window.OLC_ROUTE_CONFIG = {
   "/lernen/feedback/richtig": { layout: "app", screen: "s04_7-feedback-richtig", title: "Feedback — Richtig", tab: "learn", num: "04.7", chrome: "q-play" },
   "/lernen/feedback/falsch": { layout: "app", screen: "s04_8-feedback-falsch", title: "Feedback — Falsch", tab: "learn", num: "04.8", chrome: "q-play" },
   "/lernen/melden": { layout: "app", screen: "s04_9-frage-melden-overlay", title: "Frage melden Overlay", tab: "learn", num: "04.9", chrome: "q-overlay" },
-  "/fachkunde": { layout: "app", screen: "s05_1-fachkunde-einstieg", title: "Fachkunde — Einstieg", tab: "learn", num: "05.1" },
+  "/fachkunde": { layout: "app", screen: "s05_1-fachkunde-einstieg", title: "Fachkunde — Einstieg", tab: "learn", num: "05.1", chrome: "fk" },
   "/fachkunde/freigabe": { layout: "app", screen: "s05_10-lerneinheit-freigabe", title: "Lerneinheit — Freigabe", tab: "learn", num: "05.10" },
   "/fachkunde/lernpfad": { layout: "app", screen: "s05_2-fachkunde-lernpfad", title: "Fachkunde — Lernpfad", tab: "learn", num: "05.2" },
   "/fachkunde/einheit": { layout: "app", screen: "s05_3-fachkunde-lerneinheit", title: "Fachkunde — Lerneinheit", tab: "learn", num: "05.3" },
@@ -2034,73 +2034,105 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s05_1-fachkunde-einstieg": () => `
-
-      <h2 class="page-title">Fachkunde</h2>
-      <article class="fk-intro-card">
-        <div class="hub-card-head">
-          <div class="hub-icon hub-icon-practice" aria-hidden="true">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      <div class="fk-screen" data-node-id="136:6862">
+        <header class="fk-header">
+          <h2 class="fk-title">Fachkunde</h2>
+        </header>
+        <div class="fk-scroll">
+          <div class="fk-intro">
+            <div class="fk-intro-top">
+              <span class="fk-intro-ico"><img src="/static/figma/fk/fk-book.svg" width="24" height="24" alt="" /></span>
+              <div>
+                <strong>Lerne die Theorie</strong>
+                <p>Verstehe die Grundlagen für deine Prüfung</p>
+              </div>
+            </div>
+            <div class="fk-intro-prog">
+              <div class="fk-intro-prog-text"><span>Fortschritt Gesamt</span><strong>8 von 12 Lerneinheiten</strong></div>
+              <div class="fk-intro-bar"><i style="width:67%"></i></div>
+            </div>
           </div>
-          <div>
-            <h3>Lerne die Theorie</h3>
-            <p class="muted">Verstehe die Grundlagen für deine Prüfung</p>
+          <h3 class="fk-section">Wähle einen Fachbereich</h3>
+          <div class="fk-grid2">
+            <a class="fk-card" href="/fachkunde/lernpfad" data-page-link>
+              <div class="fk-card-top">
+                <span class="fk-ico green"><img src="/static/figma/fk/fk-settings.svg" width="18" height="18" alt="" /></span>
+                <span class="fk-status ok">✓ Fertig</span>
+              </div>
+              <strong>Grundlagen Metall</strong>
+              <div class="fk-card-prog"><span>Fortschritt</span><b>100%</b></div>
+              <div class="fk-mini"><i class="green" style="width:100%"></i></div>
+            </a>
+            <a class="fk-card" href="/fachkunde/lernpfad" data-page-link>
+              <div class="fk-card-top">
+                <span class="fk-ico blue"><img src="/static/figma/fk/fk-diamond.svg" width="18" height="18" alt="" /></span>
+                <span class="fk-status info">In Progress</span>
+              </div>
+              <strong>Werkstoffkunde</strong>
+              <div class="fk-card-prog"><span>Fortschritt</span><b>85%</b></div>
+              <div class="fk-mini"><i style="width:85%"></i></div>
+            </a>
+            <a class="fk-card" href="/fachkunde/lernpfad" data-page-link>
+              <div class="fk-card-top">
+                <span class="fk-ico blue"><img src="/static/figma/fk/fk-ruler.svg" width="18" height="18" alt="" /></span>
+                <span class="fk-status info">In Progress</span>
+              </div>
+              <strong>Messtechnik</strong>
+              <div class="fk-card-prog"><span>Fortschritt</span><b>60%</b></div>
+              <div class="fk-mini"><i style="width:60%"></i></div>
+            </a>
+            <a class="fk-card" href="/fachkunde/lernpfad" data-page-link>
+              <div class="fk-card-top">
+                <span class="fk-ico blue"><img src="/static/figma/fk/fk-wind.svg" width="18" height="18" alt="" /></span>
+                <span class="fk-status info">In Progress</span>
+              </div>
+              <strong>Pneumatik</strong>
+              <div class="fk-card-prog"><span>Fortschritt</span><b>40%</b></div>
+              <div class="fk-mini"><i style="width:40%"></i></div>
+            </a>
+            <a class="fk-card" href="/fachkunde/einheit" data-page-link>
+              <div class="fk-card-top">
+                <span class="fk-ico blue"><img src="/static/figma/fk/fk-droplets.svg" width="18" height="18" alt="" /></span>
+                <span class="fk-status info">Gestartet</span>
+              </div>
+              <strong>Hydraulik</strong>
+              <div class="fk-card-prog"><span>Fortschritt</span><b>10%</b></div>
+              <div class="fk-mini"><i style="width:10%"></i></div>
+            </a>
+            <div class="fk-card locked">
+              <div class="fk-card-top">
+                <span class="fk-ico blue"><img src="/static/figma/fk/fk-cpu.svg" width="18" height="18" alt="" /></span>
+                <img src="/static/figma/fk/fk-lock.svg" width="16" height="16" alt="" />
+              </div>
+              <strong>Steuerungstechnik</strong>
+              <p class="fk-lock-note">Freischalten ab Level 5</p>
+            </div>
+            <div class="fk-card locked">
+              <div class="fk-card-top">
+                <span class="fk-ico blue"><img src="/static/figma/fk/fk-zap.svg" width="18" height="18" alt="" /></span>
+                <img src="/static/figma/fk/fk-lock.svg" width="16" height="16" alt="" />
+              </div>
+              <strong>Elektrotechnik</strong>
+              <p class="fk-lock-note">Freischalten ab Level 5</p>
+            </div>
+            <a class="fk-card" href="/fachkunde/lernpfad" data-page-link>
+              <div class="fk-card-top">
+                <span class="fk-ico green"><img src="/static/figma/fk/fk-shield.svg" width="18" height="18" alt="" /></span>
+                <span class="fk-status ok">In Progress</span>
+              </div>
+              <strong>Arbeitssicherheit</strong>
+              <div class="fk-card-prog"><span>Fortschritt</span><b>92%</b></div>
+              <div class="fk-mini"><i class="green" style="width:92%"></i></div>
+            </a>
           </div>
         </div>
-        <div class="row-between"><span class="muted">Fortschritt Gesamt</span><strong>8 von 12 Lerneinheiten</strong></div>
-        <div class="mastery-track"><span class="mastery-fill" style="width:67%"></span></div>
-      </article>
-      <h3 class="section-title">Wähle einen Fachbereich</h3>
-      <div class="fk-grid">
-        <a class="fk-tile" href="/fachkunde/lernpfad" data-page-link>
-          <div class="row-between"><span class="topic-icon green" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg></span><span class="status-pill ok">Fertig</span></div>
-          <strong>Grundlagen Metall</strong>
-          <div class="row-between"><span class="muted">Fortschritt</span><strong>100%</strong></div>
-          <div class="mini-bar"><i style="width:100%;background:#10b981"></i></div>
-        </a>
-        <a class="fk-tile" href="/fachkunde/lernpfad" data-page-link>
-          <div class="row-between"><span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/></svg></span><span class="status-pill info">In Progress</span></div>
-          <strong>Werkstoffkunde</strong>
-          <div class="row-between"><span class="muted">Fortschritt</span><strong>85%</strong></div>
-          <div class="mini-bar"><i style="width:85%;background:#2563eb"></i></div>
-        </a>
-        <a class="fk-tile" href="/fachkunde/lernpfad" data-page-link>
-          <div class="row-between"><span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg></span><span class="status-pill info">In Progress</span></div>
-          <strong>Messtechnik</strong>
-          <div class="row-between"><span class="muted">Fortschritt</span><strong>60%</strong></div>
-          <div class="mini-bar"><i style="width:60%;background:#2563eb"></i></div>
-        </a>
-        <a class="fk-tile" href="/fachkunde/lernpfad" data-page-link>
-          <div class="row-between"><span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg></span><span class="status-pill info">In Progress</span></div>
-          <strong>Pneumatik</strong>
-          <div class="row-between"><span class="muted">Fortschritt</span><strong>40%</strong></div>
-          <div class="mini-bar"><i style="width:40%;background:#2563eb"></i></div>
-        </a>
-        <a class="fk-tile" href="/fachkunde/einheit" data-page-link>
-          <div class="row-between"><span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 3 6.8 1.1.9 1.5 2.2 1.5 3.4a5 5 0 0 1-8.5 3.6"/></svg></span><span class="status-pill info">Gestartet</span></div>
-          <strong>Hydraulik</strong>
-          <div class="row-between"><span class="muted">Fortschritt</span><strong>10%</strong></div>
-          <div class="mini-bar"><i style="width:10%;background:#2563eb"></i></div>
-        </a>
-        <div class="fk-tile locked">
-          <div class="row-between"><span class="topic-icon locked" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
-          <strong class="locked-title">Steuerungstechnik</strong>
-          <p class="muted">Freischalten ab Level 5</p>
-        </div>
-        <div class="fk-tile locked">
-          <div class="row-between"><span class="topic-icon locked" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
-          <strong class="locked-title">Elektrotechnik</strong>
-          <p class="muted">Freischalten ab Level 5</p>
-        </div>
-        <a class="fk-tile" href="/fachkunde/lernpfad" data-page-link>
-          <div class="row-between"><span class="topic-icon green" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg></span><span class="status-pill ok">In Progress</span></div>
-          <strong>Arbeitssicherheit</strong>
-          <div class="row-between"><span class="muted">Fortschritt</span><strong>92%</strong></div>
-          <div class="mini-bar"><i style="width:92%;background:#10b981"></i></div>
-        </a>
-      </div>
-      <div class="link-grid">
-        <a href="/fachkunde/glossar" data-page-link>Glossar</a>
-        <a href="/fachkunde/bausteine" data-page-link>Bausteine</a>
+        <nav class="fk-tabs" aria-label="Fachkunde Navigation">
+          <a href="/lernen" data-page-link class="active"><img src="/static/figma/fk/fk-tab-book.svg" width="22" height="22" alt="" />Lernen</a>
+          <a href="/fachkunde/bausteine" data-page-link><img src="/static/figma/fk/fk-tab-dumbbell.svg" width="22" height="22" alt="" />Praxis</a>
+          <a href="/fachkunde/glossar" data-page-link><img src="/static/figma/fk/fk-tab-clipboard.svg" width="22" height="22" alt="" />Glossar</a>
+          <a href="/mehr" data-page-link><img src="/static/figma/fk/fk-tab-user.svg" width="22" height="22" alt="" />Profil</a>
+        </nav>
+        <div class="fk-home-indicator" aria-hidden="true"></div>
       </div>
     `,
   "s05_10-lerneinheit-freigabe": () => `

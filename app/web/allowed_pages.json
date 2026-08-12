@@ -1,5 +1,10 @@
 [
   "",
+  "/dashboard/legacy",
+  "/fortschritt/uebersicht-legacy",
+  "/lernen/hub-legacy",
+  "/mehr/hub-legacy",
+  "/pruefungen/liste-legacy",
   "admin",
   "admin/audit",
   "admin/content",

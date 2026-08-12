@@ -339,6 +339,25 @@ function bindLiveData(root, config) {
   root.querySelectorAll("[data-bind='greeting-name']").forEach((el) => {
     el.textContent = `Hallo, ${firstName}!`;
   });
+  root.querySelectorAll("[data-bind='level-label']").forEach((el) => {
+    el.textContent = `Level ${level}`;
+  });
+  root.querySelectorAll("[data-bind='streak-days']").forEach((el) => {
+    el.textContent = `${streak} Tage`;
+  });
+  root.querySelectorAll("[data-bind='profile-name']").forEach((el) => {
+    el.textContent = state.displayName || "Max Müller";
+  });
+  root.querySelectorAll("[data-bind='xp-num']").forEach((el) => {
+    el.textContent = Number(xp).toLocaleString("de-DE");
+  });
+  root.querySelectorAll("[data-bind='xp-level']").forEach((el) => {
+    el.textContent = `${Number(xp).toLocaleString("de-DE")} / 3.000 XP`;
+  });
+  root.querySelectorAll("[data-bind='readiness-pct']").forEach((el) => {
+    const r = dashboard?.readiness ?? state.dashboard?.readiness ?? 67;
+    el.textContent = `${Math.round(Number(r))}%`;
+  });
   const continueTitle = dashboard?.continue_title || dashboard?.focus_topic || "Pneumatik - Schaltpläne";
   root.querySelectorAll("[data-bind='continue-title']").forEach((el) => {
     el.textContent = continueTitle;
@@ -1420,7 +1439,7 @@ function updateChrome(config, pathname) {
   const levelPill = document.getElementById("level-pill");
   const campusXpEl = document.getElementById("campus-xp-pill");
   if (mainTabs) {
-    mainTabs.hidden = chrome === "campus" || chrome === "tablet" || chrome === "q-play" || chrome === "learn-drill" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld" || chrome === "fk" || chrome === "exam" || chrome === "fp" || chrome === "bh" || chrome === "mehr";
+    mainTabs.hidden = chrome === "campus" || chrome === "tablet" || chrome === "q-play" || chrome === "learn-drill" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld" || chrome === "fk" || chrome === "exam" || chrome === "fp" || chrome === "bh" || chrome === "mehr" || chrome === "gx";
   }
   if (campusTabs) {
     campusTabs.hidden = chrome !== "campus";
@@ -1429,7 +1448,7 @@ function updateChrome(config, pathname) {
     learnTabs.hidden = chrome !== "learn-drill";
   }
   if (levelPill) {
-    levelPill.hidden = chrome === "campus" || chrome === "tablet" || chrome === "learn-drill" || chrome === "q-play" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld" || chrome === "fk" || chrome === "exam" || chrome === "fp" || chrome === "bh" || chrome === "mehr";
+    levelPill.hidden = chrome === "campus" || chrome === "tablet" || chrome === "learn-drill" || chrome === "q-play" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld" || chrome === "fk" || chrome === "exam" || chrome === "fp" || chrome === "bh" || chrome === "mehr" || chrome === "gx";
   }
   if (campusXpEl) {
     campusXpEl.hidden = chrome !== "campus";
@@ -1461,7 +1480,8 @@ function updateChrome(config, pathname) {
       (tab === "dashboard" && view === "dashboard") ||
       (tab === "learn" && view === "learn") ||
       (tab === "exam" && view === "exam") ||
-      (tab === "reports" && view === "reports") ||
+      (tab === "progress" && view === "progress") ||
+      (tab === "reports" && view === "progress") ||
       (tab === "profile" && view === "profile");
     link.classList.toggle("active", Boolean(mapped));
   });

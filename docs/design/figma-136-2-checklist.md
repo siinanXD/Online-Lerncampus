@@ -202,6 +202,20 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | [ ] | `136:19212` | 18.3 Badges & Achievements | 1200×800 |
 | [ ] | `136:19377` | 18.4 Streaks & Leaderboard | 1200×800 |
 
+## 19 Teilnehmer — Konsistenz-Set (159:*) — CURRENT PRIORITY
+
+New participant hubs added to overview `136:2` (near y≈17010 under section 18). **Source of truth for participant chrome** (5-tab nav: Home · Lernen · Prüfung · Fortschritt · Profil). Berichtsheft is reachable via Schnellstarter / Profil links, not as a main tab.
+
+| Status | Node | Name | Size | Route |
+|--------|------|------|------|-------|
+| [~] | `159:13` | 19.1 home-dashboard | 402×874 | `/dashboard` |
+| [~] | `159:129` | 19.2 lernen-journey | 402×941 | `/lernen` |
+| [~] | `159:229` | 19.3 pruefung-hub | 402×874 | `/pruefungen` |
+| [~] | `159:320` | 19.4 fortschritt-stats | 402×943 | `/fortschritt` |
+| [~] | `159:456` | 19.5 profil-settings | 402×910 | `/mehr` |
+
+**IA change:** shell tab bar updated from Start/Lernen/Prüfung/Bericht/Mehr → Home/Lernen/Prüfung/Fortschritt/Profil. Legacy hubs kept at `*/legacy` routes. Staff/Admin paused until this set is pixel-matched.
+
 ---
 
 ## Milestone order
@@ -209,7 +223,8 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 1. **Auth** — 01.1 → 01.2 → 01.3 → 01.4 (+ hide marketing chrome on app/auth shells)
 2. **Shell + Start** — 02.1/02.2 + 03.1 Dashboard
 3. **Remaining participant** — 04 → 09 systematically
-4. **Staff/Admin** — 10 → 16 only after participant core matches
+4. **Konsistenz-Set 19** — 159:* hubs + shell tab bar (before Staff)
+5. **Staff/Admin** — 10 → 16 only after participant core + consistency set match
 
 ## Commits
 
@@ -233,3 +248,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Mehr 09.3 KI-Coach Chat [~] ~9.5%; 09.4 Lernplan [~] ~15.8%; 09.5 Datenexport [~] ~11.0%; 09.6 Konto loeschen [~] ~8.8% (Figma assets; export/delete API + coach-live binds preserved)
 - Mehr 09.1 sibling phones: Profil [~] ~11.8%; Darstellung [~] ~7.1%; Benachrichtigungen [~] ~13.9% (routes /mehr/profil|/mehr/darstellung|/mehr/benachrichtigungen). Staff/Admin 10-16 not started.
 - Mehr tighten: 09.4 Lernplan [~] ~14.3% (fit scroll, subtitle single-line, actions in scroll); 09.5 Export [~] ~11.2%; 09.1 Profil [~] ~12.9% (stats collapse fix + Lernzeit + Figma name); 09.1 Benachrichtigungen [~] ~13.9%. Still above ~8–10% target; Staff/Admin next.
+- **Konsistenz-Set 19 (159:*):** inventory + implement hubs on `/dashboard` `/lernen` `/pruefungen` `/fortschritt` `/mehr` with shared `gx` chrome; shell tab bar → Home/Lernen/Prüfung/Fortschritt/Profil; Berichtsheft via Schnellstarter/Profil. Staff paused.

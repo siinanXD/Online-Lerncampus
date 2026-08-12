@@ -12,6 +12,7 @@
     />
     <link rel="stylesheet" href="/static/tokens.css" />
     <link rel="stylesheet" href="/static/ui.css" />
+    <link rel="stylesheet" href="/static/gx.css" />
   </head>
   <body data-page-layout="landing" data-theme="light">
     <script>
@@ -216,30 +217,30 @@
           </div>
           <nav class="tab-bar tab-bar-main" aria-label="App Navigation">
             <a href="/dashboard" data-page-link data-view="dashboard">
-              <span class="tab-icon"><img class="tab-svg" src="/static/figma/dash/home.svg" width="20" height="20" alt="" /></span>
-              Start
+              <span class="tab-icon"><img class="tab-svg" src="/static/figma/gx/tab-home.svg" width="22" height="22" alt="" /></span>
+              Home
             </a>
             <a href="/lernen" data-page-link data-view="learn">
               <span class="tab-icon">
-                <img class="tab-svg" src="/static/figma/dash/book.svg" width="20" height="20" alt="" />
+                <img class="tab-svg" src="/static/figma/gx/tab-book.svg" width="22" height="22" alt="" />
                 <span class="tab-dot" hidden aria-hidden="true"></span>
               </span>
               Lernen
             </a>
             <a href="/pruefungen" data-page-link data-view="exam">
-              <span class="tab-icon"><img class="tab-svg" src="/static/figma/dash/award.svg" width="20" height="20" alt="" /></span>
+              <span class="tab-icon"><img class="tab-svg" src="/static/figma/gx/tab-award.svg" width="22" height="22" alt="" /></span>
               Prüfung
             </a>
-            <a href="/berichtsheft" data-page-link data-view="reports">
-              <span class="tab-icon"><img class="tab-svg" src="/static/figma/dash/chart.svg" width="20" height="20" alt="" /></span>
-              Bericht
+            <a href="/fortschritt" data-page-link data-view="progress">
+              <span class="tab-icon"><img class="tab-svg" src="/static/figma/gx/tab-trending.svg" width="22" height="22" alt="" /></span>
+              Fortschritt
             </a>
             <a href="/mehr" data-page-link data-view="profile">
               <span class="tab-icon">
-                <img class="tab-svg" src="/static/figma/dash/more.svg" width="20" height="20" alt="" />
+                <img class="tab-svg" src="/static/figma/gx/tab-user.svg" width="22" height="22" alt="" />
                 <span class="tab-badge" hidden aria-hidden="true">3</span>
               </span>
-              Mehr
+              Profil
             </a>
           </nav>
           <nav class="tab-bar tab-bar-campus" aria-label="Campus Navigation" hidden>
@@ -283,24 +284,35 @@
       </section>
 
       <section class="desk-shell trainer-shell" data-shell="trainer" aria-label="Ausbilder">
-        <header class="desk-topnav">
-          <a class="brand desk-brand" href="/ausbilder" data-page-link>
-            <span class="brand-mark">B</span>
-            <span class="desk-brand-text">
-              <strong>Online Campus</strong>
-              <small>Ausbilder</small>
-            </span>
-          </a>
-          <nav class="desk-nav" aria-label="Ausbilder Navigation">
-            <a href="/ausbilder" data-page-link data-nav="cockpit">Cockpit</a>
-            <a href="/ausbilder/kohorte" data-page-link data-nav="kohorte">Kohorte</a>
-            <a href="/ausbilder/review" data-page-link data-nav="review">Review <span class="desk-nav-badge" data-bind="review-count">8</span></a>
-            <a href="/ausbilder/fragen" data-page-link data-nav="content">Fragen</a>
-            <a href="/ausbilder/berichte" data-page-link data-nav="reports">Berichtsheft</a>
-            <a href="/dashboard" data-page-link>Teilnehmer-App</a>
-          </nav>
+        <header class="desk-topnav tr-topnav">
+          <div class="tr-top-left">
+            <a class="tr-brand" href="/ausbilder" data-page-link>
+              <span class="tr-brand-mark">B</span>
+              <strong>BZE Campus</strong>
+            </a>
+            <nav class="desk-nav tr-nav" aria-label="Ausbilder Navigation">
+              <a href="/ausbilder" data-page-link data-nav="cockpit">Cockpit</a>
+              <a href="/ausbilder/kohorte" data-page-link data-nav="kohorte">Kohorte</a>
+              <a href="/ausbilder/review" data-page-link data-nav="review">Review</a>
+              <a href="/ausbilder/fragen" data-page-link data-nav="content">Fragen</a>
+              <a href="/ausbilder/berichte" data-page-link data-nav="reports">Berichtsheft</a>
+            </nav>
+            <span class="visually-hidden" data-bind="review-count">8</span>
+          </div>
+          <div class="tr-top-right">
+            <button class="tr-bell" type="button" aria-label="Benachrichtigungen" data-action="toast" data-toast="Benachrichtigungen (Demo)">
+              <img src="/static/figma/trainer/tr-bell.svg" width="40" height="40" alt="" />
+            </button>
+            <div class="tr-user">
+              <div class="tr-user-meta">
+                <strong>Jürgen Beck</strong>
+                <span>Ausbilder (BZE)</span>
+              </div>
+              <img class="tr-user-avatar" src="/static/figma/trainer/tr-user.png" width="40" height="40" alt="" />
+            </div>
+          </div>
         </header>
-        <div id="trainer-root" class="desk-root"></div>
+        <div id="trainer-root" class="desk-root tr-root"></div>
       </section>
 
       <section class="desk-shell admin-shell" data-shell="admin" aria-label="Admin">

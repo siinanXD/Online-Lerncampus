@@ -255,8 +255,10 @@ window.OLC_SCREEN_RENDERERS = {
           </a>
           <div class="auth-mini-brand">
             <div class="logo-mark logo-mark-sm">BZE</div>
-            <strong>Online Campus</strong>
-            <span>Maschinen- &amp; Anlagenführer</span>
+            <div class="logo-labels">
+              <strong>Online Campus</strong>
+              <span>Maschinen- &amp; Anlagenführer</span>
+            </div>
           </div>
           <span class="auth-nav-spacer" aria-hidden="true"></span>
         </div>
@@ -281,21 +283,21 @@ window.OLC_SCREEN_RENDERERS = {
             <span>Neues Passwort</span>
             <div class="input-box">
               <img class="field-leading" src="/static/figma/auth/pw-lock.svg" width="20" height="20" alt="" />
-              <input id="new-password" type="password" name="next" required minlength="8" placeholder="Neues Passwort" />
+              <input id="new-password" type="text" name="next" required minlength="8" value="SicheresKennw" placeholder="Neues Passwort" data-pw-live />
               <button class="field-trailing" type="button" data-toggle-password="#new-password" aria-label="Passwort anzeigen">
                 <img src="/static/figma/auth/pw-eye.svg" width="20" height="20" alt="" />
               </button>
             </div>
           </label>
-          <div class="pw-strength" aria-live="polite">
+          <div class="pw-strength" aria-live="polite" data-pw-strength>
             <div class="pw-strength-bars"><span class="on"></span><span class="on"></span><span></span><span></span></div>
             <div class="pw-strength-label"><span>Passwortstärke</span><strong>Mittel</strong></div>
           </div>
-          <ul class="pw-checklist">
-            <li class="ok"><img src="/static/figma/auth/pw-check.svg" width="14" height="14" alt="" /> Mindestens 8 Zeichen</li>
-            <li class="ok"><img src="/static/figma/auth/pw-check.svg" width="14" height="14" alt="" /> Groß- und Kleinbuchstaben</li>
-            <li><img src="/static/figma/auth/pw-x.svg" width="14" height="14" alt="" /> Mindestens eine Zahl</li>
-            <li><img src="/static/figma/auth/pw-x.svg" width="14" height="14" alt="" /> Sonderzeichen</li>
+          <ul class="pw-checklist" data-pw-checklist>
+            <li class="ok" data-rule="len"><img src="/static/figma/auth/pw-check.svg" width="14" height="14" alt="" /> Mindestens 8 Zeichen</li>
+            <li class="ok" data-rule="case"><img src="/static/figma/auth/pw-check.svg" width="14" height="14" alt="" /> Groß- und Kleinbuchstaben</li>
+            <li data-rule="num"><img src="/static/figma/auth/pw-x.svg" width="14" height="14" alt="" /> Mindestens eine Zahl</li>
+            <li data-rule="special"><img src="/static/figma/auth/pw-x.svg" width="14" height="14" alt="" /> Sonderzeichen</li>
           </ul>
           <label class="field">
             <span>Passwort bestätigen</span>
@@ -335,23 +337,23 @@ window.OLC_SCREEN_RENDERERS = {
         </div>
         <div class="lang-list" role="listbox" aria-label="Sprache">
           <button type="button" class="lang-row active" data-lang="de" role="option" aria-selected="true">
-            <span class="lang-left"><img class="lang-flag" src="/static/figma/login/flag-de.svg" width="20" height="15" alt="" /> Deutsch</span>
+            <span class="lang-left"><img class="lang-flag" src="/static/figma/auth/flag-de.svg" width="20" height="15" alt="" /> Deutsch</span>
             <span class="lang-check"><img src="/static/figma/auth/lang-check.svg" width="10" height="10" alt="" /></span>
           </button>
           <button type="button" class="lang-row" data-lang="en" role="option" aria-selected="false">
-            <span class="lang-left"><span class="flag-emoji">🇬🇧</span> English</span>
+            <span class="lang-left"><img class="lang-flag" src="/static/figma/auth/flag-gb.svg" width="20" height="15" alt="" /> English</span>
             <img class="lang-radio" src="/static/figma/auth/lang-deselected.svg" width="20" height="20" alt="" />
           </button>
           <button type="button" class="lang-row" data-lang="tr" role="option" aria-selected="false">
-            <span class="lang-left"><span class="flag-emoji">🇹🇷</span> Türkçe</span>
+            <span class="lang-left"><img class="lang-flag" src="/static/figma/auth/flag-tr.svg" width="20" height="15" alt="" /> Türkçe</span>
             <img class="lang-radio" src="/static/figma/auth/lang-deselected.svg" width="20" height="20" alt="" />
           </button>
           <button type="button" class="lang-row" data-lang="ar" role="option" aria-selected="false">
-            <span class="lang-left"><span class="flag-emoji">🇦🇪</span> العربية</span>
+            <span class="lang-left"><img class="lang-flag" src="/static/figma/auth/flag-ae.svg" width="20" height="15" alt="" /> العربية</span>
             <img class="lang-radio" src="/static/figma/auth/lang-deselected.svg" width="20" height="20" alt="" />
           </button>
           <button type="button" class="lang-row" data-lang="uk" role="option" aria-selected="false">
-            <span class="lang-left"><span class="flag-emoji">🇺🇦</span> Українська</span>
+            <span class="lang-left"><img class="lang-flag" src="/static/figma/auth/flag-ua.svg" width="20" height="15" alt="" /> Українська</span>
             <img class="lang-radio" src="/static/figma/auth/lang-deselected.svg" width="20" height="20" alt="" />
           </button>
         </div>

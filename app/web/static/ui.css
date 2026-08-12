@@ -2161,6 +2161,23 @@ body[data-page-layout="auth"] main {
   color: var(--login-fg);
 }
 
+.auth-shell:has(.auth-onboarding) {
+  background: #fff;
+}
+
+.auth-shell .primary-button.login-submit {
+  height: 48px;
+  min-height: 48px;
+  padding: 0 24px;
+  border-radius: 24px;
+  font-family: var(--font-login);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: normal;
+  background: #2563eb;
+  box-shadow: 0 4px 6px rgba(37, 99, 235, 0.13);
+}
+
 .auth-root {
   display: block;
   min-height: 100vh;
@@ -2168,13 +2185,20 @@ body[data-page-layout="auth"] main {
 
 .auth-phone {
   width: min(100%, 390px);
-  min-height: max(100vh, 844px);
+  min-height: 844px;
+  height: auto;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 0 0 20px;
   box-sizing: border-box;
+}
+
+@media (min-height: 844px) {
+  .auth-phone {
+    min-height: 100vh;
+  }
 }
 
 .auth-top {
@@ -2212,20 +2236,27 @@ body[data-page-layout="auth"] main {
   flex-shrink: 0;
 }
 
+.logo-mark-sm {
+  width: 48px;
+  height: 48px;
+  margin-bottom: 0;
+  font-size: 16px;
+}
+
 .auth-mini-brand {
   flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
+  gap: 10px;
   text-align: center;
 }
 
-.logo-mark-sm {
-  width: 48px;
-  height: 48px;
-  margin-bottom: 8px;
-  font-size: 16px;
+.auth-mini-brand .logo-labels {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
 }
 
 .auth-mini-brand strong {
@@ -2244,7 +2275,7 @@ body[data-page-layout="auth"] main {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  padding: 12px 20px 0;
+  padding: 12px 20px 12px;
   width: 100%;
   box-sizing: border-box;
 }
@@ -2290,6 +2321,19 @@ body[data-page-layout="auth"] main {
 
 .auth-pw-form {
   gap: 12px;
+}
+
+.auth-pw-form > .feedback,
+.auth-shell .feedback {
+  margin: 0;
+  min-height: 0;
+  font-size: 12px;
+  color: var(--login-muted);
+}
+
+.auth-pw-form > .feedback:empty,
+.auth-shell .feedback:empty {
+  display: none;
 }
 
 .auth-shell .field > span {
@@ -2396,6 +2440,11 @@ body[data-page-layout="auth"] main {
   background: #3b82f6;
 }
 
+.auth-lang .auth-steps span.active,
+.auth-phone[data-node-id="136:2828"] .auth-steps span.active {
+  background: #2563eb;
+}
+
 .auth-lang-intro {
   display: flex;
   flex-direction: column;
@@ -2463,6 +2512,15 @@ body[data-page-layout="auth"] main {
   font-weight: 700;
 }
 
+.lang-flag {
+  display: block;
+  width: 20px;
+  height: 15px;
+  object-fit: cover;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
 .flag-emoji {
   font-size: 20px;
   line-height: 1;
@@ -2475,6 +2533,14 @@ body[data-page-layout="auth"] main {
   height: 20px;
   border-radius: 10px;
   background: #2563eb;
+  flex-shrink: 0;
+}
+
+.lang-radio {
+  display: block;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 .auth-rule {

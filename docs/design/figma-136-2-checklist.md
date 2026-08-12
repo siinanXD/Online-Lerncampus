@@ -29,9 +29,9 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | Status | Node | Name | Size | Route |
 |--------|------|------|------|-------|
 | [x] | `136:2691` | 01.1 Login | 390×844 | `/login` |
-| [~] | `136:2744` | 01.2 Passwort ändern | 390×844 | `/passwort` |
-| [~] | `136:2828` | 01.3 Sprachwahl | 390×844 | `/sprache` |
-| [~] | `136:2895` | 01.4 Onboarding — Willkommen | 390×844 | `/onboarding` |
+| [x] | `136:2744` | 01.2 Passwort ändern | 390×844 | `/passwort` |
+| [x] | `136:2828` | 01.3 Sprachwahl | 390×844 | `/sprache` |
+| [x] | `136:2895` | 01.4 Onboarding — Willkommen | 390×844 | `/onboarding` |
 | [ ] | `136:2948` | 01.5 Landing Page | 1440×1065 | `/` |
 | [ ] | `136:3049` | 01.6 Level-Up Animation | 390×844 | (overlay) |
 

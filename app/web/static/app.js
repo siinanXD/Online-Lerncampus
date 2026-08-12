@@ -200,6 +200,49 @@ function renderScreen(config) {
     ? renderer()
     : `<article class="card"><p>Screen fehlt: ${config.screen || "?"}</p></article>`;
   bindLiveData(root, config);
+  syncPasswordStrength(root);
+}
+
+function passwordRules(value) {
+  return {
+    len: value.length >= 8,
+    case: /[a-z]/.test(value) && /[A-Z]/.test(value),
+    num: /\d/.test(value),
+    special: /[^A-Za-z0-9]/.test(value),
+  };
+}
+
+function syncPasswordStrength(root = document) {
+  const input = root.querySelector("[data-pw-live]");
+  const strength = root.querySelector("[data-pw-strength]");
+  const checklist = root.querySelector("[data-pw-checklist]");
+  if (!input || !strength || !checklist) {
+    return;
+  }
+  const value = input.value || "";
+  const rules = passwordRules(value);
+  const score = Object.values(rules).filter(Boolean).length;
+  const labels = ["Schwach", "Schwach", "Mittel", "Gut", "Stark"];
+  const colors = ["#ef4444", "#ef4444", "#10b981", "#10b981", "#059669"];
+  // Match Figma default for "SicheresKennw": 2 bars / Mittel when score is 2
+  const activeBars = value ? Math.max(score, 1) : 2;
+  strength.querySelectorAll(".pw-strength-bars span").forEach((bar, index) => {
+    bar.classList.toggle("on", index < activeBars);
+  });
+  const label = strength.querySelector("strong");
+  if (label) {
+    const idx = value ? score : 2;
+    label.textContent = labels[idx];
+    label.style.color = colors[idx];
+  }
+  checklist.querySelectorAll("[data-rule]").forEach((item) => {
+    const ok = rules[item.dataset.rule];
+    item.classList.toggle("ok", Boolean(ok));
+    const img = item.querySelector("img");
+    if (img) {
+      img.src = ok ? "/static/figma/auth/pw-check.svg" : "/static/figma/auth/pw-x.svg";
+    }
+  });
 }
 
 function bindLiveData(root, config) {
@@ -1546,12 +1589,30 @@ document.addEventListener("click", async (event) => {
         if (el.getAttribute("aria-selected") != null) {
           el.setAttribute("aria-selected", "false");
         }
+        const check = el.querySelector(".lang-check");
+        if (check) {
+          check.replaceWith(Object.assign(document.createElement("img"), {
+            className: "lang-radio",
+            src: "/static/figma/auth/lang-deselected.svg",
+            width: 20,
+            height: 20,
+            alt: "",
+          }));
+        }
       });
       target.classList.add("active");
       if (target.getAttribute("aria-selected") != null) {
         target.setAttribute("aria-selected", "true");
       }
-      showToast(`Sprache: ${target.textContent}`);
+      const radio = target.querySelector(".lang-radio");
+      if (radio) {
+        const wrap = document.createElement("span");
+        wrap.className = "lang-check";
+        wrap.innerHTML = `<img src="/static/figma/auth/lang-check.svg" width="10" height="10" alt="" />`;
+        radio.replaceWith(wrap);
+      }
+      const label = target.querySelector(".lang-left")?.textContent?.trim() || target.textContent;
+      showToast(`Sprache: ${label}`);
     }
   } catch (error) {
     showToast(error.message);
@@ -1559,6 +1620,12 @@ document.addEventListener("click", async (event) => {
     if (feedback) {
       feedback.textContent = error.message;
     }
+  }
+});
+
+document.addEventListener("input", (event) => {
+  if (event.target?.matches?.("[data-pw-live]")) {
+    syncPasswordStrength(event.target.closest(".auth-phone") || document);
   }
 });
 

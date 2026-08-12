@@ -330,8 +330,18 @@ function bindLiveData(root, config) {
 
   const gamificationLive = root.querySelector("[data-bind='gamification-live']");
   if (gamificationLive) {
-    gamificationLive.innerHTML = renderGamificationMarkup();
+    gamificationLive.innerHTML = renderGamificationMarkup(gamificationVariant(config?.path || window.location.pathname));
   }
+
+  const reviewCount = Array.isArray(state.pendingReviews) ? state.pendingReviews.length : null;
+  document.querySelectorAll("[data-bind='review-count']").forEach((el) => {
+    if (reviewCount === null) {
+      return;
+    }
+    el.textContent = String(reviewCount);
+    el.hidden = reviewCount === 0;
+    el.classList.toggle("is-empty", reviewCount === 0);
+  });
 
   const coachLive = root.querySelector("[data-bind='coach-live']");
   if (coachLive) {
@@ -488,47 +498,232 @@ function renderJourneyMarkup() {
     .join("")}</div>`;
 }
 
-function renderGamificationMarkup() {
+function levelTitleFor(level) {
+  const n = Number(level) || 1;
+  if (n >= 5) return "Experte";
+  if (n >= 4) return "Meister";
+  if (n >= 3) return "Profi";
+  if (n >= 2) return "Fortgeschritten";
+  return "Anfänger";
+}
+
+const GAME_LEVEL_LADDER = [
+  { level: 1, title: "Anfänger", range: "0 – 120 XP", desc: "Grundausbildung gestartet" },
+  { level: 2, title: "Fortgeschritten", range: "120 – 240 XP", desc: "Erste solide Fertigkeiten" },
+  { level: 3, title: "Profi", range: "240 – 360 XP", desc: "Selbstständiges Arbeiten" },
+  { level: 4, title: "Meister", range: "360 – 480 XP", desc: "Exzellente Systembeherrschung" },
+  { level: 5, title: "Experte", range: "480+ XP", desc: "Campus-Elite & Mentorenstatus" },
+];
+
+const GAME_XP_SOURCES = [
+  { icon: "✓", label: "Frage richtig", xp: "+10 – 20 XP" },
+  { icon: "📘", label: "Lektion abgeschlossen", xp: "+50 XP" },
+  { icon: "🏅", label: "Prüfung bestanden", xp: "+100 – 200 XP" },
+  { icon: "🎯", label: "Daily Quest", xp: "+20 XP" },
+  { icon: "🔥", label: "Streak Bonus", xp: "+5 XP/Tag" },
+];
+
+const GAME_BADGE_CATALOG = [
+  { key: "feuereifer", name: "Feuereifer", emoji: "🔥", desc: "7 Tage tägliche Aktivität in Folge gehalten.", cat: "LERN-BADGES", rarity: "COMMON", match: ["Wochen-Streak", "3-Tage-Streak"] },
+  { key: "buecherwurm", name: "Bücherwurm", emoji: "📚", desc: "50 Lerneinheiten erfolgreich bearbeitet.", cat: "LERN-BADGES", rarity: "UNCOMMON", match: ["Fachkunde-Starter"] },
+  { key: "perfektionist", name: "Perfektionist", emoji: "🎯", desc: "10x ein Lern-Quiz mit exakt 100% absolviert.", cat: "LERN-BADGES", rarity: "RARE", match: ["5x gemeistert"] },
+  { key: "blitzmerker", name: "Blitzmerker", emoji: "⚡", desc: "Quiz in weniger als 30 Sekunden fehlerfrei bestanden.", cat: "LERN-BADGES", rarity: "EPIC", match: [] },
+  { key: "metallprofi", name: "Metallprofi", emoji: "🔧", desc: "Alle Lern-Module der Metalltechnik abgeschlossen.", cat: "FACH-BADGES", rarity: "RARE", match: [] },
+  { key: "kunststoff", name: "Kunststoff-König", emoji: "♻️", desc: "Alle Spritzguss- und Kunststoffthemen bestanden.", cat: "FACH-BADGES", rarity: "RARE", match: [] },
+  { key: "massmeister", name: "Maß-Meister", emoji: "📐", desc: "100 Aufgaben zu Toleranzberechnungen gelöst.", cat: "FACH-BADGES", rarity: "UNCOMMON", match: [] },
+  { key: "werkstoff", name: "Werkstoffkenner", emoji: "🔬", desc: "Werkstoffkunde-Abschlusstest mit 100% gemeistert.", cat: "FACH-BADGES", rarity: "COMMON", match: ["Erster Schritt"] },
+  { key: "teamplayer", name: "Teamplayer", emoji: "🤝", desc: "10x offene Fragen von Mitschülern beantwortet.", cat: "SOZIAL-BADGES", rarity: "UNCOMMON", match: [] },
+  { key: "pruefungsheld", name: "Prüfungsheld", emoji: "🏆", desc: "Die IHK-Prüfungssimulation fehlerfrei abgeschlossen.", cat: "SOZIAL-BADGES", rarity: "EPIC", match: [] },
+  { key: "diamant", name: "Diamant", emoji: "💎", desc: "Das maximale Level im Campus erreicht.", cat: "SOZIAL-BADGES", rarity: "LEGENDARY", match: [] },
+  { key: "fruehaufsteher", name: "Frühaufsteher", emoji: "🌟", desc: "An 30 Tagen vor 7:00 Uhr morgens gelernt.", cat: "SOZIAL-BADGES", rarity: "RARE", match: ["Fleissig"] },
+];
+
+const GAME_LEADERBOARD = [
+  { rank: 1, name: "Max Mustermann", level: 4, xp: 2840, you: true },
+  { rank: 2, name: "Lisa Fischer", level: 3, xp: 2105, you: false },
+  { rank: 3, name: "Tim Weber", level: 3, xp: 1890, you: false },
+  { rank: 4, name: "Anna Schmidt", level: 3, xp: 1650, you: false },
+  { rank: 5, name: "Jonas Becker", level: 3, xp: 1420, you: false },
+  { rank: 6, name: "Sara Nguyen", level: 3, xp: 980, you: false },
+  { rank: 7, name: "Kai Hoffmann", level: 2, xp: 720, you: false },
+  { rank: 8, name: "Ahmed Yilmaz", level: 2, xp: 540, you: false },
+];
+
+function gamificationVariant(pathname) {
+  if (!pathname) return "overview";
+  if (pathname.includes("/badges")) return "badges";
+  if (pathname.includes("/streaks")) return "streaks";
+  if (pathname.includes("/xp") || pathname.includes("/fortschritt/xp")) return "xp";
+  return "overview";
+}
+
+function renderBadgeGrid(earned) {
+  const earnedSet = new Set((earned || []).map(String));
+  return GAME_BADGE_CATALOG.map((badge) => {
+    const unlocked =
+      badge.match.some((m) => earnedSet.has(m)) || earnedSet.has(badge.name);
+    const rarity = badge.rarity.toLowerCase();
+    return `
+      <article class="game-badge-tile ${unlocked ? "earned" : "locked"} rarity-${rarity}">
+        <div class="game-badge-glyph" aria-hidden="true">${badge.emoji}</div>
+        <strong>${escapeHtml(badge.name)}</strong>
+        <p>${escapeHtml(badge.desc)}</p>
+        <div class="game-badge-meta">
+          <span>${escapeHtml(badge.cat)}</span>
+          <span class="rarity-pill rarity-${rarity}">${escapeHtml(badge.rarity)}</span>
+        </div>
+      </article>`;
+  }).join("");
+}
+
+function renderLevelLadder(currentLevel) {
+  const level = Number(currentLevel) || 1;
+  return GAME_LEVEL_LADDER.map((row) => {
+    const reached = level >= row.level;
+    const current = level === row.level || (level > 5 && row.level === 5);
+    return `
+      <div class="game-ladder-row ${reached ? "reached" : ""} ${current ? "current" : ""}">
+        <span class="game-ladder-pill">Level ${row.level}</span>
+        <strong>${escapeHtml(row.title)}</strong>
+        <span class="muted">${escapeHtml(row.desc)}</span>
+        <span class="game-ladder-xp">${escapeHtml(row.range)}</span>
+      </div>`;
+  }).join("");
+}
+
+function renderStreakWeek(streakDays) {
+  const days = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+  const active = Math.min(7, Math.max(0, Number(streakDays) || 0));
+  return days
+    .map((d, i) => {
+      const on = i < active;
+      return `<div class="game-streak-day ${on ? "on" : ""}"><span>${on ? "🔥" : "·"}</span><small>${d}</small></div>`;
+    })
+    .join("");
+}
+
+function renderLeaderboardMarkup(g) {
+  const youName = state.displayName || "Max Mustermann";
+  const youXp = Number(g?.xp || 0);
+  const youLevel = Number(g?.level || 1);
+  const rows = GAME_LEADERBOARD.map((row) => {
+    const isYou = row.you;
+    const name = isYou ? youName : row.name;
+    const xp = isYou ? Math.max(youXp, row.xp) : row.xp;
+    const level = isYou ? youLevel : row.level;
+    return `
+      <li class="game-lb-row ${isYou ? "you" : ""}">
+        <span class="game-lb-rank">#${row.rank}</span>
+        <span class="game-lb-avatar" aria-hidden="true">${escapeHtml(name.split(/\s+/).map((p) => p[0]).join("").slice(0, 2).toUpperCase())}</span>
+        <div class="game-lb-meta">
+          <strong>${escapeHtml(name)}${isYou ? " <em>(Du)</em>" : ""}</strong>
+          <span class="muted">Level ${level}</span>
+        </div>
+        <strong class="game-lb-xp">${Number(xp).toLocaleString("de-DE")} XP</strong>
+      </li>`;
+  }).join("");
+  return `<ol class="game-leaderboard">${rows}</ol>`;
+}
+
+function renderGamificationMarkup(variant = "overview") {
   const g = state.gamification || state.dashboard;
   if (!g) {
     return `<p class="muted">Gamification nach Login verfuegbar.</p>`;
   }
   const badges = g.badges || [];
-  const badgeItems =
-    badges
-      .map(
-        (badge) => `
-      <li class="game-badge-item">
-        <span class="game-badge-ico" aria-hidden="true">🏅</span>
-        <span>${escapeHtml(badge)}</span>
-      </li>`,
-      )
-      .join("") || `<li class="muted">Noch keine Badges — weiter lernen!</li>`;
   const into = g.xp_into_level ?? (g.xp || 0) % 120;
   const per = g.xp_per_level || 120;
   const pct = Math.max(0, Math.min(100, Math.round((into / per) * 100)));
-  return `
+  const title = levelTitleFor(g.level);
+  const hero = `
     <div class="game-hero card">
       <div class="game-level-ring" aria-hidden="true"><span>${g.level}</span></div>
       <div>
         <p class="eyebrow">Dein Level</p>
-        <h3 class="game-level-title">Level ${g.level}</h3>
+        <h3 class="game-level-title">Level ${g.level} · ${escapeHtml(title)}</h3>
         <p class="muted">${into} / ${per} XP bis Level ${(g.level || 1) + 1}</p>
         <div class="game-xp-track" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
           <span style="width:${pct}%"></span>
         </div>
       </div>
-    </div>
+    </div>`;
+  const metrics = `
     <div class="metric-grid game-metrics">
       <article class="metric-card card"><strong data-bind="xp">${g.xp}</strong><span>XP gesamt</span></article>
       <article class="metric-card card"><strong data-bind="streak">${g.streak_days || 0}</strong><span>🔥 Streak</span></article>
       <article class="metric-card card"><strong>${g.longest_streak_days || g.streak_days || 0}</strong><span>Bester Streak</span></article>
       <article class="metric-card card"><strong>${badges.length}</strong><span>Badges</span></article>
-    </div>
-    <article class="card game-badge-card">
-      <h3>Badges</h3>
-      <ul class="game-badge-list">${badgeItems}</ul>
+    </div>`;
+  const xpSources = `
+    <article class="card game-sources-card">
+      <h3>XP-Quellen</h3>
+      <div class="game-xp-sources">
+        ${GAME_XP_SOURCES.map(
+          (s) => `
+          <div class="game-xp-source">
+            <span class="game-xp-source-ico" aria-hidden="true">${s.icon}</span>
+            <div><strong>${escapeHtml(s.label)}</strong><span class="muted">${escapeHtml(s.xp)}</span></div>
+          </div>`,
+        ).join("")}
+      </div>
     </article>`;
+  const ladder = `
+    <article class="card game-ladder-card">
+      <h3>Level-Leiter</h3>
+      <div class="game-ladder">${renderLevelLadder(g.level)}</div>
+    </article>`;
+  const badgeGrid = `
+    <article class="card game-badge-card">
+      <div class="row-between">
+        <h3>Badges &amp; Achievements</h3>
+        <span class="muted">${badges.length} freigeschaltet</span>
+      </div>
+      <div class="game-badge-grid">${renderBadgeGrid(badges)}</div>
+      <div class="game-rarity-legend">
+        <span class="rarity-pill rarity-common">COMMON</span>
+        <span class="rarity-pill rarity-uncommon">UNCOMMON</span>
+        <span class="rarity-pill rarity-rare">RARE</span>
+        <span class="rarity-pill rarity-epic">EPIC</span>
+        <span class="rarity-pill rarity-legendary">LEGENDARY</span>
+      </div>
+    </article>`;
+  const streakCard = `
+    <article class="card game-streak-card">
+      <h3>Tägliche Lernserie</h3>
+      <div class="game-streak-hero">
+        <div class="game-streak-flame" aria-hidden="true">🔥</div>
+        <div>
+          <p class="eyebrow">Aktueller Streak</p>
+          <strong class="game-streak-count">${g.streak_days || 0} Tage</strong>
+          <p class="muted">Bester Streak: ${g.longest_streak_days || g.streak_days || 0} Tage</p>
+        </div>
+      </div>
+      <div class="game-streak-week">${renderStreakWeek(g.streak_days)}</div>
+      <div class="game-streak-tips">
+        <div><strong>Streak-Schutz</strong><p class="muted">1× pro Monat einen Tag aussetzen ohne Reset.</p></div>
+        <div><strong>Bonus ab Tag 7</strong><p class="muted">+5 XP/Tag solange die Serie hält.</p></div>
+      </div>
+    </article>`;
+  const leaderboard = `
+    <article class="card game-lb-card">
+      <div class="row-between">
+        <h3>Klassen-Ranking</h3>
+        <span class="muted">IHK-Kohorte</span>
+      </div>
+      ${renderLeaderboardMarkup(g)}
+      <p class="game-lb-note muted">Wochenaufgabe: Sammle 500 XP bis So. für das Bonus-Badge</p>
+    </article>`;
+
+  if (variant === "xp") {
+    return `${hero}${metrics}${xpSources}${ladder}`;
+  }
+  if (variant === "badges") {
+    return `${hero}${badgeGrid}`;
+  }
+  if (variant === "streaks") {
+    return `${streakCard}${leaderboard}`;
+  }
+  return `${hero}${metrics}${badgeGrid}${streakCard}${leaderboard}`;
 }
 
 function renderCoachMarkup() {
@@ -1009,7 +1204,13 @@ async function loadReviews() {
   if (output) {
     output.innerHTML = renderReviewsMarkup();
   }
-  showToast(`${state.pendingReviews.length} Reviews geladen`);
+  const count = state.pendingReviews.length;
+  document.querySelectorAll("[data-bind='review-count']").forEach((el) => {
+    el.textContent = String(count);
+    el.hidden = count === 0;
+    el.classList.toggle("is-empty", count === 0);
+  });
+  showToast(`${count} Reviews geladen`);
 }
 
 async function decideReview(entityType, entityKey, toStatus) {

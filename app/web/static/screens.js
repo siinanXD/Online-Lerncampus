@@ -119,6 +119,7 @@ window.OLC_ROUTE_CONFIG = {
   "/gamification/xp": { layout: "app", screen: "s18_2-xp-und-level", title: "XP & Level", tab: "profile", num: "18.2" },
   "/gamification/badges": { layout: "app", screen: "s18_3-badges", title: "Badges", tab: "profile", num: "18.3" },
   "/gamification/streaks": { layout: "app", screen: "s18_4-streaks-und-leaderboard", title: "Streaks & Leaderboard", tab: "profile", num: "18.4" },
+  "/prototypen": { layout: "auth", screen: "s17_1-user-flows-dokumentation", title: "Prototypen — User Flows", tab: null, num: "17.1" },
   "/funktionen": { aliasOf: "/" },
   "/lernreise": { aliasOf: "/fortschritt/verlauf" },
   "/defizite": { aliasOf: "/fortschritt" },
@@ -1098,18 +1099,38 @@ window.OLC_SCREEN_RENDERERS = {
       <div data-bind="unit-detail"></div>
     `,
   "s05_4-fachkunde-glossar": () => `
-
-      <div class="screen-head"><p class="eyebrow">05.4 Fachkunde</p><h2>Fachkunde — Glossar</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Lern-Hub</a></div>
-      <div class="card-grid">
-        <article class="hub-card"><h3>Lernpfad</h3><p class="muted">Einheiten in Reihenfolge.</p>
-          <a class="secondary-button" href="/fachkunde/lernpfad" data-page-link>Oeffnen</a></article>
-        <article class="hub-card"><h3>Glossar</h3><p class="muted">Fachbegriffe nachschlagen.</p>
-          <a class="secondary-button" href="/fachkunde/glossar" data-page-link>Oeffnen</a></article>
-        <article class="hub-card"><h3>Bausteine</h3><p class="muted">Theorie &amp; Uebungen.</p>
-          <a class="secondary-button" href="/fachkunde/bausteine" data-page-link>Oeffnen</a></article>
+      <div class="fk-glossar">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/fachkunde" data-page-link aria-label="Zurück">‹</a>
+          <div>
+            <h2 class="page-title">Fachkunde — Glossar</h2>
+            <p class="muted">Fachbegriffe nachschlagen</p>
+          </div>
+        </div>
+        <label class="fk-search">
+          <span class="visually-hidden">Begriff suchen</span>
+          <input type="search" placeholder="Begriff suchen..." />
+        </label>
+        <div class="fk-alpha" aria-label="Alphabet">
+          <button type="button" class="fk-alpha-btn active">A</button>
+          <button type="button" class="fk-alpha-btn">B</button>
+          <button type="button" class="fk-alpha-btn">C</button>
+          <button type="button" class="fk-alpha-btn">D</button>
+          <button type="button" class="fk-alpha-btn">E</button>
+          <button type="button" class="fk-alpha-btn">F</button>
+          <button type="button" class="fk-alpha-btn">G</button>
+          <button type="button" class="fk-alpha-btn">H</button>
+        </div>
+        <div class="fk-glossar-list">
+          <article class="fk-term card"><strong>Absolutdruck</strong><p class="muted">Druck bezogen auf das absolute Vakuum (0 bar).</p></article>
+          <article class="fk-term card"><strong>Arbeitsdruck</strong><p class="muted">Betriebsdruck einer Anlage im Normalbetrieb.</p></article>
+          <article class="fk-term card"><strong>Anschlagmaß</strong><p class="muted">Maß, das durch Anschlagflächen definiert wird.</p></article>
+        </div>
+        <div class="link-grid">
+          <a href="/fachkunde/lernpfad" data-page-link>Lernpfad</a>
+          <a href="/fachkunde/bausteine" data-page-link>Bausteine</a>
+        </div>
       </div>
-      <article class="card"><strong>Inhalt</strong><ul class="plain-list"><li>Glossar</li><li>Begriff suchen...</li><li>A</li><li>B</li><li>C</li><li>D</li><li>E</li><li>F</li><li>G</li><li>H</li></ul></article>
     `,
   "s05_5-lektion-abgeschlossen": () => `
 
@@ -1252,30 +1273,62 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s06_2-pruefung-frage": () => `
-
-      <div class="screen-head"><p class="eyebrow">06.2 Pruefung</p><h2>Prüfung — Frage</h2>
-        <a class="secondary-button" href="/pruefungen" data-page-link>Zur Liste</a></div>
-      <article class="card exam-panel">
-        <ul class="plain-list"><li>47:23</li><li>8/45</li><li>Frage 8</li><li>Arbeitssicherheit</li><li>Welche Schutzmaßnahme ist beim Arbeiten an drehenden Maschinenteilen ZWINGEND vorgeschrieben?</li><li>A</li><li>Eng anliegende Kleidung tragen</li><li>B</li><li>Schutzbrille aufsetzen</li><li>C</li><li>Gehörschutz verwenden</li><li>D</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/pruefungen" data-page-link data-action="exam-start-shortcut">Session starten</a>
-          <a class="secondary-button" href="/pruefungen/abgabe" data-page-link>Abgabe</a>
-          <a class="secondary-button" href="/pruefungen/bestanden" data-page-link>Ergebnis</a>
+      <div class="exam-session-screen">
+        <div class="exam-session-header">
+          <a class="icon-round" href="/pruefungen" data-page-link aria-label="Zurück">‹</a>
+          <div class="exam-session-meta">
+            <span class="exam-timer">47:23</span>
+            <span>8/45</span>
+          </div>
         </div>
-      </article>
+        <article class="card exam-panel">
+          <p class="eyebrow">Frage 8 · Arbeitssicherheit</p>
+          <h3>Welche Schutzmaßnahme ist beim Arbeiten an drehenden Maschinenteilen ZWINGEND vorgeschrieben?</h3>
+          <div class="exam-answers">
+            <button class="exam-answer-option" type="button"><span class="answer-letter">A</span><span>Eng anliegende Kleidung tragen</span></button>
+            <button class="exam-answer-option selected" type="button"><span class="answer-letter">B</span><span>Schutzbrille aufsetzen</span></button>
+            <button class="exam-answer-option" type="button"><span class="answer-letter">C</span><span>Gehörschutz verwenden</span></button>
+            <button class="exam-answer-option" type="button"><span class="answer-letter">D</span><span>Keine besonderen Maßnahmen</span></button>
+          </div>
+          <div class="row-actions exam-actions">
+            <a class="secondary-button" href="/pruefungen/uebersicht" data-page-link>Übersicht</a>
+            <a class="primary-button" href="/pruefungen/abgabe" data-page-link>Weiter</a>
+          </div>
+        </article>
+      </div>
     `,
   "s06_3-pruefung-uebersicht": () => `
-
-      <div class="screen-head"><p class="eyebrow">06.3 Pruefung</p><h2>Prüfung — Übersicht</h2>
-        <a class="secondary-button" href="/pruefungen" data-page-link>Zur Liste</a></div>
-      <article class="card exam-panel">
-        <ul class="plain-list"><li>Übersicht</li><li>47:23</li><li>1</li><li>2</li><li>3</li><li>4</li><li>5</li><li>6</li><li>7</li><li>8</li><li>9</li><li>10</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/pruefungen" data-page-link data-action="exam-start-shortcut">Session starten</a>
-          <a class="secondary-button" href="/pruefungen/abgabe" data-page-link>Abgabe</a>
-          <a class="secondary-button" href="/pruefungen/bestanden" data-page-link>Ergebnis</a>
+      <div class="exam-session-screen">
+        <div class="exam-session-header">
+          <a class="icon-round" href="/pruefungen/frage" data-page-link aria-label="Zurück">‹</a>
+          <div class="exam-session-meta">
+            <span class="exam-timer">47:23</span>
+            <span>Übersicht</span>
+          </div>
         </div>
-      </article>
+        <article class="card exam-panel">
+          <h3>Fragen-Übersicht</h3>
+          <p class="muted">Markierte und offene Fragen vor der Abgabe prüfen.</p>
+          <div class="exam-grid-nav">
+            <a class="exam-nav-cell answered" href="/pruefungen/frage" data-page-link>1</a>
+            <a class="exam-nav-cell answered" href="/pruefungen/frage" data-page-link>2</a>
+            <a class="exam-nav-cell answered flagged" href="/pruefungen/frage" data-page-link>3</a>
+            <a class="exam-nav-cell answered" href="/pruefungen/frage" data-page-link>4</a>
+            <a class="exam-nav-cell answered" href="/pruefungen/frage" data-page-link>5</a>
+            <a class="exam-nav-cell answered flagged" href="/pruefungen/frage" data-page-link>6</a>
+            <a class="exam-nav-cell answered" href="/pruefungen/frage" data-page-link>7</a>
+            <a class="exam-nav-cell current" href="/pruefungen/frage" data-page-link>8</a>
+            <a class="exam-nav-cell" href="/pruefungen/frage" data-page-link>9</a>
+            <a class="exam-nav-cell" href="/pruefungen/frage" data-page-link>10</a>
+            <a class="exam-nav-cell" href="/pruefungen/frage" data-page-link>11</a>
+            <a class="exam-nav-cell" href="/pruefungen/frage" data-page-link>12</a>
+          </div>
+          <div class="row-actions exam-actions">
+            <a class="secondary-button" href="/pruefungen/frage" data-page-link>Zur Frage</a>
+            <a class="primary-button" href="/pruefungen/abgabe" data-page-link>Zur Abgabe</a>
+          </div>
+        </article>
+      </div>
     `,
   "s06_4-pruefung-timer": () => `
 
@@ -1399,21 +1452,34 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s07_2-pruefungsreife-checkliste": () => `
-
-      <div class="screen-head"><p class="eyebrow">07.2 Fortschritt</p><h2>Prüfungsreife — Checkliste</h2></div>
-      <div class="metric-grid">
-        <article class="metric-card card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
-        <article class="metric-card card"><strong data-bind="wrong">0</strong><span>Fehler</span></article>
-        <article class="metric-card card"><strong data-bind="readiness">0%</strong><span>Reife</span></article>
-      </div>
-      <article class="card"><ul class="plain-list"><li>67%</li><li>Noch nicht prüfungsreif</li><li>Ziel: 80% für Empfehlung</li><li>Themen-Checkliste</li><li>Grundlagen Metall</li><li>100%</li><li>Werkstoffkunde</li><li>85%</li><li>Arbeitssicherheit</li><li>92%</li></ul>
+      <div class="progress-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/fortschritt" data-page-link aria-label="Zurück">‹</a>
+          <div>
+            <h2 class="page-title">Prüfungsreife — Checkliste</h2>
+            <p class="muted">Ziel: 80% für Empfehlung</p>
+          </div>
+        </div>
+        <article class="card progress-ready-hero">
+          <div class="row-between">
+            <strong data-bind="readiness">67%</strong>
+            <span class="badge warn">Noch nicht prüfungsreif</span>
+          </div>
+          <div class="mastery-track"><span class="mastery-fill" style="width:67%"></span></div>
+        </article>
+        <div class="progress-check-list">
+          <article class="progress-check ok"><strong>Grundlagen Metall</strong><span>100%</span></article>
+          <article class="progress-check ok"><strong>Werkstoffkunde</strong><span>85%</span></article>
+          <article class="progress-check ok"><strong>Arbeitssicherheit</strong><span>92%</span></article>
+          <article class="progress-check warn"><strong>Pneumatik</strong><span>68%</span></article>
+          <article class="progress-check danger"><strong>Hydraulik</strong><span>54%</span></article>
+        </div>
         <div class="link-grid">
-          <a href="/fortschritt/pruefungsreife" data-page-link>Pruefungsreife</a>
+          <a href="/fortschritt/ausstehend" data-page-link>Ausstehend</a>
           <a href="/fortschritt/verlauf" data-page-link>Verlauf</a>
-          <a href="/fortschritt/xp" data-page-link>XP &amp; Streak</a>
           <a href="/fortschritt/heatmap" data-page-link>Heatmap</a>
         </div>
-      </article>
+      </div>
     `,
   "s07_3-pruefungsreife-ausstehend": () => `
 
@@ -2720,7 +2786,7 @@ reviewer-demo / demo-pass</pre>
           <nav class="desk-doc-nav">
             <a href="/ausbilder" data-page-link class="active">Cockpit</a>
             <a href="/ausbilder/kohorte" data-page-link>Kohorte</a>
-            <a href="/ausbilder/review" data-page-link>Review <span class="desk-nav-badge">8</span></a>
+            <a href="/ausbilder/review" data-page-link>Review <span class="desk-nav-badge" data-bind="review-count">8</span></a>
             <a href="/ausbilder/fragen" data-page-link>Fragen</a>
             <a href="/ausbilder/berichte" data-page-link>Berichtsheft</a>
           </nav>
@@ -2750,6 +2816,87 @@ reviewer-demo / demo-pass</pre>
         </div>
       </div>
     `,
+  "s17_1-user-flows-dokumentation": () => `
+      <div class="proto-flows">
+        <header class="proto-flows-head">
+          <div>
+            <h1>17 Prototypen — User Flows</h1>
+            <p class="muted">Interaktive Flows sind innerhalb jeder Page verknüpft. Nutze die Tab Bar für seitenübergreifende Navigation.</p>
+          </div>
+          <div class="proto-flows-brand">
+            <span class="proto-brand-pill">BZE ONLINE CAMPUS</span>
+            <a class="primary-button" href="/lernen" data-page-link>Present</a>
+          </div>
+        </header>
+        <article class="proto-flow-row tone-learn">
+          <div class="proto-flow-meta">
+            <span class="proto-flow-badge">Lern-Session</span>
+            <p>Page: 04 Teilnehmer — Lernen</p>
+          </div>
+          <div class="proto-flow-steps">
+            <a href="/lernen" data-page-link>Lernen Hub</a>
+            <span aria-hidden="true">→</span>
+            <a href="/lernen/themen" data-page-link>Themenliste</a>
+            <span aria-hidden="true">→</span>
+            <a href="/lernen/fragen" data-page-link>Fragenliste</a>
+            <span aria-hidden="true">→</span>
+            <a href="/lernen/frage" data-page-link>Frage MC</a>
+            <span aria-hidden="true">→</span>
+            <a href="/lernen/feedback/richtig" data-page-link>Feedback Richtig</a>
+            <span aria-hidden="true">→</span>
+            <a href="/lernen/fragen" data-page-link>(zurück zu Fragenliste)</a>
+          </div>
+        </article>
+        <article class="proto-flow-row tone-exam">
+          <div class="proto-flow-meta">
+            <span class="proto-flow-badge">Prüfungssimulation</span>
+            <p>Page: 06 Teilnehmer — Prüfung</p>
+          </div>
+          <div class="proto-flow-steps">
+            <a href="/pruefungen" data-page-link>Prüfungsliste</a>
+            <span aria-hidden="true">→</span>
+            <a href="/pruefungen/frage" data-page-link>Prüfung Frage</a>
+            <span aria-hidden="true">→</span>
+            <a href="/pruefungen/uebersicht" data-page-link>Übersicht</a>
+            <span aria-hidden="true">→</span>
+            <a href="/pruefungen/abgabe" data-page-link>Abgabe</a>
+            <span aria-hidden="true">→</span>
+            <a href="/pruefungen/bestanden" data-page-link>Ergebnis</a>
+          </div>
+        </article>
+        <article class="proto-flow-row tone-report">
+          <div class="proto-flow-meta">
+            <span class="proto-flow-badge">Berichtsheft</span>
+            <p>Page: 08 Teilnehmer — Berichtsheft</p>
+          </div>
+          <div class="proto-flow-steps">
+            <a href="/berichtsheft" data-page-link>Liste</a>
+            <span aria-hidden="true">→</span>
+            <a href="/berichtsheft/neu" data-page-link>Neuer Eintrag</a>
+            <span aria-hidden="true">→</span>
+            <a href="/berichtsheft/ki" data-page-link>KI-Assistent</a>
+            <span aria-hidden="true">→</span>
+            <a href="/berichtsheft/unterschrift" data-page-link>Unterschrift</a>
+          </div>
+        </article>
+        <article class="proto-flow-row tone-fk">
+          <div class="proto-flow-meta">
+            <span class="proto-flow-badge">Fachkunde</span>
+            <p>Page: 05 Teilnehmer — Fachkunde</p>
+          </div>
+          <div class="proto-flow-steps">
+            <a href="/fachkunde" data-page-link>Einstieg</a>
+            <span aria-hidden="true">→</span>
+            <a href="/fachkunde/lernpfad" data-page-link>Lernpfad</a>
+            <span aria-hidden="true">→</span>
+            <a href="/fachkunde/einheit" data-page-link>Lerneinheit</a>
+            <span aria-hidden="true">→</span>
+            <a href="/fachkunde/glossar" data-page-link>Glossar</a>
+          </div>
+        </article>
+        <p class="proto-flow-tip"><span>i</span> Prototype-Verbindungen verbinden Screens innerhalb derselben Page. Für seitenübergreifende Navigation nutze die Tab Bar.</p>
+      </div>
+    `,
   "s18_1-gamification-uebersicht": () => `
       <div class="game-screen">
         <div class="bh-subhead">
@@ -2763,7 +2910,7 @@ reviewer-demo / demo-pass</pre>
         <div class="link-grid game-links">
           <a href="/gamification/xp" data-page-link>XP &amp; Level</a>
           <a href="/gamification/badges" data-page-link>Badges</a>
-          <a href="/gamification/streaks" data-page-link>Streaks</a>
+          <a href="/gamification/streaks" data-page-link>Streaks &amp; Leaderboard</a>
         </div>
       </div>
     `,
@@ -2771,7 +2918,10 @@ reviewer-demo / demo-pass</pre>
       <div class="game-screen">
         <div class="bh-subhead">
           <a class="icon-round" href="/gamification" data-page-link aria-label="Zurück">‹</a>
-          <h2 class="page-title">XP &amp; Level</h2>
+          <div>
+            <h2 class="page-title">XP &amp; Level</h2>
+            <p class="muted">Progression &amp; XP-Quellen</p>
+          </div>
         </div>
         <div data-bind="gamification-live"></div>
       </div>
@@ -2780,7 +2930,10 @@ reviewer-demo / demo-pass</pre>
       <div class="game-screen">
         <div class="bh-subhead">
           <a class="icon-round" href="/gamification" data-page-link aria-label="Zurück">‹</a>
-          <h2 class="page-title">Badges</h2>
+          <div>
+            <h2 class="page-title">Badges</h2>
+            <p class="muted">Sammel-Auszeichnungen nach Seltenheit</p>
+          </div>
         </div>
         <div data-bind="gamification-live"></div>
       </div>
@@ -2789,15 +2942,14 @@ reviewer-demo / demo-pass</pre>
       <div class="game-screen">
         <div class="bh-subhead">
           <a class="icon-round" href="/gamification" data-page-link aria-label="Zurück">‹</a>
-          <h2 class="page-title">Streaks</h2>
+          <div>
+            <h2 class="page-title">Streaks &amp; Leaderboard</h2>
+            <p class="muted">Tägliche Serie &amp; Kohorten-Ranking</p>
+          </div>
         </div>
         <div data-bind="gamification-live"></div>
-        <article class="card">
-          <h3>Leaderboard</h3>
-          <p class="muted">Kohorten-Rangliste folgt — aktuell siehst du deinen eigenen Streak.</p>
-        </article>
       </div>
     `,
 };
 
-window.OLC_ALLOWED_PAGES = ["", "admin", "admin/audit", "admin/content", "admin/content/detail", "admin/content/liste", "admin/content/qualitaet", "admin/dubletten", "admin/einstellungen", "admin/import", "admin/lernziele", "admin/monitoring", "admin/nutzer", "admin/nutzer/detail", "admin/quiz", "admin/wissen", "admin/zugangsdaten", "ausbilder", "ausbilder/bericht-detail", "ausbilder/bericht-export", "ausbilder/berichte", "ausbilder/editor", "ausbilder/frage-bearbeiten", "ausbilder/fragen", "ausbilder/freigabe", "ausbilder/generator", "ausbilder/hotspots", "ausbilder/kohorte", "ausbilder/kohorte/detail", "ausbilder/medien", "ausbilder/nav", "ausbilder/planung", "ausbilder/pruefungsreife", "ausbilder/review", "ausbilder/review/detail", "ausbilder/risiko", "ausbilder/shell", "ausbilder/teilnehmer", "ausbilder/themen", "berichtsheft", "berichtsheft/export", "berichtsheft/kalender", "berichtsheft/ki", "berichtsheft/leer", "berichtsheft/neu", "berichtsheft/unterschrift", "dashboard", "dashboard/fortsetzen", "dashboard/merksaetze", "dashboard/streak", "dashboard/tablet", "dashboard/tagesziel", "dashboard/wochenbericht", "datenschutz", "defizite", "fachkunde", "fachkunde/abschluss", "fachkunde/bausteine", "fachkunde/einheit", "fachkunde/freigabe", "fachkunde/glossar", "fachkunde/lernpfad", "fachkunde/messschieber", "fachkunde/spritzguss", "fachkunde/toleranz", "fortschritt", "fortschritt/ausstehend", "fortschritt/heatmap", "fortschritt/pruefungsreife", "fortschritt/verlauf", "fortschritt/xp", "funktionen", "gamification", "gamification/badges", "gamification/streaks", "gamification/xp", "lernen", "lernen/detail", "lernen/einheit", "lernen/feedback/falsch", "lernen/feedback/richtig", "lernen/fehlerdiagnose", "lernen/flashcard", "lernen/formeltrainer", "lernen/frage", "lernen/frage/freitext", "lernen/fragen", "lernen/fragen/fehler", "lernen/glossar", "lernen/lernpfad", "lernen/melden", "lernen/tablet", "lernen/themen", "lernen/uebersetzung", "lernen/video", "lernreise", "level-up", "login", "mehr", "mehr/ausbilder-sicht", "mehr/coach", "mehr/export", "mehr/lernplan", "mehr/loeschen", "mehr/logout", "onboarding", "passwort", "pruefungen", "pruefungen/abgabe", "pruefungen/bestanden", "pruefungen/durchgefallen", "pruefungen/frage", "pruefungen/kammertermine", "pruefungen/schwach", "pruefungen/timer", "pruefungen/uebersicht", "review", "shell/tab-bar", "sprache"];
+window.OLC_ALLOWED_PAGES = ["", "admin", "admin/audit", "admin/content", "admin/content/detail", "admin/content/liste", "admin/content/qualitaet", "admin/dubletten", "admin/einstellungen", "admin/import", "admin/lernziele", "admin/monitoring", "admin/nutzer", "admin/nutzer/detail", "admin/quiz", "admin/wissen", "admin/zugangsdaten", "ausbilder", "ausbilder/bericht-detail", "ausbilder/bericht-export", "ausbilder/berichte", "ausbilder/editor", "ausbilder/frage-bearbeiten", "ausbilder/fragen", "ausbilder/freigabe", "ausbilder/generator", "ausbilder/hotspots", "ausbilder/kohorte", "ausbilder/kohorte/detail", "ausbilder/medien", "ausbilder/nav", "ausbilder/planung", "ausbilder/pruefungsreife", "ausbilder/review", "ausbilder/review/detail", "ausbilder/risiko", "ausbilder/shell", "ausbilder/teilnehmer", "ausbilder/themen", "berichtsheft", "berichtsheft/export", "berichtsheft/kalender", "berichtsheft/ki", "berichtsheft/leer", "berichtsheft/neu", "berichtsheft/unterschrift", "dashboard", "dashboard/fortsetzen", "dashboard/merksaetze", "dashboard/streak", "dashboard/tablet", "dashboard/tagesziel", "dashboard/wochenbericht", "datenschutz", "defizite", "fachkunde", "fachkunde/abschluss", "fachkunde/bausteine", "fachkunde/einheit", "fachkunde/freigabe", "fachkunde/glossar", "fachkunde/lernpfad", "fachkunde/messschieber", "fachkunde/spritzguss", "fachkunde/toleranz", "fortschritt", "fortschritt/ausstehend", "fortschritt/heatmap", "fortschritt/pruefungsreife", "fortschritt/verlauf", "fortschritt/xp", "funktionen", "gamification", "gamification/badges", "gamification/streaks", "gamification/xp", "lernen", "lernen/detail", "lernen/einheit", "lernen/feedback/falsch", "lernen/feedback/richtig", "lernen/fehlerdiagnose", "lernen/flashcard", "lernen/formeltrainer", "lernen/frage", "lernen/frage/freitext", "lernen/fragen", "lernen/fragen/fehler", "lernen/glossar", "lernen/lernpfad", "lernen/melden", "lernen/tablet", "lernen/themen", "lernen/uebersetzung", "lernen/video", "lernreise", "level-up", "login", "mehr", "mehr/ausbilder-sicht", "mehr/coach", "mehr/export", "mehr/lernplan", "mehr/loeschen", "mehr/logout", "onboarding", "passwort", "prototypen", "pruefungen", "pruefungen/abgabe", "pruefungen/bestanden", "pruefungen/durchgefallen", "pruefungen/frage", "pruefungen/kammertermine", "pruefungen/schwach", "pruefungen/timer", "pruefungen/uebersicht", "review", "shell/tab-bar", "sprache"];

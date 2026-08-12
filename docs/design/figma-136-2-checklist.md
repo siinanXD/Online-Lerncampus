@@ -116,9 +116,9 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | [~] | `136:8922` | 07.1 Fortschritt — Übersicht | 390×961 |
 | [~] | `136:9093` | 07.2 Prüfungsreife — Checkliste | 390×947 |
 | [~] | `136:9238` | 07.3 Prüfungsreife — Ausstehend | 390×895 |
-| [ ] | `136:9371` | 07.4 Statistik — Verlauf | 390×971 |
-| [ ] | `136:9520` | 07.5 Statistik — XP & Streak | 390×844 |
-| [ ] | `136:9624` | 07.6 Statistik — Themen Heatmap | 390×1003 |
+| [x] | `136:9371` | 07.4 Statistik — Verlauf | 390×971 |
+| [x] | `136:9520` | 07.5 Statistik — XP & Streak | 390×844 |
+| [~] | `136:9624` | 07.6 Statistik — Themen Heatmap | 390×1003 |
 
 ## 08 Teilnehmer — Berichtsheft
 
@@ -225,3 +225,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Prüfung 06.2 Frage [x] ~8.0%
 - Prüfung 06.3–06.9 key frames: 06.3 Übersicht [x] ~5.9%; 06.4 Timer [~] ~10.4%; 06.5 Abgabe [~] ~11.9%; 06.6 Bestanden [x] ~7.6%; 06.7 Durchgefallen [x] ~8.6%; 06.8 Schwache Themen [~] ~12.8%; 06.9 Kammertermine [x] ~7.3%
 - Fortschritt 07.2–07.3: Prüfungsreife Checkliste [~] ~13.8%; Ausstehend [~] ~11.6%
+- Fortschritt 07.4–07.6: Statistik Verlauf [x] ~6.8%; XP & Streak [x] ~6.4%; Themen Heatmap [~] ~8.8%

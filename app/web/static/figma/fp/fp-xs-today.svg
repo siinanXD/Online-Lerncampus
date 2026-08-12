@@ -1,0 +1,7 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="34" height="34" viewBox="0 0 34 34" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Frame">
+<rect x="1" y="1" width="32" height="32" rx="5" fill="#F5F5F4"/>
+<rect x="1" y="1" width="32" height="32" rx="5" stroke="#2563EB" stroke-width="2"/>
+<circle id="today-dot" cx="17" cy="17" r="4" fill="#2563EB"/>
+</g>
+</svg>

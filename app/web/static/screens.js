@@ -3681,49 +3681,268 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s07_4-statistik-verlauf": () => `
-
-      <div class="screen-head"><p class="eyebrow">07.4 Fortschritt</p><h2>Statistik — Verlauf</h2></div>
-      <div class="metric-grid">
-        <article class="metric-card card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
-        <article class="metric-card card"><strong data-bind="wrong">0</strong><span>Fehler</span></article>
-        <article class="metric-card card"><strong data-bind="readiness">0%</strong><span>Reife</span></article>
-      </div>
-      <article class="card"><ul class="plain-list"><li>Woche</li><li>Monat</li><li>Gesamt</li><li>Lernzeit</li><li>4h 20min diese Woche</li><li>Mo</li><li>Di</li><li>Mi</li><li>Do</li><li>Fr</li></ul>
-        <div class="link-grid">
-          <a href="/fortschritt/pruefungsreife" data-page-link>Pruefungsreife</a>
-          <a href="/fortschritt/verlauf" data-page-link>Verlauf</a>
-          <a href="/fortschritt/xp" data-page-link>XP &amp; Streak</a>
-          <a href="/fortschritt/heatmap" data-page-link>Heatmap</a>
+      <div class="fp-screen fp-pr-screen fp-st-screen" data-node-id="136:9371">
+        <div class="fp-pr-scroll">
+          <header class="fp-pr-header">
+            <a class="fp-pr-icon-btn" href="/fortschritt" data-page-link aria-label="Zurück">
+              <img src="/static/figma/fp/fp-st-back.svg" width="20" height="20" alt="" />
+            </a>
+            <h2>Statistiken</h2>
+            <button class="fp-pr-icon-btn" type="button" aria-label="Teilen">
+              <img src="/static/figma/fp/fp-st-share.svg" width="20" height="20" alt="" />
+            </button>
+          </header>
+          <div class="fp-st-body">
+            <div class="fp-st-filters" role="tablist" aria-label="Zeitraum">
+              <button type="button">Woche</button>
+              <button type="button" class="active">Monat</button>
+              <button type="button">Gesamt</button>
+            </div>
+            <article class="fp-st-card">
+              <div class="fp-st-card-head">
+                <span>Lernzeit</span>
+                <strong class="blue">4h 20min diese Woche</strong>
+              </div>
+              <div class="fp-st-bars" aria-hidden="true">
+                <div class="fp-st-bar"><i style="height:21px"></i><span>Mo</span></div>
+                <div class="fp-st-bar"><i style="height:31px"></i><span>Di</span></div>
+                <div class="fp-st-bar"><i style="height:56px"></i><span>Mi</span></div>
+                <div class="fp-st-bar"><i style="height:14px"></i><span>Do</span></div>
+                <div class="fp-st-bar"><i style="height:46px"></i><span>Fr</span></div>
+                <div class="fp-st-bar"><i style="height:63px"></i><span>Sa</span></div>
+                <div class="fp-st-bar"><i style="height:28px"></i><span>So</span></div>
+              </div>
+            </article>
+            <article class="fp-st-card">
+              <div class="fp-st-card-head">
+                <span>XP-Verlauf</span>
+                <strong class="amber">+2.150 XP gesamt</strong>
+              </div>
+              <img class="fp-st-spark" src="/static/figma/fp/fp-st-spark-xp.svg" width="318" height="80" alt="" />
+            </article>
+            <article class="fp-st-card">
+              <div class="fp-st-card-head">
+                <span>Fehlerquote Trend</span>
+                <strong class="green fp-st-trend">23% → 18% <img src="/static/figma/fp/fp-st-trend-down.svg" width="16" height="16" alt="" /></strong>
+              </div>
+              <img class="fp-st-spark" src="/static/figma/fp/fp-st-spark-err.svg" width="318" height="80" alt="" />
+            </article>
+            <article class="fp-st-card">
+              <p class="fp-st-card-title">Aktivität (Letzte 4 Wochen)</p>
+              <div class="fp-st-heat"><i class="l0"></i><i class="l4"></i><i class="l2"></i><i class="l4"></i><i class="l1"></i><i class="l0"></i><i class="l4"></i><i class="l3"></i><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l0"></i><i class="l4"></i><i class="l4"></i><i class="l0"></i><i class="l1"></i><i class="l3"></i><i class="l4"></i><i class="l2"></i><i class="l0"></i><i class="l0"></i><i class="l2"></i><i class="l4"></i><i class="l1"></i><i class="l4"></i><i class="l0"></i><i class="l3"></i><i class="l4"></i></div>
+              <div class="fp-st-legend">
+                <span>Wenig</span>
+                <div class="fp-st-legend-swatches"><i class="l0"></i><i class="l1"></i><i class="l2"></i><i class="l4"></i></div>
+                <span>Viel</span>
+              </div>
+            </article>
+          </div>
         </div>
-      </article>
+        
+        <nav class="fp-pr-tabs" aria-label="Fortschritt Navigation">
+          <a href="/dashboard" data-page-link>
+            <img src="/static/figma/fp/fp-pr-tab-book.svg" width="20" height="20" alt="" />
+            Campus
+          </a>
+          <a href="/lernen" data-page-link>
+            <img src="/static/figma/fp/fp-pr-tab-edit.svg" width="20" height="20" alt="" />
+            Üben
+          </a>
+          <a href="/fortschritt" data-page-link class="active">
+            <img src="/static/figma/fp/fp-pr-tab-activity.svg" width="20" height="20" alt="" />
+            Bericht
+          </a>
+          <a href="/mehr" data-page-link>
+            <img src="/static/figma/fp/fp-pr-tab-user.svg" width="20" height="20" alt="" />
+            Profil
+          </a>
+        </nav>
+        <div class="fp-pr-home" aria-hidden="true"></div>
+      </div>
     `,
   "s07_5-statistik-xp-und-streak": () => `
-
-      <div class="screen-head"><p class="eyebrow">07.5 Fortschritt</p><h2>Statistik — XP & Streak</h2></div>
-      <div data-bind="gamification-live"></div>
-      <div class="link-grid">
-          <a href="/fortschritt/pruefungsreife" data-page-link>Pruefungsreife</a>
-          <a href="/fortschritt/verlauf" data-page-link>Verlauf</a>
-          <a href="/fortschritt/xp" data-page-link>XP &amp; Streak</a>
-          <a href="/fortschritt/heatmap" data-page-link>Heatmap</a>
+      <div class="fp-screen fp-xs-screen" data-node-id="136:9520">
+        <div class="fp-xs-scroll">
+          <header class="fp-xs-header">
+            <div class="fp-xs-header-left">
+              <a href="/fortschritt" data-page-link aria-label="Zurück">
+                <img src="/static/figma/fp/fp-xs-back.svg" width="24" height="24" alt="" />
+              </a>
+              <h2>Deine Stats</h2>
+            </div>
+            <button type="button" aria-label="Mehr">
+              <img src="/static/figma/fp/fp-xs-more.svg" width="24" height="24" alt="" />
+            </button>
+          </header>
+          <div class="fp-xs-body">
+            <div class="fp-xs-filters" role="tablist" aria-label="Zeitraum">
+              <button type="button">Woche</button>
+              <button type="button" class="active">Monat</button>
+              <button type="button">Gesamt</button>
+            </div>
+            <article class="fp-xs-card">
+              <div class="fp-xs-card-head">
+                <strong>XP-Verlauf</strong>
+                <em>+1.230 XP</em>
+              </div>
+              <div class="fp-xs-chart">
+                <img class="fp-xs-chart-img" src="/static/figma/fp/fp-xs-chart.png" width="358" height="179" alt="" />
+              </div>
+              <div class="fp-xs-metrics">
+                <div><span>Tägl. Schnitt</span><strong>41 XP</strong></div>
+                <div><span>Bester Tag</span><strong>12. März (156 XP)</strong></div>
+              </div>
+            </article>
+            <article class="fp-xs-card">
+              <strong class="fp-xs-card-title">Streak-Kalender — März 2025</strong>
+              <div class="fp-xs-streak">
+              <div class="fp-xs-streak-row"><i style="background:#86efac"></i><i style="background:#4ade80"></i><i style="background:#f5f5f4"></i><i style="background:#bbf7d0"></i><i style="background:#16a34a"></i><i style="background:#4ade80"></i><i style="background:#86efac"></i></div>
+              <div class="fp-xs-streak-row"><i style="background:#4ade80"></i><i style="background:#f5f5f4"></i><i style="background:#86efac"></i><i style="background:#16a34a"></i><i style="background:#bbf7d0"></i><i style="background:#86efac"></i><i style="background:#4ade80"></i></div>
+              <div class="fp-xs-streak-row"><i style="background:#16a34a"></i><i style="background:#4ade80"></i><i style="background:#4ade80"></i><i style="background:#86efac"></i><i style="background:#f5f5f4"></i><i style="background:#bbf7d0"></i><i style="background:#16a34a"></i></div>
+              <div class="fp-xs-streak-row"><i style="background:#4ade80"></i><i style="background:#16a34a"></i><i style="background:#bbf7d0"></i><i style="background:#86efac"></i><i style="background:#4ade80"></i><i style="background:#86efac"></i><i class="today"><img src="/static/figma/fp/fp-xs-today.svg" width="34" height="34" alt="" /></i></div>
+              </div>
+              <div class="fp-xs-streak-meta">
+                <div>
+                  <span>Aktueller Streak</span>
+                  <strong class="green">12 Tage 🔥</strong>
+                </div>
+                <div class="end">
+                  <span>Längster Streak</span>
+                  <strong>28 Tage</strong>
+                </div>
+              </div>
+              <div class="fp-xs-hint">
+                <span aria-hidden="true">🏆</span>
+                <p>Noch 2 Tage bis zum 14-Tage Badge! 🔥</p>
+              </div>
+            </article>
+            <div data-bind="gamification-live" hidden></div>
+          </div>
+        </div>
+        <div class="fp-xs-home" aria-hidden="true"></div>
       </div>
     `,
   "s07_6-statistik-themen-heatmap": () => `
-
-      <div class="screen-head"><p class="eyebrow">07.6 Fortschritt</p><h2>Statistik — Themen Heatmap</h2></div>
-      <div class="metric-grid">
-        <article class="metric-card card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
-        <article class="metric-card card"><strong data-bind="wrong">0</strong><span>Fehler</span></article>
-        <article class="metric-card card"><strong data-bind="readiness">0%</strong><span>Reife</span></article>
-      </div>
-      <article class="card"><ul class="plain-list"><li>Themenanalyse</li><li>Grundlagen</li><li>Werkstoff</li><li>Mess</li><li>Pneumatik</li><li>Hydraulik</li><li>Steuerung</li><li>Elektro</li><li>Sicherheit</li><li>KI-Empfehlung: Fokus auf Pneumatik und Hydraulik für die nächsten 2 Wochen.</li></ul>
-        <div class="link-grid">
-          <a href="/fortschritt/pruefungsreife" data-page-link>Pruefungsreife</a>
-          <a href="/fortschritt/verlauf" data-page-link>Verlauf</a>
-          <a href="/fortschritt/xp" data-page-link>XP &amp; Streak</a>
-          <a href="/fortschritt/heatmap" data-page-link>Heatmap</a>
+      <div class="fp-screen fp-hm-screen" data-node-id="136:9624">
+        <div class="fp-hm-scroll">
+          <header class="fp-xs-header">
+            <div class="fp-xs-header-left">
+              <a href="/fortschritt" data-page-link aria-label="Zurück">
+                <img src="/static/figma/fp/fp-hm-back.svg" width="24" height="24" alt="" />
+              </a>
+              <h2>Themenanalyse</h2>
+            </div>
+            <button type="button" aria-label="Mehr">
+              <img src="/static/figma/fp/fp-hm-more.svg" width="24" height="24" alt="" />
+            </button>
+          </header>
+          <div class="fp-hm-body">
+            <div class="fp-hm-radar-wrap">
+              <img class="fp-hm-radar" src="/static/figma/fp/fp-hm-radar.png" width="240" height="240" alt="Themen-Radar" />
+            </div>
+            <article class="fp-hm-ai">
+              <span class="fp-hm-ai-ico">
+                <img src="/static/figma/fp/fp-hm-brain.svg" width="20" height="20" alt="" />
+              </span>
+              <p>KI-Empfehlung: Fokus auf Pneumatik und Hydraulik für die nächsten 2 Wochen.</p>
+            </article>
+            <div class="fp-hm-section">
+              <h3>Themen-Ranking</h3>
+              <div class="fp-hm-ranks">
+            <article class="fp-hm-rank">
+              <span class="fp-hm-rank-n">1</span>
+              <div class="fp-hm-rank-body">
+                <strong>Arbeitssicherheit</strong>
+                <div class="fp-hm-rank-bar-row">
+                  <div class="fp-hm-rank-track"><i class="green" style="width:92%"></i></div>
+                  <em>92%</em>
+                </div>
+              </div>
+              <span class="fp-hm-rank-stars">⭐⭐⭐</span>
+            </article>
+            <article class="fp-hm-rank">
+              <span class="fp-hm-rank-n">2</span>
+              <div class="fp-hm-rank-body">
+                <strong>Grundlagen Metall</strong>
+                <div class="fp-hm-rank-bar-row">
+                  <div class="fp-hm-rank-track"><i class="green" style="width:100%"></i></div>
+                  <em>100%</em>
+                </div>
+              </div>
+              <span class="fp-hm-rank-stars">⭐⭐⭐</span>
+            </article>
+            <article class="fp-hm-rank">
+              <span class="fp-hm-rank-n">3</span>
+              <div class="fp-hm-rank-body">
+                <strong>Werkstoffkunde</strong>
+                <div class="fp-hm-rank-bar-row">
+                  <div class="fp-hm-rank-track"><i class="green" style="width:85%"></i></div>
+                  <em>85%</em>
+                </div>
+              </div>
+              <span class="fp-hm-rank-stars">⭐⭐½</span>
+            </article>
+            <article class="fp-hm-rank">
+              <span class="fp-hm-rank-n">4</span>
+              <div class="fp-hm-rank-body">
+                <strong>Messtechnik</strong>
+                <div class="fp-hm-rank-bar-row">
+                  <div class="fp-hm-rank-track"><i class="blue" style="width:60%"></i></div>
+                  <em>60%</em>
+                </div>
+              </div>
+              <span class="fp-hm-rank-stars">⭐⭐</span>
+            </article>
+            <article class="fp-hm-rank">
+              <span class="fp-hm-rank-n">5</span>
+              <div class="fp-hm-rank-body">
+                <strong>Pneumatik</strong>
+                <div class="fp-hm-rank-bar-row">
+                  <div class="fp-hm-rank-track"><i class="orange" style="width:40%"></i></div>
+                  <em>40%</em>
+                </div>
+              </div>
+              <span class="fp-hm-rank-stars">⭐</span>
+            </article>
+            <article class="fp-hm-rank">
+              <span class="fp-hm-rank-n">6</span>
+              <div class="fp-hm-rank-body">
+                <strong>Hydraulik</strong>
+                <div class="fp-hm-rank-bar-row">
+                  <div class="fp-hm-rank-track"><i class="red" style="width:10%"></i></div>
+                  <em>10%</em>
+                </div>
+              </div>
+              <span class="fp-hm-rank-stars">—</span>
+            </article>
+            <article class="fp-hm-rank locked">
+              <span class="fp-hm-rank-n">7</span>
+              <div class="fp-hm-rank-body">
+                <strong>Steuerungstechnik</strong>
+                <div class="fp-hm-rank-bar-row">
+                  <div class="fp-hm-rank-track"><i class="muted" style="width:0%"></i></div>
+                  <em>0%</em>
+                </div>
+              </div>
+              <span class="fp-hm-rank-stars">🔒</span>
+            </article>
+            <article class="fp-hm-rank locked">
+              <span class="fp-hm-rank-n">8</span>
+              <div class="fp-hm-rank-body">
+                <strong>Elektrotechnik</strong>
+                <div class="fp-hm-rank-bar-row">
+                  <div class="fp-hm-rank-track"><i class="muted" style="width:0%"></i></div>
+                  <em>0%</em>
+                </div>
+              </div>
+              <span class="fp-hm-rank-stars">🔒</span>
+            </article>
+              </div>
+            </div>
+          </div>
         </div>
-      </article>
+        <div class="fp-xs-home" aria-hidden="true"></div>
+      </div>
     `,
   "s08_1-berichtsheft-liste": () => `
       <div class="bh2-screen" data-node-id="136:9762">

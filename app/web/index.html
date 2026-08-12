@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/static/tokens.css" />
@@ -89,47 +89,69 @@
       </section>
 
       <section class="login-shell" data-shell="login" aria-label="Login">
-        <div class="login-card">
-          <div class="login-brand">
-            <div class="logo-mark">BZE</div>
-            <strong>Online Campus</strong>
-            <span class="muted">Maschinen- &amp; Anlagenfuehrer</span>
-          </div>
-          <div class="welcome-title">
-            <h1>Willkommen zurueck</h1>
-            <p class="muted">Melde dich an, um weiterzulernen.</p>
-          </div>
-          <form id="login-form">
-            <label class="field">
-              <span>E-Mail oder Benutzername</span>
-              <input name="identifier" autocomplete="username" required minlength="3" placeholder="z.B. demo-azubi" />
-            </label>
-            <label class="field">
-              <span>Passwort</span>
-              <input name="password" type="password" autocomplete="current-password" required minlength="4" placeholder="••••••••" />
-            </label>
-            <label class="field">
-              <span>Kohorte (optional)</span>
-              <input name="cohort" value="BZE-2026-F" />
-            </label>
-            <div class="login-actions">
-              <button class="primary-button btn-block" type="submit">Anmelden</button>
-              <div class="login-divider"><span>oder</span></div>
-              <button class="secondary-button btn-block" type="button" data-login-demo>Demo als Azubi</button>
+        <div class="login-phone">
+          <div class="login-top">
+            <div class="login-status" aria-hidden="true">
+              <span>9:41</span>
+              <span class="login-status-icons">
+                <svg width="17" height="11" viewBox="0 0 17 11" fill="currentColor"><rect x="0" y="6" width="3" height="5" rx="0.5"/><rect x="4.5" y="4" width="3" height="7" rx="0.5"/><rect x="9" y="2" width="3" height="9" rx="0.5"/><rect x="13.5" y="0" width="3" height="11" rx="0.5"/></svg>
+                <svg width="15" height="11" viewBox="0 0 15 11" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M1 7.5a7 7 0 0 1 13 0"/><path d="M3.2 8.8a4.2 4.2 0 0 1 8.6 0"/><circle cx="7.5" cy="10" r="1" fill="currentColor" stroke="none"/></svg>
+                <svg width="25" height="12" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="currentColor"/><rect x="2" y="2" width="16" height="8" rx="1.5" fill="currentColor"/><path d="M23 4v4a1.5 1.5 0 0 0 0-4z" fill="currentColor"/></svg>
+              </span>
             </div>
-            <p id="login-feedback" class="feedback"></p>
-            <p class="login-demo-hint muted">
-              Staff: <code>reviewer-demo</code> / <code>trainer-demo</code> /
-              <code>admin-demo</code> · Passwort <code>demo-pass</code>
-            </p>
-          </form>
-          <p class="login-powered muted">
-            <a href="/passwort" data-page-link>Passwort aendern</a>
-            ·
-            <a href="/sprache" data-page-link>Sprache</a>
-            ·
-            <a href="/onboarding" data-page-link>Onboarding</a>
-          </p>
+            <div class="login-brand">
+              <div class="logo-mark">BZE</div>
+              <strong>Online Campus</strong>
+              <span>Maschinen- &amp; Anlagenführer</span>
+            </div>
+          </div>
+
+          <div class="login-middle">
+            <div class="welcome-title">
+              <h1>Willkommen zurück</h1>
+              <p>Melde dich an, um weiterzulernen.</p>
+            </div>
+            <form id="login-form">
+              <label class="field field-icon">
+                <span>E-Mail oder Benutzername</span>
+                <div class="input-box">
+                  <svg class="field-leading" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                  <input name="identifier" autocomplete="username" required minlength="3" placeholder="z.B. max.mustermann@bze.de" />
+                </div>
+              </label>
+              <label class="field field-icon">
+                <span>Passwort</span>
+                <div class="input-box">
+                  <svg class="field-leading" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                  <input id="login-password" name="password" type="password" autocomplete="current-password" required minlength="4" placeholder="••••••••••••" />
+                  <button class="field-trailing" type="button" data-toggle-password="#login-password" aria-label="Passwort anzeigen">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .698 10.744 10.744 0 0 1-3.693 4.884"/><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242"/><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.698 10.75 10.75 0 0 1 4.446-5.143"/><path d="m2 2 20 20"/></svg>
+                  </button>
+                </div>
+              </label>
+              <div class="forgot-row">
+                <a href="/passwort" data-page-link>Passwort vergessen?</a>
+              </div>
+              <input type="hidden" name="cohort" value="BZE-2026-F" />
+              <div class="login-actions">
+                <button class="primary-button btn-block btn-pill" type="submit">Anmelden</button>
+                <div class="login-divider"><span>oder</span></div>
+                <button class="secondary-button btn-block btn-pill" type="button" data-login-demo>Demo als Azubi</button>
+              </div>
+              <p id="login-feedback" class="feedback"></p>
+              <p class="login-demo-hint">
+                Demo: <code>demo-azubi</code> / <code>demo-pass</code>
+              </p>
+            </form>
+          </div>
+
+          <div class="login-bottom">
+            <p class="login-powered">Powered by BZE Digital</p>
+            <a class="language-chip" href="/sprache" data-page-link>
+              <span aria-hidden="true">🇩🇪</span> Deutsch
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+            </a>
+          </div>
         </div>
       </section>
 
@@ -140,39 +162,41 @@
       <section class="campus-app" data-shell="app" aria-label="Lern-App">
         <div class="app-frame">
           <header class="app-topbar">
-            <div class="topbar-brand">
-              <span class="bze-badge">BZE</span>
-              <div>
-                <p class="eyebrow" id="page-eyebrow">Teilnehmer</p>
-                <h1 id="page-title">Start</h1>
-              </div>
+            <span class="bze-badge">BZE</span>
+            <div class="level-pill" id="level-pill" aria-label="Level">
+              <span class="level-ring" data-bind="level">1</span>
+              <span id="level-label">LEVEL 1</span>
             </div>
-            <div class="topbar-meta">
-              <div class="level-pill" id="level-pill" aria-label="Level">
-                <span class="level-ring">7</span>
-                <span>LEVEL</span>
-              </div>
-              <div class="stats" id="app-stats" aria-label="Lernkennzahlen"></div>
-            </div>
+            <a class="menu-button" href="/mehr" data-page-link aria-label="Mehr">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 12h8M8 8h8M8 16h5"/></svg>
+            </a>
+            <h1 id="page-title" class="visually-hidden">Start</h1>
+            <p class="eyebrow visually-hidden" id="page-eyebrow">Teilnehmer</p>
+            <div class="stats visually-hidden" id="app-stats" aria-label="Lernkennzahlen"></div>
           </header>
           <div class="app-content">
             <div id="screen-root" class="screen-root"></div>
           </div>
           <nav class="tab-bar" aria-label="App Navigation">
             <a href="/dashboard" data-page-link data-view="dashboard">
-              <span class="tab-icon tab-icon-home" aria-hidden="true"></span>Start
+              <svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+              Start
             </a>
             <a href="/lernen" data-page-link data-view="learn">
-              <span class="tab-icon tab-icon-book" aria-hidden="true"></span>Lernen
+              <svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              Lernen
             </a>
             <a href="/pruefungen" data-page-link data-view="exam">
-              <span class="tab-icon tab-icon-award" aria-hidden="true"></span>Pruefung
+              <svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="5"/><path d="M8.2 13.5 7 22l5-3 5 3-1.2-8.5"/></svg>
+              Prüfung
             </a>
             <a href="/berichtsheft" data-page-link data-view="reports">
-              <span class="tab-icon tab-icon-chart" aria-hidden="true"></span>Bericht
+              <svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+              Bericht
             </a>
             <a href="/mehr" data-page-link data-view="profile">
-              <span class="tab-icon tab-icon-more" aria-hidden="true"></span>Mehr
+              <svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>
+              Mehr
             </a>
           </nav>
         </div>

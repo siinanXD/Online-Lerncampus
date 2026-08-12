@@ -222,13 +222,37 @@ function bindLiveData(root, config) {
     el.textContent = `${readiness}%`;
   });
   root.querySelectorAll("[data-bind='xp']").forEach((el) => {
-    el.textContent = String(xp);
+    el.textContent = Number(xp).toLocaleString("de-DE");
   });
   root.querySelectorAll("[data-bind='level']").forEach((el) => {
     el.textContent = String(level);
   });
   root.querySelectorAll("[data-bind='streak']").forEach((el) => {
     el.textContent = String(streak);
+  });
+  const firstName = (state.displayName || "Max").split(/\s+/)[0];
+  root.querySelectorAll("[data-bind='greeting-name']").forEach((el) => {
+    el.textContent = `Hallo, ${firstName}!`;
+  });
+  const continueTitle = dashboard?.continue_title || dashboard?.focus_topic || "Pneumatik - Schaltpläne";
+  root.querySelectorAll("[data-bind='continue-title']").forEach((el) => {
+    el.textContent = continueTitle;
+  });
+  const answered = dashboard?.continue_answered ?? Math.min(mastered || 12, 30);
+  const continueTotal = dashboard?.continue_total ?? 30;
+  root.querySelectorAll("[data-bind='continue-progress']").forEach((el) => {
+    el.textContent = `${answered}/${continueTotal} Fragen`;
+  });
+  root.querySelectorAll("[data-bind='continue-bar']").forEach((el) => {
+    const pct = continueTotal ? Math.round((answered / continueTotal) * 100) : 0;
+    el.style.width = `${Math.max(4, Math.min(100, pct))}%`;
+  });
+  const levelLabel = document.getElementById("level-label");
+  if (levelLabel) {
+    levelLabel.textContent = `LEVEL ${level}`;
+  }
+  document.querySelectorAll("#level-pill .level-ring, #level-pill [data-bind='level']").forEach((el) => {
+    el.textContent = String(level);
   });
   root.querySelectorAll("[data-bind='profile-summary']").forEach((el) => {
     el.textContent = state.accessToken
@@ -1146,6 +1170,14 @@ document.addEventListener("click", async (event) => {
         await loadUnitBySlug(target.dataset.unitSlug);
       }
       await navigateTo(new URL(target.href, window.location.origin).pathname);
+      return;
+    }
+    if (target.matches("[data-toggle-password]")) {
+      event.preventDefault();
+      const input = document.querySelector(target.getAttribute("data-toggle-password"));
+      if (input) {
+        input.type = input.type === "password" ? "text" : "password";
+      }
       return;
     }
     if (target.matches("[data-login-demo]")) {

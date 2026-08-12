@@ -17,6 +17,8 @@ class Settings(BaseSettings):
         alias="ALLOWED_ORIGINS",
     )
     content_review_required: bool = True
+    content_source: str = Field(default="db", alias="CONTENT_SOURCE")
+    content_seed_on_startup: bool = Field(default=True, alias="CONTENT_SEED_ON_STARTUP")
     ai_provider: str = "disabled"
     database_url: str = "sqlite:///./local.db"
     app_secret: str = "local-dev-change-me"

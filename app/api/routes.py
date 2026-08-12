@@ -39,6 +39,7 @@ from app.schemas.content import (
 )
 from app.services.auth_service import AuthService, LearnerSession
 from app.services.content_factory import ContentFactory
+from app.services.content_seeder import ContentSeeder
 from app.services.curriculum_repository import CurriculumRepository
 from app.services.database import Database
 from app.services.progress_service import ProgressService
@@ -47,23 +48,71 @@ from app.services.source_repository import SourceRepository
 
 api_router = APIRouter()
 settings = get_settings()
-database = Database(settings.database_url)
+database: Database | None = None
 curriculum_repository = CurriculumRepository()
 source_repository = SourceRepository()
-question_repository = QuestionRepository()
-auth_service = AuthService(
-    database=database,
-    app_secret=settings.app_secret,
-    session_ttl_hours=settings.session_ttl_hours,
-)
-progress_service = ProgressService(
-    question_repository=question_repository,
-    database=database,
-)
+question_repository: QuestionRepository | None = None
+progress_service: ProgressService | None = None
+auth_service: AuthService | None = None
 content_factory = ContentFactory(
     curriculum_repository=curriculum_repository,
     source_repository=source_repository,
 )
+
+
+def _database() -> Database:
+    global database
+    if database is None:
+        database = Database(get_settings().database_url)
+    return database
+
+
+def _auth() -> AuthService:
+    global auth_service
+    if auth_service is None:
+        current = get_settings()
+        auth_service = AuthService(
+            database=_database(),
+            app_secret=current.app_secret,
+            session_ttl_hours=current.session_ttl_hours,
+        )
+    return auth_service
+
+
+def bootstrap_content_store() -> None:
+    """Load or seed curriculum content and wire dependent services."""
+    global question_repository, progress_service
+    current = get_settings()
+    source = current.content_source
+    if source not in ("db", "memory"):
+        raise ValueError("CONTENT_SOURCE must be 'db' or 'memory'.")
+    if source == "db" and current.content_seed_on_startup:
+        seeder = ContentSeeder(_database())
+        if seeder.is_empty():
+            seeder.seed_all()
+    question_repository = QuestionRepository(
+        database=_database(),
+        content_source=source,  # type: ignore[arg-type]
+        content_review_required=False,
+    )
+    progress_service = ProgressService(
+        question_repository=question_repository,
+        database=_database(),
+    )
+
+
+def _questions() -> QuestionRepository:
+    if question_repository is None:
+        bootstrap_content_store()
+    assert question_repository is not None
+    return question_repository
+
+
+def _progress() -> ProgressService:
+    if progress_service is None:
+        bootstrap_content_store()
+    assert progress_service is not None
+    return progress_service
 
 
 def raise_bad_request(error: ValueError) -> None:
@@ -95,7 +144,7 @@ def build_exam_response(
     Sample solutions for open tasks stay hidden unless ``include_solutions``
     is set, so a learner cannot read them out of the exam payload.
     """
-    result = question_repository.get_exam(exam_id)
+    result = _questions().get_exam(exam_id)
     if result is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -130,7 +179,7 @@ def build_exam_response(
                     question.sample_solution if include_solutions else None
                 ),
             )
-            for question in question_repository.list_open_questions(
+            for question in _questions().list_open_questions(
                 exam.open_question_ids
             )
         ],
@@ -169,7 +218,7 @@ def build_learning_unit_response(unit: LearningUnit) -> LearningUnitResponse:
 def get_session(authorization: str | None) -> LearnerSession:
     """Return the current learner session or raise an HTTP error."""
     try:
-        return auth_service.authenticate(authorization)
+        return _auth().authenticate(authorization)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -187,7 +236,7 @@ def health_check() -> HealthResponse:
 def login(request: LoginRequest) -> LoginResponse:
     """Create a pseudonymous learner session."""
     try:
-        session = auth_service.login(
+        session = _auth().login(
             identifier=request.identifier,
             password=request.password,
             cohort_code=request.cohort_code,
@@ -221,7 +270,7 @@ def get_current_learner(
 def logout(authorization: str | None = Header(default=None)) -> LogoutResponse:
     """Revoke the current bearer token."""
     try:
-        auth_service.logout(authorization)
+        _auth().logout(authorization)
     except ValueError as error:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -237,7 +286,7 @@ def change_password(
 ) -> PasswordChangeResponse:
     """Validate and persist a password change for the current learner."""
     try:
-        checklist = auth_service.change_password(
+        checklist = _auth().change_password(
             authorization_header=authorization,
             current_password=request.current_password,
             new_password=request.new_password,
@@ -256,12 +305,12 @@ def record_privacy_consent(
     """Store a privacy notice acknowledgement for the current learner."""
     session = get_session(authorization)
     consent_version = request.consent_version or settings.privacy_notice_version
-    database.record_consent(
+    _database().record_consent(
         learner_id=session.learner_id,
         consent_version=consent_version,
         accepted=request.accepted,
     )
-    database.record_audit_event(
+    _database().record_audit_event(
         event_type="privacy.consent",
         learner_id=session.learner_id,
         metadata={
@@ -282,10 +331,10 @@ def export_privacy_data(
     """Return the authenticated learner's data export."""
     session = get_session(authorization)
     try:
-        export = progress_service.export_learner_data(session.learner_id)
+        export = _progress().export_learner_data(session.learner_id)
     except ValueError as error:
         raise_bad_request(error)
-    database.record_audit_event(
+    _database().record_audit_event(
         event_type="privacy.export",
         learner_id=session.learner_id,
     )
@@ -298,7 +347,7 @@ def delete_privacy_account(
 ) -> DeleteAccountResponse:
     """Delete the authenticated learner's account and learning data."""
     session = get_session(authorization)
-    progress_service.delete_learner_data(session.learner_id)
+    _progress().delete_learner_data(session.learner_id)
     return DeleteAccountResponse(deleted=True)
 
 
@@ -308,7 +357,7 @@ def get_dashboard(
 ) -> DashboardSummaryResponse:
     """Return dashboard metrics for the authenticated learner."""
     session = get_session(authorization)
-    return progress_service.dashboard_summary(session.learner_id)
+    return _progress().dashboard_summary(session.learner_id)
 
 
 @api_router.get("/learning/journey", response_model=list[LearningJourneyMonthResponse])
@@ -317,7 +366,7 @@ def get_learning_journey(
 ) -> list[LearningJourneyMonthResponse]:
     """Return the authenticated learner's 24-month learning journey."""
     session = get_session(authorization)
-    return progress_service.learning_journey(session.learner_id)
+    return _progress().learning_journey(session.learner_id)
 
 
 @api_router.post("/progress/attempt", response_model=QuestionProgressResponse)
@@ -328,7 +377,7 @@ def record_progress_attempt(
     """Record one question answer for the authenticated learner."""
     session = get_session(authorization)
     try:
-        progress, question, is_correct = progress_service.record_attempt(
+        progress, question, is_correct = _progress().record_attempt(
             learner_id=session.learner_id,
             question_id=request.question_id,
             selected_option_index=request.selected_option_index,
@@ -352,7 +401,7 @@ def record_progress_attempt(
 def reset_progress(authorization: str | None = Header(default=None)) -> None:
     """Reset all question progress for the authenticated learner."""
     session = get_session(authorization)
-    progress_service.reset(session.learner_id)
+    _progress().reset(session.learner_id)
 
 
 @api_router.get("/occupations", response_model=list[OccupationResponse])
@@ -412,7 +461,7 @@ def list_sources() -> list[SourceDocumentResponse]:
 @api_router.get("/learning/first-chapter", response_model=FirstChapterResponse)
 def get_first_chapter() -> FirstChapterResponse:
     """Return the first guided chapter for the learning app."""
-    return question_repository.get_first_chapter()
+    return _questions().get_first_chapter()
 
 
 @api_router.get("/learning/units", response_model=list[LearningUnitResponse])
@@ -422,7 +471,7 @@ def list_learning_units(
     """Return the ausformulierte learning units, optionally filtered by month."""
     return [
         build_learning_unit_response(unit)
-        for unit in question_repository.list_learning_units(month=month)
+        for unit in _questions().list_learning_units(month=month)
     ]
 
 
@@ -430,7 +479,7 @@ def list_learning_units(
 def get_learning_unit(slug: str) -> LearningUnitResponse:
     """Return one learning unit with theory, practice task, and glossary."""
     try:
-        unit = question_repository.get_learning_unit(slug)
+        unit = _questions().get_learning_unit(slug)
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -444,7 +493,7 @@ def list_question_categories(
     month: int | None = Query(default=None, ge=1, le=24),
 ) -> list[QuestionCategoryResponse]:
     """Return all question categories or categories for one month."""
-    categories = question_repository.list_categories()
+    categories = _questions().list_categories()
     if month is not None:
         categories = [category for category in categories if category.month == month]
     return categories
@@ -458,7 +507,7 @@ def list_questions(
     """Return PAL-style practice questions without solution data."""
     return [
         build_public_question_response(question)
-        for question in question_repository.list_questions(
+        for question in _questions().list_questions(
             category_slug=category_slug,
             month=month,
         )
@@ -470,7 +519,7 @@ def list_practice_exams() -> list[PracticeExamResponse]:
     """Return all practice exams with embedded questions."""
     return [
         build_exam_response(exam.exam_id)
-        for exam in question_repository.list_exams()
+        for exam in _questions().list_exams()
     ]
 
 

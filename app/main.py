@@ -1,12 +1,21 @@
 """FastAPI application entrypoint for Online Lerncampus."""
 
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api.routes import api_router
+from app.api.routes import api_router, bootstrap_content_store
 from app.core.config import get_settings
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Initialize optional database-backed content on startup."""
+    bootstrap_content_store()
+    yield
 
 
 def create_app() -> FastAPI:
@@ -17,6 +26,7 @@ def create_app() -> FastAPI:
         debug=settings.app_debug,
         version="0.1.0",
         description="Lernplattform fuer technische Ausbildungsberufe.",
+        lifespan=lifespan,
     )
     app.add_middleware(
         CORSMiddleware,

@@ -56,6 +56,7 @@ def create_app() -> FastAPI:
             "defizite",
             "review",
             "datenschutz",
+            "mehr",
         }
         if page in allowed_pages:
             return FileResponse("app/web/index.html")

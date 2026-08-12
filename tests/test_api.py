@@ -52,6 +52,7 @@ def test_frontend_page_routes_return_app_shell() -> None:
         "/berichtsheft",
         "/defizite",
         "/review",
+        "/mehr",
         "/datenschutz",
     ]
 

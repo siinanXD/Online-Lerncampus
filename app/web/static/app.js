@@ -15,6 +15,7 @@ const state = {
   examOpenAnswers: {},
   examResult: null,
   examTimerHandle: null,
+  learnMode: "hub",
   accessToken: localStorage.getItem("ol_access_token"),
   learnerId: localStorage.getItem("ol_learner_id"),
 };
@@ -23,12 +24,13 @@ const routeConfig = {
   "/": { layout: "landing", title: "BZE Online Campus" },
   "/funktionen": { layout: "landing", title: "Features" },
   "/login": { layout: "login", title: "Login" },
-  "/dashboard": { layout: "app", view: "dashboard", title: "Dashboard" },
+  "/dashboard": { layout: "app", view: "dashboard", title: "Start" },
   "/lernreise": { layout: "app", view: "journey", title: "Lernreise" },
-  "/lernen": { layout: "app", view: "learn", title: "Kapitel 1: Einstieg" },
-  "/pruefungen": { layout: "app", view: "exam", title: "Testpruefungen" },
+  "/lernen": { layout: "app", view: "learn", title: "Lernen" },
+  "/pruefungen": { layout: "app", view: "exam", title: "Pruefen" },
   "/berichtsheft": { layout: "app", view: "reports", title: "Berichtsheft" },
-  "/defizite": { layout: "app", view: "progress", title: "Defizite" },
+  "/defizite": { layout: "app", view: "progress", title: "Fortschritt" },
+  "/mehr": { layout: "app", view: "profile", title: "Mehr" },
   "/review": { layout: "app", view: "admin", title: "Review" },
   "/datenschutz": { layout: "app", view: "privacy", title: "Datenschutz" },
 };
@@ -132,23 +134,37 @@ async function navigateTo(pathname, pushState = true) {
 }
 
 function switchView(viewName, updateRoute = true) {
-  document.querySelectorAll(".nav-tab").forEach((button) => {
-    button.classList.toggle("active", button.dataset.view === viewName);
+  document.querySelectorAll(".tab-bar a").forEach((link) => {
+    link.classList.toggle("active", link.dataset.view === viewName);
   });
   document.querySelectorAll(".view").forEach((view) => {
     view.classList.toggle("active", view.id === `${viewName}-view`);
   });
   const titleMap = {
-    dashboard: "Dashboard",
+    dashboard: "Start",
     journey: "Lernreise",
-    learn: "Kapitel 1: Einstieg",
-    exam: "Testpruefungen",
+    learn: "Lernen",
+    exam: "Pruefen",
     reports: "Berichtsheft",
-    progress: "Defizite",
+    progress: "Fortschritt",
     admin: "Review",
+    profile: "Mehr",
     privacy: "Datenschutz",
   };
-  document.getElementById("page-title").textContent = titleMap[viewName];
+  const eyebrowMap = {
+    dashboard: "03 Start",
+    journey: "Lernreise",
+    learn: "04 / 05 Lernen",
+    exam: "06 Pruefung",
+    reports: "08 Berichtsheft",
+    progress: "07 Fortschritt",
+    admin: "12 Review",
+    profile: "09 Mehr",
+    privacy: "Legal",
+  };
+  document.getElementById("page-title").textContent = titleMap[viewName] || "App";
+  document.getElementById("page-eyebrow").textContent =
+    eyebrowMap[viewName] || "Teilnehmer";
   if (updateRoute && viewRoutes[viewName]) {
     window.history.pushState({}, "", viewRoutes[viewName]);
     document.title = `${titleMap[viewName]} | BZE Online Campus`;
@@ -159,6 +175,12 @@ function switchView(viewName, updateRoute = true) {
   if (viewName === "reports") {
     renderTrainingReports();
   }
+  if (viewName === "profile") {
+    renderProfile();
+  }
+  if (viewName === "learn") {
+    renderLearnView();
+  }
 }
 
 function renderStats() {
@@ -166,85 +188,232 @@ function renderStats() {
     mastered_questions: 0,
     wrong_answers: 0,
   };
-  document.getElementById("mastered-count").textContent =
-    dashboard.mastered_questions;
-  document.getElementById("wrong-count").textContent = dashboard.wrong_answers;
+  const stats = document.getElementById("app-stats");
+  if (!stats) {
+    return;
+  }
+  stats.innerHTML = `
+    <span class="stat-chip">${dashboard.mastered_questions} gemeistert</span>
+    <span class="stat-chip">${dashboard.wrong_answers} Fehler</span>
+  `;
 }
 
 function renderDashboard() {
-  if (!state.dashboard) {
+  const open = state.dashboard
+    ? state.dashboard.total_questions - state.dashboard.mastered_questions
+    : 0;
+  const mastered = state.dashboard?.mastered_questions || 0;
+  const wrong = state.dashboard?.wrong_answers || 0;
+  const total = state.dashboard?.total_questions || 0;
+  const readiness = total ? Math.round((mastered / total) * 100) : 0;
+  const dailyDone = Math.min(5, Math.max(0, Math.round((mastered % 5))));
+  document.getElementById("dashboard-greeting").textContent = state.accessToken
+    ? "Hallo!"
+    : "Willkommen";
+  document.getElementById("dashboard-summary").textContent =
+    state.dashboard?.mastery_rule ||
+    "Bereit fuer deine taegliche Dosis Wissen?";
+  const weak = state.dashboard?.weak_categories || [];
+  if (weak.length) {
+    document.getElementById("dashboard-summary").textContent =
+      `Schwachstelle: ${weak[0].category_slug} (${weak[0].wrong_count} Fehler)`;
+  }
+  document.getElementById("greeting-chips").innerHTML = `
+    <span>${wrong} Fehler</span>
+    <span>${mastered} XP</span>
+  `;
+  document.getElementById("dashboard-metrics").innerHTML = `
+    <article class="metric-card card">
+      <strong>${readiness}%</strong>
+      <span>Pruefungsreife</span>
+    </article>
+    <article class="metric-card card">
+      <strong>${open}</strong>
+      <span>Offene Fragen</span>
+    </article>
+  `;
+  const firstUnit = state.units?.[0];
+  if (firstUnit) {
+    document.getElementById("continue-title").textContent = firstUnit.title;
+    document.getElementById("continue-copy").textContent = firstUnit.subtitle;
+  }
+  document.getElementById("daily-goal-label").textContent =
+    `${dailyDone} von 5 Lektionen heute`;
+  document.getElementById("daily-goal-hint").textContent =
+    dailyDone >= 5
+      ? "Tagesziel erreicht."
+      : `Noch ${5 - dailyDone} fuer dein Tagesziel`;
+  document.querySelectorAll("#daily-goal-bar span").forEach((segment, index) => {
+    segment.classList.toggle("filled", index < dailyDone);
+  });
+  const reports = state.trainingReports || [];
+  document.getElementById("week-summary").textContent = reports.length
+    ? `${reports.length} Eintraege`
+    : "diese Woche";
+  const level = Math.max(1, Math.min(99, Math.floor(mastered / 20) + 1));
+  const levelRing = document.querySelector("#level-pill .level-ring");
+  if (levelRing) {
+    levelRing.textContent = String(level);
+  }
+}
+
+function renderLearnHub() {
+  const hub = document.getElementById("learn-hub");
+  const detail = document.getElementById("learn-detail");
+  if (!hub || !detail) {
     return;
   }
-  document.getElementById("dashboard-level").textContent = state.dashboard.level;
-  document.getElementById("dashboard-xp").textContent = state.dashboard.xp;
-  document.getElementById("dashboard-mastered").textContent =
-    state.dashboard.mastered_questions;
-  document.getElementById("dashboard-open").textContent =
-    state.dashboard.total_questions - state.dashboard.mastered_questions;
-  document.getElementById("dashboard-rule").textContent =
-    state.dashboard.mastery_rule;
-  document.getElementById("weak-list").innerHTML =
-    state.dashboard.weak_categories.length === 0
-      ? "<li>Noch keine Defizite erkannt.</li>"
-      : state.dashboard.weak_categories
-          .map(
-            (item) =>
-              `<li><strong>${item.category_slug}</strong><span>${item.wrong_count} Fehler</span></li>`,
-          )
-          .join("");
+  const unitCount = state.units.length;
+  const questionCount = state.questions.length;
+  hub.hidden = false;
+  detail.hidden = true;
+  hub.innerHTML = `
+    <article class="hub-card">
+      <p class="eyebrow">Ueben</p>
+      <h3>Fragenpraxis</h3>
+      <p class="muted">PAL-aehnliche Single-Choice mit Mastery-Tracking.</p>
+      <div class="hub-meta">
+        <span>${questionCount} Fragen</span>
+        <span>Monat ${state.learnMonth}</span>
+      </div>
+      <div class="hub-actions">
+        <button class="primary-button" type="button" data-learn-mode="questions">
+          Starten
+        </button>
+      </div>
+    </article>
+    <article class="hub-card">
+      <p class="eyebrow">Fachkunde</p>
+      <h3>Lerneinheiten</h3>
+      <p class="muted">Theorie, Glossar und Uebungen.</p>
+      <div class="hub-meta">
+        <span>${unitCount} Einheiten</span>
+        <span>${state.chapter?.title || ""}</span>
+      </div>
+      <div class="hub-actions">
+        <button class="secondary-button" type="button" data-learn-mode="units">
+          Oeffnen
+        </button>
+      </div>
+    </article>
+    <article class="hub-card">
+      <p class="eyebrow">Werkzeuge</p>
+      <h3>Hilfsmittel</h3>
+      <div class="hub-meta">
+        <span class="tool-chip">Glossar</span>
+        <span class="tool-chip">Formeltrainer</span>
+        <span class="tool-chip">Fehlerdiagnose</span>
+      </div>
+      <div class="hub-actions">
+        <button class="secondary-button" type="button" data-learn-mode="units">
+          Zu den Einheiten
+        </button>
+      </div>
+    </article>
+  `;
+}
+
+function renderLearnView() {
+  if (state.learnMode === "hub") {
+    renderLearnHub();
+    return;
+  }
+  const hub = document.getElementById("learn-hub");
+  const detail = document.getElementById("learn-detail");
+  if (hub) {
+    hub.hidden = true;
+  }
+  if (detail) {
+    detail.hidden = false;
+  }
+  renderChapter();
+  renderUnitList();
+  if (state.learnMode === "questions") {
+    document.getElementById("unit-list").hidden = true;
+    document.getElementById("unit-detail").hidden = true;
+  }
+  renderQuestion();
+}
+
+function renderProfile() {
+  const target = document.getElementById("profile-summary");
+  if (!target) {
+    return;
+  }
+  if (!state.accessToken) {
+    target.textContent = "Nicht angemeldet.";
+    return;
+  }
+  target.textContent = `Angemeldet als ${state.learnerId || "Azubi"}.`;
 }
 
 function renderJourney() {
-  const markup = state.journey
+  const grid = document.getElementById("journey-grid");
+  if (!grid) {
+    return;
+  }
+  grid.innerHTML = state.journey
     .map(
       (month) => `
-        <button class="journey-node ${month.checkpoint ? "checkpoint" : ""} ${
-          month.locked ? "locked" : ""
-        }">
-          <strong>M${String(month.month).padStart(2, "0")}</strong>
-          <span>${month.title}</span>
-          <small>${month.completed_categories}/${month.total_categories}</small>
-        </button>
+        <article class="journey-card card">
+          <strong>Monat ${String(month.month).padStart(2, "0")}${
+            month.checkpoint ? " · Checkpoint" : ""
+          }</strong>
+          <p>${month.title}</p>
+          <small class="muted">${month.completed_categories}/${
+            month.total_categories
+          } Kategorien</small>
+        </article>
       `,
     )
     .join("");
-  document.getElementById("journey-map").innerHTML = markup;
-  document.getElementById("journey-map-full").innerHTML = markup;
 }
 
 function renderChapter() {
-  document.getElementById("chapter-title").textContent = state.chapter.title;
-  document.getElementById("chapter-goal").textContent =
-    state.chapter.mission_goal;
-  document.getElementById("subchapter-list").innerHTML = state.chapter.subchapters
-    .map(
-      (category) => `
-        <div class="subchapter-item">
-          <strong>${category.subchapter_number}. ${category.title}</strong>
-          <span>M${String(category.month).padStart(2, "0")}</span>
-        </div>
-      `,
-    )
-    .join("");
+  const panel = document.getElementById("chapter-panel");
+  if (!panel || !state.chapter) {
+    return;
+  }
+  panel.innerHTML = `
+    <button class="secondary-button" type="button" data-learn-mode="hub">Zurueck zum Lern-Hub</button>
+    <p class="eyebrow">Kapitel</p>
+    <h3>${state.chapter.title}</h3>
+    <p class="muted">${state.chapter.mission_goal}</p>
+    <div class="unit-list">
+      ${state.chapter.subchapters
+        .map(
+          (category) => `
+            <div class="unit-card">
+              <strong>${category.subchapter_number}. ${category.title}</strong>
+              <span class="muted">Monat ${category.month}</span>
+            </div>
+          `,
+        )
+        .join("")}
+    </div>
+  `;
 }
 
 function renderUnitList() {
   const list = document.getElementById("unit-list");
   const detail = document.getElementById("unit-detail");
-  if (state.activeUnit) {
-    list.classList.add("hidden");
-    detail.classList.remove("hidden");
+  if (!list || !detail) {
     return;
   }
-  list.classList.remove("hidden");
-  detail.classList.add("hidden");
+  if (state.activeUnit) {
+    list.hidden = true;
+    detail.hidden = false;
+    return;
+  }
+  list.hidden = false;
+  detail.hidden = true;
   list.innerHTML = state.units
     .map(
       (unit) => `
-        <button class="unit-card" data-unit-slug="${unit.slug}">
+        <button class="unit-card" type="button" data-unit-slug="${unit.slug}">
           <strong>${unit.position}. ${unit.title}</strong>
-          <span>${unit.subtitle}</span>
-          <small>${unit.estimated_minutes} Min · ${unit.category_slugs[0]}</small>
+          <span class="muted">${unit.subtitle}</span>
+          <small>${unit.estimated_minutes} Min</small>
         </button>
       `,
     )
@@ -252,36 +421,53 @@ function renderUnitList() {
 }
 
 function renderUnitDetail(unit) {
-  document.getElementById("unit-title").textContent = unit.title;
-  document.getElementById("unit-subtitle").textContent = unit.subtitle;
-  document.getElementById("unit-goals").innerHTML = unit.learning_goals
-    .map((goal) => `<li>${goal}</li>`)
-    .join("");
-  document.getElementById("unit-theory").innerHTML = unit.theory_blocks
-    .map(
-      (block) => `
-        <article class="theory-block">
-          <h4>${block.heading}</h4>
-          <p>${block.body.replace(/\n\n/g, "</p><p>")}</p>
-          <ul>${block.key_points.map((point) => `<li>${point}</li>`).join("")}</ul>
-          ${
-            block.norm_references.length
-              ? `<p class="norm-ref">Normen: ${block.norm_references.join(", ")}</p>`
-              : ""
-          }
-        </article>
-      `,
-    )
-    .join("");
-  document.getElementById("unit-glossary").innerHTML = Object.entries(unit.glossary)
-    .map(([term, definition]) => `<dt>${term}</dt><dd>${definition}</dd>`)
-    .join("");
-  document.getElementById("unit-practice").textContent = unit.practice_task;
+  const detail = document.getElementById("unit-detail");
+  if (!detail) {
+    return;
+  }
+  detail.hidden = false;
+  document.getElementById("unit-list").hidden = true;
+  detail.innerHTML = `
+    <button id="unit-back" class="secondary-button" type="button">Zurueck zur Liste</button>
+    <h3>${unit.title}</h3>
+    <p class="muted">${unit.subtitle}</p>
+    <h4>Lernziele</h4>
+    <ul>${unit.learning_goals.map((goal) => `<li>${goal}</li>`).join("")}</ul>
+    ${unit.theory_blocks
+      .map(
+        (block) => `
+          <article class="theory-block">
+            <h4>${block.heading}</h4>
+            <p>${block.body.replace(/\n\n/g, "</p><p>")}</p>
+            <ul>${block.key_points.map((point) => `<li>${point}</li>`).join("")}</ul>
+            ${
+              block.norm_references.length
+                ? `<p class="muted">Normen: ${block.norm_references.join(", ")}</p>`
+                : ""
+            }
+          </article>
+        `,
+      )
+      .join("")}
+    <h4>Glossar</h4>
+    <div class="glossary-grid">
+      ${Object.entries(unit.glossary)
+        .map(
+          ([term, definition]) => `
+            <div class="glossary-item"><strong>${term}</strong><p class="muted">${definition}</p></div>
+          `,
+        )
+        .join("")}
+    </div>
+    <h4>Uebung</h4>
+    <p>${unit.practice_task}</p>
+  `;
 }
 
 async function loadLearnMonth(month) {
   state.learnMonth = month;
   state.activeUnit = null;
+  state.learnMode = "hub";
   state.currentQuestionIndex = 0;
   const [chapter, units, questions] = await Promise.all([
     fetchJson(`/api/occupations/maschinen-und-anlagenfuehrer/curriculum`).then(
@@ -310,18 +496,22 @@ async function loadLearnMonth(month) {
   renderUnitList();
   renderQuestion();
   document.getElementById("page-title").textContent = `Monat ${month} | Lernen`;
+  renderLearnView();
 }
 
 function renderQuestion() {
+  if (!state.questions.length) {
+    return;
+  }
   const question = state.questions[state.currentQuestionIndex % state.questions.length];
-  document.getElementById("question-category").textContent = question.category_slug;
-  document.getElementById("question-state").textContent = "Backend Tracking";
+  document.getElementById("question-state").textContent =
+    question.category_slug || "Backend Tracking";
   document.getElementById("question-prompt").textContent = question.prompt;
   document.getElementById("answer-feedback").textContent = "";
   document.getElementById("answer-options").innerHTML = question.options
     .map(
       (option, index) => `
-        <button class="answer-option" data-index="${index}">
+        <button class="answer-option" type="button" data-index="${index}">
           ${index + 1}. ${option}
         </button>
       `,
@@ -846,6 +1036,8 @@ async function init() {
   renderUnitList();
   renderQuestion();
   renderExamSelect();
+  renderLearnHub();
+  renderDashboard();
   await navigateTo(window.location.pathname, false);
 }
 
@@ -866,6 +1058,14 @@ document.addEventListener("click", async (event) => {
       renderUnitDetail(state.activeUnit);
       renderUnitList();
     }
+    return;
+  }
+  if (target.dataset.learnMode) {
+    state.learnMode = target.dataset.learnMode;
+    if (state.learnMode === "hub") {
+      state.activeUnit = null;
+    }
+    renderLearnView();
     return;
   }
   if (target.id === "unit-back") {

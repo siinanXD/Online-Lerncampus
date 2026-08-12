@@ -25,16 +25,16 @@ im Figma-Designsystem und damit eine zu bauende Ansicht.
 
 ## 01 Shared — Auth & Legal
 
-- [ ] 01.1 Login — 390x844
+- [x] 01.1 Login — 390x844
 - [ ] 01.2 Passwort ändern — 390x844
 - [ ] 01.3 Sprachwahl — 390x844
 - [ ] 01.6 Level-Up Animation — 390x844
 - [ ] 01.4 Onboarding — Willkommen — 390x844
-- [ ] 01.5 Landing Page — 1440x1065
+- [x] 01.5 Landing Page — 1440x1065
 
 ## 02 Teilnehmer — Shell
 
-- [ ] 02.1 Tab Bar — Alle Zustände — 390x961
+- [x] 02.1 Tab Bar — Alle Zustände — 390x961
 - [ ] 02.2 Status Bar + Header Varianten — 390x994
 
 ## 03 Teilnehmer - Start
@@ -43,14 +43,14 @@ im Figma-Designsystem und damit eine zu bauende Ansicht.
 - [ ] 03.5 Fortsetzen Varianten — 390x885
 - [ ] 03.6 Wochenbericht Karte — 390x844
 - [ ] 03.7 Wochenbericht Merksätze — 390x985
-- [ ] 03.1 Dashboard - Default — 390x859
+- [x] 03.1 Dashboard - Default — 390x859
 - [ ] 03.2 Dashboard - Tagesziel — 390x981
 - [ ] 03.3 Dashboard - Streak — 390x1010
 - [ ] 03.8 Dashboard — Tablet 768px — 768x1024
 
 ## 04 Teilnehmer — Lernen (Fragen)
 
-- [ ] 04.1 Lernen Hub — 390x844
+- [x] 04.1 Lernen Hub — 390x844
 - [ ] 04.2 Themenliste — 390x847
 - [ ] 04.3 Fragenliste — Alle — 390x844
 - [ ] 04.4 Fragenliste — Fehler — 390x844
@@ -86,7 +86,7 @@ im Figma-Designsystem und damit eine zu bauende Ansicht.
 
 ## 06 Teilnehmer — Pruefung
 
-- [ ] 06.1 Prüfungsliste — 390x906
+- [x] 06.1 Prüfungsliste — 390x906
 - [ ] 06.2 Prüfung — Frage — 390x844
 - [ ] 06.3 Prüfung — Übersicht — 390x844
 - [ ] 06.4 Prüfung — Timer — 390x844
@@ -98,7 +98,7 @@ im Figma-Designsystem und damit eine zu bauende Ansicht.
 
 ## 07 Teilnehmer — Fortschritt
 
-- [ ] 07.1 Fortschritt — Übersicht — 390x961
+- [x] 07.1 Fortschritt — Übersicht — 390x961
 - [ ] 07.2 Prüfungsreife — Checkliste — 390x947
 - [ ] 07.3 Prüfungsreife — Ausstehend — 390x895
 - [ ] 07.4 Statistik — Verlauf — 390x971
@@ -107,7 +107,7 @@ im Figma-Designsystem und damit eine zu bauende Ansicht.
 
 ## 08 Teilnehmer — Berichtsheft
 
-- [ ] 08.1 Berichtsheft — Liste — 390x1099
+- [x] 08.1 Berichtsheft — Liste — 390x1099
 - [ ] 08.2 Berichtsheft — Neuer Eintrag — 390x1211
 - [ ] 08.3 Berichtsheft — KI-Assistent — 390x897
 - [ ] 08.4 Berichtsheft — Unterschrift — 390x844
@@ -117,7 +117,7 @@ im Figma-Designsystem und damit eine zu bauende Ansicht.
 
 ## 09 Teilnehmer — Mehr & Profil
 
-- [ ] 09.1 Mehr & Profil — Übersicht — 1712x924
+- [x] 09.1 Mehr & Profil — Übersicht — 1712x924
 - [ ] 09.2 Was sieht der Ausbilder — 390x844
 - [ ] 09.3 KI-Coach — Chat — 390x844
 - [ ] 09.4 KI-Coach — Lernplan — 390x844

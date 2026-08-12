@@ -20,10 +20,10 @@ window.OLC_ROUTE_CONFIG = {
   "/dashboard/tablet": { layout: "app", screen: "s03_8-dashboard-tablet-768px", title: "Dashboard — Tablet 768px", tab: "dashboard", num: "03.8", chrome: "tablet" },
   "/lernen": { layout: "app", screen: "s04_1-lernen-hub", title: "Lernen Hub", tab: "learn", num: "04.1" },
   "/lernen/uebersetzung": { layout: "app", screen: "s04_10-uebersetzungshilfe-overlay", title: "Übersetzungshilfe Overlay", tab: "learn", num: "04.10", chrome: "q-overlay" },
-  "/lernen/formeltrainer": { layout: "app", screen: "s04_11-formeltrainer", title: "Formeltrainer", tab: "learn", num: "04.11" },
-  "/lernen/fehlerdiagnose": { layout: "app", screen: "s04_12-fehlerdiagnose", title: "Fehlerdiagnose", tab: "learn", num: "04.12" },
-  "/lernen/video": { layout: "app", screen: "s04_13-video-lektion", title: "Video-Lektion", tab: "learn", num: "04.13" },
-  "/lernen/detail": { layout: "app", screen: "s04_14-lern-detail", title: "Lern-Detail", tab: "learn", num: "04.14" },
+  "/lernen/formeltrainer": { layout: "app", screen: "s04_11-formeltrainer", title: "Formeltrainer", tab: "learn", num: "04.11", chrome: "formel" },
+  "/lernen/fehlerdiagnose": { layout: "app", screen: "s04_12-fehlerdiagnose", title: "Fehlerdiagnose", tab: "learn", num: "04.12", chrome: "formel" },
+  "/lernen/video": { layout: "app", screen: "s04_13-video-lektion", title: "Video-Lektion", tab: "learn", num: "04.13", chrome: "formel" },
+  "/lernen/detail": { layout: "app", screen: "s04_14-lern-detail", title: "Lern-Detail", tab: "learn", num: "04.14", chrome: "q-play" },
   "/lernen/tablet": { layout: "app", screen: "s04_15-lernen-hub-tablet-768px", title: "Lernen Hub — Tablet 768px", tab: "learn", num: "04.15" },
   "/lernen/lernpfad": { layout: "app", screen: "s04_16-lernpfad-map", title: "Lernpfad — Map", tab: "learn", num: "04.16" },
   "/lernen/einheit": { layout: "app", screen: "s04_17-lerneinheit-detail", title: "Lerneinheit — Detail", tab: "learn", num: "04.17" },
@@ -1119,7 +1119,7 @@ window.OLC_SCREEN_RENDERERS = {
       <div class="q-overlay" data-node-id="136:4678">
         <div class="q-overlay-underlay" aria-hidden="true">
           <div class="q-overlay-meta">
-            <span class="q-overlay-mod"><img src="/static/figma/learn2/overlay-cpu.svg" width="14" height="14" alt="" /> Pneumatik • Modul 4</span>
+            <span class="q-overlay-mod"><span class="cpu-wrap"><img src="/static/figma/learn2/overlay-cpu.svg" width="14" height="14" alt="" /></span> Pneumatik • Modul 4</span>
             <span>Frage 14 von 20</span>
           </div>
           <div class="q-overlay-bar"><i style="width:70%"></i></div>
@@ -1160,54 +1160,221 @@ window.OLC_SCREEN_RENDERERS = {
               <p class="explain-label">Einfach erklärt:</p>
               <p>Ein Zylinder, bei dem Druckluft auf beide Seiten des Kolbens wirken kann — für Vor- UND Rückbewegung.</p>
             </div>
-            <button type="button" class="uebersetz-btn primary" data-action="toast" data-toast="Aussprache wird abgespielt">
-              <img src="/static/figma/learn2/overlay-volume.svg" width="16" height="16" alt="" /> Aussprache anhören
-            </button>
-            <a class="uebersetz-btn secondary" href="/dashboard/merksaetze" data-page-link>
-              <img src="/static/figma/learn2/overlay-bookmark.svg" width="16" height="16" alt="" /> Zur Merkliste hinzufügen
-            </a>
+            <div class="uebersetz-actions">
+              <button type="button" class="uebersetz-btn primary" data-action="toast" data-toast="Aussprache wird abgespielt">
+                <img src="/static/figma/learn2/overlay-volume.svg" width="16" height="16" alt="" /> Aussprache anhören
+              </button>
+              <a class="uebersetz-btn secondary" href="/dashboard/merksaetze" data-page-link>
+                <img src="/static/figma/learn2/overlay-bookmark.svg" width="16" height="16" alt="" /> Zur Merkliste hinzufügen
+              </a>
+            </div>
             <div class="overlay-home-indicator dark" aria-hidden="true"></div>
           </aside>
         </div>
       </div>
     `,
   "s04_11-formeltrainer": () => `
-
-      <div class="learn-tool-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/lernen" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+      <div class="formel-screen" data-node-id="136:4763">
+        <header class="formel-header">
+          <div class="formel-header-left">
+            <a class="formel-icon-btn" href="/lernen" data-page-link aria-label="Zurück">
+              <img src="/static/figma/learn2/ft-chevron-left.svg" width="16" height="16" alt="" />
+            </a>
+            <h2 class="formel-title">05.7 Formeltrainer</h2>
+          </div>
+          <button type="button" class="formel-icon-btn calc" aria-label="Rechner" data-action="toast" data-toast="Rechner folgt">
+            <img src="/static/figma/learn2/ft-calculator.svg" width="18" height="18" alt="" />
+          </button>
+        </header>
+        <div class="formel-scroll">
+          <div class="formel-chips" role="tablist" aria-label="Themen">
+            <button type="button" class="formel-chip">Alle</button>
+            <button type="button" class="formel-chip active">Pneumatik</button>
+            <button type="button" class="formel-chip">Hydraulik</button>
+            <button type="button" class="formel-chip">Messtechnik</button>
+            <button type="button" class="formel-chip">Physik</button>
+          </div>
+          <article class="formel-card expanded">
+            <div class="formel-card-head">
+              <div>
+                <strong>Kolbenkraft (Pneumatik)</strong>
+                <p>Theorie &amp; Berechnung</p>
+              </div>
+              <img src="/static/figma/learn2/ft-chevron-up.svg" width="16" height="16" alt="" />
+            </div>
+            <div class="formel-box">F = p × A</div>
+            <div class="formel-legend">
+              <div><b>F</b><span>= Kraft [N]</span></div>
+              <div><b>p</b><span>= Druck [Pa oder bar]</span></div>
+              <div><b>A</b><span>= Kolbenfläche [m² oder cm²]</span></div>
+            </div>
+            <img class="formel-divider" src="/static/figma/learn2/ft-divider.svg" width="318" height="1" alt="" />
+            <div class="formel-example">
+              <p class="formel-example-label">Beispiel:</p>
+              <p>Bei p = 6 bar und A = 20 cm²: <strong>F = 6 × 20 = 120 N</strong></p>
+            </div>
+            <div class="formel-card-foot">
+              <span class="formel-diff">Mittel <img src="/static/figma/learn2/ft-dots-mittel.svg" width="24" height="6" alt="" /></span>
+              <a class="formel-practice" href="/lernen/flashcard" data-page-link>Üben <span>+10 XP</span></a>
+            </div>
+          </article>
+          <a class="formel-card collapsed" href="/lernen/flashcard" data-page-link>
+            <div class="formel-card-left">
+              <strong>Druck (allgemein)</strong>
+              <span class="formel-eq">p = F / A</span>
+            </div>
+            <div class="formel-card-right">
+              <span class="formel-diff">Leicht <img src="/static/figma/learn2/ft-dot-leicht.svg" width="6" height="6" alt="" /></span>
+              <img src="/static/figma/learn2/ft-chevron-down.svg" width="16" height="16" alt="" />
+            </div>
           </a>
-          <div>
-            <h2 class="page-title">Formeltrainer</h2>
-            <p class="muted">Druck · Kraft · Fläche</p>
-          </div>
+          <a class="formel-card collapsed" href="/lernen/flashcard" data-page-link>
+            <div class="formel-card-left">
+              <strong>Volumenstrom</strong>
+              <span class="formel-eq">Q = A × v</span>
+            </div>
+            <div class="formel-card-right">
+              <span class="formel-diff">Schwer <img src="/static/figma/learn2/ft-dots-schwer.svg" width="24" height="6" alt="" /></span>
+              <img src="/static/figma/learn2/ft-chevron-down.svg" width="16" height="16" alt="" />
+            </div>
+          </a>
+          <a class="formel-card collapsed" href="/lernen/flashcard" data-page-link>
+            <div class="formel-card-left">
+              <strong>Übersetzungsverhältnis</strong>
+              <span class="formel-eq">i = n₁ / n₂</span>
+            </div>
+            <div class="formel-card-right">
+              <span class="formel-diff">Mittel <img src="/static/figma/learn2/ft-dots-mittel.svg" width="24" height="6" alt="" /></span>
+              <img src="/static/figma/learn2/ft-chevron-down.svg" width="16" height="16" alt="" />
+            </div>
+          </a>
+          <button type="button" class="formel-all-btn" data-action="toast" data-toast="Alle Formeln folgen">
+            Alle 24 Formeln anzeigen
+            <img src="/static/figma/learn2/ft-search.svg" width="18" height="18" alt="" />
+          </button>
         </div>
-        <article class="ft-card">
-          <span class="topic-pill">Aufgabe 3/12</span>
-          <h3>Berechne die Kraft F</h3>
-          <p class="muted">Gegeben: p = 6 bar, A = 12 cm². Wie groß ist F in N?</p>
-          <div class="ft-formula" aria-hidden="true">F = p × A</div>
-          <label class="field"><span>Dein Ergebnis</span><input type="number" placeholder="z. B. 720" /></label>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="toast" data-toast="Richtig! +15 XP">Prüfen</button>
-            <a class="secondary-button" href="/lernen/flashcard" data-page-link>Flashcards</a>
-          </div>
-        </article>
+        <nav class="formel-tabs" aria-label="Formeltrainer Navigation">
+          <a href="/dashboard" data-page-link>
+            <img src="/static/figma/learn2/ft-tab-home.svg" width="20" height="20" alt="" />
+            Home
+          </a>
+          <a href="/lernen" data-page-link class="active">
+            <img src="/static/figma/learn2/ft-tab-book.svg" width="20" height="20" alt="" />
+            Lernen
+          </a>
+          <a href="/fortschritt" data-page-link>
+            <img src="/static/figma/learn2/ft-tab-chart.svg" width="20" height="20" alt="" />
+            Statistik
+          </a>
+          <a href="/mehr" data-page-link>
+            <img src="/static/figma/learn2/ft-tab-user.svg" width="20" height="20" alt="" />
+            Profil
+          </a>
+        </nav>
+        <div class="formel-home-indicator" aria-hidden="true"></div>
       </div>
     `,
   "s04_12-fehlerdiagnose": () => `
-
-      <div class="screen-head"><p class="eyebrow">04.12</p><h2>Fehlerdiagnose</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <p class="muted">Produkt-UI gemaess Figma 04.12.</p>
-        <ul class="plain-list"><li>Noch keine Inhalte.</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/lernen/frage" data-page-link>Weiterueben</a>
-          <a class="secondary-button" href="/fachkunde" data-page-link>Zur Fachkunde</a>
+      <div class="formel-screen fd-screen" data-node-id="136:4890">
+        <header class="formel-header">
+          <div class="formel-header-left">
+            <a class="formel-icon-btn" href="/lernen" data-page-link aria-label="Zurück">
+              <img src="/static/figma/learn2/ft-chevron-left.svg" width="16" height="16" alt="" />
+            </a>
+            <h2 class="formel-title">05.8 Fehlerdiagnose</h2>
+          </div>
+          <button type="button" class="formel-icon-btn calc" aria-label="Hinweis" data-action="toast" data-toast="Diagnose-Hilfe">
+            <img src="/static/figma/learn2/fd-alert.svg" width="18" height="18" alt="" />
+          </button>
+        </header>
+        <div class="formel-scroll fd-scroll">
+          <div class="fd-banner">
+            <span class="fd-banner-ico"><img src="/static/figma/learn2/fd-wrench.svg" width="20" height="20" alt="" /></span>
+            <div>
+              <strong>Systematische Fehlersuche</strong>
+              <p>Lerne, Fehler an Maschinen strukturiert zu finden und zu beheben.</p>
+            </div>
+          </div>
+          <div class="fd-cases">
+            <article class="fd-case blue">
+              <div class="fd-case-body">
+                <div class="fd-case-head">
+                  <div>
+                    <p class="fd-cat">Pneumatik</p>
+                    <strong>Pneumatikzylinder fährt nicht aus</strong>
+                  </div>
+                  <img src="/static/figma/learn2/fd-play-blue.svg" width="24" height="24" alt="" />
+                </div>
+                <div class="fd-case-meta">
+                  <div class="fd-meta-left">
+                    <span>Mittel · 5 Min</span>
+                    <span class="fd-badge open">Offen</span>
+                  </div>
+                  <a class="fd-start blue" href="/lernen/frage" data-page-link>Starten</a>
+                </div>
+              </div>
+            </article>
+            <article class="fd-case green">
+              <div class="fd-case-body">
+                <div class="fd-case-head">
+                  <div>
+                    <p class="fd-cat">Hydraulik</p>
+                    <strong>Hydraulikpumpe baut keinen Druck auf</strong>
+                  </div>
+                  <img src="/static/figma/learn2/fd-check.svg" width="24" height="24" alt="" />
+                </div>
+                <div class="fd-case-meta solved">
+                  <div class="fd-meta-left">
+                    <span>✓ Gelöst in 3:42</span>
+                    <span class="fd-xp">+30 XP</span>
+                  </div>
+                  <a class="fd-again" href="/lernen/frage" data-page-link>Nochmal</a>
+                </div>
+              </div>
+            </article>
+            <article class="fd-case red">
+              <div class="fd-case-body">
+                <div class="fd-case-head">
+                  <div>
+                    <p class="fd-cat">Mechanik</p>
+                    <strong>Drehmaschine vibriert stark</strong>
+                  </div>
+                  <img src="/static/figma/learn2/fd-play-gray.svg" width="24" height="24" alt="" />
+                </div>
+                <div class="fd-case-meta">
+                  <div class="fd-meta-left"><span>Schwer · 8 Min</span></div>
+                  <a class="fd-start dark" href="/lernen/frage" data-page-link>Starten</a>
+                </div>
+              </div>
+            </article>
+            <article class="fd-case muted locked">
+              <div class="fd-case-body">
+                <div class="fd-case-head">
+                  <div>
+                    <p class="fd-cat">SPS-Technik</p>
+                    <strong>SPS-Steuerung gibt kein Signal</strong>
+                  </div>
+                  <img src="/static/figma/learn2/fd-lock.svg" width="20" height="20" alt="" />
+                </div>
+                <div class="fd-case-meta">
+                  <p class="fd-need">Benötigt: Steuerungstechnik 50%</p>
+                </div>
+              </div>
+            </article>
+          </div>
+          <div class="fd-progress">
+            <div class="fd-prog-text"><span>2 von 8 Szenarien gelöst</span><strong>25%</strong></div>
+            <div class="fd-prog-bar"><i style="width:25%"></i></div>
+          </div>
         </div>
-      </article>
+        <nav class="formel-tabs" aria-label="Fehlerdiagnose Navigation">
+          <a href="/dashboard" data-page-link><img src="/static/figma/learn2/ft-tab-home.svg" width="20" height="20" alt="" />Home</a>
+          <a href="/lernen" data-page-link class="active"><img src="/static/figma/learn2/ft-tab-book.svg" width="20" height="20" alt="" />Lernen</a>
+          <a href="/fortschritt" data-page-link><img src="/static/figma/learn2/ft-tab-chart.svg" width="20" height="20" alt="" />Statistik</a>
+          <a href="/mehr" data-page-link><img src="/static/figma/learn2/ft-tab-user.svg" width="20" height="20" alt="" />Profil</a>
+        </nav>
+        <div class="formel-home-indicator" aria-hidden="true"></div>
+      </div>
     `,
   "s04_13-video-lektion": () => `
 
@@ -1738,7 +1905,7 @@ window.OLC_SCREEN_RENDERERS = {
       <div class="q-overlay" data-node-id="136:4597">
         <div class="q-overlay-underlay" aria-hidden="true">
           <div class="q-overlay-meta">
-            <span class="q-overlay-mod"><img src="/static/figma/learn2/overlay-cpu.svg" width="14" height="14" alt="" /> Pneumatik • Modul 4</span>
+            <span class="q-overlay-mod"><span class="cpu-wrap"><img src="/static/figma/learn2/overlay-cpu.svg" width="14" height="14" alt="" /></span> Pneumatik • Modul 4</span>
             <span>Frage 14 von 20</span>
           </div>
           <div class="q-overlay-bar"><i style="width:70%"></i></div>

@@ -331,16 +331,31 @@
             <section id="learn-view" class="view">
               <div class="learn-hero">
                 <div>
-                  <p class="eyebrow">Fabrikreise</p>
+                  <p class="eyebrow">Fachkunde Metall/Kunststoff</p>
                   <h3 id="chapter-title">Kapitel wird geladen</h3>
                   <p id="chapter-goal"></p>
                 </div>
-                <div class="factory-animation" aria-hidden="true">
-                  <span></span><span></span><span></span>
-                  <div class="belt"></div>
+                <div class="learn-controls">
+                  <label for="learn-month-select">Monat</label>
+                  <select id="learn-month-select" aria-label="Lernmonat auswaehlen"></select>
                 </div>
               </div>
-              <div id="lesson-copy" class="lesson-copy"></div>
+              <div id="unit-list" class="unit-list"></div>
+              <div id="unit-detail" class="unit-detail hidden">
+                <button id="unit-back" class="secondary-button">Zurueck zur Themenliste</button>
+                <h3 id="unit-title"></h3>
+                <p id="unit-subtitle" class="unit-subtitle"></p>
+                <ul id="unit-goals" class="unit-goals"></ul>
+                <div id="unit-theory" class="unit-theory"></div>
+                <section class="glossary-panel">
+                  <h4>Glossar</h4>
+                  <dl id="unit-glossary"></dl>
+                </section>
+                <section class="practice-panel">
+                  <h4>Praxisaufgabe</h4>
+                  <p id="unit-practice"></p>
+                </section>
+              </div>
               <div class="split">
                 <section>
                   <h3>10 Unterkapitel</h3>

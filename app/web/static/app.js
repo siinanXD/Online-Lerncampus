@@ -1,6 +1,9 @@
 const state = {
   chapter: null,
   questions: [],
+  units: [],
+  activeUnit: null,
+  learnMonth: 1,
   exams: [],
   journey: [],
   dashboard: null,
@@ -75,17 +78,17 @@ async function login(identifier, password, cohortCode) {
   await refreshPrivateData();
 }
 
-async function ensureDemoSession() {
-  if (state.accessToken) {
-    document.body.classList.add("is-authenticated");
-    try {
-      await refreshPrivateData();
-      return;
-    } catch (error) {
-      clearSession();
-    }
+async function ensureAuthenticated() {
+  document.body.classList.add("is-authenticated");
+  await refreshPrivateData();
+}
+
+async function requireAuth() {
+  if (!state.accessToken) {
+    await navigateTo("/login");
+    throw new Error("Anmeldung erforderlich.");
   }
-  await login("demo-azubi", "demo-pass", "BZE-2026-F");
+  await ensureAuthenticated();
 }
 
 async function refreshPrivateData() {
@@ -104,7 +107,13 @@ async function navigateTo(pathname, pushState = true) {
   document.body.dataset.pageLayout = config.layout;
   document.title = `${config.title} | BZE Online Campus`;
   if (config.layout === "app") {
-    await ensureDemoSession();
+    if (state.accessToken) {
+      try {
+        await ensureAuthenticated();
+      } catch (error) {
+        clearSession();
+      }
+    }
     switchView(config.view, false);
   }
   if (config.layout === "login") {
@@ -193,19 +202,100 @@ function renderChapter() {
   document.getElementById("chapter-title").textContent = state.chapter.title;
   document.getElementById("chapter-goal").textContent =
     state.chapter.mission_goal;
-  document.getElementById("lesson-copy").innerHTML = state.chapter.fachkunde
-    .map((paragraph) => `<p>${paragraph}</p>`)
-    .join("");
   document.getElementById("subchapter-list").innerHTML = state.chapter.subchapters
     .map(
       (category) => `
         <div class="subchapter-item">
           <strong>${category.subchapter_number}. ${category.title}</strong>
-          <span>${String(category.month).padStart(2, "0")}</span>
+          <span>M${String(category.month).padStart(2, "0")}</span>
         </div>
       `,
     )
     .join("");
+}
+
+function renderUnitList() {
+  const list = document.getElementById("unit-list");
+  const detail = document.getElementById("unit-detail");
+  if (state.activeUnit) {
+    list.classList.add("hidden");
+    detail.classList.remove("hidden");
+    return;
+  }
+  list.classList.remove("hidden");
+  detail.classList.add("hidden");
+  list.innerHTML = state.units
+    .map(
+      (unit) => `
+        <button class="unit-card" data-unit-slug="${unit.slug}">
+          <strong>${unit.position}. ${unit.title}</strong>
+          <span>${unit.subtitle}</span>
+          <small>${unit.estimated_minutes} Min · ${unit.category_slugs[0]}</small>
+        </button>
+      `,
+    )
+    .join("");
+}
+
+function renderUnitDetail(unit) {
+  document.getElementById("unit-title").textContent = unit.title;
+  document.getElementById("unit-subtitle").textContent = unit.subtitle;
+  document.getElementById("unit-goals").innerHTML = unit.learning_goals
+    .map((goal) => `<li>${goal}</li>`)
+    .join("");
+  document.getElementById("unit-theory").innerHTML = unit.theory_blocks
+    .map(
+      (block) => `
+        <article class="theory-block">
+          <h4>${block.heading}</h4>
+          <p>${block.body.replace(/\n\n/g, "</p><p>")}</p>
+          <ul>${block.key_points.map((point) => `<li>${point}</li>`).join("")}</ul>
+          ${
+            block.norm_references.length
+              ? `<p class="norm-ref">Normen: ${block.norm_references.join(", ")}</p>`
+              : ""
+          }
+        </article>
+      `,
+    )
+    .join("");
+  document.getElementById("unit-glossary").innerHTML = Object.entries(unit.glossary)
+    .map(([term, definition]) => `<dt>${term}</dt><dd>${definition}</dd>`)
+    .join("");
+  document.getElementById("unit-practice").textContent = unit.practice_task;
+}
+
+async function loadLearnMonth(month) {
+  state.learnMonth = month;
+  state.activeUnit = null;
+  state.currentQuestionIndex = 0;
+  const [chapter, units, questions] = await Promise.all([
+    fetchJson(`/api/occupations/maschinen-und-anlagenfuehrer/curriculum`).then(
+      (curriculum) => {
+        const entry = curriculum.find((item) => item.month === month);
+        return {
+          title: `Monat ${month}: ${entry.title}`,
+          mission_goal: entry.learning_goals.join(" "),
+          subchapters: state.chapter?.subchapters?.length
+            ? state.chapter.subchapters
+            : [],
+        };
+      },
+    ),
+    fetchJson(`/api/learning/units?month=${month}`),
+    fetchJson(`/api/questions?month=${month}`),
+  ]);
+  const categories = await fetchJson(`/api/questions/categories?month=${month}`);
+  state.chapter = {
+    ...chapter,
+    subchapters: categories,
+  };
+  state.units = units;
+  state.questions = questions;
+  renderChapter();
+  renderUnitList();
+  renderQuestion();
+  document.getElementById("page-title").textContent = `Monat ${month} | Lernen`;
 }
 
 function renderQuestion() {
@@ -226,7 +316,7 @@ function renderQuestion() {
 }
 
 async function answerQuestion(index) {
-  await ensureDemoSession();
+  await requireAuth();
   const question = state.questions[state.currentQuestionIndex % state.questions.length];
   const result = await fetchJson("/api/progress/attempt", {
     method: "POST",
@@ -323,7 +413,7 @@ async function generateDraft() {
 }
 
 async function resetProgress() {
-  await ensureDemoSession();
+  await requireAuth();
   await fetchJson("/api/progress/reset", {
     method: "POST",
     headers: authHeaders(),
@@ -338,7 +428,7 @@ function setPrivacyFeedback(message) {
 }
 
 async function acceptPrivacyNotice() {
-  await ensureDemoSession();
+  await requireAuth();
   await fetchJson("/api/privacy/consent", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -348,7 +438,7 @@ async function acceptPrivacyNotice() {
 }
 
 async function exportLearnerData() {
-  await ensureDemoSession();
+  await requireAuth();
   const exportPayload = await fetchJson("/api/privacy/export", {
     headers: authHeaders(),
   });
@@ -378,7 +468,7 @@ async function logout() {
 }
 
 async function deleteAccount() {
-  await ensureDemoSession();
+  await requireAuth();
   const confirmed = window.confirm(
     "Lernkonto wirklich loeschen? Fortschritt, Sessions und Einwilligungen werden entfernt.",
   );
@@ -391,15 +481,22 @@ async function deleteAccount() {
     headers: authHeaders(),
   });
   clearSession();
-  setPrivacyFeedback("Lernkonto geloescht. Demo-Zugang kann neu angelegt werden.");
-  await ensureDemoSession();
+  setPrivacyFeedback("Lernkonto geloescht.");
+  await navigateTo("/login");
   renderProgress();
 }
 
 async function init() {
   state.chapter = await fetchJson("/api/learning/first-chapter");
   state.questions = await fetchJson("/api/questions?month=1");
+  state.units = await fetchJson("/api/learning/units?month=1");
   state.exams = await fetchJson("/api/exams");
+  const monthSelect = document.getElementById("learn-month-select");
+  monthSelect.innerHTML = Array.from({ length: 24 }, (_, index) => {
+    const month = index + 1;
+    return `<option value="${month}">Monat ${month}</option>`;
+  }).join("");
+  monthSelect.value = "1";
   if (state.accessToken) {
     try {
       await refreshPrivateData();
@@ -408,6 +505,7 @@ async function init() {
     }
   }
   renderChapter();
+  renderUnitList();
   renderQuestion();
   renderExamSelect();
   await navigateTo(window.location.pathname, false);
@@ -421,6 +519,20 @@ document.addEventListener("click", async (event) => {
   if (target.matches("[data-page-link]")) {
     event.preventDefault();
     await navigateTo(new URL(target.href).pathname);
+    return;
+  }
+  if (target.matches(".unit-card")) {
+    const slug = target.dataset.unitSlug;
+    state.activeUnit = state.units.find((unit) => unit.slug === slug);
+    if (state.activeUnit) {
+      renderUnitDetail(state.activeUnit);
+      renderUnitList();
+    }
+    return;
+  }
+  if (target.id === "unit-back") {
+    state.activeUnit = null;
+    renderUnitList();
     return;
   }
   if (target.matches(".answer-option")) {
@@ -456,6 +568,10 @@ document.getElementById("login-form").addEventListener("submit", async (event) =
   document.getElementById("login-feedback").textContent =
     "Angemeldet. Serverseitiger Lernstand ist aktiv.";
   await navigateTo("/dashboard");
+});
+
+document.getElementById("learn-month-select").addEventListener("change", async (event) => {
+  await loadLearnMonth(Number(event.target.value));
 });
 
 document.getElementById("next-question").addEventListener("click", () => {

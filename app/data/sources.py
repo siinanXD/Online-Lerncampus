@@ -28,6 +28,21 @@ TRUSTED_SOURCES: list[SourceDocument] = [
         topics=["zwischenpruefung", "abschlusspruefung", "zulassung"],
     ),
     SourceDocument(
+        key="ihk-aachen-pruefungsordnung",
+        title=(
+            "Pruefungsordnung fuer die Durchfuehrung von Abschluss- und "
+            "Umschulungspruefungen"
+        ),
+        publisher="IHK Aachen",
+        url=(
+            "https://www.ihk.de/aachen/ueber-uns/rechtsgrundlagen/"
+            "pruefungsordnung-abschluss-u-umschulung-5007006"
+        ),
+        trust_tier=1,
+        allowed_usage="Exam governance, validation rules, source citation.",
+        topics=["pruefungsordnung", "bewertung", "wiederholung"],
+    ),
+    SourceDocument(
         key="bze-uelu-maf-metall-kunststoff",
         title="Ueberbetriebliche Unterweisung Maschinen- und Anlagenfuehrer",
         publisher="BZE Euskirchen",
@@ -41,6 +56,51 @@ TRUSTED_SOURCES: list[SourceDocument] = [
         topics=["uelu", "pneumatik", "drehen", "fraesen", "qualitaet"],
     ),
     SourceDocument(
+        key="bze-uelu-maf-metall-kunststoff-2026",
+        title=(
+            "Angebot fuer ein durchgaengiges Ausbildungssystem fuer Maschinen "
+            "und Anlagenfuehrer Metall und Kunststoff 2026"
+        ),
+        publisher="BZE Euskirchen",
+        url=(
+            "https://www.bze-euskirchen.de/fileadmin/user_upload/pdfs/"
+            "UELU_Industrie_2026/01_MA_Metall_und_Kunststoff_2026_202509.pdf"
+        ),
+        trust_tier=1,
+        allowed_usage="Course dates and local practical module alignment.",
+        topics=[
+            "pneumatik",
+            "drehen",
+            "fraesen",
+            "werkstoffkunde",
+            "technische-kommunikation",
+            "grundbildung-metall",
+            "pruefungsvorbereitung",
+        ],
+    ),
+    SourceDocument(
+        key="bze-uelu-maf-metall-kunststoff-2027",
+        title=(
+            "Jahresplanung Ueberbetriebliche Lehrlingsunterweisung Maschinen- "
+            "und Anlagenfuehrer Metall- und Kunststofftechnik 2027"
+        ),
+        publisher="BZE Euskirchen",
+        url=(
+            "https://www.bze-euskirchen.de/fileadmin/user_upload/pdfs/"
+            "UELU_Industrie_2027/06_Maschinen-_und_Anlagenfuehrer_M_K.pdf"
+        ),
+        trust_tier=1,
+        allowed_usage="Course dates and local practical module alignment.",
+        topics=[
+            "blechkurs",
+            "qualitaetsmanagement",
+            "kunststofftechnik",
+            "pneumatik",
+            "zwischenpruefung",
+            "abschlusspruefung",
+        ],
+    ),
+    SourceDocument(
         key="bibb-berufsprofil-maf",
         title="Maschinen- und Anlagenfuehrer Berufsprofil",
         publisher="BIBB",
@@ -50,6 +110,18 @@ TRUSTED_SOURCES: list[SourceDocument] = [
         topics=["kompetenzen", "taetigkeitsfelder", "schwerpunkte"],
     ),
     SourceDocument(
+        key="bibb-ausbildungsordnung-maf-pdf",
+        title="Bundesgesetzblatt-Auszug Maschinen- und Anlagenfuehrer",
+        publisher="BIBB",
+        url=(
+            "https://www.bibb.de/dienst/berufesuche/de/"
+            "index_berufesuche.php/regulation/maschinen_und_anlagenfuehrer.pdf"
+        ),
+        trust_tier=1,
+        allowed_usage="Historical regulation PDF and source citation.",
+        topics=["ausbildungsordnung", "ausbildungsrahmenplan", "pruefung"],
+    ),
+    SourceDocument(
         key="maschfueausbv",
         title="Verordnung ueber die Berufsausbildung",
         publisher="Gesetze im Internet",
@@ -57,6 +129,41 @@ TRUSTED_SOURCES: list[SourceDocument] = [
         trust_tier=1,
         allowed_usage="Legal curriculum and examination requirements.",
         topics=["ausbildungsrahmenplan", "pruefungsanforderungen"],
+    ),
+    SourceDocument(
+        key="kmk-rahmenlehrplan-maf-2023",
+        title=(
+            "Rahmenlehrplan fuer Maschinen- und Anlagenfuehrer und "
+            "Maschinen- und Anlagenfuehrerin"
+        ),
+        publisher="Kultusministerkonferenz",
+        url=(
+            "https://www.kmk.org/service/servicebereich-berufliche-schulen/"
+            "downloadbereich-rahmenlehrplaene?"
+            "tx_fedownloads_single%5Baction%5D=forceDownload&"
+            "tx_fedownloads_single%5Bcontroller%5D=Downloads&"
+            "tx_fedownloads_single%5Bdownload%5D=48833&type=150"
+        ),
+        trust_tier=1,
+        allowed_usage="School curriculum alignment by specialization.",
+        topics=["rahmenlehrplan", "berufsschule", "metall-kunststofftechnik"],
+    ),
+    SourceDocument(
+        key="bk-eschweiler-maf",
+        title="Maschinen- und Anlagenfuehrer/in",
+        publisher="Berufskolleg Eschweiler",
+        url=(
+            "https://www.bk-eschweiler.de/cms/bildungsangebot/"
+            "berufsschule/technik/maschinen-und-anlagenfuehrer"
+        ),
+        trust_tier=2,
+        allowed_usage="Regional school context and subject alignment.",
+        topics=[
+            "berufsschule",
+            "blockunterricht",
+            "fertigungs-und-prueftechnik",
+            "steuerungs-und-regelungstechnik",
+        ],
     ),
     SourceDocument(
         key="din-862",
@@ -71,4 +178,3 @@ TRUSTED_SOURCES: list[SourceDocument] = [
         topics=["messschieber", "laengenpruefung", "messmittel"],
     ),
 ]
-

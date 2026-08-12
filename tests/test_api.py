@@ -5,6 +5,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from app.main import create_app
+from app.services.question_repository import QuestionRepository
 
 
 def build_client() -> TestClient:
@@ -179,6 +180,22 @@ def test_learning_journey_endpoint_returns_24_months() -> None:
     assert payload[23]["checkpoint"] is True
 
 
+def _correct_index(question_id: str) -> int:
+    """Resolve the correct option from the server-side question bank."""
+    question = QuestionRepository().get_question(question_id)
+    assert question is not None
+    return question.correct_option_index
+
+
+def test_questions_do_not_leak_solutions() -> None:
+    """Learner-facing question lists must not expose solution fields."""
+    client = build_client()
+    payload = client.get("/api/questions?month=1").json()
+    assert payload
+    assert "correct_option_index" not in payload[0]
+    assert "explanation" not in payload[0]
+
+
 def test_progress_attempt_requires_two_correct_answers_for_mastery() -> None:
     """Ensure questions are mastered after two consecutive correct answers."""
     client = build_client()
@@ -186,7 +203,7 @@ def test_progress_attempt_requires_two_correct_answers_for_mastery() -> None:
     question = client.get("/api/questions?month=1").json()[0]
     attempt_payload = {
         "question_id": question["question_id"],
-        "selected_option_index": question["correct_option_index"],
+        "selected_option_index": _correct_index(question["question_id"]),
     }
 
     first_attempt = client.post(
@@ -221,7 +238,7 @@ def test_privacy_export_contains_progress_and_consent() -> None:
         headers=headers,
         json={
             "question_id": question["question_id"],
-            "selected_option_index": question["correct_option_index"],
+            "selected_option_index": _correct_index(question["question_id"]),
         },
     )
 

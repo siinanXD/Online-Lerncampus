@@ -66,8 +66,10 @@ def test_learning_units_can_be_filtered_by_month() -> None:
     """The month filter narrows the unit list."""
     client = build_client()
 
-    assert client.get("/api/learning/units?month=1").json()
-    assert client.get("/api/learning/units?month=24").json() == []
+    month_one = client.get("/api/learning/units?month=1").json()
+    month_twenty_four = client.get("/api/learning/units?month=24").json()
+    assert len(month_one) == 10
+    assert len(month_twenty_four) == 2
 
 
 def test_checkpoint_exam_hides_sample_solutions() -> None:

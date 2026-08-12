@@ -115,6 +115,46 @@ class Database:
                 );
                 """
             )
+            self._ensure_password_hash_column(connection)
+
+    def _ensure_password_hash_column(self, connection: sqlite3.Connection) -> None:
+        """Add password_hash when upgrading an existing local database."""
+        columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(learners)").fetchall()
+        }
+        if "password_hash" not in columns:
+            connection.execute("ALTER TABLE learners ADD COLUMN password_hash TEXT")
+
+    def get_learner(self, learner_id: str) -> dict[str, Any] | None:
+        """Return one active learner row by id."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                """
+                SELECT learner_id, identifier_hash, display_name, role,
+                       cohort_code, password_hash
+                FROM learners
+                WHERE learner_id = ? AND deleted_at IS NULL
+                """,
+                (learner_id,),
+            ).fetchone()
+        return dict(row) if row else None
+
+    def get_learner_by_identifier_hash(
+        self, identifier_hash: str
+    ) -> dict[str, Any] | None:
+        """Return one active learner row by pseudonymous login hash."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                """
+                SELECT learner_id, identifier_hash, display_name, role,
+                       cohort_code, password_hash
+                FROM learners
+                WHERE identifier_hash = ? AND deleted_at IS NULL
+                """,
+                (identifier_hash,),
+            ).fetchone()
+        return dict(row) if row else None
 
     def upsert_learner(
         self,
@@ -123,6 +163,7 @@ class Database:
         display_name: str,
         role: str,
         cohort_code: str | None,
+        password_hash: str | None = None,
     ) -> None:
         """Create or update a learner profile without storing clear text login data."""
         with self._transaction() as connection:
@@ -134,12 +175,14 @@ class Database:
                     display_name,
                     role,
                     cohort_code,
+                    password_hash,
                     created_at,
                     deleted_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, NULL)
+                VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
                 ON CONFLICT(learner_id) DO UPDATE SET
                     cohort_code = excluded.cohort_code,
+                    password_hash = COALESCE(excluded.password_hash, learners.password_hash),
                     deleted_at = NULL
                 """,
                 (
@@ -148,8 +191,21 @@ class Database:
                     display_name,
                     role,
                     cohort_code,
+                    password_hash,
                     utc_now_iso(),
                 ),
+            )
+
+    def update_password_hash(self, learner_id: str, password_hash: str) -> None:
+        """Persist a new password hash for one learner."""
+        with self._transaction() as connection:
+            connection.execute(
+                """
+                UPDATE learners
+                SET password_hash = ?
+                WHERE learner_id = ? AND deleted_at IS NULL
+                """,
+                (password_hash, learner_id),
             )
 
     def create_session(

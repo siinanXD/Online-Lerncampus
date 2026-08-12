@@ -1282,6 +1282,103 @@ body[data-page-layout="app"] .campus-app {
   gap: 18px;
 }
 
+.hidden {
+  display: none !important;
+}
+
+.learn-controls {
+  display: grid;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.learn-controls label {
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+.unit-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+  margin: 20px 0 28px;
+}
+
+.unit-card {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--paper);
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.unit-card:hover {
+  border-color: var(--blue);
+  box-shadow: 0 8px 24px rgba(37, 99, 235, 0.12);
+}
+
+.unit-card span {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.unit-card small {
+  color: var(--blue);
+  font-size: 0.78rem;
+}
+
+.unit-detail {
+  margin-bottom: 24px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--paper);
+}
+
+.unit-subtitle {
+  color: var(--muted);
+}
+
+.unit-goals {
+  padding-left: 18px;
+}
+
+.theory-block {
+  margin: 18px 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--line);
+}
+
+.theory-block ul {
+  padding-left: 18px;
+}
+
+.norm-ref {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+.glossary-panel dl {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 8px 16px;
+}
+
+.glossary-panel dt {
+  font-weight: 600;
+}
+
+.practice-panel {
+  margin-top: 20px;
+  padding: 16px;
+  border-radius: 12px;
+  background: var(--blue-soft);
+}
+
 .subchapter-list,
 .answer-options,
 .progress-grid {

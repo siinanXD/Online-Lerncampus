@@ -223,6 +223,18 @@ class QuestionCategoryResponse(BaseModel):
     description: str
 
 
+class QuizQuestionPublicResponse(BaseModel):
+    """Practice question without solution data for learner-facing endpoints."""
+
+    question_id: str
+    category_slug: str
+    prompt: str
+    options: list[str]
+    difficulty: int
+    exam_style: str
+    source_keys: list[str]
+
+
 class QuizQuestionResponse(BaseModel):
     """Serializable practice question."""
 
@@ -294,7 +306,7 @@ class PracticeExamResponse(BaseModel):
     exam_id: str
     title: str
     description: str
-    questions: list[QuizQuestionResponse]
+    questions: list[QuizQuestionPublicResponse]
     passing_score_percent: int
     open_questions: list[OpenQuestionResponse] = Field(default_factory=list)
     time_limit_minutes: int = 0

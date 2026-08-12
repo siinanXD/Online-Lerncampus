@@ -32,6 +32,7 @@ from app.schemas.content import (
     ProgressAttemptRequest,
     QuestionCategoryResponse,
     QuestionProgressResponse,
+    QuizQuestionPublicResponse,
     QuizQuestionResponse,
     SourceDocumentResponse,
     TheoryBlockResponse,
@@ -73,6 +74,19 @@ def raise_bad_request(error: ValueError) -> None:
     ) from error
 
 
+def build_public_question_response(question) -> QuizQuestionPublicResponse:
+    """Return a learner-safe question payload without solution fields."""
+    return QuizQuestionPublicResponse(
+        question_id=question.question_id,
+        category_slug=question.category_slug,
+        prompt=question.prompt,
+        options=question.options,
+        difficulty=question.difficulty,
+        exam_style=question.exam_style,
+        source_keys=question.source_keys,
+    )
+
+
 def build_exam_response(
     exam_id: str, include_solutions: bool = False
 ) -> PracticeExamResponse:
@@ -93,17 +107,7 @@ def build_exam_response(
         title=exam.title,
         description=exam.description,
         questions=[
-            QuizQuestionResponse(
-                question_id=question.question_id,
-                category_slug=question.category_slug,
-                prompt=question.prompt,
-                options=question.options,
-                correct_option_index=question.correct_option_index,
-                explanation=question.explanation,
-                difficulty=question.difficulty,
-                exam_style=question.exam_style,
-                source_keys=question.source_keys,
-            )
+            build_public_question_response(question)
             for question in questions
         ],
         passing_score_percent=exam.passing_score_percent,
@@ -227,10 +231,14 @@ def logout(authorization: str | None = Header(default=None)) -> LogoutResponse:
 
 
 @api_router.post("/auth/password", response_model=PasswordChangeResponse)
-def change_password(request: PasswordChangeRequest) -> PasswordChangeResponse:
-    """Validate a password-change request for onboarding."""
+def change_password(
+    request: PasswordChangeRequest,
+    authorization: str | None = Header(default=None),
+) -> PasswordChangeResponse:
+    """Validate and persist a password change for the current learner."""
     try:
-        checklist = auth_service.validate_password_change(
+        checklist = auth_service.change_password(
+            authorization_header=authorization,
             current_password=request.current_password,
             new_password=request.new_password,
             repeated_password=request.repeated_password,
@@ -442,13 +450,19 @@ def list_question_categories(
     return categories
 
 
-@api_router.get("/questions", response_model=list[QuizQuestionResponse])
+@api_router.get("/questions", response_model=list[QuizQuestionPublicResponse])
 def list_questions(
     category_slug: str | None = Query(default=None),
     month: int | None = Query(default=None, ge=1, le=24),
-) -> list[QuizQuestionResponse]:
-    """Return PAL-style practice questions."""
-    return question_repository.list_questions(category_slug=category_slug, month=month)
+) -> list[QuizQuestionPublicResponse]:
+    """Return PAL-style practice questions without solution data."""
+    return [
+        build_public_question_response(question)
+        for question in question_repository.list_questions(
+            category_slug=category_slug,
+            month=month,
+        )
+    ]
 
 
 @api_router.get("/exams", response_model=list[PracticeExamResponse])

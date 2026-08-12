@@ -48,5 +48,12 @@ def test_questions_have_five_options() -> None:
     repository = QuestionRepository()
     questions = repository.list_questions(month=1)
 
-    assert len(questions) == 10
+    assert len(questions) == 20
     assert all(len(question.options) == 5 for question in questions)
+
+
+def test_question_bank_covers_all_months() -> None:
+    """Ensure every curriculum month has authored quiz questions."""
+    repository = QuestionRepository()
+
+    assert len(repository.list_questions()) == 480

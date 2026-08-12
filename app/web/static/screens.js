@@ -19,7 +19,7 @@ window.OLC_ROUTE_CONFIG = {
   "/dashboard/merksaetze": { layout: "app", screen: "s03_7-wochenbericht-merksaetze", title: "Wochenbericht Merksätze", tab: "dashboard", num: "03.7", chrome: "campus", campusTab: "merksaetze" },
   "/dashboard/tablet": { layout: "app", screen: "s03_8-dashboard-tablet-768px", title: "Dashboard — Tablet 768px", tab: "dashboard", num: "03.8", chrome: "tablet" },
   "/lernen": { layout: "app", screen: "s04_1-lernen-hub", title: "Lernen Hub", tab: "learn", num: "04.1" },
-  "/lernen/uebersetzung": { layout: "app", screen: "s04_10-uebersetzungshilfe-overlay", title: "Übersetzungshilfe Overlay", tab: "learn", num: "04.10" },
+  "/lernen/uebersetzung": { layout: "app", screen: "s04_10-uebersetzungshilfe-overlay", title: "Übersetzungshilfe Overlay", tab: "learn", num: "04.10", chrome: "q-overlay" },
   "/lernen/formeltrainer": { layout: "app", screen: "s04_11-formeltrainer", title: "Formeltrainer", tab: "learn", num: "04.11" },
   "/lernen/fehlerdiagnose": { layout: "app", screen: "s04_12-fehlerdiagnose", title: "Fehlerdiagnose", tab: "learn", num: "04.12" },
   "/lernen/video": { layout: "app", screen: "s04_13-video-lektion", title: "Video-Lektion", tab: "learn", num: "04.13" },
@@ -36,7 +36,7 @@ window.OLC_ROUTE_CONFIG = {
   "/lernen/frage/freitext": { layout: "app", screen: "s04_6-frage-freitext", title: "Frage — Freitext", tab: "learn", num: "04.6", chrome: "q-play" },
   "/lernen/feedback/richtig": { layout: "app", screen: "s04_7-feedback-richtig", title: "Feedback — Richtig", tab: "learn", num: "04.7", chrome: "q-play" },
   "/lernen/feedback/falsch": { layout: "app", screen: "s04_8-feedback-falsch", title: "Feedback — Falsch", tab: "learn", num: "04.8", chrome: "q-play" },
-  "/lernen/melden": { layout: "app", screen: "s04_9-frage-melden-overlay", title: "Frage melden Overlay", tab: "learn", num: "04.9", chrome: "q-play" },
+  "/lernen/melden": { layout: "app", screen: "s04_9-frage-melden-overlay", title: "Frage melden Overlay", tab: "learn", num: "04.9", chrome: "q-overlay" },
   "/fachkunde": { layout: "app", screen: "s05_1-fachkunde-einstieg", title: "Fachkunde — Einstieg", tab: "learn", num: "05.1" },
   "/fachkunde/freigabe": { layout: "app", screen: "s05_10-lerneinheit-freigabe", title: "Lerneinheit — Freigabe", tab: "learn", num: "05.10" },
   "/fachkunde/lernpfad": { layout: "app", screen: "s05_2-fachkunde-lernpfad", title: "Fachkunde — Lernpfad", tab: "learn", num: "05.2" },
@@ -1116,17 +1116,60 @@ window.OLC_SCREEN_RENDERERS = {
       <div class="visually-hidden" data-bind="units-live" aria-hidden="true"></div>
     `,
   "s04_10-uebersetzungshilfe-overlay": () => `
-
-      <div class="screen-head"><p class="eyebrow">04.10</p><h2>Übersetzungshilfe Overlay</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <p class="muted">Produkt-UI gemaess Figma 04.10.</p>
-        <ul class="plain-list"><li>Pneumatik • Modul 4</li><li>Frage 14 von 20</li><li>Welche Funktion erfüllt das dargestellte Ventil in einer standardisierten doppeltwirkenden Zylinder-Steuerung?</li><li>A</li><li>Es steuert den Zuluftstrom für die Vorwärtsbewegung.</li><li>B</li><li>Es entlüftet den Kolbenraum schlagartig.</li><li>C</li><li>Es blockiert den Rücklauf bei plötzlichem Druckabfall.</li><li>Übersetzungshilfe</li><li>Doppeltwirkender Zylinder</li><li>Pneumatik</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/lernen/frage" data-page-link>Weiterueben</a>
-          <a class="secondary-button" href="/fachkunde" data-page-link>Zur Fachkunde</a>
+      <div class="q-overlay" data-node-id="136:4678">
+        <div class="q-overlay-underlay" aria-hidden="true">
+          <div class="q-overlay-meta">
+            <span class="q-overlay-mod"><img src="/static/figma/learn2/overlay-cpu.svg" width="14" height="14" alt="" /> Pneumatik • Modul 4</span>
+            <span>Frage 14 von 20</span>
+          </div>
+          <div class="q-overlay-bar"><i style="width:70%"></i></div>
+          <p class="q-overlay-prompt">Welche Funktion erfüllt das dargestellte Ventil in einer standardisierten doppeltwirkenden Zylinder-Steuerung?</p>
+          <img class="q-overlay-media" src="/static/figma/learn2/overlay-valve.png" width="342" height="130" alt="" />
+          <div class="q-overlay-opts">
+            <div class="on"><strong>A</strong><span>Es steuert den Zuluftstrom für die Vorwärtsbewegung.</span></div>
+            <div><strong>B</strong><span>Es entlüftet den Kolbenraum schlagartig.</span></div>
+            <div><strong>C</strong><span>Es blockiert den Rücklauf bei plötzlichem Druckabfall.</span></div>
+          </div>
         </div>
-      </article>
+        <div class="q-overlay-dim sheet">
+          <aside class="uebersetz-sheet">
+            <div class="sheet-handle" aria-hidden="true"></div>
+            <div class="sheet-head">
+              <div class="sheet-title">
+                <span class="globe-wrap"><img src="/static/figma/learn2/overlay-globe.svg" width="16" height="16" alt="" /></span>
+                <strong>Übersetzungshilfe</strong>
+              </div>
+              <a class="sheet-close" href="/lernen/frage" data-page-link aria-label="Schliessen">
+                <img src="/static/figma/learn2/overlay-x.svg" width="14" height="14" alt="" />
+              </a>
+            </div>
+            <div class="term-block">
+              <p class="term-de">Doppeltwirkender Zylinder</p>
+              <div class="term-tags"><span class="topic-pill">Pneumatik</span><span class="muted">Fachbegriff</span></div>
+            </div>
+            <hr class="sheet-rule" />
+            <div class="lang-rows">
+              <div><span>🇬🇧 English</span><strong>Double-acting cylinder</strong></div>
+              <div><span>🇹🇷 Türkçe</span><strong>Çift etkili silindir</strong></div>
+              <div><span>🇦🇪 العربية</span><strong dir="auto">أسطوانة مزدوجة المفعول</strong></div>
+              <div><span>🇺🇦 Українська</span><strong>Циліндр подвійної дії</strong></div>
+              <div><span>🇵🇱 Polski</span><strong>Cylinder dwustronnego działania</strong></div>
+            </div>
+            <hr class="sheet-rule" />
+            <div class="explain-box">
+              <p class="explain-label">Einfach erklärt:</p>
+              <p>Ein Zylinder, bei dem Druckluft auf beide Seiten des Kolbens wirken kann — für Vor- UND Rückbewegung.</p>
+            </div>
+            <button type="button" class="uebersetz-btn primary" data-action="toast" data-toast="Aussprache wird abgespielt">
+              <img src="/static/figma/learn2/overlay-volume.svg" width="16" height="16" alt="" /> Aussprache anhören
+            </button>
+            <a class="uebersetz-btn secondary" href="/dashboard/merksaetze" data-page-link>
+              <img src="/static/figma/learn2/overlay-bookmark.svg" width="16" height="16" alt="" /> Zur Merkliste hinzufügen
+            </a>
+            <div class="overlay-home-indicator dark" aria-hidden="true"></div>
+          </aside>
+        </div>
+      </div>
     `,
   "s04_11-formeltrainer": () => `
 
@@ -1692,17 +1735,54 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s04_9-frage-melden-overlay": () => `
-
-      <div class="screen-head"><p class="eyebrow">04.9</p><h2>Frage melden Overlay</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <p class="muted">Produkt-UI gemaess Figma 04.9.</p>
-        <ul class="plain-list"><li>Pneumatik • Modul 4</li><li>Frage 14 von 20</li><li>Welche Funktion erfüllt das dargestellte Ventil in einer standardisierten doppeltwirkenden Zylinder-Steuerung?</li><li>A</li><li>Es steuert den Zuluftstrom für die Vorwärtsbewegung.</li><li>B</li><li>Es entlüftet den Kolbenraum schlagartig.</li><li>C</li><li>Es blockiert den Rücklauf bei plötzlichem Druckabfall.</li><li>Frage melden</li><li>BZE Campus</li><li>Frage #142 — Pneumatik</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/lernen/frage" data-page-link>Weiterueben</a>
-          <a class="secondary-button" href="/fachkunde" data-page-link>Zur Fachkunde</a>
+      <div class="q-overlay" data-node-id="136:4597">
+        <div class="q-overlay-underlay" aria-hidden="true">
+          <div class="q-overlay-meta">
+            <span class="q-overlay-mod"><img src="/static/figma/learn2/overlay-cpu.svg" width="14" height="14" alt="" /> Pneumatik • Modul 4</span>
+            <span>Frage 14 von 20</span>
+          </div>
+          <div class="q-overlay-bar"><i style="width:70%"></i></div>
+          <p class="q-overlay-prompt">Welche Funktion erfüllt das dargestellte Ventil in einer standardisierten doppeltwirkenden Zylinder-Steuerung?</p>
+          <img class="q-overlay-media" src="/static/figma/learn2/overlay-valve.png" width="342" height="130" alt="" />
+          <div class="q-overlay-opts">
+            <div class="on"><strong>A</strong><span>Es steuert den Zuluftstrom für die Vorwärtsbewegung.</span></div>
+            <div><strong>B</strong><span>Es entlüftet den Kolbenraum schlagartig.</span></div>
+            <div><strong>C</strong><span>Es blockiert den Rücklauf bei plötzlichem Druckabfall.</span></div>
+          </div>
         </div>
-      </article>
+        <div class="q-overlay-dim center">
+          <div class="melden-dialog" role="dialog" aria-labelledby="melden-title">
+            <div class="melden-head">
+              <div class="melden-title-row">
+                <img src="/static/figma/learn2/overlay-flag.svg" width="18" height="18" alt="" />
+                <strong id="melden-title">Frage melden</strong>
+              </div>
+              <span class="bze-chip">BZE Campus</span>
+            </div>
+            <div class="melden-qid">
+              <strong>Frage #142 — Pneumatik</strong>
+              <hr />
+            </div>
+            <div class="melden-radios" role="radiogroup" aria-label="Meldegrund">
+              <label class="melden-radio"><span class="radio-off"></span><span>Antwort ist falsch oder ungenau</span></label>
+              <label class="melden-radio selected"><img src="/static/figma/learn2/overlay-radio-on.svg" width="20" height="20" alt="" /><span>Frage ist unklar formuliert</span></label>
+              <label class="melden-radio"><span class="radio-off"></span><span>Tippfehler oder Formatierung</span></label>
+              <label class="melden-radio"><span class="radio-off"></span><span>Doppelte Frage</span></label>
+              <label class="melden-radio"><span class="radio-off"></span><span>Sonstiges</span></label>
+            </div>
+            <div class="melden-desc">
+              <div class="row-between"><strong>Beschreibung (optional)</strong><span>47/300</span></div>
+              <div class="melden-textarea">Die Frage lässt zwei Interpretationen zu...</div>
+            </div>
+            <div class="melden-actions">
+              <a class="melden-cancel" href="/lernen/frage" data-page-link>Abbrechen</a>
+              <button type="button" class="melden-submit" data-action="toast" data-toast="Meldung gesendet">Melden</button>
+            </div>
+            <p class="melden-note"><img src="/static/figma/learn2/overlay-shield.svg" width="14" height="14" alt="" /> Deine Meldung wird vom Ausbilder geprüft.</p>
+          </div>
+        </div>
+        <div class="overlay-home-indicator" aria-hidden="true"></div>
+      </div>
     `,
   "s05_1-fachkunde-einstieg": () => `
 

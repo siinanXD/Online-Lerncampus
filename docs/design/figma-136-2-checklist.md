@@ -67,8 +67,8 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | [x] | `136:4401` | 04.6 Frage — Freitext | 390×844 |
 | [~] | `136:4446` | 04.7 Feedback — Richtig | 390×844 |
 | [~] | `136:4520` | 04.8 Feedback — Falsch | 390×844 |
-| [ ] | `136:4597` | 04.9 Frage melden Overlay | 390×844 |
-| [ ] | `136:4678` | 04.10 Übersetzungshilfe Overlay | 390×844 |
+| [~] | `136:4597` | 04.9 Frage melden Overlay | 390×844 |
+| [~] | `136:4678` | 04.10 Übersetzungshilfe Overlay | 390×844 |
 | [ ] | `136:4763` | 04.11 Formeltrainer | 390×894 |
 | [ ] | `136:4890` | 04.12 Fehlerdiagnose | 390×844 |
 | [ ] | `136:5002` | 04.13 Video-Lektion | 390×905 |
@@ -216,4 +216,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - `6298693` Auth: pixel Login 01.1 + checklist inventory; Passwort/Sprache/Onboarding shells from Figma
 - Start: Dashboard shell + Figma tab bar (Prüfung) + 03.1 cards/assets
 - Start 03.5–03.8: Fortsetzen variants, Wochenbericht, Merksätze, Tablet 768px (+ campus chrome)
-- Lernen 04.2–04.6: Themenliste, Fragenliste Alle/Fehler, MC/Freitext; 04.7–04.8 feedback shells in progress
+- Lernen 04.2–04.6: Themenliste, Fragenliste Alle/Fehler, MC/Freitext; 04.7–04.10 feedback/overlays in progress

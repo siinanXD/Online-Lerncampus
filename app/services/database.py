@@ -12,7 +12,7 @@ from threading import RLock
 from typing import Any
 
 from app.db.content_schema import initialize_content_schema
-from app.services.progress_service import QuestionProgress
+from app.models.progress import QuestionProgress
 
 
 def utc_now_iso() -> str:
@@ -357,6 +357,52 @@ class Database:
             connection.execute(
                 "DELETE FROM question_progress WHERE learner_id = ?",
                 (learner_id,),
+            )
+            connection.execute(
+                "DELETE FROM category_progress WHERE learner_id = ?",
+                (learner_id,),
+            )
+
+    def get_category_id_by_slug(self, category_slug: str) -> int | None:
+        """Return the database id for one category slug."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT id FROM question_categories WHERE slug = ?",
+                (category_slug,),
+            ).fetchone()
+        return int(row["id"]) if row else None
+
+    def upsert_category_progress(
+        self,
+        learner_id: str,
+        category_id: int,
+        questions_mastered: int,
+        questions_total: int,
+    ) -> None:
+        """Persist aggregate mastery for one learner and category."""
+        with self._transaction() as connection:
+            connection.execute(
+                """
+                INSERT INTO category_progress (
+                    learner_id,
+                    category_id,
+                    questions_mastered,
+                    questions_total,
+                    updated_at
+                )
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(learner_id, category_id) DO UPDATE SET
+                    questions_mastered = excluded.questions_mastered,
+                    questions_total = excluded.questions_total,
+                    updated_at = excluded.updated_at
+                """,
+                (
+                    learner_id,
+                    category_id,
+                    questions_mastered,
+                    questions_total,
+                    utc_now_iso(),
+                ),
             )
 
     def record_consent(

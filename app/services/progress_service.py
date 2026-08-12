@@ -1,22 +1,10 @@
 """Learner progress tracking for questions, exams, and dashboard metrics."""
 
-from dataclasses import dataclass
 from typing import Any
 
 from app.models.domain import QuizQuestion
+from app.models.progress import QuestionProgress
 from app.services.question_repository import QuestionRepository
-
-
-@dataclass
-class QuestionProgress:
-    """Mutable progress state for one learner question."""
-
-    question_id: str
-    answered_count: int = 0
-    wrong_count: int = 0
-    correct_streak: int = 0
-    mastered: bool = False
-    last_selected_option_index: int | None = None
 
 
 class ProgressService:
@@ -65,6 +53,7 @@ class ProgressService:
             learner_id=learner_id,
             progress=progress,
         )
+        self._sync_category_progress(learner_id, question.category_slug)
         self.database.record_audit_event(
             event_type="progress.attempt",
             learner_id=learner_id,
@@ -117,27 +106,33 @@ class ProgressService:
         learner_progress = self.database.list_question_progress(learner_id)
         categories = self.question_repository.list_categories()
         questions = self.question_repository.list_questions()
-        category_to_question = {
-            question.category_slug: question.question_id for question in questions
-        }
+        category_to_questions: dict[str, list[str]] = {}
+        for question in questions:
+            category_to_questions.setdefault(question.category_slug, []).append(
+                question.question_id
+            )
         months: list[dict[str, object]] = []
         for month_number in range(1, 25):
             month_categories = [
                 category for category in categories if category.month == month_number
             ]
-            mastered_count = 0
+            completed_categories = 0
             for category in month_categories:
-                question_id = category_to_question.get(category.slug)
-                if question_id and learner_progress.get(question_id, None):
-                    mastered_count += int(learner_progress[question_id].mastered)
+                question_ids = category_to_questions.get(category.slug, [])
+                if question_ids and all(
+                    learner_progress.get(question_id) is not None
+                    and learner_progress[question_id].mastered
+                    for question_id in question_ids
+                ):
+                    completed_categories += 1
             total = len(month_categories)
             months.append(
                 {
                     "month": month_number,
-                    "title": month_categories[0].chapter_title,
-                    "completed_categories": mastered_count,
+                    "title": month_categories[0].chapter_title if month_categories else "",
+                    "completed_categories": completed_categories,
                     "total_categories": total,
-                    "locked": month_number > 1 and mastered_count == 0,
+                    "locked": month_number > 1 and completed_categories == 0,
                     "checkpoint": month_number in (12, 24),
                 }
             )
@@ -165,6 +160,28 @@ class ProgressService:
             learner_id=learner_id,
         )
         self.database.delete_learner_data(learner_id)
+
+    def _sync_category_progress(self, learner_id: str, category_slug: str) -> None:
+        """Update aggregate category mastery when content tables are populated."""
+        category_id = self.database.get_category_id_by_slug(category_slug)
+        if category_id is None:
+            return
+        questions = self.question_repository.list_questions(category_slug=category_slug)
+        if not questions:
+            return
+        learner_progress = self.database.list_question_progress(learner_id)
+        mastered = sum(
+            1
+            for question in questions
+            if learner_progress.get(question.question_id) is not None
+            and learner_progress[question.question_id].mastered
+        )
+        self.database.upsert_category_progress(
+            learner_id=learner_id,
+            category_id=category_id,
+            questions_mastered=mastered,
+            questions_total=len(questions),
+        )
 
     def _weak_categories(
         self,

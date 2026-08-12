@@ -39,15 +39,15 @@ window.OLC_ROUTE_CONFIG = {
   "/lernen/melden": { layout: "app", screen: "s04_9-frage-melden-overlay", title: "Frage melden Overlay", tab: "learn", num: "04.9", chrome: "q-overlay" },
   "/fachkunde": { layout: "app", screen: "s05_1-fachkunde-einstieg", title: "Fachkunde — Einstieg", tab: "learn", num: "05.1", chrome: "fk" },
   "/fachkunde/freigabe": { layout: "app", screen: "s05_10-lerneinheit-freigabe", title: "Lerneinheit — Freigabe", tab: "learn", num: "05.10" },
-  "/fachkunde/lernpfad": { layout: "app", screen: "s05_2-fachkunde-lernpfad", title: "Fachkunde — Lernpfad", tab: "learn", num: "05.2" },
-  "/fachkunde/einheit": { layout: "app", screen: "s05_3-fachkunde-lerneinheit", title: "Fachkunde — Lerneinheit", tab: "learn", num: "05.3" },
+  "/fachkunde/lernpfad": { layout: "app", screen: "s05_2-fachkunde-lernpfad", title: "Fachkunde — Lernpfad", tab: "learn", num: "05.2", chrome: "fk" },
+  "/fachkunde/einheit": { layout: "app", screen: "s05_3-fachkunde-lerneinheit", title: "Fachkunde — Lerneinheit", tab: "learn", num: "05.3", chrome: "fk" },
   "/fachkunde/glossar": { layout: "app", screen: "s05_4-fachkunde-glossar", title: "Fachkunde — Glossar", tab: "learn", num: "05.4" },
   "/fachkunde/abschluss": { layout: "app", screen: "s05_5-lektion-abgeschlossen", title: "Lektion abgeschlossen", tab: "learn", num: "05.5" },
   "/fachkunde/bausteine": { layout: "app", screen: "s05_6-lernbausteine-uebersicht", title: "Lernbausteine Übersicht", tab: "learn", num: "05.6" },
   "/fachkunde/toleranz": { layout: "app", screen: "s05_7-toleranzfeld-rechner-default", title: "Toleranzfeld-Rechner — Default", tab: "learn", num: "05.7" },
   "/fachkunde/spritzguss": { layout: "app", screen: "s05_8-spritzgiesszyklus-phasenansicht", title: "Spritzgießzyklus — Phasenansicht", tab: "learn", num: "05.8" },
   "/fachkunde/messschieber": { layout: "app", screen: "s05_9-messschieber-uebung", title: "Messschieber — Übung", tab: "learn", num: "05.9" },
-  "/pruefungen": { layout: "app", screen: "s06_1-pruefungsliste", title: "Prüfungsliste", tab: "exam", num: "06.1" },
+  "/pruefungen": { layout: "app", screen: "s06_1-pruefungsliste", title: "Prüfungsliste", tab: "exam", num: "06.1", chrome: "exam" },
   "/pruefungen/frage": { layout: "app", screen: "s06_2-pruefung-frage", title: "Prüfung — Frage", tab: "exam", num: "06.2" },
   "/pruefungen/uebersicht": { layout: "app", screen: "s06_3-pruefung-uebersicht", title: "Prüfung — Übersicht", tab: "exam", num: "06.3" },
   "/pruefungen/timer": { layout: "app", screen: "s06_4-pruefung-timer", title: "Prüfung — Timer", tab: "exam", num: "06.4" },
@@ -56,13 +56,13 @@ window.OLC_ROUTE_CONFIG = {
   "/pruefungen/durchgefallen": { layout: "app", screen: "s06_7-ergebnis-durchgefallen", title: "Ergebnis — Durchgefallen", tab: "exam", num: "06.7" },
   "/pruefungen/schwach": { layout: "app", screen: "s06_8-schwache-themen", title: "Schwache Themen", tab: "exam", num: "06.8" },
   "/pruefungen/kammertermine": { layout: "app", screen: "s06_9-kammertermine", title: "Kammertermine", tab: "exam", num: "06.9" },
-  "/fortschritt": { layout: "app", screen: "s07_1-fortschritt-uebersicht", title: "Fortschritt — Übersicht", tab: "progress", num: "07.1" },
+  "/fortschritt": { layout: "app", screen: "s07_1-fortschritt-uebersicht", title: "Fortschritt — Übersicht", tab: "progress", num: "07.1", chrome: "fp" },
   "/fortschritt/pruefungsreife": { layout: "app", screen: "s07_2-pruefungsreife-checkliste", title: "Prüfungsreife — Checkliste", tab: "progress", num: "07.2" },
   "/fortschritt/ausstehend": { layout: "app", screen: "s07_3-pruefungsreife-ausstehend", title: "Prüfungsreife — Ausstehend", tab: "progress", num: "07.3" },
   "/fortschritt/verlauf": { layout: "app", screen: "s07_4-statistik-verlauf", title: "Statistik — Verlauf", tab: "progress", num: "07.4" },
   "/fortschritt/xp": { layout: "app", screen: "s07_5-statistik-xp-und-streak", title: "Statistik — XP & Streak", tab: "progress", num: "07.5" },
   "/fortschritt/heatmap": { layout: "app", screen: "s07_6-statistik-themen-heatmap", title: "Statistik — Themen Heatmap", tab: "progress", num: "07.6" },
-  "/berichtsheft": { layout: "app", screen: "s08_1-berichtsheft-liste", title: "Berichtsheft — Liste", tab: "reports", num: "08.1" },
+  "/berichtsheft": { layout: "app", screen: "s08_1-berichtsheft-liste", title: "Berichtsheft — Liste", tab: "reports", num: "08.1", chrome: "bh" },
   "/berichtsheft/neu": { layout: "app", screen: "s08_2-berichtsheft-neuer-eintrag", title: "Berichtsheft — Neuer Eintrag", tab: "reports", num: "08.2" },
   "/berichtsheft/ki": { layout: "app", screen: "s08_3-berichtsheft-ki-assistent", title: "Berichtsheft — KI-Assistent", tab: "reports", num: "08.3" },
   "/berichtsheft/unterschrift": { layout: "app", screen: "s08_4-berichtsheft-unterschrift", title: "Berichtsheft — Unterschrift", tab: "reports", num: "08.4" },
@@ -2150,25 +2150,148 @@ window.OLC_SCREEN_RENDERERS = {
       <article class="card"><strong>Inhalt</strong><ul class="plain-list"><li>Hydraulik</li><li>Lerneinheit: Ventilsteuerung</li><li>Noch nicht freigeschaltet</li><li>Diese Lerneinheit wird automatisch freigegeben, sobald die Voraussetzungen erfüllt sind.</li><li>Dein Fortschritt</li><li>2/4 abgeschlossen</li><li>Benötigte Vorleistungen</li><li>Grundlagen Druckberechnung</li><li>Volumenstrom & Durchfluss</li><li>Hydraulische Widerstände</li></ul></article>
     `,
   "s05_2-fachkunde-lernpfad": () => `
-
-      <div class="screen-head"><p class="eyebrow">05.2</p><h2>Fachkunde — Lernpfad</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <div data-bind="journey-live"></div>
-      <article class="card">
-        <h3>Lerneinheiten</h3>
-        <div data-bind="units-live"></div>
-      </article>
-      <article class="card">
-        <h3>Curriculum / Quellen</h3>
-        <div data-bind="curriculum-live"></div>
-        <div data-bind="sources-live"></div>
-      </article>
+      <div class="fk-screen fk-lp-screen" data-node-id="136:7131">
+        <header class="fk-lp-header">
+          <a class="fk-lp-back" href="/fachkunde" data-page-link aria-label="Zurück">
+            <img src="/static/figma/fk/fk-lp-arrow-left.svg" width="24" height="24" alt="" />
+          </a>
+          <h2 class="fk-lp-title">Pneumatik Lernpfad</h2>
+        </header>
+        <div class="fk-lp-stats">
+          <div class="fk-lp-stats-row">
+            <strong>Einheiten Fortschritt</strong>
+            <span>5 von 12 abgeschlossen</span>
+          </div>
+          <div class="fk-lp-bar"><i style="width:105px"></i></div>
+        </div>
+        <div class="fk-lp-map">
+          <div class="fk-lp-row center">
+            <div class="fk-lp-node done"><img src="/static/figma/fk/fk-lp-check.svg" width="24" height="24" alt="" /></div>
+            <div class="fk-lp-meta"><strong>1. Einführung Pneumatik</strong><span>+50 XP</span></div>
+          </div>
+          <div class="fk-lp-row start">
+            <div class="fk-lp-node done"><img src="/static/figma/fk/fk-lp-check.svg" width="24" height="24" alt="" /></div>
+            <div class="fk-lp-meta"><strong>2. Druckluft &amp; Kompressoren</strong><span>+50 XP</span></div>
+          </div>
+          <div class="fk-lp-row center">
+            <div class="fk-lp-node done"><img src="/static/figma/fk/fk-lp-check.svg" width="24" height="24" alt="" /></div>
+            <div class="fk-lp-meta"><strong>3. Pneumatische Antriebe</strong><span>+60 XP</span></div>
+          </div>
+          <div class="fk-lp-row start flip">
+            <div class="fk-lp-meta end"><strong>4. Zylinder Grundlagen</strong><span>+65 XP</span></div>
+            <div class="fk-lp-node done"><img src="/static/figma/fk/fk-lp-check.svg" width="24" height="24" alt="" /></div>
+          </div>
+          <div class="fk-lp-row center">
+            <div class="fk-lp-node done"><img src="/static/figma/fk/fk-lp-check.svg" width="24" height="24" alt="" /></div>
+            <div class="fk-lp-meta"><strong>5. Ventile &amp; Steuerung</strong><span>+70 XP</span></div>
+          </div>
+          <div class="fk-lp-row start">
+            <a class="fk-lp-node current" href="/fachkunde/einheit" data-page-link aria-label="Fortsetzen">
+              <img src="/static/figma/fk/fk-lp-play.svg" width="24" height="24" alt="" />
+            </a>
+            <div class="fk-lp-meta">
+              <strong>6. Schaltpläne lesen</strong>
+              <span>+100 XP</span>
+              <a class="fk-lp-cta" href="/fachkunde/einheit" data-page-link>Fortsetzen →</a>
+            </div>
+          </div>
+          <div class="fk-lp-row center">
+            <div class="fk-lp-node locked"><img src="/static/figma/fk/fk-lp-lock.svg" width="20" height="20" alt="" /></div>
+            <div class="fk-lp-meta"><strong>7. Schaltpläne zeichnen</strong><span>+100 XP</span></div>
+          </div>
+          <div class="fk-lp-row start flip">
+            <div class="fk-lp-meta end"><strong>8. Zwischentest (Praxis)</strong><span>+200 XP</span></div>
+            <div class="fk-lp-node boss"><img src="/static/figma/fk/fk-lp-swords.svg" width="24" height="24" alt="" /></div>
+          </div>
+          <div class="fk-lp-row center">
+            <div class="fk-lp-node locked"><img src="/static/figma/fk/fk-lp-lock.svg" width="20" height="20" alt="" /></div>
+            <div class="fk-lp-meta"><strong>9. Speicherprogrammierung</strong><span>+120 XP</span></div>
+          </div>
+          <div class="fk-lp-row start">
+            <div class="fk-lp-node locked"><img src="/static/figma/fk/fk-lp-lock.svg" width="20" height="20" alt="" /></div>
+            <div class="fk-lp-meta"><strong>10. Wartung &amp; Fehlersuche</strong><span>+150 XP</span></div>
+          </div>
+          <div class="fk-lp-row center">
+            <div class="fk-lp-node locked"><img src="/static/figma/fk/fk-lp-lock.svg" width="20" height="20" alt="" /></div>
+            <div class="fk-lp-meta"><strong>11. Praxisanwendungen</strong><span>+150 XP</span></div>
+          </div>
+          <div class="fk-lp-row center">
+            <div class="fk-lp-node trophy"><img src="/static/figma/fk/fk-lp-award.svg" width="24" height="24" alt="" /></div>
+            <div class="fk-lp-meta"><strong>12. Abschlusstest</strong><span>+500 XP</span></div>
+          </div>
+        </div>
+        <nav class="fk-tabs" aria-label="Fachkunde Navigation">
+          <a href="/lernen" data-page-link class="active"><img src="/static/figma/fk/fk-tab-book.svg" width="22" height="22" alt="" />Lernen</a>
+          <a href="/fachkunde/bausteine" data-page-link><img src="/static/figma/fk/fk-tab-dumbbell.svg" width="22" height="22" alt="" />Praxis</a>
+          <a href="/fachkunde/glossar" data-page-link><img src="/static/figma/fk/fk-tab-clipboard.svg" width="22" height="22" alt="" />Glossar</a>
+          <a href="/mehr" data-page-link><img src="/static/figma/fk/fk-tab-user.svg" width="22" height="22" alt="" />Profil</a>
+        </nav>
+        <div class="fk-home-indicator" aria-hidden="true"></div>
+        <div class="visually-hidden" data-bind="journey-live" aria-hidden="true"></div>
+        <div class="visually-hidden" data-bind="units-live" aria-hidden="true"></div>
+        <div class="visually-hidden" data-bind="curriculum-live" aria-hidden="true"></div>
+        <div class="visually-hidden" data-bind="sources-live" aria-hidden="true"></div>
+      </div>
     `,
   "s05_3-fachkunde-lerneinheit": () => `
-
-      <div class="screen-head"><p class="eyebrow">05.3 Fachkunde</p><h2>Fachkunde — Lerneinheit</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Lern-Hub</a></div>
-      <div data-bind="unit-detail"></div>
+      <div class="fk-screen fk-eu-screen" data-node-id="136:7377">
+        <header class="fk-eu-header">
+          <a class="fk-eu-close" href="/fachkunde/lernpfad" data-page-link aria-label="Schließen">
+            <img src="/static/figma/fk/fk-eu-x.svg" width="24" height="24" alt="" />
+          </a>
+          <div class="fk-eu-head-center">
+            <p class="fk-eu-kicker">Lerneinheit 6 von 12</p>
+            <strong>Schaltpläne lesen</strong>
+          </div>
+          <span class="fk-eu-head-bar" aria-hidden="true"></span>
+        </header>
+        <div class="fk-eu-progress"><i style="width:234px"></i></div>
+        <div class="fk-eu-scroll">
+          <div class="fk-eu-lead">
+            <h2>Pneumatische Schaltpläne lesen</h2>
+            <p>Theorie &amp; Aufbau nach DIN ISO 1219</p>
+          </div>
+          <div class="fk-eu-section">
+            <h3>Was ist ein Schaltplan?</h3>
+            <p>Ein pneumatischer Schaltplan stellt die Verbindung zwischen Ventilen, Zylindern und Steuerungselementen grafisch dar. Er verwendet genormte Symbole nach DIN ISO 1219, damit Ingenieure weltweit dieselbe Sprache sprechen.</p>
+          </div>
+          <div class="fk-eu-illu-wrap">
+            <div class="fk-eu-illu">
+              <img src="/static/figma/fk/fk-eu-circle-x.svg" width="48" height="48" alt="" />
+              <p>[ DIN ISO 1219 Pneumatic Circuit Model ]</p>
+              <img class="fk-eu-diagram" src="/static/figma/fk/fk-eu-diagram.svg" width="170" height="30" alt="" />
+            </div>
+            <p class="fk-eu-caption">Abb. 1: Einfacher pneumatischer Schaltkreis mit Zylinder</p>
+          </div>
+          <div class="fk-eu-symbols">
+            <strong>Wichtige Symbole im Überblick</strong>
+            <div class="fk-eu-symbols-list">
+              <p>• Einfachwirkender Zylinder: ▯→</p>
+              <p>• Doppeltwirkender Zylinder: ←▯→</p>
+              <p>• 3/2-Wegeventil: [Symbol mit Rückholfeder]</p>
+            </div>
+          </div>
+          <div class="fk-eu-merke">
+            <img src="/static/figma/fk/fk-eu-alert.svg" width="24" height="24" alt="" />
+            <p>Merke: Die Energieflussrichtung geht im Schaltplan immer von unten nach oben!</p>
+          </div>
+          <a class="fk-eu-quiz" href="/lernen/frage" data-page-link>
+            <span class="fk-eu-quiz-left">
+              <img src="/static/figma/fk/fk-eu-gamepad.svg" width="24" height="24" alt="" />
+              <strong>Quiz: Ordne die Symbole zu</strong>
+            </span>
+            <img src="/static/figma/fk/fk-eu-arrow-right.svg" width="20" height="20" alt="" />
+          </a>
+        </div>
+        <div class="fk-eu-bottom">
+          <div class="fk-eu-bottom-row">
+            <img src="/static/figma/fk/fk-eu-dots.svg" width="76" height="12" alt="" />
+            <a class="fk-eu-next" href="/fachkunde/abschluss" data-page-link>Weiter →</a>
+          </div>
+          <div class="fk-home-indicator" aria-hidden="true"></div>
+        </div>
+        <div class="visually-hidden" data-bind="unit-detail" aria-hidden="true"></div>
+      </div>
     `,
   "s05_4-fachkunde-glossar": () => `
       <div class="fk-glossar">
@@ -2281,67 +2404,92 @@ window.OLC_SCREEN_RENDERERS = {
       </article>
     `,
   "s06_1-pruefungsliste": () => `
-
-      <div class="learn-title-row">
-        <h2 class="page-title">Prüfungen</h2>
-        <button class="icon-round" type="button" aria-label="Filter">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
-        </button>
-      </div>
-      <h3 class="section-title">Aktuelle Prüfungen</h3>
-      <article class="exam-card exam-card-featured">
-        <div class="hub-card-head">
-          <div class="hub-icon hub-icon-tools" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          </div>
-          <div>
-            <h3>Zwischenprüfung Simulation</h3>
-            <p class="muted">45 Fragen — 60 Minuten</p>
-          </div>
+      <div class="ex-screen" data-node-id="136:7988">
+        <header class="ex-header">
+          <h2 class="ex-title">Prüfungen</h2>
+          <button class="ex-filter-btn" type="button" aria-label="Filter">
+            <img src="/static/figma/exam/ex-list-filter.svg" width="18" height="18" alt="" />
+          </button>
+        </header>
+        <div class="ex-scroll">
+          <section class="ex-section">
+            <h3 class="ex-section-title">Aktuelle Prüfungen</h3>
+            <article class="ex-card featured">
+              <div class="ex-card-top">
+                <span class="ex-ico purple"><img src="/static/figma/exam/ex-timer.svg" width="22" height="22" alt="" /></span>
+                <div>
+                  <strong>Zwischenprüfung Simulation</strong>
+                  <p>45 Fragen — 60 Minuten</p>
+                </div>
+              </div>
+              <div class="ex-divider" aria-hidden="true"></div>
+              <div class="ex-card-bottom">
+                <div class="ex-best">
+                  <img src="/static/figma/exam/ex-star.svg" width="14" height="14" alt="" />
+                  <span>Beste Note: <b>2 (78%)</b></span>
+                </div>
+                <button class="ex-start purple" type="button" data-action="exam-start-shortcut">Starten</button>
+              </div>
+            </article>
+            <article class="ex-card">
+              <div class="ex-card-top">
+                <span class="ex-ico blue"><img src="/static/figma/exam/ex-settings.svg" width="22" height="22" alt="" /></span>
+                <div>
+                  <strong>Themenprüfung: Pneumatik</strong>
+                  <p>20 Fragen — 30 Minuten</p>
+                </div>
+              </div>
+              <div class="ex-divider" aria-hidden="true"></div>
+              <div class="ex-card-bottom">
+                <div class="ex-attempt">
+                  <img src="/static/figma/exam/ex-alert.svg" width="14" height="14" alt="" />
+                  <span>Noch nicht versucht</span>
+                </div>
+                <button class="ex-start" type="button" data-action="exam-start-shortcut">Starten</button>
+              </div>
+            </article>
+          </section>
+          <section class="ex-section">
+            <h3 class="ex-section-title">Prüfungsarten</h3>
+            <div class="ex-chips">
+              <button type="button" class="ex-chip active">Zwischenprüfung</button>
+              <button type="button" class="ex-chip">AP Teil 1</button>
+              <button type="button" class="ex-chip">AP Teil 2</button>
+              <button type="button" class="ex-chip">Themenprüfung</button>
+              <button type="button" class="ex-chip">Fehlerprüfung</button>
+            </div>
+          </section>
+          <section class="ex-section">
+            <div class="ex-section-row">
+              <h3 class="ex-section-title">Letzte Ergebnisse</h3>
+              <a href="/pruefungen/uebersicht" data-page-link class="ex-link">Alle Ergebnisse</a>
+            </div>
+            <div class="ex-results">
+              <div class="ex-result">
+                <div class="ex-result-left"><span class="ex-dot ok"></span><strong>Zwischenprüfung</strong></div>
+                <div class="ex-result-right"><span class="ex-score ok">72%</span><span class="ex-date">12.03.</span></div>
+              </div>
+              <div class="ex-result-div" aria-hidden="true"></div>
+              <div class="ex-result">
+                <div class="ex-result-left"><span class="ex-dot warn"></span><strong>Pneumatik</strong></div>
+                <div class="ex-result-right"><span class="ex-score warn">65%</span><span class="ex-date">10.03.</span></div>
+              </div>
+              <div class="ex-result-div" aria-hidden="true"></div>
+              <div class="ex-result">
+                <div class="ex-result-left"><span class="ex-dot ok"></span><strong>Arbeitssicherheit</strong></div>
+                <div class="ex-result-right"><span class="ex-score ok">88%</span><span class="ex-date">08.03.</span></div>
+              </div>
+            </div>
+          </section>
+          <div class="visually-hidden" data-bind="exam-live" aria-hidden="true"></div>
         </div>
-        <div class="row-between">
-          <span class="muted"><strong style="color:#10b981">Beste Note: 2 (78%)</strong></span>
-          <button class="pill-cta purple" type="button" data-action="exam-start-shortcut">Starten</button>
-        </div>
-      </article>
-      <article class="exam-card">
-        <div class="hub-card-head">
-          <div class="hub-icon hub-icon-practice" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
-          </div>
-          <div>
-            <h3>Themenprüfung: Pneumatik</h3>
-            <p class="muted">20 Fragen — 30 Minuten</p>
-          </div>
-        </div>
-        <div class="row-between">
-          <span class="muted">Noch nicht versucht</span>
-          <button class="pill-cta" type="button" data-action="exam-start-shortcut">Starten</button>
-        </div>
-      </article>
-      <h3 class="section-title">Prüfungsarten</h3>
-      <div class="filter-pills">
-        <button type="button" class="filter-pill active">Zwischenprüfung</button>
-        <button type="button" class="filter-pill">AP Teil 1</button>
-        <button type="button" class="filter-pill">AP Teil 2</button>
-        <button type="button" class="filter-pill">Themenprüfung</button>
-        <button type="button" class="filter-pill">Fehlerprüfung</button>
-      </div>
-      <div class="row-between">
-        <h3 class="section-title">Letzte Ergebnisse</h3>
-        <a href="/pruefungen/uebersicht" data-page-link class="text-link">Alle Ergebnisse</a>
-      </div>
-      <div class="results-card">
-        <div class="result-row"><span class="dot ok"></span><strong>Zwischenprüfung</strong><span class="score ok">72%</span><span class="muted">12.03.</span></div>
-        <div class="result-row"><span class="dot warn"></span><strong>Pneumatik</strong><span class="score warn">65%</span><span class="muted">10.03.</span></div>
-        <div class="result-row"><span class="dot ok"></span><strong>Arbeitssicherheit</strong><span class="score ok">88%</span><span class="muted">08.03.</span></div>
-      </div>
-      <div data-bind="exam-live"></div>
-      <div class="link-grid">
-        <a href="/pruefungen/uebersicht" data-page-link>Uebersicht</a>
-        <a href="/pruefungen/timer" data-page-link>Timer</a>
-        <a href="/pruefungen/kammertermine" data-page-link>Kammertermine</a>
-        <a href="/pruefungen/schwach" data-page-link>Schwache Themen</a>
+        <nav class="ex-tabs" aria-label="Prüfung Navigation">
+          <a href="/dashboard" data-page-link><img src="/static/figma/exam/ex-tab-house.svg" width="22" height="22" alt="" />Dashboard</a>
+          <a href="/lernen" data-page-link><img src="/static/figma/exam/ex-tab-book.svg" width="22" height="22" alt="" />Lernen</a>
+          <a href="/pruefungen" data-page-link class="active"><img src="/static/figma/exam/ex-tab-clipboard.svg" width="22" height="22" alt="" />Prüfung</a>
+          <a href="/fortschritt" data-page-link><img src="/static/figma/exam/ex-tab-chart.svg" width="22" height="22" alt="" />Statistik</a>
+        </nav>
+        <div class="ex-home-indicator" aria-hidden="true"></div>
       </div>
     `,
   "s06_2-pruefung-frage": () => `
@@ -2481,46 +2629,85 @@ window.OLC_SCREEN_RENDERERS = {
       </article>
     `,
   "s07_1-fortschritt-uebersicht": () => `
-
-      <div class="progress-screen">
-        <h2 class="page-title">Mein Fortschritt</h2>
-        <article class="progress-hero">
-          <div class="progress-hero-top">
-            <div class="progress-avatar" aria-hidden="true">
-              <span class="level-badge" data-bind="level">7</span>
+      <div class="fp-screen" data-node-id="136:8922">
+        <header class="fp-header">
+          <span class="fp-header-spacer" aria-hidden="true"></span>
+          <h2 class="fp-title">Mein Fortschritt</h2>
+          <a class="fp-award-link" href="/gamification" data-page-link aria-label="Badges">
+            <img src="/static/figma/fp/fp-award.svg" width="20" height="20" alt="" />
+          </a>
+        </header>
+        <div class="fp-scroll">
+          <article class="fp-hero">
+            <div class="fp-hero-top">
+              <div class="fp-avatar-wrap">
+                <img class="fp-ring-track" src="/static/figma/fp/fp-track.svg" width="100" height="100" alt="" />
+                <img class="fp-ring-progress" src="/static/figma/fp/fp-progress.svg" width="100" height="100" alt="" />
+                <div class="fp-avatar">
+                  <img src="/static/figma/fp/fp-avatar.png" width="78" height="78" alt="" />
+                  <span class="fp-lvl">Lvl <span data-bind="level">7</span></span>
+                </div>
+              </div>
+              <div class="fp-hero-copy">
+                <div class="fp-streak"><img src="/static/figma/fp/fp-flame.svg" width="16" height="16" alt="" /><span data-bind="streak">12</span> Tage Streak</div>
+                <strong>Exzellente Woche!</strong>
+                <p>Du bist über dem Klassenschnitt.</p>
+              </div>
             </div>
-            <div>
-              <span class="chip-streak" data-bind="streak">12</span>
-              <h3>Exzellente Woche!</h3>
-              <p class="muted">Du bist über dem Klassenschnitt.</p>
+            <div class="fp-xp">
+              <div class="fp-xp-row"><span>EP Fortschritt</span><b><span data-bind="xp">2450</span> / 3.000 XP</b></div>
+              <div class="fp-xp-bar"><i data-bind="continue-bar" style="width:240px"></i></div>
+            </div>
+          </article>
+          <h3 class="fp-section">Dein Lernpfad</h3>
+          <div class="fp-gates">
+            <div class="fp-gate done">
+              <span class="fp-gate-ico ok"><img src="/static/figma/fp/fp-check.svg" width="20" height="20" alt="" /></span>
+              <div><strong>Grundlagen</strong><p>Sicherheits- &amp; Werkstoffprüfungen</p></div>
+              <img class="fp-gate-status" src="/static/figma/fp/fp-cc.svg" width="16" height="16" alt="" />
+            </div>
+            <div class="fp-gate done">
+              <span class="fp-gate-ico ok"><img src="/static/figma/fp/fp-check.svg" width="20" height="20" alt="" /></span>
+              <div><strong>Zwischenprüfung</strong><p>IHK Teil 1 Generalprobe</p></div>
+              <img class="fp-gate-status" src="/static/figma/fp/fp-cc.svg" width="16" height="16" alt="" />
+            </div>
+            <div class="fp-gate active">
+              <span class="fp-gate-ico info"><img src="/static/figma/fp/fp-zap.svg" width="20" height="20" alt="" /></span>
+              <div><strong>Vertiefung</strong><p>Messtechnik &amp; Pneumatik Modul</p></div>
+              <span class="fp-aktiv">AKTIV</span>
+            </div>
+            <div class="fp-gate locked">
+              <span class="fp-gate-ico lock"><img src="/static/figma/fp/fp-lock.svg" width="20" height="20" alt="" /></span>
+              <div><strong>AP Teil 1</strong><p>IHK Abschlussprüfung Teil 1</p></div>
+              <img class="fp-gate-status" src="/static/figma/fp/fp-lock-sm.svg" width="16" height="16" alt="" />
+            </div>
+            <div class="fp-gate locked">
+              <span class="fp-gate-ico lock"><img src="/static/figma/fp/fp-lock.svg" width="20" height="20" alt="" /></span>
+              <div><strong>AP Teil 2</strong><p>Fachrichtungsspezifische Theorie</p></div>
+              <img class="fp-gate-status" src="/static/figma/fp/fp-lock-sm.svg" width="16" height="16" alt="" />
             </div>
           </div>
-          <div class="row-between"><span class="muted">EP Fortschritt</span><strong class="xp-text"><span data-bind="xp">2450</span> XP</strong></div>
-          <div class="mastery-track xp-track"><span class="mastery-fill" data-bind="continue-bar" style="width:80%"></span></div>
-        </article>
-        <h3 class="section-title">Dein Lernpfad</h3>
-        <div class="path-gates">
-          <div class="gate done"><strong>Grundlagen</strong><span class="muted">Sicherheits- &amp; Werkstoffprüfungen</span></div>
-          <div class="gate done"><strong>Zwischenprüfung</strong><span class="muted">IHK Teil 1 Generalprobe</span></div>
-          <div class="gate active"><strong>Vertiefung</strong><span class="muted">Messtechnik &amp; Pneumatik Modul</span><span class="status-pill info">AKTIV</span></div>
-          <div class="gate locked"><strong>AP Teil 1</strong><span class="muted">IHK Abschlussprüfung Teil 1</span></div>
-          <div class="gate locked"><strong>AP Teil 2</strong><span class="muted">Fachrichtungsspezifische Theorie</span></div>
+          <div class="fp-badges-head">
+            <h3 class="fp-section">Erfolge (12)</h3>
+            <a href="/gamification" data-page-link class="fp-link">Alle Badges (12)</a>
+          </div>
+          <div class="fp-badges">
+            <div class="fp-badge"><span><img src="/static/figma/fp/fp-badge-zap.svg" width="20" height="20" alt="" /></span><p>Pionier</p></div>
+            <div class="fp-badge"><span><img src="/static/figma/fp/fp-badge-award.svg" width="20" height="20" alt="" /></span><p>10 Tage</p></div>
+            <div class="fp-badge"><span><img src="/static/figma/fp/fp-badge-check.svg" width="20" height="20" alt="" /></span><p>Perfekt</p></div>
+            <div class="fp-badge"><span><img src="/static/figma/fp/fp-badge-clock.svg" width="20" height="20" alt="" /></span><p>Speedy</p></div>
+          </div>
+          <div class="visually-hidden" aria-hidden="true">
+            <span data-bind="mastered"></span><span data-bind="wrong"></span><span data-bind="readiness"></span>
+          </div>
         </div>
-        <div class="metric-grid">
-          <article class="metric-card card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
-          <article class="metric-card card"><strong data-bind="wrong">0</strong><span>Fehler</span></article>
-          <article class="metric-card card"><strong data-bind="readiness">0%</strong><span>Reife</span></article>
-        </div>
-        <div class="link-grid">
-          <a href="/fortschritt/pruefungsreife" data-page-link>Pruefungsreife</a>
-          <a href="/fortschritt/verlauf" data-page-link>Verlauf</a>
-          <a href="/fortschritt/xp" data-page-link>XP &amp; Streak</a>
-          <a href="/fortschritt/heatmap" data-page-link>Heatmap</a>
-          <a href="/gamification" data-page-link>Alle Badges</a>
-        </div>
-        <div class="row-actions">
-          <button class="secondary-button" type="button" data-action="reset-progress">Fortschritt zuruecksetzen</button>
-        </div>
+        <nav class="fp-tabs" aria-label="Fortschritt Navigation">
+          <a href="/dashboard" data-page-link><img src="/static/figma/fp/fp-tab-book.svg" width="20" height="20" alt="" />Campus</a>
+          <a href="/lernen" data-page-link><img src="/static/figma/fp/fp-tab-edit.svg" width="20" height="20" alt="" />Üben</a>
+          <a href="/berichtsheft" data-page-link class="active"><img src="/static/figma/fp/fp-tab-activity.svg" width="20" height="20" alt="" />Bericht</a>
+          <a href="/mehr" data-page-link><img src="/static/figma/fp/fp-tab-user.svg" width="20" height="20" alt="" />Profil</a>
+        </nav>
+        <div class="fp-home-indicator" aria-hidden="true"></div>
       </div>
     `,
   "s07_2-pruefungsreife-checkliste": () => `
@@ -2616,74 +2803,63 @@ window.OLC_SCREEN_RENDERERS = {
       </article>
     `,
   "s08_1-berichtsheft-liste": () => `
-
-      <div class="bh-screen">
-        <div class="learn-title-row">
-          <div class="bh-brand">
-            <span class="bh-logo" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-            </span>
-            <h2 class="page-title">Berichtsheft</h2>
+      <div class="bh2-screen" data-node-id="136:9762">
+        <header class="bh2-header">
+          <div class="bh2-brand">
+            <span class="bh2-logo"><img src="/static/figma/bh/bh-book.svg" width="18" height="18" alt="" /></span>
+            <h2>Berichtsheft</h2>
           </div>
-          <a class="icon-round primary" href="/berichtsheft/neu" data-page-link aria-label="Neuer Eintrag">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+          <a class="bh2-add" href="/berichtsheft/neu" data-page-link aria-label="Neuer Eintrag">
+            <img src="/static/figma/bh/bh-plus.svg" width="20" height="20" alt="" />
           </a>
+        </header>
+        <div class="bh2-filters" role="tablist" aria-label="Filter">
+          <button class="bh2-chip active" type="button">Alle</button>
+          <button class="bh2-chip" type="button">Lücken</button>
+          <button class="bh2-chip" type="button">Entwürfe</button>
+          <button class="bh2-chip" type="button">Freigegeben</button>
         </div>
-        <div class="bh-filters" role="tablist" aria-label="Filter">
-          <button class="bh-chip active" type="button">Alle</button>
-          <button class="bh-chip" type="button">Lücken</button>
-          <button class="bh-chip" type="button">Entwürfe</button>
-          <button class="bh-chip" type="button">Freigegeben</button>
-        </div>
-        <a class="bh-warn-banner" href="/berichtsheft/neu" data-page-link>
-          <div class="bh-warn-top">
-            <span class="bh-warn-icon" aria-hidden="true">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
-            </span>
-            <div>
-              <strong>3 fehlende Einträge</strong>
-              <span class="muted">KW 10, KW 11, KW 12</span>
+        <div class="bh2-scroll">
+          <a class="bh2-warn" href="/berichtsheft/neu" data-page-link>
+            <div class="bh2-warn-top">
+              <span class="bh2-warn-ico"><img src="/static/figma/bh/bh-alert.svg" width="18" height="18" alt="" /></span>
+              <div><strong>3 fehlende Einträge</strong><span>KW 10, KW 11, KW 12</span></div>
             </div>
-          </div>
-          <span class="bh-warn-cta">Jetzt ausfüllen und einreichen <span aria-hidden="true">→</span></span>
-        </a>
-        <p class="bh-section-label">Berichte Chronologisch</p>
-        <div class="bh-entry-list">
-          <a class="bh-entry" href="/berichtsheft/unterschrift" data-page-link>
-            <div class="bh-entry-top"><div class="bh-entry-dates"><strong>KW 13</strong><span>25.–29.03.</span></div><span class="bh-status draft">Entwurf</span></div>
-            <div class="bh-entry-bottom"><div><p>Montage Grundlagen, Pneumatik-Übung</p><span class="muted">Letzte Änderung gestern</span></div><span class="bh-chevron" aria-hidden="true">›</span></div>
+            <div class="bh2-warn-cta">Jetzt ausfüllen und einreichen <img src="/static/figma/bh/bh-arrow.svg" width="16" height="16" alt="" /></div>
           </a>
-          <a class="bh-entry gap" href="/berichtsheft/neu" data-page-link>
-            <div class="bh-entry-top"><div class="bh-entry-dates"><strong>KW 12</strong><span>18.–22.03.</span></div><span class="bh-status gap">Lücke</span></div>
-            <div class="bh-entry-bottom"><div><p class="danger-text">Eintrag fehlt!</p><span class="muted">Fällig seit 4 Tagen</span></div><span class="bh-fill-btn">Ausfüllen</span></div>
+          <p class="bh2-label">Berichte Chronologisch</p>
+          <a class="bh2-entry" href="/berichtsheft/unterschrift" data-page-link>
+            <div class="bh2-entry-top"><div><strong>KW 13</strong><span>25.–29.03.</span></div><span class="bh2-tag draft">Entwurf</span></div>
+            <div class="bh2-entry-bottom"><div><strong>Montage Grundlagen, Pneumatik-Übung</strong><span>Letzte Änderung gestern</span></div><img src="/static/figma/bh/bh-chevron.svg" width="16" height="16" alt="" /></div>
           </a>
-          <a class="bh-entry gap" href="/berichtsheft/neu" data-page-link>
-            <div class="bh-entry-top"><div class="bh-entry-dates"><strong>KW 11</strong><span>11.–15.03.</span></div><span class="bh-status gap">Lücke</span></div>
-            <div class="bh-entry-bottom"><div><p class="danger-text">Eintrag fehlt!</p><span class="muted">Fällig seit 11 Tagen</span></div><span class="bh-fill-btn">Ausfüllen</span></div>
+          <a class="bh2-entry gap" href="/berichtsheft/neu" data-page-link>
+            <div class="bh2-entry-top"><div><strong>KW 12</strong><span>18.–22.03.</span></div><span class="bh2-tag gap">Lücke</span></div>
+            <div class="bh2-entry-bottom"><div><strong class="danger">Eintrag fehlt!</strong><span>Fällig seit 4 Tagen</span></div><span class="bh2-fill">Ausfüllen</span></div>
           </a>
-          <a class="bh-entry" href="/berichtsheft/unterschrift" data-page-link>
-            <div class="bh-entry-top"><div class="bh-entry-dates"><strong>KW 10</strong><span>04.–08.03.</span></div><span class="bh-status ok">Freigegeben</span></div>
-            <div class="bh-entry-bottom"><div><p>Werkstoffprüfung, Messtechnik Labor</p><span class="muted">Freigegeben durch H. Müller</span></div><span class="bh-chevron" aria-hidden="true">›</span></div>
+          <a class="bh2-entry gap" href="/berichtsheft/neu" data-page-link>
+            <div class="bh2-entry-top"><div><strong>KW 11</strong><span>11.–15.03.</span></div><span class="bh2-tag gap">Lücke</span></div>
+            <div class="bh2-entry-bottom"><div><strong class="danger">Eintrag fehlt!</strong><span>Fällig seit 11 Tagen</span></div><span class="bh2-fill">Ausfüllen</span></div>
           </a>
-          <a class="bh-entry" href="/berichtsheft/unterschrift" data-page-link>
-            <div class="bh-entry-top"><div class="bh-entry-dates"><strong>KW 9</strong><span>25.–29.02.</span></div><span class="bh-status ok">Freigegeben</span></div>
-            <div class="bh-entry-bottom"><div><p>Drehen und Fräsen, Qualitätskontrolle</p><span class="muted">Freigegeben durch H. Müller</span></div><span class="bh-chevron" aria-hidden="true">›</span></div>
+          <a class="bh2-entry" href="/berichtsheft/unterschrift" data-page-link>
+            <div class="bh2-entry-top"><div><strong>KW 10</strong><span>04.–08.03.</span></div><span class="bh2-tag ok">Freigegeben</span></div>
+            <div class="bh2-entry-bottom"><div><strong>Werkstoffprüfung, Messtechnik Labor</strong><span>Freigegeben durch H. Müller</span></div><img src="/static/figma/bh/bh-chevron.svg" width="16" height="16" alt="" /></div>
           </a>
+          <a class="bh2-entry" href="/berichtsheft/unterschrift" data-page-link>
+            <div class="bh2-entry-top"><div><strong>KW 9</strong><span>25.–29.02.</span></div><span class="bh2-tag ok">Freigegeben</span></div>
+            <div class="bh2-entry-bottom"><div><strong>Drehen und Fräsen, Qualitätskontrolle</strong><span>Freigegeben durch H. Müller</span></div><img src="/static/figma/bh/bh-chevron.svg" width="16" height="16" alt="" /></div>
+          </a>
+          <div class="visually-hidden" data-bind="reports-live" aria-hidden="true"></div>
         </div>
-        <div class="bh-progress-footer">
-          <div class="row-between"><span class="muted">Dokumentierter Fortschritt</span><strong class="bh-progress-pct">12 von 24 Wochen (50%)</strong></div>
-          <div class="mastery-track"><span class="mastery-fill" style="width:50%"></span></div>
+        <div class="bh2-progress">
+          <div class="bh2-progress-row"><span>Dokumentierter Fortschritt</span><b>12 von 24 Wochen (50%)</b></div>
+          <div class="bh2-progress-bar"><i style="width:175px"></i></div>
         </div>
-        <article class="card hub-api-card">
-          <h3>Meine Einträge (API)</h3>
-          <div data-bind="reports-live"></div>
-        </article>
-        <div class="link-grid">
-          <a href="/berichtsheft/ki" data-page-link>KI-Assistent</a>
-          <a href="/berichtsheft/kalender" data-page-link>Kalender</a>
-          <a href="/berichtsheft/export" data-page-link>PDF-Export</a>
-          <a href="/berichtsheft/leer" data-page-link>Leerzustand</a>
-        </div>
+        <nav class="bh2-tabs" aria-label="Bericht Navigation">
+          <a href="/dashboard" data-page-link><span><img src="/static/figma/bh/bh-tab-home.svg" width="20" height="20" alt="" /></span>Campus</a>
+          <a href="/berichtsheft" data-page-link class="active"><span class="on"><img src="/static/figma/bh/bh-tab-file.svg" width="20" height="20" alt="" /></span>Bericht</a>
+          <a href="/fortschritt" data-page-link><span><img src="/static/figma/bh/bh-tab-trophy.svg" width="20" height="20" alt="" /></span>Erfolge</a>
+          <a href="/mehr" data-page-link><span><img src="/static/figma/bh/bh-tab-user.svg" width="20" height="20" alt="" /></span>Profil</a>
+        </nav>
       </div>
     `,
   "s08_2-berichtsheft-neuer-eintrag": () => `

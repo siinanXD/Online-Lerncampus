@@ -84,8 +84,8 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | Status | Node | Name | Size |
 |--------|------|------|------|
 | [~] | `136:6862` | 05.1 Fachkunde — Einstieg | 390×895 |
-| [ ] | `136:7131` | 05.2 Fachkunde — Lernpfad | 390×1172 |
-| [ ] | `136:7377` | 05.3 Fachkunde — Lerneinheit | 390×958 |
+| [x] | `136:7131` | 05.2 Fachkunde — Lernpfad | 390×1172 |
+| [~] | `136:7377` | 05.3 Fachkunde — Lerneinheit | 390×958 |
 | [ ] | `136:7543` | 05.4 Fachkunde — Glossar | 390×920 |
 | [ ] | `136:7765` | 05.5 Lektion abgeschlossen | 390×854 |
 | [ ] | `136:7856` | 05.6 Lernbausteine Übersicht | 390×844 |
@@ -99,7 +99,7 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 
 | Status | Node | Name | Size |
 |--------|------|------|------|
-| [ ] | `136:7988` | 06.1 Prüfungsliste | 390×906 |
+| [~] | `136:7988` | 06.1 Prüfungsliste | 390×906 |
 | [ ] | `136:8115` | 06.2 Prüfung — Frage | 390×844 |
 | [ ] | `136:8178` | 06.3 Prüfung — Übersicht | 390×844 |
 | [ ] | `136:8326` | 06.4 Prüfung — Timer | 390×844 |
@@ -113,7 +113,7 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 
 | Status | Node | Name | Size |
 |--------|------|------|------|
-| [ ] | `136:8922` | 07.1 Fortschritt — Übersicht | 390×961 |
+| [~] | `136:8922` | 07.1 Fortschritt — Übersicht | 390×961 |
 | [ ] | `136:9093` | 07.2 Prüfungsreife — Checkliste | 390×947 |
 | [ ] | `136:9238` | 07.3 Prüfungsreife — Ausstehend | 390×895 |
 | [ ] | `136:9371` | 07.4 Statistik — Verlauf | 390×971 |
@@ -124,7 +124,7 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 
 | Status | Node | Name | Size |
 |--------|------|------|------|
-| [ ] | `136:9762` | 08.1 Berichtsheft — Liste | 390×1099 |
+| [~] | `136:9762` | 08.1 Berichtsheft — Liste | 390×1099 |
 | [ ] | `136:9912` | 08.2 Berichtsheft — Neuer Eintrag | 390×1211 |
 | [ ] | `136:9998` | 08.3 Berichtsheft — KI-Assistent | 390×897 |
 | [ ] | `136:10069` | 08.4 Berichtsheft — Unterschrift | 390×844 |
@@ -220,3 +220,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Lernen 04.7–04.12: tighten feedback/overlays (04.9 [x] ~6.9%); Formeltrainer 04.11 [x] ~7.7%; Fehlerdiagnose 04.12 shell [~]; 04.7/04.8/04.10 still ~9–12% delta
 - Lernen 04.13 Video [~] ~10.6% + 04.14 Lern-Detail [x] ~6.4%; feedback margins tightened (04.7 ~10.4%, 04.8 ~11.4%, 04.10 ~9.4%, 04.12 ~10.8%)
 - Fachkunde 05.1 Einstieg [~] ~8.4% from Figma (grid + intro + Lernen/Praxis/Glossar/Profil tabs)
+- Fachkunde 05.2 Lernpfad [x] ~6.6%; 05.3 Lerneinheit [~] ~10.7%; Prüfung 06.1 [~] ~9.9%; Fortschritt 07.1 [~] ~12.7%; Bericht 08.1 [~] ~10.0%

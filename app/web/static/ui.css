@@ -8971,3 +8971,132 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
 }
 .bh2-tabs span.on { background: rgba(59,130,246,0.11); }
 .bh2-tabs img { width: 20px; height: 20px; display: block; }
+
+/* --- 05.4 Fachkunde Glossar --- */
+.app-frame[data-chrome="fk"]:has(.fk-gl-screen) {
+  height: 920px;
+  min-height: 920px;
+}
+.fk-gl-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 48px;
+  padding: 0 20px;
+  flex-shrink: 0;
+}
+.fk-gl-left { display: flex; align-items: center; gap: 12px; }
+.fk-gl-search-btn {
+  display: inline-grid;
+  place-items: center;
+  padding: 8px;
+  border-radius: 100px;
+  background: #eff6ff;
+  border: none;
+  cursor: pointer;
+}
+.fk-gl-search-btn img { width: 20px; height: 20px; display: block; }
+.fk-gl-search-wrap { padding: 12px 20px; flex-shrink: 0; }
+.fk-gl-search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  box-sizing: border-box;
+}
+.fk-gl-search img { width: 18px; height: 18px; display: block; flex-shrink: 0; }
+.fk-gl-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #0f172a;
+  font-size: 14px;
+}
+.fk-gl-search input::placeholder { color: #94a3b8; }
+.fk-gl-alpha {
+  display: flex;
+  gap: 4px;
+  padding: 0 16px 12px;
+  overflow: auto;
+  flex-shrink: 0;
+}
+.fk-gl-alpha button {
+  width: 36px;
+  height: 36px;
+  border-radius: 18px;
+  border: none;
+  background: transparent;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+.fk-gl-alpha button.active {
+  background: #2563eb;
+  border: 1px solid #2563eb;
+  color: #fff;
+  font-weight: 800;
+}
+.fk-gl-list {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0 20px 24px;
+}
+.fk-gl-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  text-decoration: none;
+  color: inherit;
+  box-sizing: border-box;
+}
+.fk-gl-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fk-gl-card-top strong {
+  color: #0f172a;
+  font-size: 16px;
+  font-weight: 800;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fk-gl-card-top img { width: 18px; height: 18px; display: block; flex-shrink: 0; }
+.fk-gl-card p {
+  margin: 0;
+  color: #475569;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fk-gl-tag {
+  align-self: flex-start;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+.fk-gl-tag.blue { background: #eff6ff; color: #2563eb; }
+.fk-gl-tag.gray { background: #f1f5f9; color: #475569; }
+.fk-gl-tag.amber { background: #fef3c7; color: #d97706; }
+.fk-gl-tag.green { background: #ecfdf5; color: #10b981; }

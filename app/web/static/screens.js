@@ -41,7 +41,7 @@ window.OLC_ROUTE_CONFIG = {
   "/fachkunde/freigabe": { layout: "app", screen: "s05_10-lerneinheit-freigabe", title: "Lerneinheit — Freigabe", tab: "learn", num: "05.10" },
   "/fachkunde/lernpfad": { layout: "app", screen: "s05_2-fachkunde-lernpfad", title: "Fachkunde — Lernpfad", tab: "learn", num: "05.2", chrome: "fk" },
   "/fachkunde/einheit": { layout: "app", screen: "s05_3-fachkunde-lerneinheit", title: "Fachkunde — Lerneinheit", tab: "learn", num: "05.3", chrome: "fk" },
-  "/fachkunde/glossar": { layout: "app", screen: "s05_4-fachkunde-glossar", title: "Fachkunde — Glossar", tab: "learn", num: "05.4" },
+  "/fachkunde/glossar": { layout: "app", screen: "s05_4-fachkunde-glossar", title: "Fachkunde — Glossar", tab: "learn", num: "05.4", chrome: "fk" },
   "/fachkunde/abschluss": { layout: "app", screen: "s05_5-lektion-abgeschlossen", title: "Lektion abgeschlossen", tab: "learn", num: "05.5" },
   "/fachkunde/bausteine": { layout: "app", screen: "s05_6-lernbausteine-uebersicht", title: "Lernbausteine Übersicht", tab: "learn", num: "05.6" },
   "/fachkunde/toleranz": { layout: "app", screen: "s05_7-toleranzfeld-rechner-default", title: "Toleranzfeld-Rechner — Default", tab: "learn", num: "05.7" },
@@ -2294,37 +2294,70 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s05_4-fachkunde-glossar": () => `
-      <div class="fk-glossar">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/fachkunde" data-page-link aria-label="Zurück">‹</a>
-          <div>
-            <h2 class="page-title">Fachkunde — Glossar</h2>
-            <p class="muted">Fachbegriffe nachschlagen</p>
+      <div class="fk-screen fk-gl-screen" data-node-id="136:7543">
+        <header class="fk-gl-header">
+          <div class="fk-gl-left">
+            <a class="fk-lp-back" href="/fachkunde" data-page-link aria-label="Zurück">
+              <img src="/static/figma/fk/fk-lp-arrow-left.svg" width="24" height="24" alt="" />
+            </a>
+            <h2 class="fk-lp-title">Glossar</h2>
           </div>
+          <button class="fk-gl-search-btn" type="button" aria-label="Suche">
+            <img src="/static/figma/fk/fk-gl-search.svg" width="20" height="20" alt="" />
+          </button>
+        </header>
+        <div class="fk-gl-search-wrap">
+          <label class="fk-gl-search">
+            <img src="/static/figma/fk/fk-gl-search-sm.svg" width="18" height="18" alt="" />
+            <input type="search" placeholder="Begriff suchen..." />
+            <img src="/static/figma/fk/fk-gl-keyboard.svg" width="18" height="18" alt="" />
+          </label>
         </div>
-        <label class="fk-search">
-          <span class="visually-hidden">Begriff suchen</span>
-          <input type="search" placeholder="Begriff suchen..." />
-        </label>
-        <div class="fk-alpha" aria-label="Alphabet">
-          <button type="button" class="fk-alpha-btn active">A</button>
-          <button type="button" class="fk-alpha-btn">B</button>
-          <button type="button" class="fk-alpha-btn">C</button>
-          <button type="button" class="fk-alpha-btn">D</button>
-          <button type="button" class="fk-alpha-btn">E</button>
-          <button type="button" class="fk-alpha-btn">F</button>
-          <button type="button" class="fk-alpha-btn">G</button>
-          <button type="button" class="fk-alpha-btn">H</button>
+        <div class="fk-gl-alpha" aria-label="Alphabet">
+          <button type="button">A</button><button type="button">B</button><button type="button">C</button>
+          <button type="button">D</button><button type="button">E</button><button type="button">F</button>
+          <button type="button">G</button><button type="button">H</button><button type="button">I</button>
+          <button type="button">K</button><button type="button">L</button><button type="button">M</button>
+          <button type="button">N</button><button type="button">O</button>
+          <button type="button" class="active">P</button>
+          <button type="button">R</button><button type="button">S</button><button type="button">T</button>
+          <button type="button">U</button><button type="button">V</button><button type="button">W</button>
+          <button type="button">Z</button>
         </div>
-        <div class="fk-glossar-list">
-          <article class="fk-term card"><strong>Absolutdruck</strong><p class="muted">Druck bezogen auf das absolute Vakuum (0 bar).</p></article>
-          <article class="fk-term card"><strong>Arbeitsdruck</strong><p class="muted">Betriebsdruck einer Anlage im Normalbetrieb.</p></article>
-          <article class="fk-term card"><strong>Anschlagmaß</strong><p class="muted">Maß, das durch Anschlagflächen definiert wird.</p></article>
+        <div class="fk-gl-list">
+          <a class="fk-gl-card" href="/fachkunde/einheit" data-page-link>
+            <div class="fk-gl-card-top"><strong>Pneumatik</strong><img src="/static/figma/fk/fk-gl-arrow.svg" width="18" height="18" alt="" /></div>
+            <p>Technik, die Druckluft als Arbeitsmedium nutzt.</p>
+            <span class="fk-gl-tag blue">Grundlagen</span>
+          </a>
+          <a class="fk-gl-card" href="/fachkunde/einheit" data-page-link>
+            <div class="fk-gl-card-top"><strong>Pleuel</strong><img src="/static/figma/fk/fk-gl-arrow.svg" width="18" height="18" alt="" /></div>
+            <p>Verbindungsstange zwischen Kolben und Kurbelwelle.</p>
+            <span class="fk-gl-tag gray">Fertigung</span>
+          </a>
+          <a class="fk-gl-card" href="/fachkunde/einheit" data-page-link>
+            <div class="fk-gl-card-top"><strong>Prüfmittel</strong><img src="/static/figma/fk/fk-gl-arrow.svg" width="18" height="18" alt="" /></div>
+            <p>Geräte und Werkzeuge zur Messung von Bauteilen.</p>
+            <span class="fk-gl-tag amber">Qualität</span>
+          </a>
+          <a class="fk-gl-card" href="/fachkunde/einheit" data-page-link>
+            <div class="fk-gl-card-top"><strong>PSA (Persönliche Schutzausrüstung)</strong><img src="/static/figma/fk/fk-gl-arrow.svg" width="18" height="18" alt="" /></div>
+            <p>Ausrüstung zum Schutz vor gesundheitlichen Gefahren am Arbeitsplatz.</p>
+            <span class="fk-gl-tag green">Sicherheit</span>
+          </a>
+          <a class="fk-gl-card" href="/fachkunde/einheit" data-page-link>
+            <div class="fk-gl-card-top"><strong>Passungsarten</strong><img src="/static/figma/fk/fk-gl-arrow.svg" width="18" height="18" alt="" /></div>
+            <p>Spielpassung, Übergangspassung und Übermaßpassung.</p>
+            <span class="fk-gl-tag blue">Werkstoffkunde</span>
+          </a>
         </div>
-        <div class="link-grid">
-          <a href="/fachkunde/lernpfad" data-page-link>Lernpfad</a>
-          <a href="/fachkunde/bausteine" data-page-link>Bausteine</a>
-        </div>
+        <nav class="fk-tabs" aria-label="Fachkunde Navigation">
+          <a href="/lernen" data-page-link><img src="/static/figma/fk/fk-tab-book.svg" width="22" height="22" alt="" />Lernen</a>
+          <a href="/fachkunde/bausteine" data-page-link><img src="/static/figma/fk/fk-tab-dumbbell.svg" width="22" height="22" alt="" />Praxis</a>
+          <a href="/fachkunde/glossar" data-page-link class="active"><img src="/static/figma/fk/fk-tab-clipboard-active.svg" width="22" height="22" alt="" />Glossar</a>
+          <a href="/mehr" data-page-link><img src="/static/figma/fk/fk-tab-user.svg" width="22" height="22" alt="" />Profil</a>
+        </nav>
+        <div class="fk-home-indicator" aria-hidden="true"></div>
       </div>
     `,
   "s05_5-lektion-abgeschlossen": () => `

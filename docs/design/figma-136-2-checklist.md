@@ -86,7 +86,7 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | [~] | `136:6862` | 05.1 Fachkunde — Einstieg | 390×895 |
 | [x] | `136:7131` | 05.2 Fachkunde — Lernpfad | 390×1172 |
 | [~] | `136:7377` | 05.3 Fachkunde — Lerneinheit | 390×958 |
-| [ ] | `136:7543` | 05.4 Fachkunde — Glossar | 390×920 |
+| [x] | `136:7543` | 05.4 Fachkunde — Glossar | 390×920 |
 | [ ] | `136:7765` | 05.5 Lektion abgeschlossen | 390×854 |
 | [ ] | `136:7856` | 05.6 Lernbausteine Übersicht | 390×844 |
 | [ ] | `136:7038` | 05.7 Toleranzfeld-Rechner — Default | 390×885 |
@@ -220,4 +220,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Lernen 04.7–04.12: tighten feedback/overlays (04.9 [x] ~6.9%); Formeltrainer 04.11 [x] ~7.7%; Fehlerdiagnose 04.12 shell [~]; 04.7/04.8/04.10 still ~9–12% delta
 - Lernen 04.13 Video [~] ~10.6% + 04.14 Lern-Detail [x] ~6.4%; feedback margins tightened (04.7 ~10.4%, 04.8 ~11.4%, 04.10 ~9.4%, 04.12 ~10.8%)
 - Fachkunde 05.1 Einstieg [~] ~8.4% from Figma (grid + intro + Lernen/Praxis/Glossar/Profil tabs)
-- Fachkunde 05.2 Lernpfad [x] ~6.6%; 05.3 Lerneinheit [~] ~10.7%; Prüfung 06.1 [~] ~9.9%; Fortschritt 07.1 [~] ~12.7%; Bericht 08.1 [~] ~10.0%
+- Fachkunde 05.2 Lernpfad [x] ~6.6%; 05.3 Lerneinheit [~] ~10.7%; 05.4 Glossar [x] ~7.4%; Prüfung 06.1 [~] ~9.9%; Fortschritt 07.1 [~] ~12.7%; Bericht 08.1 [~] ~10.0%

@@ -18,7 +18,12 @@ class Settings(BaseSettings):
     )
     content_review_required: bool = True
     content_source: str = Field(default="db", alias="CONTENT_SOURCE")
+    content_seed_format: str = Field(default="python", alias="CONTENT_SEED_FORMAT")
     content_seed_on_startup: bool = Field(default=True, alias="CONTENT_SEED_ON_STARTUP")
+    content_json_bundle_path: str = Field(
+        default="app/content/maf/v1/bundle.json",
+        alias="CONTENT_JSON_BUNDLE_PATH",
+    )
     ai_provider: str = "disabled"
     database_url: str = "sqlite:///./local.db"
     app_secret: str = "local-dev-change-me"

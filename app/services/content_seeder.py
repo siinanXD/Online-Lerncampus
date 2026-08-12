@@ -3,32 +3,30 @@
 from __future__ import annotations
 
 import json
-import sqlite3
 from typing import Any
 
-from app.data.content.questions import ALL_QUESTIONS
-from app.data.content.subchapters import MONTH_SUBCHAPTERS, slugify
-from app.data.machine_operator import (
-    MACHINE_OPERATOR_CURRICULUM,
-    MACHINE_OPERATOR_MODULES,
-    SUPPORTED_OCCUPATIONS,
-)
-from app.data.question_bank import FIRST_CHAPTER, PRACTICE_EXAMS, QUESTION_CATEGORIES
-from app.data.sources import TRUSTED_SOURCES
-from app.data.learning_units import LEARNING_UNITS, OPEN_QUESTIONS
+from app.db.dialect import insert_ignore_sql
+
+from app.data.content_bundle import ContentBundle, load_json_bundle, load_python_bundle
+from app.data.content.subchapters import slugify
 from app.models.domain import ReviewStatus
 from app.services.database import Database, utc_now_iso
 
 
 class ContentSeeder:
-    """Idempotent importer from in-repo Python seeds into SQLite content tables."""
+    """Idempotent importer from Python or JSON bundles into content tables."""
 
     OCCUPATION_SLUG = "maschinen-und-anlagenfuehrer"
     SPECIALIZATION_SLUG = "metall-und-kunststofftechnik"
 
-    def __init__(self, database: Database) -> None:
+    def __init__(
+        self,
+        database: Database,
+        bundle: ContentBundle | None = None,
+    ) -> None:
         """Attach to an initialized application database."""
         self.database = database
+        self.bundle = bundle or load_python_bundle()
 
     def is_empty(self) -> bool:
         """Return True when no quiz questions have been imported yet."""
@@ -129,7 +127,7 @@ class ContentSeeder:
                 connection.execute(f"DELETE FROM {table}")
 
     def _upsert_occupation(self, connection: sqlite3.Connection) -> int:
-        occupation = SUPPORTED_OCCUPATIONS[0]
+        occupation = self.bundle.occupations[0]
         connection.execute(
             """
             INSERT INTO occupations (slug, title, duration_months, created_at)
@@ -156,7 +154,7 @@ class ContentSeeder:
         connection: sqlite3.Connection,
         occupation_id: int,
     ) -> int:
-        specialization = SUPPORTED_OCCUPATIONS[0].specializations[0]
+        specialization = self.bundle.occupations[0].specializations[0]
         connection.execute(
             """
             INSERT INTO specializations (occupation_id, slug, title, created_at)
@@ -182,7 +180,7 @@ class ContentSeeder:
         specialization_id: int,
     ) -> dict[int, int]:
         month_ids: dict[int, int] = {}
-        for entry in MACHINE_OPERATOR_CURRICULUM:
+        for entry in self.bundle.curriculum:
             connection.execute(
                 """
                 INSERT INTO curriculum_months (
@@ -231,7 +229,7 @@ class ContentSeeder:
         month_ids: dict[int, int],
     ) -> int:
         count = 0
-        for module in MACHINE_OPERATOR_MODULES:
+        for module in self.bundle.modules:
             curriculum_month_id = month_ids[module.month]
             connection.execute(
                 """
@@ -268,7 +266,7 @@ class ContentSeeder:
         return count
 
     def _upsert_sources(self, connection: sqlite3.Connection) -> int:
-        for source in TRUSTED_SOURCES:
+        for source in self.bundle.sources:
             connection.execute(
                 """
                 INSERT INTO source_documents (
@@ -301,7 +299,7 @@ class ContentSeeder:
                     utc_now_iso(),
                 ),
             )
-        return len(TRUSTED_SOURCES)
+        return len(self.bundle.sources)
 
     def _upsert_categories(
         self,
@@ -309,7 +307,7 @@ class ContentSeeder:
         month_ids: dict[int, int],
     ) -> dict[str, int]:
         category_ids: dict[str, int] = {}
-        for category in QUESTION_CATEGORIES:
+        for category in self.bundle.categories:
             curriculum_month_id = month_ids[category.month]
             connection.execute(
                 """
@@ -350,7 +348,7 @@ class ContentSeeder:
     ) -> int:
         source_key_to_id = self._source_key_map(connection)
         count = 0
-        for unit in LEARNING_UNITS:
+        for unit in self.bundle.units:
             curriculum_month_id = month_ids[unit.month]
             connection.execute(
                 """
@@ -453,13 +451,13 @@ class ContentSeeder:
                 if category_id is None:
                     continue
                 connection.execute(
-                    """
-                    INSERT OR IGNORE INTO learning_unit_categories (
-                        learning_unit_id,
-                        category_id
-                    )
-                    VALUES (?, ?)
-                    """,
+                    insert_ignore_sql(
+                        "learning_unit_categories",
+                        "learning_unit_id, category_id",
+                        "?, ?",
+                        "learning_unit_id, category_id",
+                        self.database.dialect,
+                    ),
                     (unit_id, category_id),
                 )
             self._link_sources(
@@ -468,6 +466,7 @@ class ContentSeeder:
                 "learning_unit",
                 unit_id,
                 unit.source_keys,
+                self.database.dialect,
             )
             count += 1
         return count
@@ -479,7 +478,7 @@ class ContentSeeder:
     ) -> dict[str, int]:
         source_key_to_id = self._source_key_map(connection)
         question_pk: dict[str, int] = {}
-        for question in ALL_QUESTIONS:
+        for question in self.bundle.questions:
             category_id = category_ids[question.category_slug]
             connection.execute(
                 """
@@ -544,6 +543,7 @@ class ContentSeeder:
                 "quiz_question",
                 pk,
                 question.source_keys,
+                self.database.dialect,
             )
         return question_pk
 
@@ -554,7 +554,7 @@ class ContentSeeder:
     ) -> dict[str, int]:
         source_key_to_id = self._source_key_map(connection)
         open_pk: dict[str, int] = {}
-        for question in OPEN_QUESTIONS:
+        for question in self.bundle.open_questions:
             category_id = category_ids[question.category_slug]
             connection.execute(
                 """
@@ -627,6 +627,7 @@ class ContentSeeder:
                 "open_question",
                 pk,
                 question.source_keys,
+                self.database.dialect,
             )
         return open_pk
 
@@ -638,7 +639,7 @@ class ContentSeeder:
         month_ids: dict[int, int],
     ) -> int:
         count = 0
-        for exam in PRACTICE_EXAMS:
+        for exam in self.bundle.exams:
             curriculum_month_id = None
             if exam.exam_id.startswith("checkpoint-"):
                 try:
@@ -727,43 +728,53 @@ class ContentSeeder:
 
     @staticmethod
     def _link_sources(
-        connection: sqlite3.Connection,
+        connection: Any,
         source_key_to_id: dict[str, int],
         entity_type: str,
         entity_id: int,
         source_keys: list[str],
+        dialect: Any,
     ) -> None:
         for source_key in source_keys:
             source_id = source_key_to_id.get(source_key)
             if source_id is None:
                 continue
             connection.execute(
-                """
-                INSERT OR IGNORE INTO content_source_links (
-                    source_id,
-                    entity_type,
-                    entity_id
-                )
-                VALUES (?, ?, ?)
-                """,
+                insert_ignore_sql(
+                    "content_source_links",
+                    "source_id, entity_type, entity_id",
+                    "?, ?, ?",
+                    "source_id, entity_type, entity_id",
+                    dialect,
+                ),
                 (source_id, entity_type, entity_id),
             )
 
 
-def first_chapter_payload(category_rows: list[dict[str, Any]]) -> dict[str, object]:
+def first_chapter_payload(
+    category_rows: list[dict[str, Any]],
+    *,
+    first_chapter: dict[str, Any] | None = None,
+) -> dict[str, object]:
     """Build the first-chapter response shape from DB category rows."""
-    slugs = FIRST_CHAPTER["category_slugs"]
+    chapter = first_chapter or load_python_bundle().first_chapter
+    slugs = chapter["category_slugs"]
     categories = [row for row in category_rows if row["slug"] in slugs]
     categories.sort(key=lambda row: row["subchapter_number"])
     return {
-        "title": FIRST_CHAPTER["title"],
-        "mission_goal": FIRST_CHAPTER["mission_goal"],
-        "fachkunde": FIRST_CHAPTER["fachkunde"],
+        "title": chapter["title"],
+        "mission_goal": chapter["mission_goal"],
+        "fachkunde": chapter["fachkunde"],
         "subchapters": categories,
-        "checkpoint_exam_id": FIRST_CHAPTER["checkpoint_exam_id"],
+        "checkpoint_exam_id": chapter["checkpoint_exam_id"],
     }
 
 
-def month_category_slugs(month: int) -> list[str]:
+def month_category_slugs(
+    month: int,
+    *,
+    month_subchapters: dict[int, tuple[str, ...]] | None = None,
+) -> list[str]:
     """Return deterministic category slugs for one curriculum month."""
-    return [f"m{month:02d}-{slugify(title)}" for title in MONTH_SUBCHAPTERS[month]]
+    mapping = month_subchapters or load_python_bundle().month_subchapters
+    return [f"m{month:02d}-{slugify(title)}" for title in mapping[month]]

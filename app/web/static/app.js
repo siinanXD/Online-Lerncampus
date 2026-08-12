@@ -273,9 +273,11 @@ function bindLiveData(root, config) {
       ? source
           .map(
             (question, index) => `
-          <a class="list-row" href="/lernen/frage" data-page-link data-q-index="${index}">
-            <strong>${index + 1}. ${escapeHtml(question.prompt)}</strong>
-            <span class="muted">${escapeHtml(question.category_slug || "Frage")}</span>
+          <a class="q-row" href="/lernen/frage" data-page-link data-q-index="${index}">
+            <span class="q-status-dot" aria-hidden="true"></span>
+            <strong>${escapeHtml(question.prompt)}</strong>
+            <span class="diff-bars" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
+            <span class="chev" aria-hidden="true">›</span>
           </a>`,
           )
           .join("")
@@ -288,11 +290,13 @@ function bindLiveData(root, config) {
     const question = state.questions[state.currentQuestionIndex % state.questions.length];
     livePrompt.textContent = question.prompt;
     if (liveAnswers) {
+      const letters = ["A", "B", "C", "D", "E", "F"];
       liveAnswers.innerHTML = question.options
         .map(
           (option, index) => `
           <button class="answer-option" type="button" data-index="${index}">
-            ${index + 1}. ${escapeHtml(option)}
+            <span class="answer-letter">${letters[index] || index + 1}</span>
+            <span class="answer-text">${escapeHtml(option)}</span>
           </button>`,
         )
         .join("");
@@ -1055,9 +1059,10 @@ function updateChrome(config, pathname) {
     const mapped =
       (tab === "dashboard" && view === "dashboard") ||
       (tab === "learn" && view === "learn") ||
-      (tab === "exam" && view === "exam") ||
+      (tab === "progress" && view === "progress") ||
+      (tab === "exam" && view === "progress") ||
       (tab === "reports" && view === "reports") ||
-      ((tab === "profile" || tab === "progress") && view === "profile");
+      (tab === "profile" && view === "profile");
     link.classList.toggle("active", Boolean(mapped));
   });
   document.querySelectorAll(".desk-nav a").forEach((link) => {
@@ -1256,7 +1261,22 @@ document.addEventListener("click", async (event) => {
       return;
     }
     if (target.matches(".answer-option") && target.dataset.index !== undefined) {
-      await answerQuestion(Number(target.dataset.index));
+      const optionsRoot = target.closest("[data-bind='live-answers']") || target.parentElement;
+      optionsRoot.querySelectorAll(".answer-option").forEach((el) => el.classList.remove("selected"));
+      target.classList.add("selected");
+      const confirmBtn = document.querySelector("[data-action='confirm-answer']");
+      if (confirmBtn) {
+        confirmBtn.disabled = false;
+        confirmBtn.dataset.index = target.dataset.index;
+      }
+      return;
+    }
+    if (target.dataset.action === "confirm-answer") {
+      const index = Number(target.dataset.index);
+      if (!Number.isNaN(index)) {
+        await answerQuestion(index);
+        target.disabled = true;
+      }
       return;
     }
     if (target.matches(".lang-option")) {

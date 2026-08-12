@@ -390,19 +390,71 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s04_1-lernen-hub": () => `
 
-      <div class="screen-head"><p class="eyebrow">04 Lernen</p><h2>Lernen</h2></div>
+      <div class="learn-title-row">
+        <h2>Lernen</h2>
+        <button class="icon-round" type="button" aria-label="Suchen">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </button>
+      </div>
       <div class="learn-hub">
-        <article class="hub-card"><p class="eyebrow">Ueben</p><h3>Fragenpraxis</h3><p class="muted">PAL-aehnliche Single-Choice.</p>
-          <div class="hub-actions"><a class="primary-button" href="/lernen/fragen" data-page-link>Starten</a></div></article>
-        <article class="hub-card"><p class="eyebrow">Fachkunde</p><h3>Lerneinheiten</h3><p class="muted">Theorie, Glossar, Uebungen.</p>
-          <div class="hub-actions"><a class="secondary-button" href="/fachkunde" data-page-link>Oeffnen</a></div></article>
-        <article class="hub-card"><p class="eyebrow">Werkzeuge</p><h3>Hilfsmittel</h3>
-          <div class="hub-meta"><a class="tool-chip" href="/lernen/glossar" data-page-link>Glossar</a>
+        <article class="hub-card hub-card-practice">
+          <div class="hub-card-head">
+            <div class="hub-icon hub-icon-practice" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+            </div>
+            <div>
+              <h3>Fragen üben</h3>
+              <p class="muted">Trainiere mit Prüfungsfragen</p>
+            </div>
+          </div>
+          <div class="hub-meta">
+            <span class="stat-pill">312 Fragen</span>
+            <span class="stat-pill success">156 beherrscht</span>
+            <span class="stat-pill info">23 offen</span>
+          </div>
+          <a class="primary-button btn-block hub-cta" href="/lernen/fragen" data-page-link>
+            Starten
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+          </a>
+        </article>
+        <article class="hub-card hub-card-theory">
+          <div class="hub-card-head">
+            <div class="hub-icon hub-icon-theory" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
+            <div>
+              <h3>Fachkunde lesen</h3>
+              <p class="muted">Lerneinheiten &amp; Theorie</p>
+            </div>
+          </div>
+          <p class="hub-theory-meta"><strong>12 Lerneinheiten</strong> · <span class="teal">8 abgeschlossen</span></p>
+          <a class="outline-teal-button btn-block" href="/fachkunde" data-page-link>Öffnen</a>
+        </article>
+        <article class="hub-card hub-card-tools">
+          <div class="hub-card-head">
+            <div class="hub-icon hub-icon-tools" aria-hidden="true">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18 14"/></svg>
+            </div>
+            <div>
+              <h3>Lernwerkzeuge</h3>
+              <p class="muted">Interaktive Hilfsmittel</p>
+            </div>
+          </div>
+          <div class="hub-meta">
+            <a class="tool-chip" href="/lernen/glossar" data-page-link>Glossar</a>
             <a class="tool-chip" href="/lernen/formeltrainer" data-page-link>Formeltrainer</a>
-            <a class="tool-chip" href="/lernen/fehlerdiagnose" data-page-link>Fehlerdiagnose</a></div>
+            <a class="tool-chip" href="/lernen/fehlerdiagnose" data-page-link>Fehlerdiagnose</a>
+          </div>
         </article>
       </div>
-      <article class="card">
+      <div class="overall-mastery">
+        <div class="row-between">
+          <strong>Gesamtfortschritt</strong>
+          <span class="mastery-pct">67%</span>
+        </div>
+        <div class="mastery-track" aria-hidden="true"><span class="mastery-fill" data-bind="continue-bar" style="width:67%"></span></div>
+      </div>
+      <article class="card hub-api-card">
         <h3>Lerneinheiten (API)</h3>
         <div data-bind="units-live"></div>
       </article>
@@ -535,63 +587,149 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s04_2-themenliste": () => `
 
-      <div class="screen-head"><p class="eyebrow">04.2</p><h2>Themenliste</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <div class="path-map">
-        <button class="path-node done" type="button">1 · Grundlagen</button>
-        <button class="path-node done" type="button">2 · Messschieber</button>
-        <button class="path-node active" type="button">3 · Toleranzen</button>
-        <button class="path-node" type="button">4 · Spritzguss</button>
-        <button class="path-node locked" type="button">5 · Pruefung</button>
+      <a class="back-link" href="/lernen" data-page-link>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        Fragen nach Thema
+      </a>
+      <div class="filter-pills">
+        <button type="button" class="filter-pill active">Alle</button>
+        <button type="button" class="filter-pill">Offen</button>
+        <a class="filter-pill" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
+        <button type="button" class="filter-pill">Beherrscht</button>
       </div>
-      <ul class="nav-list"><li>Fragen nach Thema</li><li>67%</li><li>Alle</li><li>Offen</li><li>Fehler</li><li>Beherrscht</li><li>Grundlagen Metall</li><li>30/30</li><li>Beherrscht</li><li>Werkstoffkunde</li></ul>
+      <div class="topic-list">
+        <a class="topic-row done" href="/lernen/fragen" data-page-link>
+          <span class="topic-icon green" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="topic-body">
+            <span class="row-between"><strong>Grundlagen Metall</strong><span class="muted">30/30</span></span>
+            <span class="row-between"><span class="stars">★★★</span><span class="status-pill ok">Beherrscht</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="topic-row" href="/lernen/fragen" data-page-link>
+          <span class="topic-icon amber" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="topic-body">
+            <span class="row-between"><strong>Werkstoffkunde</strong><span class="muted">26/30</span></span>
+            <span class="row-between"><span class="stars">★★☆</span><span class="mini-bar"><i style="width:86%;background:#f59e0b"></i></span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="topic-row" href="/lernen/fragen" data-page-link>
+          <span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="topic-body">
+            <span class="row-between"><strong>Messtechnik</strong><span class="muted">18/30</span></span>
+            <span class="row-between"><span class="stars">★★☆</span><span class="mini-bar"><i style="width:60%;background:#2563eb"></i></span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="topic-row" href="/lernen/fragen" data-page-link>
+          <span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="topic-body">
+            <span class="row-between"><strong>Pneumatik</strong><span class="muted">12/30</span></span>
+            <span class="row-between"><span class="stars">★☆☆</span><span class="mini-bar"><i style="width:40%;background:#2563eb"></i></span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <a class="topic-row" href="/lernen/fragen" data-page-link>
+          <span class="topic-icon muted" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="topic-body">
+            <span class="row-between"><strong>Hydraulik</strong><span class="muted">3/30</span></span>
+            <span class="row-between"><span class="stars">☆☆☆</span><span class="mini-bar"><i style="width:10%;background:#6b6661"></i></span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+        <div class="topic-row locked">
+          <span class="topic-icon locked" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <span class="topic-body"><span class="row-between"><strong class="locked-title">Steuerungstechnik</strong><span class="muted">0/25</span></span></span>
+          <span class="chev" aria-hidden="true">›</span>
+        </div>
+        <div class="topic-row locked">
+          <span class="topic-icon locked" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
+          <span class="topic-body"><span class="row-between"><strong class="locked-title">Elektrotechnik</strong><span class="muted">0/28</span></span></span>
+          <span class="chev" aria-hidden="true">›</span>
+        </div>
+        <a class="topic-row done" href="/lernen/fragen" data-page-link>
+          <span class="topic-icon green" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="topic-body">
+            <span class="row-between"><strong>Arbeitssicherheit</strong><span class="muted">23/25</span></span>
+            <span class="row-between"><span class="stars">★★★</span><span class="status-pill ok">Beherrscht</span></span>
+          </span>
+          <span class="chev" aria-hidden="true">›</span>
+        </a>
+      </div>
     `,
   "s04_3-fragenliste-alle": () => `
 
-      <div class="screen-head"><p class="eyebrow">Fragenliste · Alle</p><h2>Fragenliste — Alle</h2>
-        <div class="row-actions">
-          <a class="primary-button" href="/lernen/fragen" data-page-link>Alle</a>
-          <a class="secondary-button" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
-        </div>
+      <a class="back-link" href="/lernen/themen" data-page-link>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        Pneumatik
+      </a>
+      <div class="topic-stats">
+        <div class="row-between"><strong>30 Fragen — 12 beherrscht</strong><span class="mastery-pct">40%</span></div>
+        <div class="mastery-track"><span class="mastery-fill" style="width:40%"></span></div>
+      </div>
+      <div class="filter-pills">
+        <a class="filter-pill active" href="/lernen/fragen" data-page-link>Alle</a>
+        <button type="button" class="filter-pill">Offen</button>
+        <a class="filter-pill" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
+        <button type="button" class="filter-pill">Beherrscht</button>
       </div>
       <div class="question-list" data-bind="question-list">
         <article class="list-row"><strong>Frage wird geladen …</strong><span class="muted">API</span></article>
       </div>
-      <a class="primary-button btn-block" href="/lernen/frage" data-page-link>Erste Frage oeffnen</a>
+      <a class="primary-button btn-block hub-cta" href="/lernen/frage" data-page-link>Alle lernen</a>
     `,
   "s04_4-fragenliste-fehler": () => `
 
-      <div class="screen-head"><p class="eyebrow">Fragenliste · Fehler</p><h2>Fragenliste — Fehler</h2>
-        <div class="row-actions">
-          <a class="secondary-button" href="/lernen/fragen" data-page-link>Alle</a>
-          <a class="primary-button" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
-        </div>
+      <a class="back-link" href="/lernen/themen" data-page-link>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
+        Fehler
+      </a>
+      <div class="filter-pills">
+        <a class="filter-pill" href="/lernen/fragen" data-page-link>Alle</a>
+        <button type="button" class="filter-pill">Offen</button>
+        <a class="filter-pill active" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
+        <button type="button" class="filter-pill">Beherrscht</button>
       </div>
       <div class="question-list" data-bind="question-list">
         <article class="list-row"><strong>Frage wird geladen …</strong><span class="muted">API</span></article>
       </div>
-      <a class="primary-button btn-block" href="/lernen/frage" data-page-link>Erste Frage oeffnen</a>
+      <a class="primary-button btn-block hub-cta" href="/lernen/frage" data-page-link>Fehler üben</a>
     `,
   "s04_5-frage-multiple-choice": () => `
 
-      <div class="screen-head"><p class="eyebrow">04.5</p><h2>Frage — Multiple Choice</h2></div>
-      <article class="card question-play">
-        <p class="eyebrow">Frage 3 von 20</p>
-        <h3 data-bind="live-question-prompt">Welche Funktion erfuellt das Rueckschlagventil?</h3>
+      <div class="q-session">
+        <div class="q-session-header">
+          <a class="icon-round" href="/lernen/fragen" data-page-link aria-label="Schliessen">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </a>
+          <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:40%"></span></div>
+          <span class="q-tracker" data-bind="q-tracker">12/30</span>
+        </div>
+        <div class="q-meta-row">
+          <span class="topic-pill">Pneumatik</span>
+          <span class="difficulty-group">
+            <span class="diff-dots" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
+            Mittel
+          </span>
+        </div>
+        <h3 class="q-prompt" data-bind="live-question-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
         <div class="answer-options" data-bind="live-answers">
-          <button class="answer-option" type="button">Verhindert Ruecklauf</button>
-          <button class="answer-option" type="button">Erhoeht den Druck</button>
-          <button class="answer-option" type="button">Misst den Durchfluss</button>
-          <button class="answer-option" type="button">Kuehlt das Medium</button>
+          <button class="answer-option" type="button" data-index="0"><span class="answer-letter">A</span><span class="answer-text">Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</span></button>
+          <button class="answer-option" type="button" data-index="1"><span class="answer-letter">B</span><span class="answer-text">Doppeltwirkend hat zwei Kolben</span></button>
+          <button class="answer-option" type="button" data-index="2"><span class="answer-letter">C</span><span class="answer-text">Einfachwirkend arbeitet mit Hydrauliköl</span></button>
+          <button class="answer-option" type="button" data-index="3"><span class="answer-letter">D</span><span class="answer-text">Kein Unterschied, nur die Größe</span></button>
         </div>
         <p class="feedback" data-bind="live-feedback"></p>
-        <div class="row-actions">
-          <a class="secondary-button" href="/lernen/melden" data-page-link>Melden</a>
-          <a class="secondary-button" href="/lernen/uebersetzung" data-page-link>Uebersetzung</a>
-          <a class="primary-button" href="/lernen/fragen" data-page-link>Weiter</a>
+        <div class="q-bottom-actions">
+          <button class="primary-button btn-block btn-confirm" type="button" data-action="confirm-answer" disabled>Bestätigen</button>
+          <a class="ghost-link" href="/lernen/fragen" data-page-link>Überspringen</a>
+          <div class="row-actions q-aux-actions">
+            <a class="secondary-button" href="/lernen/melden" data-page-link>Melden</a>
+            <a class="secondary-button" href="/lernen/uebersetzung" data-page-link>Übersetzung</a>
+          </div>
         </div>
-      </article>
-      <ul class="plain-list muted"><li>tracker-label</li><li>topic-text</li><li>difficulty-text</li><li>question-title</li><li>badge-letter</li><li>answer-text</li></ul>
+      </div>
     `,
   "s04_6-frage-freitext": () => `
 
@@ -2691,12 +2829,47 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s02_1-tab-bar": () => `
 
-      <div class="screen-head"><p class="eyebrow">02.1</p><h2>Tab Bar</h2>
-        <a class="secondary-button" href="/dashboard" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <p class="muted">Figma-Frame 02.1 · 390x961</p>
-        <ul class="plain-list"><li>Start</li><li>Lernen</li><li>Pruefung</li><li>Bericht</li><li>Mehr</li></ul>
-      </article>
+      <div class="screen-head"><p class="eyebrow">02.1</p><h2>Tab Bar — Alle Zustände</h2></div>
+      <div class="shell-doc">
+        <p class="shell-doc-label">1. Start aktiv</p>
+        <div class="tab-bar-preview" data-active="dashboard">
+          <span class="active"><svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Start</span>
+          <span><svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Lernen</span>
+          <span><svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Fortschritt</span>
+          <span><svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Bericht</span>
+          <span><svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>Mehr</span>
+        </div>
+        <p class="shell-doc-label">6. Mit Benachrichtigungen</p>
+        <div class="tab-bar-preview" data-active="dashboard">
+          <span class="active"><svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Start</span>
+          <span class="has-dot"><svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>Lernen</span>
+          <span><svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Fortschritt</span>
+          <span><svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Bericht</span>
+          <span class="has-badge"><svg class="tab-svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1.5" fill="currentColor"/><circle cx="12" cy="12" r="1.5" fill="currentColor"/><circle cx="19" cy="12" r="1.5" fill="currentColor"/></svg>Mehr<em>3</em></span>
+        </div>
+        <p class="shell-doc-label">Header-Varianten</p>
+        <div class="header-variant header-standard">Dashboard</div>
+        <div class="header-variant header-back"><span class="chev">‹</span> Hydraulik</div>
+        <div class="header-variant header-streak">
+          <strong>BZE Campus</strong>
+          <span class="dash-chips">
+            <span class="chip-streak">🔥 14</span>
+            <span class="chip-xp">⭐ 4.230</span>
+          </span>
+        </div>
+        <div class="header-variant header-progress">
+          <div class="row-between"><span class="chev">‹</span> Prüfungsvorbereitung <span class="mastery-pct">60%</span></div>
+          <div class="mastery-track"><span class="mastery-fill" style="width:60%"></span></div>
+        </div>
+        <div class="header-variant header-tabs">
+          <div class="row-between"><strong>Aufgaben</strong><span>☰</span></div>
+          <div class="filter-pills">
+            <button type="button" class="filter-pill active">Alle</button>
+            <button type="button" class="filter-pill">Fehler</button>
+            <button type="button" class="filter-pill">Gemerkt</button>
+          </div>
+        </div>
+      </div>
     `,
   "s10_1-ausbilder-top-navigation": () => `
 

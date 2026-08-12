@@ -71,10 +71,10 @@ window.OLC_ROUTE_CONFIG = {
   "/berichtsheft/leer": { layout: "app", screen: "s08_7-berichtsheft-leerzustand", title: "Berichtsheft — Leerzustand", tab: "reports", num: "08.7", chrome: "bh" },
   "/mehr": { layout: "app", screen: "s09_1-mehr-und-profil-uebersicht", title: "Mehr & Profil — Übersicht", tab: "profile", num: "09.1", chrome: "mehr" },
   "/mehr/ausbilder-sicht": { layout: "app", screen: "s09_2-was-sieht-der-ausbilder", title: "Was sieht der Ausbilder", tab: "profile", num: "09.2", chrome: "mehr" },
-  "/mehr/coach": { layout: "app", screen: "s09_3-ki-coach-chat", title: "KI-Coach — Chat", tab: "profile", num: "09.3" },
-  "/mehr/lernplan": { layout: "app", screen: "s09_4-ki-coach-lernplan", title: "KI-Coach — Lernplan", tab: "profile", num: "09.4" },
-  "/mehr/export": { layout: "app", screen: "s09_5-datenexport", title: "Datenexport", tab: "profile", num: "09.5" },
-  "/mehr/loeschen": { layout: "app", screen: "s09_6-konto-loeschen", title: "Konto löschen", tab: "profile", num: "09.6" },
+  "/mehr/coach": { layout: "app", screen: "s09_3-ki-coach-chat", title: "KI-Coach — Chat", tab: "profile", num: "09.3", chrome: "mehr" },
+  "/mehr/lernplan": { layout: "app", screen: "s09_4-ki-coach-lernplan", title: "KI-Coach — Lernplan", tab: "profile", num: "09.4", chrome: "mehr" },
+  "/mehr/export": { layout: "app", screen: "s09_5-datenexport", title: "Datenexport", tab: "profile", num: "09.5", chrome: "mehr" },
+  "/mehr/loeschen": { layout: "app", screen: "s09_6-konto-loeschen", title: "Konto löschen", tab: "profile", num: "09.6", chrome: "mehr" },
   "/mehr/logout": { layout: "app", screen: "s09_7-logout-bestaetigung", title: "Logout Bestätigung", tab: "profile", num: "09.7", chrome: "mehr" },
   "/ausbilder": { layout: "trainer", screen: "s11_1-ausbilder-cockpit", title: "Ausbilder — Cockpit", tab: null, num: "11.1" },
   "/ausbilder/teilnehmer": { layout: "trainer", screen: "s11_2-teilnehmer-detail", title: "Teilnehmer Detail", tab: null, num: "11.2" },
@@ -4500,116 +4500,259 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s09_3-ki-coach-chat": () => `
-
-      <div class="mehr-screen coach-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <div>
-            <h2 class="page-title">KI-Coach</h2>
-            <p class="muted">Lernhilfe &amp; Tipps</p>
+      <div class="kc-screen" data-node-id="136:11173">
+        <div class="kc-main">
+          <header class="kc-header">
+            <div class="kc-top">
+              <div class="kc-left">
+                <a class="kc-back" href="/mehr" data-page-link aria-label="Zurück">
+                  <img src="/static/figma/mehr/kc-back.svg" width="24" height="24" alt="" />
+                </a>
+                <span class="kc-avatar"><img src="/static/figma/mehr/kc-bot.svg" width="20" height="20" alt="" /></span>
+                <div class="kc-title"><strong>KI-Coach</strong><img src="/static/figma/mehr/kc-online.svg" width="8" height="8" alt="" /></div>
+              </div>
+              <button class="kc-more" type="button" aria-label="Mehr" data-action="toast" data-toast="Menü (Demo)">
+                <img src="/static/figma/mehr/kc-more.svg" width="24" height="24" alt="" />
+              </button>
+            </div>
+          </header>
+          <div class="kc-chat">
+            <div class="kc-msg ai">
+              <div class="kc-bubble">Hallo Max! Wie kann ich dir helfen? Ich kann Fragen erklären, Formeln ableiten oder deinen Lernplan optimieren.</div>
+              <time>14:23</time>
+            </div>
+            <div class="kc-msg me">
+              <div class="kc-bubble">Ich verstehe die Formel für Kolbenkraft nicht. Kannst du das erklären?</div>
+              <time>14:24</time>
+            </div>
+            <div class="kc-msg ai">
+              <div class="kc-bubble rich">
+                <p>Klar! Die Kolbenkraft berechnet sich so:</p>
+                <div class="kc-formula">F = p × A</div>
+                <ul class="kc-vars">
+                  <li><i>•</i><span>F = Kraft in Newton [N]</span></li>
+                  <li><i>•</i><span>p = Druck in Pascal oder bar</span></li>
+                  <li><i>•</i><span>A = Kolbenfläche in m² oder cm²</span></li>
+                </ul>
+                <div class="kc-ex">
+                  <strong>Beispiel</strong>
+                  <p>Bei p = 6 bar und A = 20 cm²</p>
+                  <em>F = 6 × 20 = 120 N</em>
+                </div>
+                <p>Möchtest du eine Übungsaufgabe dazu?</p>
+              </div>
+              <time>14:25</time>
+            </div>
+            <div data-bind="coach-live" hidden></div>
           </div>
-        </div>
-        <div class="coach-thread">
-          <div class="coach-bubble coach">Hallo! Ich helfe dir bei Schwachstellen und deinem Wochenplan. Was möchtest du üben?</div>
-          <div class="coach-bubble me">Zeig mir, wo ich in Pneumatik nacharbeiten sollte.</div>
-          <div class="coach-bubble coach">Du hast 3 offene Fehler in Pneumatik-Grundlagen. Soll ich einen 15-Minuten-Block vorschlagen?</div>
-        </div>
-        <div data-bind="coach-live"></div>
-        <div class="coach-composer">
-          <input type="text" placeholder="Nachricht an den Coach…" aria-label="Nachricht" />
-          <button class="primary-button" type="button" data-action="toast" data-toast="Nachricht gesendet (Demo)">Senden</button>
-        </div>
-        <div class="link-grid">
-          <a href="/mehr/lernplan" data-page-link>Zum Lernplan</a>
+          <div class="kc-chips">
+            <button type="button" data-action="toast" data-toast="Übung gestartet (Demo)">Ja, Übung 🔥</button>
+            <button type="button" data-action="toast" data-toast="Andere Frage (Demo)">Andere Frage</button>
+            <button type="button" data-action="toast" data-toast="Alles klar (Demo)">Danke, alles klar!</button>
+          </div>
+          <div class="kc-input-wrap">
+            <div class="kc-input-bar">
+              <button class="kc-attach" type="button" aria-label="Anhang" data-action="toast" data-toast="Anhang (Demo)">
+                <img src="/static/figma/mehr/kc-clip.svg" width="20" height="20" alt="" />
+              </button>
+              <div class="kc-field"><input type="text" placeholder="Nachricht eingeben..." aria-label="Nachricht" /></div>
+              <button class="kc-send" type="button" data-action="toast" data-toast="Nachricht gesendet (Demo)" aria-label="Senden">
+                <img src="/static/figma/mehr/kc-send.svg" width="20" height="20" alt="" />
+              </button>
+            </div>
+            <div class="kc-home" aria-hidden="true"><i></i></div>
+          </div>
         </div>
       </div>
     `,
   "s09_4-ki-coach-lernplan": () => `
-
-      <div class="mehr-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/mehr/coach" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <div>
-            <h2 class="page-title">Dein Lernplan</h2>
-            <p class="muted">KI-Empfehlung für diese Woche</p>
+      <div class="lp-screen" data-node-id="136:11249">
+        <header class="lp-header">
+          <div class="lp-top">
+            <div class="lp-left">
+              <a class="lp-back" href="/mehr/coach" data-page-link aria-label="Zurück">
+                <img src="/static/figma/mehr/lp-back.svg" width="24" height="24" alt="" />
+              </a>
+              <strong>Dein Lernplan</strong>
+            </div>
+            <a class="lp-bot" href="/mehr/coach" data-page-link aria-label="KI-Coach">
+              <img src="/static/figma/mehr/lp-bot.svg" width="24" height="24" alt="" />
+            </a>
           </div>
+          <p>Erstellt von deinem KI-Coach basierend auf deinem Fortschritt</p>
+        </header>
+        <div class="lp-scroll">
+          <article class="lp-goal">
+            <div class="lp-goal-head">
+              <div>
+                <strong>Ziel: Zwischenprüfung bestehen</strong>
+                <span>Termin: 15. März 2025 — In 14 Tagen</span>
+              </div>
+              <em>Note 3+</em>
+            </div>
+            <hr class="lp-rule" />
+            <div class="lp-rings">
+              <div class="lp-ring">
+                <div class="lp-ring-vis">
+                  <img class="bg" src="/static/figma/mehr/lp-ring-bg.svg" width="40" height="40" alt="" />
+                  <img class="fg" src="/static/figma/mehr/lp-ring-67.svg" width="40" height="40" alt="" />
+                  <b>67%</b>
+                </div>
+                <div><strong>Prüfungsreife</strong><span>Aktuell</span></div>
+              </div>
+              <div class="lp-ring">
+                <div class="lp-ring-vis">
+                  <img class="bg" src="/static/figma/mehr/lp-ring-bg.svg" width="40" height="40" alt="" />
+                  <img class="fg" src="/static/figma/mehr/lp-ring-80.svg" width="40" height="40" alt="" />
+                  <b class="ok">80%</b>
+                </div>
+                <div><strong>80%+</strong><span>Ziel</span></div>
+              </div>
+            </div>
+          </article>
+          <section class="lp-week">
+            <h3>Diese Woche</h3>
+            <div class="lp-week-card">
+              <div class="lp-day">
+                <span class="lp-check"></span>
+                <div><strong>Pneumatik — Schaltpläne</strong><span>Mo • 30 Min</span></div>
+              </div>
+              <div class="lp-day done">
+                <span class="lp-check on"><img src="/static/figma/mehr/lp-check.svg" width="16" height="16" alt="" /></span>
+                <div><strong>Hydraulik — Druckberechnung</strong><span>Di • 25 Min</span></div>
+              </div>
+              <div class="lp-day done">
+                <span class="lp-check on"><img src="/static/figma/mehr/lp-check.svg" width="16" height="16" alt="" /></span>
+                <div><strong>Wiederholung: Fehler letzte Woche</strong><span>Mi • 20 Min</span></div>
+              </div>
+              <div class="lp-day">
+                <span class="lp-check"></span>
+                <div><strong>Steuerungstechnik — Grundlagen</strong><span>Do • 30 Min</span></div>
+              </div>
+              <div class="lp-day">
+                <span class="lp-check"></span>
+                <div><strong>Prüfungssimulation</strong><span>Fr • 60 Min</span></div>
+              </div>
+              <hr class="lp-rule soft" />
+              <div class="lp-prog">
+                <div class="lp-prog-lab"><span>Fortschritt</span><strong>2/5 diese Woche</strong></div>
+                <div class="lp-prog-track"><i style="width:40%"></i></div>
+              </div>
+            </div>
+          </section>
+          <article class="lp-next">
+            <div><strong>Nächste Woche</strong><span>Fokus: Steuerungstechnik + Arbeitssicherheit</span></div>
+            <img src="/static/figma/mehr/lp-chev.svg" width="20" height="20" alt="" />
+          </article>
+          <div data-bind="coach-live" hidden></div>
+          <div data-bind="journey-live" hidden></div>
         </div>
-        <article class="mehr-plan-hero">
-          <strong>Fokus: Pneumatik &amp; Hydraulik</strong>
-          <p class="muted">3 Sessions · ca. 45 Min · +180 XP möglich</p>
-          <div class="mastery-track"><span class="mastery-fill" style="width:40%"></span></div>
-        </article>
-        <div class="mehr-plan-list">
-          <article class="mehr-plan-item done"><strong>Mo</strong><div><p>Pneumatik Grundlagen wiederholen</p><span class="muted">12 Min · erledigt</span></div></article>
-          <article class="mehr-plan-item active"><strong>Di</strong><div><p>Hydraulik Schwachstellen üben</p><span class="muted">15 Min · heute</span></div></article>
-          <article class="mehr-plan-item"><strong>Mi</strong><div><p>Formeltrainer Druck &amp; Kraft</p><span class="muted">10 Min</span></div></article>
-          <article class="mehr-plan-item"><strong>Fr</strong><div><p>Mini-Prüfung Steuerungstechnik</p><span class="muted">20 Min</span></div></article>
+        <div class="lp-actions">
+          <button type="button" class="lp-adjust" data-action="toast" data-toast="Plan anpassen (Demo)">Plan anpassen</button>
+          <a class="lp-ask" href="/mehr/coach" data-page-link>
+            <img src="/static/figma/mehr/lp-bot-btn.svg" width="16" height="16" alt="" />
+            <span>KI fragen</span>
+          </a>
         </div>
-        <div data-bind="coach-live"></div>
-        <article class="card">
-          <h3>Lernreise</h3>
-          <div data-bind="journey-live"></div>
-        </article>
+        <div class="lp-home" aria-hidden="true"><i></i></div>
       </div>
     `,
   "s09_5-datenexport": () => `
-
-      <div class="mehr-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <h2 class="page-title">Datenexport</h2>
+      <div class="de-screen" data-node-id="136:11353">
+        <div class="de-main">
+          <header class="de-header">
+            <a class="de-back" href="/mehr" data-page-link>
+              <img src="/static/figma/mehr/de-back.svg" width="16" height="16" alt="" />
+              <span>Zurück</span>
+            </a>
+            <h2>Datenexport</h2>
+            <span class="de-spacer" aria-hidden="true"></span>
+          </header>
+          <div class="de-body">
+            <div class="de-hero">
+              <span class="de-hero-ico"><img src="/static/figma/mehr/de-cloud.svg" width="32" height="32" alt="" /></span>
+              <p>Du kannst all deine Daten herunterladen. Der Export enthält deine Lernhistorie, Berichtshefte und persönlichen Einstellungen.</p>
+            </div>
+            <div class="de-opts">
+              <label class="de-opt on"><span class="de-box"><img src="/static/figma/mehr/de-check.svg" width="12" height="12" alt="" /></span><div><strong>Lernfortschritt &amp; XP-Historie</strong><span>Alle Antworten, Level, Streaks</span></div><input type="checkbox" checked hidden /></label>
+              <label class="de-opt on"><span class="de-box"><img src="/static/figma/mehr/de-check.svg" width="12" height="12" alt="" /></span><div><strong>Berichtsheft</strong><span>Alle Einträge als PDF + Rohdaten</span></div><input type="checkbox" checked hidden /></label>
+              <label class="de-opt"><span class="de-box"></span><div><strong>Persönliche Daten</strong><span>Profil, E-Mail, Einstellungen</span></div><input type="checkbox" hidden /></label>
+              <label class="de-opt"><span class="de-box"></span><div><strong>Statistiken</strong><span>Detaillierte Auswertungen</span></div><input type="checkbox" hidden /></label>
+            </div>
+            <div class="de-fmt">
+              <p>Exportformat</p>
+              <div class="de-tabs" role="tablist">
+                <button type="button" data-fmt="json">JSON</button>
+                <button type="button" data-fmt="csv">CSV</button>
+                <button type="button" class="on" data-fmt="pdf">PDF</button>
+              </div>
+            </div>
+            <div class="de-info">
+              <img src="/static/figma/mehr/de-info.svg" width="18" height="18" alt="" />
+              <p>Der Export kann einige Minuten dauern. Du erhältst eine E-Mail wenn er bereit ist.</p>
+            </div>
+            <div class="de-cta">
+              <button class="de-start" type="button" data-action="export-data">Export starten</button>
+              <p>Letzter Export: 15.06.2026</p>
+            </div>
+            <pre class="export-pre" data-bind="export-pre" hidden></pre>
+          </div>
         </div>
-        <p class="muted">Du kannst all deine Daten herunterladen. Der Export enthält Lernhistorie, Berichtshefte und persönliche Einstellungen.</p>
-        <nav class="mehr-list export-list">
-          <div><span class="mehr-ico">📈</span><div><strong>Lernfortschritt &amp; XP-Historie</strong><span class="muted">Alle Antworten, Level, Streaks</span></div></div>
-          <div><span class="mehr-ico">📒</span><div><strong>Berichtsheft</strong><span class="muted">Alle Einträge als PDF + Rohdaten</span></div></div>
-          <div><span class="mehr-ico">👤</span><div><strong>Persönliche Daten</strong><span class="muted">Profil, E-Mail, Einstellungen</span></div></div>
-          <div><span class="mehr-ico">📊</span><div><strong>Statistiken</strong><span class="muted">Detaillierte Auswertungen</span></div></div>
+        <nav class="de-tabs-nav" aria-label="Hauptnavigation">
+          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/de-house.svg" width="22" height="22" alt="" /><span>Start</span></a>
+          <a href="/lernen" data-page-link><img src="/static/figma/mehr/de-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
+          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/de-trend.svg" width="22" height="22" alt="" /><span>Fortschritt</span></a>
+          <a href="/berichtsheft" data-page-link><img src="/static/figma/mehr/de-file.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
+          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/de-menu.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
         </nav>
-        <p class="bh-section-label">Exportformat</p>
-        <label class="bh-radio"><input type="radio" name="exp" checked /> JSON (maschinenlesbar)</label>
-        <label class="bh-radio"><input type="radio" name="exp" /> ZIP mit PDF</label>
-        <div class="bh-bottom-actions">
-          <button class="primary-button btn-block pill-btn" type="button" data-action="export-data">Export laden</button>
-        </div>
-        <pre class="export-pre" data-bind="export-pre" hidden></pre>
       </div>
     `,
   "s09_6-konto-loeschen": () => `
-
-      <div class="mehr-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <h2 class="page-title">Konto löschen</h2>
+      <div class="dl-screen" data-node-id="136:11453">
+        <div class="dl-main">
+          <header class="dl-header">
+            <a class="dl-back" href="/mehr" data-page-link aria-label="Zurück">
+              <img src="/static/figma/mehr/dl-back.svg" width="20" height="20" alt="" />
+            </a>
+            <h2>Konto löschen</h2>
+          </header>
+          <div class="dl-body">
+            <article class="dl-warn">
+              <div class="dl-warn-top">
+                <img src="/static/figma/mehr/dl-alert.svg" width="32" height="32" alt="" />
+                <strong>Achtung: Diese Aktion ist unwiderruflich!</strong>
+              </div>
+              <p>Wenn du dein Konto löschst, werden folgende Daten dauerhaft entfernt:</p>
+            </article>
+            <ul class="dl-loss">
+              <li><img src="/static/figma/mehr/dl-x.svg" width="16" height="16" alt="" /><span>Lernfortschritt &amp; XP (Level 6, 4.230 XP)</span></li>
+              <li><img src="/static/figma/mehr/dl-x.svg" width="16" height="16" alt="" /><span>Alle Berichtshefte (23 Einträge)</span></li>
+              <li><img src="/static/figma/mehr/dl-x.svg" width="16" height="16" alt="" /><span>Badges &amp; Achievements (8 Abzeichen)</span></li>
+              <li><img src="/static/figma/mehr/dl-x.svg" width="16" height="16" alt="" /><span>Streak-Historie (max: 34 Tage)</span></li>
+              <li><img src="/static/figma/mehr/dl-x.svg" width="16" height="16" alt="" /><span>Persönliche Einstellungen</span></li>
+            </ul>
+            <label class="dl-confirm">
+              <input type="checkbox" id="dl-ack" />
+              <span class="dl-box"></span>
+              <span>Ich verstehe, dass alle Daten unwiderruflich gelöscht werden</span>
+            </label>
+            <label class="dl-type">
+              <span>Bitte gib LÖSCHEN ein zur Bestätigung</span>
+              <input type="text" id="dl-phrase" placeholder="Bestätigungstext..." aria-label="Bestätigung" autocomplete="off" />
+            </label>
+            <div class="dl-actions">
+              <button class="dl-delete" type="button" data-action="delete-account" disabled>Konto endgültig löschen</button>
+              <a class="dl-cancel" href="/mehr" data-page-link>Abbrechen</a>
+            </div>
+            <pre class="export-pre" data-bind="export-pre" hidden></pre>
+          </div>
         </div>
-        <article class="mehr-danger-banner">
-          <strong>Achtung: Diese Aktion ist unwiderruflich!</strong>
-          <p>Wenn du dein Konto löschst, werden folgende Daten dauerhaft entfernt:</p>
-        </article>
-        <ul class="mehr-danger-list">
-          <li>Lernfortschritt &amp; XP</li>
-          <li>Alle Berichtshefte</li>
-          <li>Badges &amp; Achievements</li>
-          <li>Streak-Historie</li>
-          <li>Persönliche Einstellungen</li>
-        </ul>
-        <label class="bh-radio"><input type="checkbox" /> Ich verstehe, dass alle Daten unwiderruflich gelöscht werden</label>
-        <label class="field"><span>Bitte gib LÖSCHEN ein zur Bestätigung</span>
-          <input type="text" placeholder="Bestätigungstext…" aria-label="Bestätigung" />
-        </label>
-        <div class="bh-bottom-actions">
-          <button class="danger-button btn-block pill-btn" type="button" data-action="delete-account">Konto endgültig löschen</button>
-          <a class="secondary-button btn-block pill-btn" href="/mehr" data-page-link>Abbrechen</a>
-        </div>
-        <pre class="export-pre" data-bind="export-pre" hidden></pre>
+        <nav class="dl-tabs" aria-label="Navigation">
+          <a href="/lernen" data-page-link><img src="/static/figma/mehr/dl-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
+          <a href="/berichtsheft" data-page-link><img src="/static/figma/mehr/dl-clip.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
+          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/dl-user.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
+        </nav>
+        <div class="dl-home" aria-hidden="true"><i></i></div>
       </div>
     `,
   "s09_7-logout-bestaetigung": () => `

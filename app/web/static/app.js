@@ -201,6 +201,50 @@ function renderScreen(config) {
     : `<article class="card"><p>Screen fehlt: ${config.screen || "?"}</p></article>`;
   bindLiveData(root, config);
   syncPasswordStrength(root);
+  syncMehrPrivacyForms(root);
+}
+
+function syncMehrPrivacyForms(root = document) {
+  const deleteBtn = root.querySelector(".dl-delete");
+  const ack = root.querySelector("#dl-ack");
+  const phrase = root.querySelector("#dl-phrase");
+  const syncDelete = () => {
+    if (!deleteBtn || !ack || !phrase) {
+      return;
+    }
+    const ok = ack.checked && phrase.value.trim().toUpperCase() === "LÖSCHEN";
+    deleteBtn.disabled = !ok;
+  };
+  if (ack && phrase && deleteBtn) {
+    ack.addEventListener("change", syncDelete);
+    phrase.addEventListener("input", syncDelete);
+    syncDelete();
+  }
+
+  root.querySelectorAll(".de-opt").forEach((opt) => {
+    opt.addEventListener("click", (event) => {
+      event.preventDefault();
+      const input = opt.querySelector('input[type="checkbox"]');
+      if (!input) {
+        return;
+      }
+      input.checked = !input.checked;
+      opt.classList.toggle("on", input.checked);
+      const box = opt.querySelector(".de-box");
+      if (box) {
+        box.innerHTML = input.checked
+          ? '<img src="/static/figma/mehr/de-check.svg" width="12" height="12" alt="" />'
+          : "";
+      }
+    });
+  });
+
+  root.querySelectorAll(".de-tabs button").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      root.querySelectorAll(".de-tabs button").forEach((other) => other.classList.remove("on"));
+      btn.classList.add("on");
+    });
+  });
 }
 
 function passwordRules(value) {

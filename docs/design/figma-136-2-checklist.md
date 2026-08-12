@@ -138,10 +138,10 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 |--------|------|------|------|
 | [~] | `136:10522` | 09.1 Mehr & Profil — Übersicht | 1712×924 |
 | [~] | `136:11038` | 09.2 Was sieht der Ausbilder | 390×844 |
-| [ ] | `136:11173` | 09.3 KI-Coach — Chat | 390×844 |
-| [ ] | `136:11249` | 09.4 KI-Coach — Lernplan | 390×844 |
-| [ ] | `136:11353` | 09.5 Datenexport | 390×846 |
-| [ ] | `136:11453` | 09.6 Konto löschen | 390×844 |
+| [~] | `136:11173` | 09.3 KI-Coach — Chat | 390×844 |
+| [~] | `136:11249` | 09.4 KI-Coach — Lernplan | 390×844 |
+| [~] | `136:11353` | 09.5 Datenexport | 390×846 |
+| [~] | `136:11453` | 09.6 Konto löschen | 390×844 |
 | [~] | `136:11535` | 09.7 Logout Bestätigung | 390×844 |
 
 ## 10–13 Ausbilder (after participant core)

@@ -256,6 +256,32 @@ function olcCockpitTable(filterRisk = false) {
 }
 
 
+
+window.OLC_GX_NAV = (active) => {
+  const tabs = [
+    { id: "home", href: "/dashboard", label: "Home", icon: "tab-home.svg", iconMuted: "tab-home-muted.svg" },
+    { id: "learn", href: "/lernen", label: "Lernen", icon: "tab-book-active.svg", iconMuted: "tab-book.svg" },
+    { id: "exam", href: "/pruefungen", label: "Prüfung", icon: "tab-award.svg", iconMuted: "tab-award.svg" },
+    { id: "progress", href: "/fortschritt", label: "Fortschritt", icon: "tab-trending.svg", iconMuted: "tab-trending.svg" },
+    { id: "profile", href: "/mehr", label: "Profil", icon: "tab-user.svg", iconMuted: "tab-user.svg" },
+  ];
+  const links = tabs.map((t) => {
+    const on = t.id === active;
+    const src = on ? t.icon : t.iconMuted;
+    return `<a class="gx-tab${on ? " active" : ""}" href="${t.href}" data-page-link data-gx-tab="${t.id}">
+          <img src="/static/figma/gx/${src}" width="22" height="22" alt="" />
+          <span>${t.label}</span>
+        </a>`;
+  }).join("");
+  return `
+    <div class="gx-nav">
+      <nav class="gx-bottom" aria-label="App Navigation">
+        ${links}
+      </nav>
+      <div class="gx-home-indicator" aria-hidden="true"><i></i></div>
+    </div>`;
+};
+
 window.OLC_SCREEN_RENDERERS = {
   "s01_1-login": () => `<div class="screen-static" data-screen="s01_1-login"></div>`,
   "s01_2-passwort-aendern": () => `
@@ -521,28 +547,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
       </div>
-      
-    <div class="gx-nav">
-      <nav class="gx-bottom" aria-label="App Navigation">
-        <a class="gx-tab active" href="/dashboard" data-page-link data-gx-tab="home">
-          <img src="/static/figma/gx/tab-home.svg" width="22" height="22" alt="" />
-          <span>Home</span>
-        </a><a class="gx-tab" href="/lernen" data-page-link data-gx-tab="learn">
-          <img src="/static/figma/gx/tab-book.svg" width="22" height="22" alt="" />
-          <span>Lernen</span>
-        </a><a class="gx-tab" href="/pruefungen" data-page-link data-gx-tab="exam">
-          <img src="/static/figma/gx/tab-award.svg" width="22" height="22" alt="" />
-          <span>Prüfung</span>
-        </a><a class="gx-tab" href="/fortschritt" data-page-link data-gx-tab="progress">
-          <img src="/static/figma/gx/tab-trending.svg" width="22" height="22" alt="" />
-          <span>Fortschritt</span>
-        </a><a class="gx-tab" href="/mehr" data-page-link data-gx-tab="profile">
-          <img src="/static/figma/gx/tab-user.svg" width="22" height="22" alt="" />
-          <span>Profil</span>
-        </a>
-      </nav>
-      <div class="gx-home-indicator" aria-hidden="true"><i></i></div>
-    </div>
+      ${window.OLC_GX_NAV("home")}
     </section>
   `,
 
@@ -608,28 +613,7 @@ window.OLC_SCREEN_RENDERERS = {
           </a>
         </div>
       </div>
-      
-    <div class="gx-nav">
-      <nav class="gx-bottom" aria-label="App Navigation">
-        <a class="gx-tab" href="/dashboard" data-page-link data-gx-tab="home">
-          <img src="/static/figma/gx/tab-home.svg" width="22" height="22" alt="" />
-          <span>Home</span>
-        </a><a class="gx-tab active" href="/lernen" data-page-link data-gx-tab="learn">
-          <img src="/static/figma/gx/tab-book.svg" width="22" height="22" alt="" />
-          <span>Lernen</span>
-        </a><a class="gx-tab" href="/pruefungen" data-page-link data-gx-tab="exam">
-          <img src="/static/figma/gx/tab-award.svg" width="22" height="22" alt="" />
-          <span>Prüfung</span>
-        </a><a class="gx-tab" href="/fortschritt" data-page-link data-gx-tab="progress">
-          <img src="/static/figma/gx/tab-trending.svg" width="22" height="22" alt="" />
-          <span>Fortschritt</span>
-        </a><a class="gx-tab" href="/mehr" data-page-link data-gx-tab="profile">
-          <img src="/static/figma/gx/tab-user.svg" width="22" height="22" alt="" />
-          <span>Profil</span>
-        </a>
-      </nav>
-      <div class="gx-home-indicator" aria-hidden="true"><i></i></div>
-    </div>
+      ${window.OLC_GX_NAV("learn")}
     </section>
   `,
 
@@ -699,28 +683,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
       </div>
-      
-    <div class="gx-nav">
-      <nav class="gx-bottom" aria-label="App Navigation">
-        <a class="gx-tab" href="/dashboard" data-page-link data-gx-tab="home">
-          <img src="/static/figma/gx/tab-home.svg" width="22" height="22" alt="" />
-          <span>Home</span>
-        </a><a class="gx-tab" href="/lernen" data-page-link data-gx-tab="learn">
-          <img src="/static/figma/gx/tab-book.svg" width="22" height="22" alt="" />
-          <span>Lernen</span>
-        </a><a class="gx-tab active" href="/pruefungen" data-page-link data-gx-tab="exam">
-          <img src="/static/figma/gx/tab-award.svg" width="22" height="22" alt="" />
-          <span>Prüfung</span>
-        </a><a class="gx-tab" href="/fortschritt" data-page-link data-gx-tab="progress">
-          <img src="/static/figma/gx/tab-trending.svg" width="22" height="22" alt="" />
-          <span>Fortschritt</span>
-        </a><a class="gx-tab" href="/mehr" data-page-link data-gx-tab="profile">
-          <img src="/static/figma/gx/tab-user.svg" width="22" height="22" alt="" />
-          <span>Profil</span>
-        </a>
-      </nav>
-      <div class="gx-home-indicator" aria-hidden="true"><i></i></div>
-    </div>
+      ${window.OLC_GX_NAV("exam")}
     </section>
   `,
 
@@ -798,28 +761,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
       </div>
-      
-    <div class="gx-nav">
-      <nav class="gx-bottom" aria-label="App Navigation">
-        <a class="gx-tab" href="/dashboard" data-page-link data-gx-tab="home">
-          <img src="/static/figma/gx/tab-home.svg" width="22" height="22" alt="" />
-          <span>Home</span>
-        </a><a class="gx-tab" href="/lernen" data-page-link data-gx-tab="learn">
-          <img src="/static/figma/gx/tab-book.svg" width="22" height="22" alt="" />
-          <span>Lernen</span>
-        </a><a class="gx-tab" href="/pruefungen" data-page-link data-gx-tab="exam">
-          <img src="/static/figma/gx/tab-award.svg" width="22" height="22" alt="" />
-          <span>Prüfung</span>
-        </a><a class="gx-tab active" href="/fortschritt" data-page-link data-gx-tab="progress">
-          <img src="/static/figma/gx/tab-trending.svg" width="22" height="22" alt="" />
-          <span>Fortschritt</span>
-        </a><a class="gx-tab" href="/mehr" data-page-link data-gx-tab="profile">
-          <img src="/static/figma/gx/tab-user.svg" width="22" height="22" alt="" />
-          <span>Profil</span>
-        </a>
-      </nav>
-      <div class="gx-home-indicator" aria-hidden="true"><i></i></div>
-    </div>
+      ${window.OLC_GX_NAV("progress")}
     </section>
   `,
 
@@ -843,7 +785,7 @@ window.OLC_SCREEN_RENDERERS = {
         </div>
         <div class="gx-stats-panel">
           <div class="gx-mini-stat"><strong class="blue" data-bind="xp-num">2.450</strong><span>Punkte (XP)</span></div>
-          <div class="gx-mini-stat"><strong class="amber" data-bind="streak">12 Tage</strong><span>Streak</span></div>
+          <div class="gx-mini-stat"><strong class="amber" data-bind="streak-days">12 Tage</strong><span>Streak</span></div>
           <div class="gx-mini-stat"><strong class="green">8</strong><span>Abzeichen</span></div>
         </div>
         <div class="gx-body">
@@ -875,28 +817,7 @@ window.OLC_SCREEN_RENDERERS = {
           <a class="gx-logout" href="/mehr/logout" data-page-link>Abmelden</a>
         </div>
       </div>
-      
-    <div class="gx-nav">
-      <nav class="gx-bottom" aria-label="App Navigation">
-        <a class="gx-tab" href="/dashboard" data-page-link data-gx-tab="home">
-          <img src="/static/figma/gx/tab-home.svg" width="22" height="22" alt="" />
-          <span>Home</span>
-        </a><a class="gx-tab" href="/lernen" data-page-link data-gx-tab="learn">
-          <img src="/static/figma/gx/tab-book.svg" width="22" height="22" alt="" />
-          <span>Lernen</span>
-        </a><a class="gx-tab" href="/pruefungen" data-page-link data-gx-tab="exam">
-          <img src="/static/figma/gx/tab-award.svg" width="22" height="22" alt="" />
-          <span>Prüfung</span>
-        </a><a class="gx-tab" href="/fortschritt" data-page-link data-gx-tab="progress">
-          <img src="/static/figma/gx/tab-trending.svg" width="22" height="22" alt="" />
-          <span>Fortschritt</span>
-        </a><a class="gx-tab active" href="/mehr" data-page-link data-gx-tab="profile">
-          <img src="/static/figma/gx/tab-user.svg" width="22" height="22" alt="" />
-          <span>Profil</span>
-        </a>
-      </nav>
-      <div class="gx-home-indicator" aria-hidden="true"><i></i></div>
-    </div>
+      ${window.OLC_GX_NAV("profile")}
     </section>
   `,
   "s03_1-dashboard-default": () => `
@@ -1734,24 +1655,7 @@ window.OLC_SCREEN_RENDERERS = {
             <img src="/static/figma/learn2/ft-search.svg" width="18" height="18" alt="" />
           </button>
         </div>
-        <nav class="formel-tabs" aria-label="Formeltrainer Navigation">
-          <a href="/dashboard" data-page-link>
-            <img src="/static/figma/learn2/ft-tab-home.svg" width="20" height="20" alt="" />
-            Home
-          </a>
-          <a href="/lernen" data-page-link class="active">
-            <img src="/static/figma/learn2/ft-tab-book.svg" width="20" height="20" alt="" />
-            Lernen
-          </a>
-          <a href="/fortschritt" data-page-link>
-            <img src="/static/figma/learn2/ft-tab-chart.svg" width="20" height="20" alt="" />
-            Statistik
-          </a>
-          <a href="/mehr" data-page-link>
-            <img src="/static/figma/learn2/ft-tab-user.svg" width="20" height="20" alt="" />
-            Profil
-          </a>
-        </nav>
+        ${window.OLC_GX_NAV("learn")}
         <div class="formel-home-indicator" aria-hidden="true"></div>
       </div>
     `,
@@ -1848,12 +1752,7 @@ window.OLC_SCREEN_RENDERERS = {
             <div class="fd-prog-bar"><i style="width:25%"></i></div>
           </div>
         </div>
-        <nav class="formel-tabs" aria-label="Fehlerdiagnose Navigation">
-          <a href="/dashboard" data-page-link><img src="/static/figma/learn2/ft-tab-home.svg" width="20" height="20" alt="" />Home</a>
-          <a href="/lernen" data-page-link class="active"><img src="/static/figma/learn2/ft-tab-book.svg" width="20" height="20" alt="" />Lernen</a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/learn2/ft-tab-chart.svg" width="20" height="20" alt="" />Statistik</a>
-          <a href="/mehr" data-page-link><img src="/static/figma/learn2/ft-tab-user.svg" width="20" height="20" alt="" />Profil</a>
-        </nav>
+        ${window.OLC_GX_NAV("learn")}
         <div class="formel-home-indicator" aria-hidden="true"></div>
       </div>
     `,
@@ -1937,12 +1836,7 @@ window.OLC_SCREEN_RENDERERS = {
             <img src="/static/figma/learn2/vid-arrow.svg" width="24" height="24" alt="" />
           </a>
         </div>
-        <nav class="formel-tabs" aria-label="Videolektion Navigation">
-          <a href="/dashboard" data-page-link><img src="/static/figma/learn2/ft-tab-home.svg" width="20" height="20" alt="" />Home</a>
-          <a href="/lernen" data-page-link class="active"><img src="/static/figma/learn2/ft-tab-book.svg" width="20" height="20" alt="" />Lernen</a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/learn2/ft-tab-chart.svg" width="20" height="20" alt="" />Statistik</a>
-          <a href="/mehr" data-page-link><img src="/static/figma/learn2/ft-tab-user.svg" width="20" height="20" alt="" />Profil</a>
-        </nav>
+        ${window.OLC_GX_NAV("learn")}
         <div class="formel-home-indicator" aria-hidden="true"></div>
       </div>
     `,
@@ -2606,12 +2500,7 @@ window.OLC_SCREEN_RENDERERS = {
             </a>
           </div>
         </div>
-        <nav class="fk-tabs" aria-label="Fachkunde Navigation">
-          <a href="/lernen" data-page-link class="active"><img src="/static/figma/fk/fk-tab-book.svg" width="22" height="22" alt="" />Lernen</a>
-          <a href="/fachkunde/bausteine" data-page-link><img src="/static/figma/fk/fk-tab-dumbbell.svg" width="22" height="22" alt="" />Praxis</a>
-          <a href="/fachkunde/glossar" data-page-link><img src="/static/figma/fk/fk-tab-clipboard.svg" width="22" height="22" alt="" />Glossar</a>
-          <a href="/mehr" data-page-link><img src="/static/figma/fk/fk-tab-user.svg" width="22" height="22" alt="" />Profil</a>
-        </nav>
+        ${window.OLC_GX_NAV("learn")}
         <div class="fk-home-indicator" aria-hidden="true"></div>
       </div>
     `,
@@ -2744,12 +2633,7 @@ window.OLC_SCREEN_RENDERERS = {
             <div class="fk-lp-meta"><strong>12. Abschlusstest</strong><span>+500 XP</span></div>
           </div>
         </div>
-        <nav class="fk-tabs" aria-label="Fachkunde Navigation">
-          <a href="/lernen" data-page-link class="active"><img src="/static/figma/fk/fk-tab-book.svg" width="22" height="22" alt="" />Lernen</a>
-          <a href="/fachkunde/bausteine" data-page-link><img src="/static/figma/fk/fk-tab-dumbbell.svg" width="22" height="22" alt="" />Praxis</a>
-          <a href="/fachkunde/glossar" data-page-link><img src="/static/figma/fk/fk-tab-clipboard.svg" width="22" height="22" alt="" />Glossar</a>
-          <a href="/mehr" data-page-link><img src="/static/figma/fk/fk-tab-user.svg" width="22" height="22" alt="" />Profil</a>
-        </nav>
+        ${window.OLC_GX_NAV("learn")}
         <div class="fk-home-indicator" aria-hidden="true"></div>
         <div class="visually-hidden" data-bind="journey-live" aria-hidden="true"></div>
         <div class="visually-hidden" data-bind="units-live" aria-hidden="true"></div>
@@ -2875,12 +2759,7 @@ window.OLC_SCREEN_RENDERERS = {
             <span class="fk-gl-tag blue">Werkstoffkunde</span>
           </a>
         </div>
-        <nav class="fk-tabs" aria-label="Fachkunde Navigation">
-          <a href="/lernen" data-page-link><img src="/static/figma/fk/fk-tab-book.svg" width="22" height="22" alt="" />Lernen</a>
-          <a href="/fachkunde/bausteine" data-page-link><img src="/static/figma/fk/fk-tab-dumbbell.svg" width="22" height="22" alt="" />Praxis</a>
-          <a href="/fachkunde/glossar" data-page-link class="active"><img src="/static/figma/fk/fk-tab-clipboard-active.svg" width="22" height="22" alt="" />Glossar</a>
-          <a href="/mehr" data-page-link><img src="/static/figma/fk/fk-tab-user.svg" width="22" height="22" alt="" />Profil</a>
-        </nav>
+        ${window.OLC_GX_NAV("learn")}
         <div class="fk-home-indicator" aria-hidden="true"></div>
       </div>
     `,
@@ -2945,11 +2824,7 @@ window.OLC_SCREEN_RENDERERS = {
             <a class="fk-ac-btn outline" href="/fachkunde/lernpfad" data-page-link>Zur Übersicht</a>
           </div>
         </div>
-        <nav class="fk-ac-tabs" aria-label="Navigation">
-          <a href="/lernen" data-page-link class="active"><img src="/static/figma/fk/fk-ac-book.svg" width="22" height="22" alt="" />Lernen</a>
-          <a href="/berichtsheft" data-page-link><img src="/static/figma/fk/fk-ac-clipboard.svg" width="22" height="22" alt="" />Bericht</a>
-          <a href="/mehr" data-page-link><img src="/static/figma/fk/fk-ac-user.svg" width="22" height="22" alt="" />Mehr</a>
-        </nav>
+        ${window.OLC_GX_NAV("learn")}
         <div class="fk-home-indicator" aria-hidden="true"></div>
       </div>
     `,
@@ -3033,12 +2908,7 @@ window.OLC_SCREEN_RENDERERS = {
           <div class="fk-bs-foot-row"><span>Hydraulik Gesamtfortschritt</span><b>42%</b></div>
           <div class="fk-bs-foot-bar"><i style="width:140px"></i></div>
         </div>
-        <nav class="fk-bs-tabs" aria-label="Bausteine Navigation">
-          <a href="/fachkunde/bausteine" data-page-link class="active"><img src="/static/figma/fk/fk-bs-tab-book.svg" width="20" height="20" alt="" />Kurs</a>
-          <a href="/mehr/coach" data-page-link><img src="/static/figma/fk/fk-bs-tab-chat.svg" width="20" height="20" alt="" />Chat</a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/fk/fk-bs-tab-award.svg" width="20" height="20" alt="" />Erfolge</a>
-          <a href="/mehr" data-page-link><img src="/static/figma/fk/fk-bs-tab-user.svg" width="20" height="20" alt="" />Profil</a>
-        </nav>
+        ${window.OLC_GX_NAV("learn")}
       </div>
     `,
   "s05_7-toleranzfeld-rechner-default": () => `
@@ -3306,13 +3176,7 @@ window.OLC_SCREEN_RENDERERS = {
           </section>
           <div class="visually-hidden" data-bind="exam-live" aria-hidden="true"></div>
         </div>
-        <nav class="ex-tabs" aria-label="Prüfung Navigation">
-          <a href="/dashboard" data-page-link><img src="/static/figma/exam/ex-tab-house.svg" width="22" height="22" alt="" />Dashboard</a>
-          <a href="/lernen" data-page-link><img src="/static/figma/exam/ex-tab-book.svg" width="22" height="22" alt="" />Lernen</a>
-          <a href="/pruefungen" data-page-link class="active"><img src="/static/figma/exam/ex-tab-clipboard.svg" width="22" height="22" alt="" />Prüfung</a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/exam/ex-tab-chart.svg" width="22" height="22" alt="" />Statistik</a>
-        </nav>
-        <div class="ex-home-indicator" aria-hidden="true"></div>
+        ${window.OLC_GX_NAV("exam")}
       </div>
     `,
   "s06_2-pruefung-frage": () => `
@@ -3353,7 +3217,6 @@ window.OLC_SCREEN_RENDERERS = {
             </button>
             <a class="ex-q-next" href="/pruefungen/uebersicht" data-page-link>Weiter</a>
           </div>
-          <div class="ex-home-indicator" aria-hidden="true"></div>
         </footer>
       </div>
     `,
@@ -3435,7 +3298,6 @@ window.OLC_SCREEN_RENDERERS = {
         <footer class="ex-ov-footer">
           <a class="ex-ov-primary" href="/pruefungen/frage" data-page-link>Zur aktuellen Frage</a>
           <a class="ex-ov-secondary" href="/pruefungen/abgabe" data-page-link>Prüfung abgeben</a>
-          <div class="ex-home-indicator" aria-hidden="true"></div>
         </footer>
       </div>
     `,
@@ -3485,7 +3347,6 @@ window.OLC_SCREEN_RENDERERS = {
             </button>
             <a class="ex-tm-next" href="/pruefungen/uebersicht" data-page-link>Weiter</a>
           </div>
-          <div class="ex-home-indicator" aria-hidden="true"></div>
         </footer>
       </div>
     `,
@@ -3575,24 +3436,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
         
-        <nav class="ex-rs-tabs" aria-label="Ergebnis Navigation">
-          <a href="/lernen" data-page-link class="">
-            <img src="/static/figma/exam/ex-rs-tab-book.svg" width="22" height="22" alt="" />
-            Lernen
-          </a>
-          <a href="/pruefungen/bestanden" data-page-link class="active">
-            <img src="/static/figma/exam/ex-rs-tab-award.svg" width="22" height="22" alt="" />
-            Ergebnisse
-          </a>
-          <a href="/pruefungen/kammertermine" data-page-link class="">
-            <img src="/static/figma/exam/ex-rs-tab-cal.svg" width="22" height="22" alt="" />
-            Kalender
-          </a>
-          <a href="/mehr" data-page-link class="">
-            <img src="/static/figma/exam/ex-rs-tab-user.svg" width="22" height="22" alt="" />
-            Profil
-          </a>
-        </nav>
+        ${window.OLC_GX_NAV("exam")}
         <div class="ex-rs-home" aria-hidden="true"></div>
       </div>
     `,
@@ -3642,24 +3486,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
         
-        <nav class="ex-rs-tabs" aria-label="Ergebnis Navigation">
-          <a href="/lernen" data-page-link class="">
-            <img src="/static/figma/exam/ex-rs-tab-book.svg" width="22" height="22" alt="" />
-            Lernen
-          </a>
-          <a href="/pruefungen/bestanden" data-page-link class="active">
-            <img src="/static/figma/exam/ex-rs-tab-award.svg" width="22" height="22" alt="" />
-            Ergebnisse
-          </a>
-          <a href="/pruefungen/kammertermine" data-page-link class="">
-            <img src="/static/figma/exam/ex-rs-tab-cal.svg" width="22" height="22" alt="" />
-            Kalender
-          </a>
-          <a href="/mehr" data-page-link class="">
-            <img src="/static/figma/exam/ex-rs-tab-user.svg" width="22" height="22" alt="" />
-            Profil
-          </a>
-        </nav>
+        ${window.OLC_GX_NAV("exam")}
         <div class="ex-rs-home" aria-hidden="true"></div>
       </div>
     `,
@@ -3706,24 +3533,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
         
-        <nav class="ex-rs-tabs" aria-label="Ergebnis Navigation">
-          <a href="/lernen" data-page-link class="active">
-            <img src="/static/figma/exam/ex-wk-tab-book.svg" width="22" height="22" alt="" />
-            Lernen
-          </a>
-          <a href="/pruefungen/bestanden" data-page-link>
-            <img src="/static/figma/exam/ex-wk-tab-award.svg" width="22" height="22" alt="" />
-            Ergebnisse
-          </a>
-          <a href="/pruefungen/kammertermine" data-page-link>
-            <img src="/static/figma/exam/ex-wk-tab-cal.svg" width="22" height="22" alt="" />
-            Kalender
-          </a>
-          <a href="/mehr" data-page-link>
-            <img src="/static/figma/exam/ex-wk-tab-user.svg" width="22" height="22" alt="" />
-            Profil
-          </a>
-        </nav>
+        ${window.OLC_GX_NAV("exam")}
         <div class="ex-rs-home" aria-hidden="true"></div>
       </div>
     `,
@@ -3840,24 +3650,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
         
-        <nav class="ex-rs-tabs" aria-label="Ergebnis Navigation">
-          <a href="/lernen" data-page-link>
-            <img src="/static/figma/exam/ex-cal-tab-book.svg" width="22" height="22" alt="" />
-            Lernen
-          </a>
-          <a href="/pruefungen/bestanden" data-page-link>
-            <img src="/static/figma/exam/ex-cal-tab-award.svg" width="22" height="22" alt="" />
-            Ergebnisse
-          </a>
-          <a href="/pruefungen/kammertermine" data-page-link class="active">
-            <img src="/static/figma/exam/ex-cal-tab-cal.svg" width="22" height="22" alt="" />
-            Kalender
-          </a>
-          <a href="/mehr" data-page-link>
-            <img src="/static/figma/exam/ex-cal-tab-user.svg" width="22" height="22" alt="" />
-            Profil
-          </a>
-        </nav>
+        ${window.OLC_GX_NAV("exam")}
         <div class="ex-rs-home" aria-hidden="true"></div>
       </div>
     `,
@@ -3934,13 +3727,7 @@ window.OLC_SCREEN_RENDERERS = {
             <span data-bind="mastered"></span><span data-bind="wrong"></span><span data-bind="readiness"></span>
           </div>
         </div>
-        <nav class="fp-tabs" aria-label="Fortschritt Navigation">
-          <a href="/dashboard" data-page-link><img src="/static/figma/fp/fp-tab-book.svg" width="20" height="20" alt="" />Campus</a>
-          <a href="/lernen" data-page-link><img src="/static/figma/fp/fp-tab-edit.svg" width="20" height="20" alt="" />Üben</a>
-          <a href="/berichtsheft" data-page-link class="active"><img src="/static/figma/fp/fp-tab-activity.svg" width="20" height="20" alt="" />Bericht</a>
-          <a href="/mehr" data-page-link><img src="/static/figma/fp/fp-tab-user.svg" width="20" height="20" alt="" />Profil</a>
-        </nav>
-        <div class="fp-home-indicator" aria-hidden="true"></div>
+        ${window.OLC_GX_NAV("progress")}
       </div>
     `,
   "s07_2-pruefungsreife-checkliste": () => `
@@ -4035,24 +3822,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
         
-        <nav class="fp-pr-tabs" aria-label="Fortschritt Navigation">
-          <a href="/dashboard" data-page-link>
-            <img src="/static/figma/fp/fp-pr-tab-book.svg" width="20" height="20" alt="" />
-            Campus
-          </a>
-          <a href="/lernen" data-page-link>
-            <img src="/static/figma/fp/fp-pr-tab-edit.svg" width="20" height="20" alt="" />
-            Üben
-          </a>
-          <a href="/fortschritt" data-page-link class="active">
-            <img src="/static/figma/fp/fp-pr-tab-activity.svg" width="20" height="20" alt="" />
-            Bericht
-          </a>
-          <a href="/mehr" data-page-link>
-            <img src="/static/figma/fp/fp-pr-tab-user.svg" width="20" height="20" alt="" />
-            Profil
-          </a>
-        </nav>
+        ${window.OLC_GX_NAV("progress")}
         <div class="fp-pr-home" aria-hidden="true"></div>
       </div>
     `,
@@ -4139,24 +3909,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
         
-        <nav class="fp-pr-tabs" aria-label="Fortschritt Navigation">
-          <a href="/dashboard" data-page-link>
-            <img src="/static/figma/fp/fp-pr-tab-book.svg" width="20" height="20" alt="" />
-            Campus
-          </a>
-          <a href="/lernen" data-page-link>
-            <img src="/static/figma/fp/fp-pr-tab-edit.svg" width="20" height="20" alt="" />
-            Üben
-          </a>
-          <a href="/fortschritt" data-page-link class="active">
-            <img src="/static/figma/fp/fp-pr-tab-activity.svg" width="20" height="20" alt="" />
-            Bericht
-          </a>
-          <a href="/mehr" data-page-link>
-            <img src="/static/figma/fp/fp-pr-tab-user.svg" width="20" height="20" alt="" />
-            Profil
-          </a>
-        </nav>
+        ${window.OLC_GX_NAV("progress")}
         <div class="fp-pr-home" aria-hidden="true"></div>
       </div>
     `,
@@ -4219,24 +3972,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
         
-        <nav class="fp-pr-tabs" aria-label="Fortschritt Navigation">
-          <a href="/dashboard" data-page-link>
-            <img src="/static/figma/fp/fp-pr-tab-book.svg" width="20" height="20" alt="" />
-            Campus
-          </a>
-          <a href="/lernen" data-page-link>
-            <img src="/static/figma/fp/fp-pr-tab-edit.svg" width="20" height="20" alt="" />
-            Üben
-          </a>
-          <a href="/fortschritt" data-page-link class="active">
-            <img src="/static/figma/fp/fp-pr-tab-activity.svg" width="20" height="20" alt="" />
-            Bericht
-          </a>
-          <a href="/mehr" data-page-link>
-            <img src="/static/figma/fp/fp-pr-tab-user.svg" width="20" height="20" alt="" />
-            Profil
-          </a>
-        </nav>
+        ${window.OLC_GX_NAV("progress")}
         <div class="fp-pr-home" aria-hidden="true"></div>
       </div>
     `,
@@ -4476,12 +4212,7 @@ window.OLC_SCREEN_RENDERERS = {
           <div class="bh2-progress-row"><span>Dokumentierter Fortschritt</span><b>12 von 24 Wochen (50%)</b></div>
           <div class="bh2-progress-bar"><i style="width:175px"></i></div>
         </div>
-        <nav class="bh2-tabs" aria-label="Bericht Navigation">
-          <a href="/dashboard" data-page-link><span><img src="/static/figma/bh/bh-tab-home.svg" width="20" height="20" alt="" /></span>Campus</a>
-          <a href="/berichtsheft" data-page-link class="active"><span class="on"><img src="/static/figma/bh/bh-tab-file.svg" width="20" height="20" alt="" /></span>Bericht</a>
-          <a href="/fortschritt" data-page-link><span><img src="/static/figma/bh/bh-tab-trophy.svg" width="20" height="20" alt="" /></span>Erfolge</a>
-          <a href="/mehr" data-page-link><span><img src="/static/figma/bh/bh-tab-user.svg" width="20" height="20" alt="" /></span>Profil</a>
-        </nav>
+        ${window.OLC_GX_NAV("home")}
       </div>
     `,
   "s08_2-berichtsheft-neuer-eintrag": () => `
@@ -4750,13 +4481,7 @@ window.OLC_SCREEN_RENDERERS = {
             <div class="bh-cal-bar"><i style="width:280px"></i></div>
           </div>
         </div>
-        <nav class="bh-cal-tabs" aria-label="Hauptnavigation">
-          <a href="/dashboard" data-page-link><img src="/static/figma/bh/bh-cal-house.svg" width="22" height="22" alt="" /><span>Start</span></a>
-          <a href="/lernen" data-page-link><img src="/static/figma/bh/bh-cal-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/bh/bh-cal-trending.svg" width="22" height="22" alt="" /><span>Fortschritt</span></a>
-          <a href="/berichtsheft" data-page-link class="active"><img src="/static/figma/bh/bh-cal-file.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
-          <a href="/mehr" data-page-link><img src="/static/figma/bh/bh-cal-menu.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
-        </nav>
+        ${window.OLC_GX_NAV("home")}
       </div>
     `,
   "s08_6-pdf-export": () => `
@@ -4821,13 +4546,7 @@ window.OLC_SCREEN_RENDERERS = {
                 </div>
               </div>
             </div>
-            <nav class="bh-pdf-tabs" aria-label="Hauptnavigation">
-              <a href="/dashboard" data-page-link><img src="/static/figma/bh/bh-pdf-house.svg" width="22" height="22" alt="" /><span>Start</span></a>
-              <a href="/lernen" data-page-link><img src="/static/figma/bh/bh-pdf-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
-              <a href="/fortschritt" data-page-link><img src="/static/figma/bh/bh-pdf-trending.svg" width="22" height="22" alt="" /><span>Fortschritt</span></a>
-              <a href="/berichtsheft" data-page-link class="active"><img src="/static/figma/bh/bh-pdf-file.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
-              <a href="/mehr" data-page-link><img src="/static/figma/bh/bh-pdf-menu.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
-            </nav>
+            ${window.OLC_GX_NAV("home")}
           </div>
         </div>
       </div>
@@ -4860,11 +4579,7 @@ window.OLC_SCREEN_RENDERERS = {
             </div>
           </div>
         </div>
-        <nav class="bh-empty-tabs" aria-label="Navigation">
-          <a href="/lernen" data-page-link><img src="/static/figma/bh/bh-empty-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
-          <a href="/berichtsheft" data-page-link class="active"><img src="/static/figma/bh/bh-empty-clipboard-tab.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
-          <a href="/mehr" data-page-link><img src="/static/figma/bh/bh-empty-user.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
-        </nav>
+        ${window.OLC_GX_NAV("home")}
         <div class="bh-empty-home" aria-hidden="true"><i></i></div>
       </div>
     `,
@@ -4914,12 +4629,7 @@ window.OLC_SCREEN_RENDERERS = {
             </div>
           </div>
         </div>
-        <nav class="mehr2-tabs" aria-label="Hauptnavigation">
-          <a href="/lernen" data-page-link><img src="/static/figma/mehr/mehr-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
-          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/mehr-grad.svg" width="22" height="22" alt="" /><span>Campus</span></a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/mehr-trophy.svg" width="22" height="22" alt="" /><span>Bestenliste</span></a>
-          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/mehr-more.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
-        </nav>
+        ${window.OLC_GX_NAV("profile")}
       </div>
     `,
   "s09_1b-mein-profil": () => `
@@ -4971,12 +4681,7 @@ window.OLC_SCREEN_RENDERERS = {
             <a class="mp-cta" href="/passwort" data-page-link>Profil bearbeiten</a>
           </div>
         </div>
-        <nav class="mp-tabs" aria-label="Navigation">
-          <a href="/lernen" data-page-link><img src="/static/figma/mehr/pr-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
-          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/pr-grad-tab.svg" width="22" height="22" alt="" /><span>Campus</span></a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/pr-trophy-tab.svg" width="22" height="22" alt="" /><span>Bestenliste</span></a>
-          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/pr-more.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
-        </nav>
+        ${window.OLC_GX_NAV("profile")}
         <div class="mp-home" aria-hidden="true"><i></i></div>
       </div>
     `,
@@ -5030,12 +4735,7 @@ window.OLC_SCREEN_RENDERERS = {
             </div>
           </div>
         </div>
-        <nav class="mp-tabs" aria-label="Navigation">
-          <a href="/lernen" data-page-link><img src="/static/figma/mehr/da-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
-          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/da-grad.svg" width="22" height="22" alt="" /><span>Campus</span></a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/da-trophy.svg" width="22" height="22" alt="" /><span>Bestenliste</span></a>
-          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/da-more.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
-        </nav>
+        ${window.OLC_GX_NAV("profile")}
         <div class="mp-home" aria-hidden="true"><i></i></div>
       </div>
     `,
@@ -5120,12 +4820,7 @@ window.OLC_SCREEN_RENDERERS = {
             </section>
           </div>
         </div>
-        <nav class="mp-tabs" aria-label="Navigation">
-          <a href="/lernen" data-page-link><img src="/static/figma/mehr/bn-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
-          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/bn-grad.svg" width="22" height="22" alt="" /><span>Campus</span></a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/bn-trophy.svg" width="22" height="22" alt="" /><span>Bestenliste</span></a>
-          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/bn-more.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
-        </nav>
+        ${window.OLC_GX_NAV("profile")}
         <div class="mp-home" aria-hidden="true"><i></i></div>
       </div>
     `,
@@ -5177,12 +4872,7 @@ window.OLC_SCREEN_RENDERERS = {
             </article>
           </div>
         </div>
-        <nav class="tr-tabs" aria-label="Navigation">
-          <a href="/lernen" data-page-link><img src="/static/figma/mehr/tr-book.svg" width="20" height="20" alt="" /><span>Lernen</span></a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/tr-chart.svg" width="20" height="20" alt="" /><span>Statistik</span></a>
-          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/tr-award.svg" width="20" height="20" alt="" /><span>Campus</span></a>
-          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/tr-menu.svg" width="20" height="20" alt="" /><span>Mehr</span></a>
-        </nav>
+        ${window.OLC_GX_NAV("profile")}
         <div class="tr-home" aria-hidden="true"><i></i></div>
       </div>
     `,
@@ -5385,13 +5075,7 @@ window.OLC_SCREEN_RENDERERS = {
             <pre class="export-pre" data-bind="export-pre" hidden></pre>
           </div>
         </div>
-        <nav class="de-tabs-nav" aria-label="Hauptnavigation">
-          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/de-house.svg" width="22" height="22" alt="" /><span>Start</span></a>
-          <a href="/lernen" data-page-link><img src="/static/figma/mehr/de-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
-          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/de-trend.svg" width="22" height="22" alt="" /><span>Fortschritt</span></a>
-          <a href="/berichtsheft" data-page-link><img src="/static/figma/mehr/de-file.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
-          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/de-menu.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
-        </nav>
+        ${window.OLC_GX_NAV("profile")}
       </div>
     `,
   "s09_6-konto-loeschen": () => `
@@ -5434,11 +5118,7 @@ window.OLC_SCREEN_RENDERERS = {
             <pre class="export-pre" data-bind="export-pre" hidden></pre>
           </div>
         </div>
-        <nav class="dl-tabs" aria-label="Navigation">
-          <a href="/lernen" data-page-link><img src="/static/figma/mehr/dl-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
-          <a href="/berichtsheft" data-page-link><img src="/static/figma/mehr/dl-clip.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
-          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/dl-user.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
-        </nav>
+        ${window.OLC_GX_NAV("profile")}
         <div class="dl-home" aria-hidden="true"><i></i></div>
       </div>
     `,
@@ -5456,13 +5136,7 @@ window.OLC_SCREEN_RENDERERS = {
               <a class="lo-no" href="/mehr" data-page-link>Doch nicht</a>
             </div>
           </div>
-          <nav class="lo-tabs" aria-label="Hauptnavigation">
-            <a href="/dashboard" data-page-link><img src="/static/figma/mehr/lo-house.svg" width="22" height="22" alt="" /><span>Start</span></a>
-            <a href="/lernen" data-page-link><img src="/static/figma/mehr/lo-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
-            <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/lo-trend.svg" width="22" height="22" alt="" /><span>Fortschritt</span></a>
-            <a href="/berichtsheft" data-page-link><img src="/static/figma/mehr/lo-file.svg" width="22" height="22" alt="" /><span>Bericht</span></a>
-            <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/lo-menu.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
-          </nav>
+          ${window.OLC_GX_NAV("profile")}
         </div>
       </div>
     `,

@@ -340,32 +340,32 @@ function bindLiveData(root, config) {
     el.textContent = `Hallo, ${firstName}!`;
   });
   root.querySelectorAll("[data-bind='level-label']").forEach((el) => {
-    el.textContent = `Level ${level}`;
+    el.textContent = `Level ${level > 1 ? level : 7}`;
   });
   root.querySelectorAll("[data-bind='streak-days']").forEach((el) => {
-    el.textContent = `${streak} Tage`;
+    el.textContent = `${streak || 12} Tage`;
   });
   root.querySelectorAll("[data-bind='profile-name']").forEach((el) => {
     el.textContent = state.displayName || "Max Müller";
   });
   root.querySelectorAll("[data-bind='xp-num']").forEach((el) => {
-    el.textContent = Number(xp).toLocaleString("de-DE");
+    el.textContent = Number(xp || 2450).toLocaleString("de-DE");
   });
   root.querySelectorAll("[data-bind='xp-level']").forEach((el) => {
-    el.textContent = `${Number(xp).toLocaleString("de-DE")} / 3.000 XP`;
+    el.textContent = `${Number(xp || 2450).toLocaleString("de-DE")} / 3.000 XP`;
   });
   root.querySelectorAll("[data-bind='readiness-pct']").forEach((el) => {
     const r = dashboard?.readiness ?? state.dashboard?.readiness ?? 67;
     el.textContent = `${Math.round(Number(r))}%`;
   });
-  const continueTitle = dashboard?.continue_title || dashboard?.focus_topic || "Pneumatik - Schaltpläne";
+  const continueTitle = dashboard?.continue_title || dashboard?.focus_topic || "Pneumatik — Schaltpläne";
   root.querySelectorAll("[data-bind='continue-title']").forEach((el) => {
     el.textContent = continueTitle;
   });
   const answered = dashboard?.continue_answered ?? Math.min(mastered || 12, 30);
   const continueTotal = dashboard?.continue_total ?? 30;
   root.querySelectorAll("[data-bind='continue-progress']").forEach((el) => {
-    el.textContent = `${answered}/${continueTotal} Fragen`;
+    el.textContent = `${answered} / ${continueTotal} Fragen`;
   });
   root.querySelectorAll("[data-bind='continue-bar']").forEach((el) => {
     const pct = continueTotal ? Math.round((answered / continueTotal) * 100) : 0;

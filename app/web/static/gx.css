@@ -46,6 +46,8 @@
   background: #f8fafc;
   color: #0f172a;
   font-family: Inter, "Segoe UI", system-ui, sans-serif;
+  line-height: normal;
+  -webkit-font-smoothing: antialiased;
 }
 .gx-scroll {
   flex: 1;
@@ -93,7 +95,7 @@
 }
 .gx-welcome { display: flex; flex-direction: column; gap: 2px; }
 .gx-welcome p { margin: 0; color: #475569; font-size: 14px; font-weight: 400; }
-.gx-welcome strong { color: #0f172a; font-size: 18px; font-weight: 800; }
+.gx-welcome strong { color: #0f172a; font-size: 18px; font-weight: 800; line-height: normal; }
 .gx-level-pill {
   background: #eff6ff;
   color: #3b82f6;
@@ -159,7 +161,8 @@
 .gx-progress-meta span { color: #475569; }
 .gx-progress-meta strong { color: #3b82f6; font-weight: 700; }
 .gx-progress-block.light .gx-progress-meta span { color: #93c5fd; }
-.gx-progress-block.light .gx-progress-meta strong { color: #fff; }
+.gx-progress-block.light .gx-progress-meta strong,
+.gx-progress-block.light .gx-progress-meta strong span { color: #fff; }
 .gx-bar {
   height: 8px;
   border-radius: 9999px;
@@ -275,7 +278,6 @@
   width: 22px;
   height: 22px;
   display: block;
-  filter: grayscale(1) brightness(0) invert(0.68);
 }
 .gx-tab.active img {
   filter: brightness(0) saturate(100%) invert(46%) sepia(86%) saturate(1900%) hue-rotate(199deg) brightness(98%) contrast(95%);
@@ -317,8 +319,10 @@
   font-size: 20px;
   font-weight: 800;
   color: #0f172a;
+  line-height: normal;
 }
-.gx-page-header p { margin: 0; color: #475569; font-size: 14px; }
+.gx-page-header h2, .gx-page-header p { margin: 0; }
+.gx-page-header p { color: #475569; font-size: 14px; line-height: normal; }
 .gx-badge-green {
   background: #ecfdf5;
   color: #10b981;
@@ -635,3 +639,52 @@
   color: #3b82f6;
   font-weight: 700;
 }
+
+
+/* Embed gx 5-tab IA inside legacy chrome screens */
+.ex-screen .gx-nav,
+.fp-screen .gx-nav,
+.bh2-screen .gx-nav,
+.bh-ne-screen .gx-nav,
+.bh-cal-screen .gx-nav,
+.bh-pdf-screen .gx-nav,
+.bh-empty-screen .gx-nav,
+.mehr2-screen .gx-nav,
+.mp-screen .gx-nav,
+.tr-screen .gx-nav,
+.de-screen .gx-nav,
+.dl-screen .gx-nav,
+.lo-screen .gx-nav,
+.fk-screen .gx-nav,
+.formel-screen .gx-nav,
+.ld-screen .gx-nav {
+  margin-top: auto;
+  flex-shrink: 0;
+  width: 100%;
+}
+.ex-home-indicator,
+.fp-home-indicator {
+  display: none !important;
+}
+
+/* Tighten exam/hub spacing */
+
+.gx-page-header { gap: 4px; padding: 16px 20px; }
+.gx-exam-hero { box-shadow: 0 4px 6px rgba(15, 23, 42, 0.03); }
+.gx-exam-hero .gx-bar.dark { background: #2563eb; }
+.gx-exam-hero .gx-bar.dark i { background: #fff; height: 8px; }
+.gx-body { padding-bottom: 20px; }
+.gx-goal .gx-ring img { display: block; }
+.gx-ready .gx-donut img { display: block; }
+.gx-section + .gx-section { margin-top: 0; }
+.gx-pruefung .gx-body { gap: 20px; }
+.gx-fortschritt .gx-body { gap: 20px; }
+.gx-profil .gx-body { gap: 20px; }
+
+
+.gx-pruefung .gx-page-header,
+.gx-fortschritt .gx-page-header { padding: 15px 20px 13px; }
+.gx-exam-hero-top { align-items: flex-start; }
+.gx-exam-hero-top .gx-kicker { margin: 0; }
+.gx-exam-hero-top strong { margin-top: 4px; line-height: normal; }
+.gx-sim img { display: block; }

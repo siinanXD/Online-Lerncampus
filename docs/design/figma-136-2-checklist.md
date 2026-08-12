@@ -209,12 +209,16 @@ New participant hubs added to overview `136:2` (near y≈17010 under section 18)
 | Status | Node | Name | Size | Route |
 |--------|------|------|------|-------|
 | [~] | `159:13` | 19.1 home-dashboard | 402×874 | `/dashboard` |
-| [~] | `159:129` | 19.2 lernen-journey | 402×941 | `/lernen` |
+| [x] | `159:129` | 19.2 lernen-journey | 402×941 | `/lernen` |
 | [~] | `159:229` | 19.3 pruefung-hub | 402×874 | `/pruefungen` |
 | [~] | `159:320` | 19.4 fortschritt-stats | 402×943 | `/fortschritt` |
 | [~] | `159:456` | 19.5 profil-settings | 402×910 | `/mehr` |
 
 **IA change:** shell tab bar updated from Start/Lernen/Prüfung/Bericht/Mehr → Home/Lernen/Prüfung/Fortschritt/Profil. Legacy hubs kept at `*/legacy` routes. Staff/Admin paused until this set is pixel-matched.
+
+**Deep chrome:** exam/fp/bh/mehr/fk/formel/learn-drill embedded navs unified to the same 5-tab IA via `OLC_GX_NAV` (Berichtsheft remains link/Schnellstarter only, not a main tab).
+
+**Pixel deltas (live vs Figma, stop per decision):** 19.1 ~8.6%; 19.2 ~4.9% [x]; 19.3 ~10.0%; 19.4 ~8.5%; 19.5 ~8.3%.
 
 ---
 
@@ -248,4 +252,5 @@ New participant hubs added to overview `136:2` (near y≈17010 under section 18)
 - Mehr 09.3 KI-Coach Chat [~] ~9.5%; 09.4 Lernplan [~] ~15.8%; 09.5 Datenexport [~] ~11.0%; 09.6 Konto loeschen [~] ~8.8% (Figma assets; export/delete API + coach-live binds preserved)
 - Mehr 09.1 sibling phones: Profil [~] ~11.8%; Darstellung [~] ~7.1%; Benachrichtigungen [~] ~13.9% (routes /mehr/profil|/mehr/darstellung|/mehr/benachrichtigungen). Staff/Admin 10-16 not started.
 - Mehr tighten: 09.4 Lernplan [~] ~14.3% (fit scroll, subtitle single-line, actions in scroll); 09.5 Export [~] ~11.2%; 09.1 Profil [~] ~12.9% (stats collapse fix + Lernzeit + Figma name); 09.1 Benachrichtigungen [~] ~13.9%. Still above ~8–10% target; Staff/Admin next.
+- Deep chrome unified to OLC_GX_NAV 5-tab IA (exam/fp/bh/mehr/fk/formel/learn-drill); 19.2 Lernen [x] ~4.9%; other 19.x still [~]
 - **Konsistenz-Set 19 (159:*):** inventory + implement hubs on `/dashboard` `/lernen` `/pruefungen` `/fortschritt` `/mehr` with shared `gx` chrome; shell tab bar → Home/Lernen/Prüfung/Fortschritt/Profil; Berichtsheft via Schnellstarter/Profil. Staff paused.

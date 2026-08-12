@@ -228,4 +228,7 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Fortschritt 07.4–07.6: Statistik Verlauf [x] ~6.8%; XP & Streak [x] ~6.4%; Themen Heatmap [~] ~8.8%
 - Bericht 08.2 Neuer Eintrag [x] ~7.7% (create-report API preserved)
 - Bericht 08.3–08.7: KI-Assistent [~] ~15.1%; Unterschrift [~] ~10.3%; Kalender [x] ~7.2%; PDF-Export [~] ~11.7%; Leerzustand [x] ~8.3% (Figma assets + bh chrome; toast/create-report/export wiring preserved)
-- Mehr 09.1 hub phone (`136:10523` within overview) [~]/mehr` chrome) ~7.8% vs Figma phone; canvas overview + 09.2–09.7 still open
+- Mehr 09.1 hub phone (136:10523 within overview) [~] (mehr chrome) ~7.8% vs Figma phone
+- Mehr 09.2 Transparenz [~] + 09.7 Logout [~] (logout API preserved)
+- Mehr 09.3 KI-Coach Chat [~] ~9.5%; 09.4 Lernplan [~] ~15.8%; 09.5 Datenexport [~] ~11.0%; 09.6 Konto loeschen [~] ~8.8% (Figma assets; export/delete API + coach-live binds preserved)
+- Mehr 09.1 sibling phones: Profil [~] ~11.8%; Darstellung [~] ~7.1%; Benachrichtigungen [~] ~13.9% (routes /mehr/profil|/mehr/darstellung|/mehr/benachrichtigungen). Staff/Admin 10-16 not started.

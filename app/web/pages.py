@@ -32,3 +32,9 @@ def allowed_frontend_pages() -> set[str]:
         payload = json.loads(_ALLOWED_PATH.read_text(encoding="utf-8"))
         return {str(item) for item in payload}
     return set(_FALLBACK_PAGES)
+
+
+def refresh_allowed_frontend_pages() -> set[str]:
+    """Clear allowlist cache after catalog updates."""
+    allowed_frontend_pages.cache_clear()
+    return allowed_frontend_pages()

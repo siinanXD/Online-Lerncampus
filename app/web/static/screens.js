@@ -70,6 +70,9 @@ window.OLC_ROUTE_CONFIG = {
   "/berichtsheft/export": { layout: "app", screen: "s08_6-pdf-export", title: "PDF-Export", tab: "reports", num: "08.6", chrome: "bh" },
   "/berichtsheft/leer": { layout: "app", screen: "s08_7-berichtsheft-leerzustand", title: "Berichtsheft — Leerzustand", tab: "reports", num: "08.7", chrome: "bh" },
   "/mehr": { layout: "app", screen: "s09_1-mehr-und-profil-uebersicht", title: "Mehr & Profil — Übersicht", tab: "profile", num: "09.1", chrome: "mehr" },
+  "/mehr/profil": { layout: "app", screen: "s09_1b-mein-profil", title: "Mein Profil", tab: "profile", num: "09.1b", chrome: "mehr" },
+  "/mehr/darstellung": { layout: "app", screen: "s09_1c-darstellung", title: "Darstellung", tab: "profile", num: "09.1c", chrome: "mehr" },
+  "/mehr/benachrichtigungen": { layout: "app", screen: "s09_1d-benachrichtigungen", title: "Benachrichtigungen", tab: "profile", num: "09.1d", chrome: "mehr" },
   "/mehr/ausbilder-sicht": { layout: "app", screen: "s09_2-was-sieht-der-ausbilder", title: "Was sieht der Ausbilder", tab: "profile", num: "09.2", chrome: "mehr" },
   "/mehr/coach": { layout: "app", screen: "s09_3-ki-coach-chat", title: "KI-Coach — Chat", tab: "profile", num: "09.3", chrome: "mehr" },
   "/mehr/lernplan": { layout: "app", screen: "s09_4-ki-coach-lernplan", title: "KI-Coach — Lernplan", tab: "profile", num: "09.4", chrome: "mehr" },
@@ -4393,7 +4396,7 @@ window.OLC_SCREEN_RENDERERS = {
         <div class="mehr2-main">
           <header class="mehr2-header"><h2>Mehr</h2></header>
           <div class="mehr2-scroll">
-            <a class="mehr2-profile" href="/passwort" data-page-link>
+            <a class="mehr2-profile" href="/mehr/profil" data-page-link>
               <img class="mehr2-avatar" src="/static/figma/mehr/mehr-avatar.png" width="56" height="56" alt="" />
               <div class="mehr2-profile-meta">
                 <strong data-bind="profile-summary">Max Mustermann</strong>
@@ -4407,9 +4410,9 @@ window.OLC_SCREEN_RENDERERS = {
             <section class="mehr2-section">
               <p class="mehr2-label">Konto</p>
               <nav class="mehr2-card">
-                <a href="/passwort" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-user.svg" width="16" height="16" alt="" /></span><span>Profil</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
-                <a href="/sprache" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-eye.svg" width="16" height="16" alt="" /></span><span>Darstellung</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
-                <a href="/mehr" data-page-link data-action="toast" data-toast="Benachrichtigungen folgen in einer späteren Version"><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-bell.svg" width="16" height="16" alt="" /></span><span>Benachrichtigungen</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+                <a href="/mehr/profil" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-user.svg" width="16" height="16" alt="" /></span><span>Profil</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+                <a href="/mehr/darstellung" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-eye.svg" width="16" height="16" alt="" /></span><span>Darstellung</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
+                <a href="/mehr/benachrichtigungen" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-bell.svg" width="16" height="16" alt="" /></span><span>Benachrichtigungen</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
                 <a class="last" href="/sprache" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-globe.svg" width="16" height="16" alt="" /></span><span>Sprache</span><em>Deutsch</em></a>
               </nav>
             </section>
@@ -4440,6 +4443,209 @@ window.OLC_SCREEN_RENDERERS = {
           <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/mehr-trophy.svg" width="22" height="22" alt="" /><span>Bestenliste</span></a>
           <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/mehr-more.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
         </nav>
+      </div>
+    `,
+  "s09_1b-mein-profil": () => `
+      <div class="mp-screen" data-node-id="136:10674">
+        <div class="mp-main">
+          <header class="mp-header">
+            <a class="mp-back" href="/mehr" data-page-link aria-label="Zurück"><img src="/static/figma/mehr/pr-back.svg" width="18" height="18" alt="" /></a>
+            <h2>Mein Profil</h2>
+            <span class="mp-spacer" aria-hidden="true"></span>
+          </header>
+          <div class="mp-scroll">
+            <div class="mp-hero">
+              <div class="mp-avatar-wrap">
+                <img class="mp-avatar" src="/static/figma/mehr/pr-avatar.png" width="96" height="96" alt="" />
+                <span class="mp-edit"><img src="/static/figma/mehr/pr-pencil.svg" width="14" height="14" alt="" /></span>
+              </div>
+              <strong data-bind="profile-summary">Max Mustermann</strong>
+              <p>Maschinen- und Anlagenführer (Metall)</p>
+              <em>Kohorte 2024-A</em>
+            </div>
+            <div class="mp-stats">
+              <article><img src="/static/figma/mehr/pr-shield.svg" width="16" height="16" alt="" /><b data-bind="level">7</b><span>Level</span></article>
+              <article><img src="/static/figma/mehr/pr-sparkles.svg" width="16" height="16" alt="" /><b><span data-bind="xp">2450</span></b><span>XP</span></article>
+              <article><img src="/static/figma/mehr/pr-fire.svg" width="16" height="16" alt="" /><b>12 Tage</b><span>Streak</span></article>
+              <article><img src="/static/figma/mehr/pr-check.svg" width="16" height="16" alt="" /><b>156 beh.</b><span>Karten</span></article>
+            </div>
+            <section class="mp-section">
+              <div class="mp-sec-head"><span>Meine Abzeichen (8)</span><a href="/fortschritt" data-page-link>Alle ansehen</a></div>
+              <div class="mp-badges">
+                <div><span class="on"><img src="/static/figma/mehr/pr-award.svg" width="20" height="20" alt="" /></span><em>Pionier</em></div>
+                <div><span><img src="/static/figma/mehr/pr-zap.svg" width="20" height="20" alt="" /></span><em>Fleißig</em></div>
+                <div><span><img src="/static/figma/mehr/pr-grad.svg" width="20" height="20" alt="" /></span><em>Schlau</em></div>
+                <div><span><img src="/static/figma/mehr/pr-trophy.svg" width="20" height="20" alt="" /></span><em>Meister</em></div>
+                <div><span><img src="/static/figma/mehr/pr-fire2.svg" width="20" height="20" alt="" /></span><em>Streaker</em></div>
+              </div>
+            </section>
+            <article class="mp-card">
+              <div class="mp-kv"><span>E-Mail</span><strong>max@firma.de</strong></div>
+              <div class="mp-kv"><span>Ausbilder</span><strong>Hr. Schmidt</strong></div>
+              <div class="mp-kv"><span>Träger</span><strong>BZE Düsseldorf</strong></div>
+              <div class="mp-kv"><span>Beginn</span><strong>01.09.2024</strong></div>
+              <hr />
+              <div class="mp-prog"><div><span>Prüfungsreife</span><b data-bind="readiness">67%</b></div><div class="mp-bar"><i style="width:67%"></i></div></div>
+            </article>
+            <a class="mp-cta" href="/passwort" data-page-link>Profil bearbeiten</a>
+          </div>
+        </div>
+        <nav class="mp-tabs" aria-label="Navigation">
+          <a href="/lernen" data-page-link><img src="/static/figma/mehr/pr-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
+          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/pr-grad-tab.svg" width="22" height="22" alt="" /><span>Campus</span></a>
+          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/pr-trophy-tab.svg" width="22" height="22" alt="" /><span>Bestenliste</span></a>
+          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/pr-more.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
+        </nav>
+        <div class="mp-home" aria-hidden="true"><i></i></div>
+      </div>
+    `,
+  "s09_1c-darstellung": () => `
+      <div class="mp-screen da-screen" data-node-id="136:10816">
+        <div class="mp-main">
+          <header class="mp-header">
+            <a class="mp-back" href="/mehr" data-page-link aria-label="Zurück"><img src="/static/figma/mehr/da-back.svg" width="18" height="18" alt="" /></a>
+            <h2>Darstellung</h2>
+            <span class="mp-spacer" aria-hidden="true"></span>
+          </header>
+          <div class="mp-scroll">
+            <section class="mp-section">
+              <p class="mp-label">Design</p>
+              <div class="da-themes">
+                <button type="button" class="da-theme" data-action="toast" data-toast="Hell (Demo)">
+                  <img src="/static/figma/mehr/da-sun.svg" width="20" height="20" alt="" />
+                  <span>Hell</span>
+                  <div class="da-mock light"><i></i><b></b><em></em></div>
+                </button>
+                <button type="button" class="da-theme on" data-action="toast" data-toast="Dunkel aktiv">
+                  <img src="/static/figma/mehr/da-moon.svg" width="20" height="20" alt="" />
+                  <span>Dunkel</span>
+                  <div class="da-mock dark"><i></i><b></b><em></em></div>
+                </button>
+                <button type="button" class="da-theme" data-action="toast" data-toast="System (Demo)">
+                  <img src="/static/figma/mehr/da-settings.svg" width="20" height="20" alt="" />
+                  <span>System</span>
+                  <div class="da-mock sys"><i></i><b></b><em></em></div>
+                </button>
+              </div>
+            </section>
+            <section class="mp-section">
+              <div class="mp-sec-head"><span>Schriftgröße</span><em>Normal</em></div>
+              <div class="da-font-card">
+                <div class="da-slider"><span>Aa</span><div class="da-track"><i></i><img src="/static/figma/mehr/da-thumb.svg" width="16" height="16" alt="" /></div><strong>Aa</strong></div>
+                <div class="da-preview"><p>So sieht die aktuelle Schriftgröße aus. Sie kann jederzeit angepasst werden.</p></div>
+              </div>
+            </section>
+            <div class="da-toggles">
+              <div class="da-row">
+                <img src="/static/figma/mehr/da-sun2.svg" width="20" height="20" alt="" />
+                <span>Hoher Kontrast</span>
+                <button class="mp-toggle" type="button" aria-pressed="false" data-action="toast" data-toast="Kontrast (Demo)"></button>
+              </div>
+              <div class="da-row">
+                <img src="/static/figma/mehr/da-film.svg" width="20" height="20" alt="" />
+                <div><strong>Animationen reduzieren</strong><small>Deaktiviert Konfetti, Level-Up und andere Animationen</small></div>
+                <button class="mp-toggle" type="button" aria-pressed="false" data-action="toast" data-toast="Animationen (Demo)"></button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <nav class="mp-tabs" aria-label="Navigation">
+          <a href="/lernen" data-page-link><img src="/static/figma/mehr/da-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
+          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/da-grad.svg" width="22" height="22" alt="" /><span>Campus</span></a>
+          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/da-trophy.svg" width="22" height="22" alt="" /><span>Bestenliste</span></a>
+          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/da-more.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
+        </nav>
+        <div class="mp-home" aria-hidden="true"><i></i></div>
+      </div>
+    `,
+  "s09_1d-benachrichtigungen": () => `
+      <div class="mp-screen bn-screen" data-node-id="136:10920">
+        <div class="mp-main">
+          <header class="mp-header">
+            <a class="mp-back" href="/mehr" data-page-link aria-label="Zurück"><img src="/static/figma/mehr/bn-back.svg" width="18" height="18" alt="" /></a>
+            <h2>Benachrichtigungen</h2>
+            <span class="mp-spacer" aria-hidden="true"></span>
+          </header>
+          <div class="mp-scroll">
+            <section class="mp-section">
+              <p class="mp-label">Lernerinnerungen</p>
+              <div class="bn-card">
+              <div class="bn-row">
+                <div><strong>Tägliche Erinnerung</strong><small>Erinnere mich an mein tägliches Lernen</small></div>
+                <em class="bn-time">09:00</em>
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Tägliche Erinnerung (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+              </div>
+              <div class="bn-row">
+                <div><strong>Streak in Gefahr</strong><small>Warnung vor dem Verlust der täglichen Serie</small></div>
+                
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Streak in Gefahr (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+              </div>
+              <div class="bn-row">
+                <div><strong>Tagesziel nicht erreicht</strong><small>Kurz vor Ende des Tages erinnern</small></div>
+                
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Tagesziel nicht erreicht (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+              </div>
+              </div>
+            </section>
+            <section class="mp-section">
+              <p class="mp-label">Fortschritt</p>
+              <div class="bn-card">
+              <div class="bn-row">
+                <div><strong>Level-Up</strong><small>Gratulation bei Erreichen eines neuen Levels</small></div>
+                
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Level-Up (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+              </div>
+              <div class="bn-row">
+                <div><strong>Neue Badges</strong><small>Erfolgreiche Freischaltung von Abzeichen</small></div>
+                
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Neue Badges (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+              </div>
+              <div class="bn-row">
+                <div><strong>Prüfungsreife erreicht</strong><small>Benachrichtigung bei 100% Reife</small></div>
+                
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Prüfungsreife erreicht (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+              </div>
+              </div>
+            </section>
+            <section class="mp-section">
+              <p class="mp-label">Berichtsheft</p>
+              <div class="bn-card">
+              <div class="bn-row">
+                <div><strong>Fehlende Einträge</strong><small>Erinnerung am Ende der Woche</small></div>
+                
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Fehlende Einträge (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+              </div>
+              <div class="bn-row">
+                <div><strong>Freigabe erhalten</strong><small>Feedback vom Ausbilder liegt vor</small></div>
+                
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Freigabe erhalten (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+              </div>
+              </div>
+            </section>
+            <section class="mp-section">
+              <p class="mp-label">System</p>
+              <div class="bn-card">
+              <div class="bn-row">
+                <div><strong>Neue Inhalte verfügbar</strong><small>Neue Lernkarten und Module für deinen Kurs</small></div>
+                
+                <button class="mp-toggle " type="button" aria-pressed="false" data-action="toast" data-toast="Neue Inhalte verfügbar (Demo)"><img src="/static/figma/mehr/bn-toggle-off.svg" width="44" height="24" alt="" /></button>
+              </div>
+              <div class="bn-row">
+                <div><strong>Wartungsarbeiten</strong><small>Geplante Ausfallzeiten des BZE Campus</small></div>
+                
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Wartungsarbeiten (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+              </div>
+              </div>
+            </section>
+          </div>
+        </div>
+        <nav class="mp-tabs" aria-label="Navigation">
+          <a href="/lernen" data-page-link><img src="/static/figma/mehr/bn-book.svg" width="22" height="22" alt="" /><span>Lernen</span></a>
+          <a href="/dashboard" data-page-link><img src="/static/figma/mehr/bn-grad.svg" width="22" height="22" alt="" /><span>Campus</span></a>
+          <a href="/fortschritt" data-page-link><img src="/static/figma/mehr/bn-trophy.svg" width="22" height="22" alt="" /><span>Bestenliste</span></a>
+          <a href="/mehr" data-page-link class="active"><img src="/static/figma/mehr/bn-more.svg" width="22" height="22" alt="" /><span>Mehr</span></a>
+        </nav>
+        <div class="mp-home" aria-hidden="true"><i></i></div>
       </div>
     `,
   "s09_2-was-sieht-der-ausbilder": () => `
@@ -5659,4 +5865,4 @@ reviewer-demo / demo-pass</pre>
     `,
 };
 
-window.OLC_ALLOWED_PAGES = ["", "admin", "admin/audit", "admin/content", "admin/content/detail", "admin/content/liste", "admin/content/qualitaet", "admin/dubletten", "admin/einstellungen", "admin/import", "admin/lernziele", "admin/monitoring", "admin/nutzer", "admin/nutzer/detail", "admin/quiz", "admin/wissen", "admin/zugangsdaten", "ausbilder", "ausbilder/bericht-detail", "ausbilder/bericht-export", "ausbilder/berichte", "ausbilder/editor", "ausbilder/frage-bearbeiten", "ausbilder/fragen", "ausbilder/freigabe", "ausbilder/generator", "ausbilder/hotspots", "ausbilder/kohorte", "ausbilder/kohorte/detail", "ausbilder/medien", "ausbilder/nav", "ausbilder/planung", "ausbilder/pruefungsreife", "ausbilder/review", "ausbilder/review/detail", "ausbilder/risiko", "ausbilder/shell", "ausbilder/teilnehmer", "ausbilder/themen", "berichtsheft", "berichtsheft/export", "berichtsheft/kalender", "berichtsheft/ki", "berichtsheft/leer", "berichtsheft/neu", "berichtsheft/unterschrift", "dashboard", "dashboard/fortsetzen", "dashboard/merksaetze", "dashboard/streak", "dashboard/tablet", "dashboard/tagesziel", "dashboard/wochenbericht", "datenschutz", "defizite", "fachkunde", "fachkunde/abschluss", "fachkunde/bausteine", "fachkunde/einheit", "fachkunde/freigabe", "fachkunde/glossar", "fachkunde/lernpfad", "fachkunde/messschieber", "fachkunde/spritzguss", "fachkunde/toleranz", "fortschritt", "fortschritt/ausstehend", "fortschritt/heatmap", "fortschritt/pruefungsreife", "fortschritt/verlauf", "fortschritt/xp", "funktionen", "gamification", "gamification/badges", "gamification/streaks", "gamification/xp", "lernen", "lernen/detail", "lernen/einheit", "lernen/feedback/falsch", "lernen/feedback/richtig", "lernen/fehlerdiagnose", "lernen/flashcard", "lernen/formeltrainer", "lernen/frage", "lernen/frage/freitext", "lernen/fragen", "lernen/fragen/fehler", "lernen/glossar", "lernen/lernpfad", "lernen/melden", "lernen/tablet", "lernen/themen", "lernen/uebersetzung", "lernen/video", "lernreise", "level-up", "login", "mehr", "mehr/ausbilder-sicht", "mehr/coach", "mehr/export", "mehr/lernplan", "mehr/loeschen", "mehr/logout", "onboarding", "passwort", "prototypen", "pruefungen", "pruefungen/abgabe", "pruefungen/bestanden", "pruefungen/durchgefallen", "pruefungen/frage", "pruefungen/kammertermine", "pruefungen/schwach", "pruefungen/timer", "pruefungen/uebersicht", "review", "shell/tab-bar", "sprache"];
+window.OLC_ALLOWED_PAGES = ["", "admin", "admin/audit", "admin/content", "admin/content/detail", "admin/content/liste", "admin/content/qualitaet", "admin/dubletten", "admin/einstellungen", "admin/import", "admin/lernziele", "admin/monitoring", "admin/nutzer", "admin/nutzer/detail", "admin/quiz", "admin/wissen", "admin/zugangsdaten", "ausbilder", "ausbilder/bericht-detail", "ausbilder/bericht-export", "ausbilder/berichte", "ausbilder/editor", "ausbilder/frage-bearbeiten", "ausbilder/fragen", "ausbilder/freigabe", "ausbilder/generator", "ausbilder/hotspots", "ausbilder/kohorte", "ausbilder/kohorte/detail", "ausbilder/medien", "ausbilder/nav", "ausbilder/planung", "ausbilder/pruefungsreife", "ausbilder/review", "ausbilder/review/detail", "ausbilder/risiko", "ausbilder/shell", "ausbilder/teilnehmer", "ausbilder/themen", "berichtsheft", "berichtsheft/export", "berichtsheft/kalender", "berichtsheft/ki", "berichtsheft/leer", "berichtsheft/neu", "berichtsheft/unterschrift", "dashboard", "dashboard/fortsetzen", "dashboard/merksaetze", "dashboard/streak", "dashboard/tablet", "dashboard/tagesziel", "dashboard/wochenbericht", "datenschutz", "defizite", "fachkunde", "fachkunde/abschluss", "fachkunde/bausteine", "fachkunde/einheit", "fachkunde/freigabe", "fachkunde/glossar", "fachkunde/lernpfad", "fachkunde/messschieber", "fachkunde/spritzguss", "fachkunde/toleranz", "fortschritt", "fortschritt/ausstehend", "fortschritt/heatmap", "fortschritt/pruefungsreife", "fortschritt/verlauf", "fortschritt/xp", "funktionen", "gamification", "gamification/badges", "gamification/streaks", "gamification/xp", "lernen", "lernen/detail", "lernen/einheit", "lernen/feedback/falsch", "lernen/feedback/richtig", "lernen/fehlerdiagnose", "lernen/flashcard", "lernen/formeltrainer", "lernen/frage", "lernen/frage/freitext", "lernen/fragen", "lernen/fragen/fehler", "lernen/glossar", "lernen/lernpfad", "lernen/melden", "lernen/tablet", "lernen/themen", "lernen/uebersetzung", "lernen/video", "lernreise", "level-up", "login", "mehr", "mehr/benachrichtigungen", "mehr/darstellung", "mehr/profil", "mehr/ausbilder-sicht", "mehr/coach", "mehr/export", "mehr/lernplan", "mehr/loeschen", "mehr/logout", "onboarding", "passwort", "prototypen", "pruefungen", "pruefungen/abgabe", "pruefungen/bestanden", "pruefungen/durchgefallen", "pruefungen/frage", "pruefungen/kammertermine", "pruefungen/schwach", "pruefungen/timer", "pruefungen/uebersicht", "review", "shell/tab-bar", "sprache"];

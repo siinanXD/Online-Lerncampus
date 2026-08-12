@@ -42,13 +42,18 @@ from app.schemas.content import (
     QuizQuestionResponse,
     SourceDocumentResponse,
     TheoryBlockResponse,
+    TrainingReportRequest,
+    TrainingReportResponse,
+    PendingContentReviewResponse,
+    ContentReviewDecisionRequest,
+    ContentReviewDecisionResponse,
 )
 from app.services.auth_service import AuthService, LearnerSession
 from app.services.content_factory import ContentFactory
 from app.services.content_seeder import ContentSeeder
 from app.services.exam_session_service import ExamSessionService
 from app.services.curriculum_repository import CurriculumRepository
-from app.services.database import Database
+from app.services.database import Database, create_database
 from app.services.progress_service import ProgressService
 from app.services.question_repository import QuestionRepository
 from app.services.source_repository import SourceRepository
@@ -71,7 +76,7 @@ content_factory = ContentFactory(
 def _database() -> Database:
     global database
     if database is None:
-        database = Database(get_settings().database_url)
+        database = create_database(get_settings().database_url)
     return database
 
 
@@ -95,13 +100,23 @@ def bootstrap_content_store() -> None:
     if source not in ("db", "memory"):
         raise ValueError("CONTENT_SOURCE must be 'db' or 'memory'.")
     if source == "db" and current.content_seed_on_startup:
-        seeder = ContentSeeder(_database())
+        from pathlib import Path
+
+        from app.data.content_bundle import load_json_bundle, load_python_bundle
+
+        if current.content_seed_format == "json":
+            bundle = load_json_bundle(Path(current.content_json_bundle_path))
+        else:
+            bundle = load_python_bundle()
+        seeder = ContentSeeder(_database(), bundle=bundle)
         if seeder.is_empty():
             seeder.seed_all()
+            if not current.content_review_required:
+                _database().approve_all_content()
     question_repository = QuestionRepository(
         database=_database(),
         content_source=source,  # type: ignore[arg-type]
-        content_review_required=False,
+        content_review_required=current.content_review_required,
     )
     progress_service = ProgressService(
         question_repository=question_repository,
@@ -232,6 +247,15 @@ def build_learning_unit_response(unit: LearningUnit) -> LearningUnitResponse:
         review_status=unit.review_status,
         estimated_minutes=unit.estimated_minutes,
     )
+
+
+def require_role(session: LearnerSession, *roles: str) -> None:
+    """Raise HTTP 403 when the current session lacks a required role."""
+    if session.role not in roles:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Keine Berechtigung fuer diese Aktion.",
+        )
 
 
 def get_session(authorization: str | None) -> LearnerSession:
@@ -695,3 +719,103 @@ def review_content(request: ContentReviewRequest) -> ContentGenerationResponse:
         return content_factory.review_draft(request)
     except ValueError as error:
         raise_bad_request(error)
+
+
+@api_router.get(
+    "/content/review/pending",
+    response_model=list[PendingContentReviewResponse],
+)
+def list_pending_content_reviews(
+    authorization: str | None = Header(default=None),
+) -> list[PendingContentReviewResponse]:
+    """Return draft content awaiting reviewer approval."""
+    session = get_session(authorization)
+    require_role(session, "reviewer", "trainer", "admin")
+    rows = _database().list_pending_reviews()
+    return [PendingContentReviewResponse(**row) for row in rows]
+
+
+@api_router.post(
+    "/content/review/decision",
+    response_model=ContentReviewDecisionResponse,
+)
+def decide_content_review(
+    request: ContentReviewDecisionRequest,
+    authorization: str | None = Header(default=None),
+) -> ContentReviewDecisionResponse:
+    """Apply one review transition to DB-backed content."""
+    session = get_session(authorization)
+    require_role(session, "reviewer", "trainer", "admin")
+    try:
+        payload = _database().apply_content_review(
+            entity_type=request.entity_type,
+            entity_key=request.entity_key,
+            to_status=request.to_status,
+            reviewer_learner_id=session.learner_id,
+            notes=request.notes,
+        )
+    except ValueError as error:
+        raise_bad_request(error)
+    _database().record_audit_event(
+        event_type="content.review",
+        learner_id=session.learner_id,
+        metadata=payload,
+    )
+    return ContentReviewDecisionResponse(**payload)
+
+
+@api_router.get(
+    "/training-reports",
+    response_model=list[TrainingReportResponse],
+)
+def list_training_reports(
+    authorization: str | None = Header(default=None),
+) -> list[TrainingReportResponse]:
+    """Return Berichtsheft entries for the authenticated learner."""
+    session = get_session(authorization)
+    rows = _database().list_training_reports(session.learner_id)
+    return [TrainingReportResponse(**row) for row in rows]
+
+
+@api_router.post(
+    "/training-reports",
+    response_model=TrainingReportResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def create_training_report(
+    request: TrainingReportRequest,
+    authorization: str | None = Header(default=None),
+) -> TrainingReportResponse:
+    """Create one Berichtsheft entry."""
+    session = get_session(authorization)
+    row = _database().create_training_report(
+        learner_id=session.learner_id,
+        report_date=request.report_date,
+        activities=request.activities,
+        hours=request.hours,
+    )
+    return TrainingReportResponse(**row)
+
+
+@api_router.put(
+    "/training-reports/{report_id}",
+    response_model=TrainingReportResponse,
+)
+def update_training_report(
+    report_id: int,
+    request: TrainingReportRequest,
+    authorization: str | None = Header(default=None),
+) -> TrainingReportResponse:
+    """Update one Berichtsheft entry."""
+    session = get_session(authorization)
+    row = _database().update_training_report(
+        session.learner_id,
+        report_id,
+        report_date=request.report_date,
+        activities=request.activities,
+        hours=request.hours,
+        status=request.status,
+    )
+    if row is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Eintrag nicht gefunden.")
+    return TrainingReportResponse(**row)

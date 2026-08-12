@@ -16,6 +16,8 @@ def isolated_test_environment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     db_path = tmp_path / "pytest.db"
     monkeypatch.setenv("DATABASE_URL", f"sqlite:///{db_path.as_posix()}")
     monkeypatch.setenv("CONTENT_SOURCE", "db")
+    monkeypatch.setenv("CONTENT_REVIEW_REQUIRED", "false")
+    monkeypatch.setenv("CONTENT_SEED_FORMAT", "python")
     monkeypatch.setenv("CONTENT_SEED_ON_STARTUP", "true")
     get_settings.cache_clear()
 

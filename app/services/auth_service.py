@@ -46,17 +46,16 @@ class AuthService:
         cohort_code: str | None = None,
     ) -> LearnerSession:
         """Create a pseudonymous learner session from login input."""
-        clean_identifier = identifier.strip()
+        clean_identifier = identifier.strip().lower()
         clean_password = password.strip()
         clean_cohort = cohort_code.strip() if cohort_code else None
         if len(clean_identifier) < 3:
             raise ValueError("Benutzername oder E-Mail ist zu kurz.")
         if len(clean_password) < 4:
             raise ValueError("Passwort ist zu kurz.")
+        role, display_name = self._resolve_role(clean_identifier)
         identifier_hash = self._build_identifier_hash(clean_identifier)
         learner_id = f"learner_{identifier_hash[:16]}"
-        role = "learner"
-        display_name = "Azubi"
         existing = self.database.get_learner_by_identifier_hash(identifier_hash)
         if existing is None:
             password_hash = self._hash_password(clean_password)
@@ -185,6 +184,17 @@ class AuthService:
             identifier.lower().encode("utf-8"),
             sha256,
         ).hexdigest()
+
+    @staticmethod
+    def _resolve_role(identifier: str) -> tuple[str, str]:
+        """Map demo login prefixes to staff roles."""
+        if identifier.startswith("admin-"):
+            return "admin", "Admin"
+        if identifier.startswith("reviewer-"):
+            return "reviewer", "Reviewer"
+        if identifier.startswith("trainer-"):
+            return "trainer", "Trainer"
+        return "learner", "Azubi"
 
     def _hash_token(self, token: str) -> str:
         """Build a non-reversible hash for a bearer token."""

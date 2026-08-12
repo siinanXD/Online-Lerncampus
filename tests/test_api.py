@@ -49,6 +49,7 @@ def test_frontend_page_routes_return_app_shell() -> None:
         "/lernreise",
         "/lernen",
         "/pruefungen",
+        "/berichtsheft",
         "/defizite",
         "/review",
         "/datenschutz",

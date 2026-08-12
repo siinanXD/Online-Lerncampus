@@ -1490,6 +1490,32 @@ body[data-page-layout="app"] .campus-app {
   padding-left: 20px;
 }
 
+.report-form,
+.report-list,
+.reports-panel {
+  display: grid;
+  gap: 16px;
+}
+
+.report-form label {
+  display: grid;
+  gap: 6px;
+}
+
+.report-card {
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.report-card header {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
 .progress-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

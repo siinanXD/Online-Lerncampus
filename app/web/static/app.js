@@ -7,6 +7,7 @@ const state = {
   exams: [],
   journey: [],
   dashboard: null,
+  trainingReports: [],
   currentQuestionIndex: 0,
   activeExam: null,
   examSession: null,
@@ -26,6 +27,7 @@ const routeConfig = {
   "/lernreise": { layout: "app", view: "journey", title: "Lernreise" },
   "/lernen": { layout: "app", view: "learn", title: "Kapitel 1: Einstieg" },
   "/pruefungen": { layout: "app", view: "exam", title: "Testpruefungen" },
+  "/berichtsheft": { layout: "app", view: "reports", title: "Berichtsheft" },
   "/defizite": { layout: "app", view: "progress", title: "Defizite" },
   "/review": { layout: "app", view: "admin", title: "Review" },
   "/datenschutz": { layout: "app", view: "privacy", title: "Datenschutz" },
@@ -99,6 +101,9 @@ async function requireAuth() {
 async function refreshPrivateData() {
   state.dashboard = await fetchJson("/api/dashboard", { headers: authHeaders() });
   state.journey = await fetchJson("/api/learning/journey", { headers: authHeaders() });
+  state.trainingReports = await fetchJson("/api/training-reports", {
+    headers: authHeaders(),
+  }).catch(() => []);
   renderDashboard();
   renderStats();
   renderJourney();
@@ -138,6 +143,7 @@ function switchView(viewName, updateRoute = true) {
     journey: "Lernreise",
     learn: "Kapitel 1: Einstieg",
     exam: "Testpruefungen",
+    reports: "Berichtsheft",
     progress: "Defizite",
     admin: "Review",
     privacy: "Datenschutz",
@@ -149,6 +155,9 @@ function switchView(viewName, updateRoute = true) {
   }
   if (viewName === "progress") {
     renderProgress();
+  }
+  if (viewName === "reports") {
+    renderTrainingReports();
   }
 }
 
@@ -647,6 +656,56 @@ async function submitExamSession() {
   renderExam();
 }
 
+function renderTrainingReports() {
+  const panel = document.getElementById("reports-panel");
+  if (!panel) {
+    return;
+  }
+  panel.innerHTML = `
+    <form id="report-form" class="report-form">
+      <label>Datum<input type="date" name="report_date" required /></label>
+      <label>Stunden<input type="number" name="hours" min="1" max="12" step="0.5" value="8" required /></label>
+      <label>Taetigkeiten<textarea name="activities" rows="5" required placeholder="Was hast du heute gelernt und gemacht?"></textarea></label>
+      <button type="submit" class="primary-button">Eintrag speichern</button>
+    </form>
+    <div class="report-list">
+      ${state.trainingReports
+        .map(
+          (report) => `
+            <article class="report-card">
+              <header>
+                <strong>${report.report_date}</strong>
+                <span>${report.hours} h · ${report.status}</span>
+              </header>
+              <p>${report.activities}</p>
+            </article>
+          `,
+        )
+        .join("") || "<p>Noch keine Berichtsheft-Eintraege.</p>"}
+    </div>
+  `;
+}
+
+async function saveTrainingReport(event) {
+  event.preventDefault();
+  await requireAuth();
+  const form = new FormData(event.currentTarget);
+  await fetchJson("/api/training-reports", {
+    method: "POST",
+    headers: {
+      ...authHeaders(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      report_date: String(form.get("report_date")),
+      activities: String(form.get("activities")),
+      hours: Number(form.get("hours")),
+    }),
+  });
+  await refreshPrivateData();
+  renderTrainingReports();
+}
+
 function cancelExamSession() {
   resetExamAttempt();
   renderExam();
@@ -817,6 +876,9 @@ document.addEventListener("click", async (event) => {
   if (target.matches(".answer-option")) {
     await answerQuestion(Number(target.dataset.index));
   }
+  if (target.id === "report-form" || target.closest("#report-form")) {
+    return;
+  }
   if (target.id === "exam-start") {
     try {
       await startExamSession();
@@ -901,6 +963,12 @@ document.getElementById("accept-privacy").addEventListener("click", acceptPrivac
 document.getElementById("export-data").addEventListener("click", exportLearnerData);
 document.getElementById("logout").addEventListener("click", logout);
 document.getElementById("delete-account").addEventListener("click", deleteAccount);
+document.addEventListener("submit", async (event) => {
+  if (event.target.id === "report-form") {
+    event.preventDefault();
+    await saveTrainingReport(event);
+  }
+});
 
 window.addEventListener("popstate", async () => {
   await navigateTo(window.location.pathname, false);

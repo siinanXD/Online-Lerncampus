@@ -387,3 +387,54 @@ class ExamSubmitResponse(BaseModel):
     open_score: int
     open_max_points: int
     weak_categories: list[dict[str, object]]
+
+
+class ContentReviewDecisionRequest(BaseModel):
+    """Reviewer decision for one content entity."""
+
+    entity_type: str = Field(pattern="^(learning_unit|quiz_question|open_question)$")
+    entity_key: str = Field(min_length=2, max_length=80)
+    to_status: str = Field(
+        pattern="^(source_checked|approved|needs_revision|draft)$"
+    )
+    notes: str = Field(min_length=3, max_length=1000)
+
+
+class ContentReviewDecisionResponse(BaseModel):
+    """Result of one review workflow transition."""
+
+    entity_type: str
+    entity_key: str
+    from_status: str
+    to_status: str
+
+
+class PendingContentReviewResponse(BaseModel):
+    """One queue item awaiting reviewer action."""
+
+    entity_type: str
+    entity_id: int
+    entity_key: str
+    title: str
+    review_status: str
+
+
+class TrainingReportRequest(BaseModel):
+    """Create or update one Berichtsheft entry."""
+
+    report_date: str = Field(min_length=10, max_length=10)
+    activities: str = Field(min_length=10, max_length=4000)
+    hours: float = Field(default=8.0, gt=0, le=12)
+    status: str | None = Field(default=None, pattern="^(draft|submitted)$")
+
+
+class TrainingReportResponse(BaseModel):
+    """Serializable Berichtsheft entry."""
+
+    id: int
+    report_date: str
+    activities: str
+    hours: float
+    status: str
+    created_at: str
+    updated_at: str

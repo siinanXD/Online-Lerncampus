@@ -52,6 +52,7 @@ def create_app() -> FastAPI:
             "lernreise",
             "lernen",
             "pruefungen",
+            "berichtsheft",
             "defizite",
             "review",
             "datenschutz",

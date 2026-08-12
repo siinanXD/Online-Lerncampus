@@ -809,17 +809,73 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s05_1-fachkunde-einstieg": () => `
 
-      <div class="screen-head"><p class="eyebrow">05.1 Fachkunde</p><h2>Fachkunde — Einstieg</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Lern-Hub</a></div>
-      <div class="card-grid">
-        <article class="hub-card"><h3>Lernpfad</h3><p class="muted">Einheiten in Reihenfolge.</p>
-          <a class="secondary-button" href="/fachkunde/lernpfad" data-page-link>Oeffnen</a></article>
-        <article class="hub-card"><h3>Glossar</h3><p class="muted">Fachbegriffe nachschlagen.</p>
-          <a class="secondary-button" href="/fachkunde/glossar" data-page-link>Oeffnen</a></article>
-        <article class="hub-card"><h3>Bausteine</h3><p class="muted">Theorie &amp; Uebungen.</p>
-          <a class="secondary-button" href="/fachkunde/bausteine" data-page-link>Oeffnen</a></article>
+      <h2 class="page-title">Fachkunde</h2>
+      <article class="fk-intro-card">
+        <div class="hub-card-head">
+          <div class="hub-icon hub-icon-practice" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+          </div>
+          <div>
+            <h3>Lerne die Theorie</h3>
+            <p class="muted">Verstehe die Grundlagen für deine Prüfung</p>
+          </div>
+        </div>
+        <div class="row-between"><span class="muted">Fortschritt Gesamt</span><strong>8 von 12 Lerneinheiten</strong></div>
+        <div class="mastery-track"><span class="mastery-fill" style="width:67%"></span></div>
+      </article>
+      <h3 class="section-title">Wähle einen Fachbereich</h3>
+      <div class="fk-grid">
+        <a class="fk-tile" href="/fachkunde/lernpfad" data-page-link>
+          <div class="row-between"><span class="topic-icon green" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg></span><span class="status-pill ok">Fertig</span></div>
+          <strong>Grundlagen Metall</strong>
+          <div class="row-between"><span class="muted">Fortschritt</span><strong>100%</strong></div>
+          <div class="mini-bar"><i style="width:100%;background:#10b981"></i></div>
+        </a>
+        <a class="fk-tile" href="/fachkunde/lernpfad" data-page-link>
+          <div class="row-between"><span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12l4 6-10 13L2 9z"/></svg></span><span class="status-pill info">In Progress</span></div>
+          <strong>Werkstoffkunde</strong>
+          <div class="row-between"><span class="muted">Fortschritt</span><strong>85%</strong></div>
+          <div class="mini-bar"><i style="width:85%;background:#2563eb"></i></div>
+        </a>
+        <a class="fk-tile" href="/fachkunde/lernpfad" data-page-link>
+          <div class="row-between"><span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg></span><span class="status-pill info">In Progress</span></div>
+          <strong>Messtechnik</strong>
+          <div class="row-between"><span class="muted">Fortschritt</span><strong>60%</strong></div>
+          <div class="mini-bar"><i style="width:60%;background:#2563eb"></i></div>
+        </a>
+        <a class="fk-tile" href="/fachkunde/lernpfad" data-page-link>
+          <div class="row-between"><span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"/><path d="M9.6 4.6A2 2 0 1 1 11 8H2"/><path d="M12.6 19.4A2 2 0 1 0 14 16H2"/></svg></span><span class="status-pill info">In Progress</span></div>
+          <strong>Pneumatik</strong>
+          <div class="row-between"><span class="muted">Fortschritt</span><strong>40%</strong></div>
+          <div class="mini-bar"><i style="width:40%;background:#2563eb"></i></div>
+        </a>
+        <a class="fk-tile" href="/fachkunde/einheit" data-page-link>
+          <div class="row-between"><span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 16.3c2.2 0 4-1.83 4-4.05 0-1.16-.57-2.26-1.71-3.19S7.29 6.75 7 5.3c-.29 1.45-1.14 2.84-2.29 3.76S3 11.1 3 12.25c0 2.22 1.8 4.05 4 4.05z"/><path d="M12.56 6.6A10.97 10.97 0 0 0 14 3.02c.5 2.5 2 4.9 3 6.8 1.1.9 1.5 2.2 1.5 3.4a5 5 0 0 1-8.5 3.6"/></svg></span><span class="status-pill info">Gestartet</span></div>
+          <strong>Hydraulik</strong>
+          <div class="row-between"><span class="muted">Fortschritt</span><strong>10%</strong></div>
+          <div class="mini-bar"><i style="width:10%;background:#2563eb"></i></div>
+        </a>
+        <div class="fk-tile locked">
+          <div class="row-between"><span class="topic-icon locked" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
+          <strong class="locked-title">Steuerungstechnik</strong>
+          <p class="muted">Freischalten ab Level 5</p>
+        </div>
+        <div class="fk-tile locked">
+          <div class="row-between"><span class="topic-icon locked" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></div>
+          <strong class="locked-title">Elektrotechnik</strong>
+          <p class="muted">Freischalten ab Level 5</p>
+        </div>
+        <a class="fk-tile" href="/fachkunde/lernpfad" data-page-link>
+          <div class="row-between"><span class="topic-icon green" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m9 12 2 2 4-4"/></svg></span><span class="status-pill ok">In Progress</span></div>
+          <strong>Arbeitssicherheit</strong>
+          <div class="row-between"><span class="muted">Fortschritt</span><strong>92%</strong></div>
+          <div class="mini-bar"><i style="width:92%;background:#10b981"></i></div>
+        </a>
       </div>
-      <article class="card"><strong>Inhalt</strong><ul class="plain-list"><li>Fachkunde</li><li>Lerne die Theorie</li><li>Verstehe die Grundlagen für deine Prüfung</li><li>Fortschritt Gesamt</li><li>8 von 12 Lerneinheiten</li><li>Wähle einen Fachbereich</li><li>✓ Fertig</li><li>Grundlagen Metall</li><li>Fortschritt</li><li>100%</li></ul></article>
+      <div class="link-grid">
+        <a href="/fachkunde/glossar" data-page-link>Glossar</a>
+        <a href="/fachkunde/bausteine" data-page-link>Bausteine</a>
+      </div>
     `,
   "s05_10-lerneinheit-freigabe": () => `
 
@@ -948,7 +1004,60 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s06_1-pruefungsliste": () => `
 
-      <div class="screen-head"><p class="eyebrow">06 Pruefung</p><h2>Testpruefungen</h2></div>
+      <div class="learn-title-row">
+        <h2 class="page-title">Prüfungen</h2>
+        <button class="icon-round" type="button" aria-label="Filter">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 6h18M7 12h10M10 18h4"/></svg>
+        </button>
+      </div>
+      <h3 class="section-title">Aktuelle Prüfungen</h3>
+      <article class="exam-card exam-card-featured">
+        <div class="hub-card-head">
+          <div class="hub-icon hub-icon-tools" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          </div>
+          <div>
+            <h3>Zwischenprüfung Simulation</h3>
+            <p class="muted">45 Fragen — 60 Minuten</p>
+          </div>
+        </div>
+        <div class="row-between">
+          <span class="muted"><strong style="color:#10b981">Beste Note: 2 (78%)</strong></span>
+          <button class="pill-cta purple" type="button" data-action="exam-start-shortcut">Starten</button>
+        </div>
+      </article>
+      <article class="exam-card">
+        <div class="hub-card-head">
+          <div class="hub-icon hub-icon-practice" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 1v2M12 21v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M1 12h2M21 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg>
+          </div>
+          <div>
+            <h3>Themenprüfung: Pneumatik</h3>
+            <p class="muted">20 Fragen — 30 Minuten</p>
+          </div>
+        </div>
+        <div class="row-between">
+          <span class="muted">Noch nicht versucht</span>
+          <button class="pill-cta" type="button" data-action="exam-start-shortcut">Starten</button>
+        </div>
+      </article>
+      <h3 class="section-title">Prüfungsarten</h3>
+      <div class="filter-pills">
+        <button type="button" class="filter-pill active">Zwischenprüfung</button>
+        <button type="button" class="filter-pill">AP Teil 1</button>
+        <button type="button" class="filter-pill">AP Teil 2</button>
+        <button type="button" class="filter-pill">Themenprüfung</button>
+        <button type="button" class="filter-pill">Fehlerprüfung</button>
+      </div>
+      <div class="row-between">
+        <h3 class="section-title">Letzte Ergebnisse</h3>
+        <a href="/pruefungen/uebersicht" data-page-link class="text-link">Alle Ergebnisse</a>
+      </div>
+      <div class="results-card">
+        <div class="result-row"><span class="dot ok"></span><strong>Zwischenprüfung</strong><span class="score ok">72%</span><span class="muted">12.03.</span></div>
+        <div class="result-row"><span class="dot warn"></span><strong>Pneumatik</strong><span class="score warn">65%</span><span class="muted">10.03.</span></div>
+        <div class="result-row"><span class="dot ok"></span><strong>Arbeitssicherheit</strong><span class="score ok">88%</span><span class="muted">08.03.</span></div>
+      </div>
       <div data-bind="exam-live"></div>
       <div class="link-grid">
         <a href="/pruefungen/uebersicht" data-page-link>Uebersicht</a>
@@ -1063,23 +1172,46 @@ window.OLC_SCREEN_RENDERERS = {
     `,
   "s07_1-fortschritt-uebersicht": () => `
 
-      <div class="screen-head"><p class="eyebrow">07.1 Fortschritt</p><h2>Fortschritt — Übersicht</h2></div>
-      <div class="metric-grid">
-        <article class="metric-card card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
-        <article class="metric-card card"><strong data-bind="wrong">0</strong><span>Fehler</span></article>
-        <article class="metric-card card"><strong data-bind="readiness">0%</strong><span>Reife</span></article>
-      </div>
-      <article class="card"><ul class="plain-list"><li>Lvl 7</li><li>12 Tage Streak</li><li>Exzellente Woche!</li><li>Du bist über dem Klassenschnitt.</li><li>EP Fortschritt</li><li>2.450 / 3.000 XP</li><li>Dein Lernpfad</li><li>Grundlagen</li><li>Sicherheits- & Werkstoffprüfungen</li><li>Zwischenprüfung</li></ul>
+      <div class="progress-screen">
+        <h2 class="page-title">Mein Fortschritt</h2>
+        <article class="progress-hero">
+          <div class="progress-hero-top">
+            <div class="progress-avatar" aria-hidden="true">
+              <span class="level-badge" data-bind="level">7</span>
+            </div>
+            <div>
+              <span class="chip-streak" data-bind="streak">12</span>
+              <h3>Exzellente Woche!</h3>
+              <p class="muted">Du bist über dem Klassenschnitt.</p>
+            </div>
+          </div>
+          <div class="row-between"><span class="muted">EP Fortschritt</span><strong class="xp-text"><span data-bind="xp">2450</span> XP</strong></div>
+          <div class="mastery-track xp-track"><span class="mastery-fill" data-bind="continue-bar" style="width:80%"></span></div>
+        </article>
+        <h3 class="section-title">Dein Lernpfad</h3>
+        <div class="path-gates">
+          <div class="gate done"><strong>Grundlagen</strong><span class="muted">Sicherheits- &amp; Werkstoffprüfungen</span></div>
+          <div class="gate done"><strong>Zwischenprüfung</strong><span class="muted">IHK Teil 1 Generalprobe</span></div>
+          <div class="gate active"><strong>Vertiefung</strong><span class="muted">Messtechnik &amp; Pneumatik Modul</span><span class="status-pill info">AKTIV</span></div>
+          <div class="gate locked"><strong>AP Teil 1</strong><span class="muted">IHK Abschlussprüfung Teil 1</span></div>
+          <div class="gate locked"><strong>AP Teil 2</strong><span class="muted">Fachrichtungsspezifische Theorie</span></div>
+        </div>
+        <div class="metric-grid">
+          <article class="metric-card card"><strong data-bind="mastered">0</strong><span>Gemeistert</span></article>
+          <article class="metric-card card"><strong data-bind="wrong">0</strong><span>Fehler</span></article>
+          <article class="metric-card card"><strong data-bind="readiness">0%</strong><span>Reife</span></article>
+        </div>
         <div class="link-grid">
           <a href="/fortschritt/pruefungsreife" data-page-link>Pruefungsreife</a>
           <a href="/fortschritt/verlauf" data-page-link>Verlauf</a>
           <a href="/fortschritt/xp" data-page-link>XP &amp; Streak</a>
           <a href="/fortschritt/heatmap" data-page-link>Heatmap</a>
+          <a href="/gamification" data-page-link>Alle Badges</a>
         </div>
         <div class="row-actions">
           <button class="secondary-button" type="button" data-action="reset-progress">Fortschritt zuruecksetzen</button>
         </div>
-      </article>
+      </div>
     `,
   "s07_2-pruefungsreife-checkliste": () => `
 

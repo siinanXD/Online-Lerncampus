@@ -101,13 +101,13 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 |--------|------|------|------|
 | [~] | `136:7988` | 06.1 Prüfungsliste | 390×906 |
 | [x] | `136:8115` | 06.2 Prüfung — Frage | 390×844 |
-| [ ] | `136:8178` | 06.3 Prüfung — Übersicht | 390×844 |
-| [ ] | `136:8326` | 06.4 Prüfung — Timer | 390×844 |
-| [ ] | `136:8398` | 06.5 Abgabe Bestätigung | 390×844 |
-| [ ] | `136:8446` | 06.6 Ergebnis — Bestanden | 390×958 |
-| [ ] | `136:8542` | 06.7 Ergebnis — Durchgefallen | 390×961 |
-| [ ] | `136:8622` | 06.8 Schwache Themen | 390×967 |
-| [ ] | `136:8741` | 06.9 Kammertermine | 390×928 |
+| [x] | `136:8178` | 06.3 Prüfung — Übersicht | 390×844 |
+| [~] | `136:8326` | 06.4 Prüfung — Timer | 390×844 |
+| [~] | `136:8398` | 06.5 Abgabe Bestätigung | 390×844 |
+| [x] | `136:8446` | 06.6 Ergebnis — Bestanden | 390×958 |
+| [x] | `136:8542` | 06.7 Ergebnis — Durchgefallen | 390×961 |
+| [~] | `136:8622` | 06.8 Schwache Themen | 390×967 |
+| [x] | `136:8741` | 06.9 Kammertermine | 390×928 |
 
 ## 07 Teilnehmer — Fortschritt
 
@@ -223,3 +223,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Fachkunde 05.2 Lernpfad [x] ~6.6%; 05.3 Lerneinheit [~] ~10.7%; 05.4 Glossar [x] ~7.4%; Prüfung 06.1 [~] ~9.9%; Fortschritt 07.1 [~] ~12.7%; Bericht 08.1 [~] ~10.0%
 - Fachkunde 05.5–05.10 key frames: 05.6 Lernbausteine [x] ~7.6%; 05.5 Abschluss [~] ~9.9%; 05.7 Toleranz [~] ~13.4%; 05.8 Spritzguss [~] ~12.5%; 05.9 Messschieber [~] ~19.1%; 05.10 Freigabe [~] ~10.5%
 - Prüfung 06.2 Frage [x] ~8.0%
+- Prüfung 06.3–06.9 key frames: 06.3 Übersicht [x] ~5.9%; 06.4 Timer [~] ~10.4%; 06.5 Abgabe [~] ~11.9%; 06.6 Bestanden [x] ~7.6%; 06.7 Durchgefallen [x] ~8.6%; 06.8 Schwache Themen [~] ~12.8%; 06.9 Kammertermine [x] ~7.3%

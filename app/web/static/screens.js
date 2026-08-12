@@ -2878,115 +2878,508 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s06_3-pruefung-uebersicht": () => `
-      <div class="exam-session-screen">
-        <div class="exam-session-header">
-          <a class="icon-round" href="/pruefungen/frage" data-page-link aria-label="Zurück">‹</a>
-          <div class="exam-session-meta">
-            <span class="exam-timer">47:23</span>
-            <span>Übersicht</span>
+      <div class="ex-screen ex-ov-screen" data-node-id="136:8178">
+        <div class="ex-ov-top">
+          <header class="ex-ov-header">
+            <a class="ex-ov-close" href="/pruefungen/frage" data-page-link aria-label="Schließen">
+              <img src="/static/figma/exam/ex-ov-close.svg" width="20" height="20" alt="" />
+            </a>
+            <h2>Übersicht</h2>
+            <div class="ex-ov-timer">
+              <img src="/static/figma/exam/ex-ov-alarm.svg" width="16" height="16" alt="" />
+              <strong>47:23</strong>
+            </div>
+          </header>
+          <div class="ex-ov-body">
+            <div class="ex-ov-grid">
+            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>1</a>
+            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>2</a>
+            <a class="ex-ov-cell answered marked" href="/pruefungen/frage" data-page-link>3<i aria-hidden="true"></i></a>
+            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>4</a>
+            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>5</a>
+            <a class="ex-ov-cell answered marked" href="/pruefungen/frage" data-page-link>6<i aria-hidden="true"></i></a>
+            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>7</a>
+            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>8</a>
+            <a class="ex-ov-cell current" href="/pruefungen/frage" data-page-link>9</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>10</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>11</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>12</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>13</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>14</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>15</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>16</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>17</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>18</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>19</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>20</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>21</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>22</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>23</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>24</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>25</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>26</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>27</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>28</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>29</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>30</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>31</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>32</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>33</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>34</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>35</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>36</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>37</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>38</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>39</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>40</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>41</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>42</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>43</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>44</a>
+            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>45</a>
+            </div>
+            <div class="ex-ov-divider" aria-hidden="true"></div>
+            <div class="ex-ov-stats">
+              <div><span>Beantwortet:</span><strong class="blue">8</strong></div>
+              <div><span>Markiert:</span><strong class="orange">2</strong></div>
+              <div><span>Offen:</span><strong>37</strong></div>
+            </div>
+            <div class="ex-ov-legend">
+              <div><i class="lg-answered"></i>Beantwortet</div>
+              <div><i class="lg-current"></i>Aktuell</div>
+              <div><i class="lg-marked"></i>Markiert</div>
+              <div><i class="lg-open"></i>Unbeantwortet</div>
+            </div>
           </div>
         </div>
-        <article class="card exam-panel">
-          <h3>Fragen-Übersicht</h3>
-          <p class="muted">Markierte und offene Fragen vor der Abgabe prüfen.</p>
-          <div class="exam-grid-nav">
-            <a class="exam-nav-cell answered" href="/pruefungen/frage" data-page-link>1</a>
-            <a class="exam-nav-cell answered" href="/pruefungen/frage" data-page-link>2</a>
-            <a class="exam-nav-cell answered flagged" href="/pruefungen/frage" data-page-link>3</a>
-            <a class="exam-nav-cell answered" href="/pruefungen/frage" data-page-link>4</a>
-            <a class="exam-nav-cell answered" href="/pruefungen/frage" data-page-link>5</a>
-            <a class="exam-nav-cell answered flagged" href="/pruefungen/frage" data-page-link>6</a>
-            <a class="exam-nav-cell answered" href="/pruefungen/frage" data-page-link>7</a>
-            <a class="exam-nav-cell current" href="/pruefungen/frage" data-page-link>8</a>
-            <a class="exam-nav-cell" href="/pruefungen/frage" data-page-link>9</a>
-            <a class="exam-nav-cell" href="/pruefungen/frage" data-page-link>10</a>
-            <a class="exam-nav-cell" href="/pruefungen/frage" data-page-link>11</a>
-            <a class="exam-nav-cell" href="/pruefungen/frage" data-page-link>12</a>
-          </div>
-          <div class="row-actions exam-actions">
-            <a class="secondary-button" href="/pruefungen/frage" data-page-link>Zur Frage</a>
-            <a class="primary-button" href="/pruefungen/abgabe" data-page-link>Zur Abgabe</a>
-          </div>
-        </article>
+        <footer class="ex-ov-footer">
+          <a class="ex-ov-primary" href="/pruefungen/frage" data-page-link>Zur aktuellen Frage</a>
+          <a class="ex-ov-secondary" href="/pruefungen/abgabe" data-page-link>Prüfung abgeben</a>
+          <div class="ex-home-indicator" aria-hidden="true"></div>
+        </footer>
       </div>
     `,
   "s06_4-pruefung-timer": () => `
-
-      <div class="screen-head"><p class="eyebrow">06.4 Pruefung</p><h2>Prüfung — Timer</h2>
-        <a class="secondary-button" href="/pruefungen" data-page-link>Zur Liste</a></div>
-      <article class="card exam-panel">
-        <ul class="plain-list"><li>09:42</li><li>38/45</li><li>Weniger als 10 Minuten verbleibend!</li><li>Frage 38</li><li>Maschinensicherheit</li><li>Welche Verhaltensregel verhindert Unfälle an Antrieben besonders wirksam?</li><li>Markiert: #3, #6, #22 — Zur Frage springen</li><li>A</li><li>Schutzabdeckung entfernen</li><li>B</li><li>Sicherheitsschalter überbrücken</li><li>C</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/pruefungen" data-page-link data-action="exam-start-shortcut">Session starten</a>
-          <a class="secondary-button" href="/pruefungen/abgabe" data-page-link>Abgabe</a>
-          <a class="secondary-button" href="/pruefungen/bestanden" data-page-link>Ergebnis</a>
+      <div class="ex-screen ex-tm-screen" data-node-id="136:8326">
+        <div class="ex-tm-top">
+          <header class="ex-tm-header">
+            <a class="ex-tm-close" href="/pruefungen" data-page-link aria-label="Schließen">
+              <img src="/static/figma/exam/ex-tm-close.svg" width="20" height="20" alt="" />
+            </a>
+            <div class="ex-tm-timer">
+              <img src="/static/figma/exam/ex-tm-timer.svg" width="18" height="18" alt="" />
+              <strong>09:42</strong>
+            </div>
+            <span class="ex-tm-progress">38/45</span>
+          </header>
+          <div class="ex-tm-warn">
+            <img src="/static/figma/exam/ex-tm-alert.svg" width="18" height="18" alt="" />
+            <p>Weniger als 10 Minuten verbleibend!</p>
+          </div>
+          <div class="ex-tm-body">
+            <article class="ex-tm-card">
+              <div class="ex-tm-meta">
+                <span>Frage 38</span>
+                <em>Maschinensicherheit</em>
+              </div>
+              <p>Welche Verhaltensregel verhindert Unfälle an Antrieben besonders wirksam?</p>
+            </article>
+            <a class="ex-tm-jump" href="/pruefungen/uebersicht" data-page-link>
+              <img src="/static/figma/exam/ex-tm-flag-off.svg" width="16" height="16" alt="" />
+              <span><em>Markiert:</em> <strong>#3, #6, #22</strong> — Zur Frage springen</span>
+              <img class="ex-tm-jump-x" src="/static/figma/exam/ex-tm-dismiss.svg" width="14" height="14" alt="" />
+            </a>
+            <div class="ex-tm-options">
+              <button type="button" class="ex-tm-opt"><span>A</span><strong>Schutzabdeckung entfernen</strong></button>
+              <button type="button" class="ex-tm-opt"><span>B</span><strong>Sicherheitsschalter überbrücken</strong></button>
+              <button type="button" class="ex-tm-opt"><span>C</span><strong>Haarnetz tragen bei langen Haaren</strong></button>
+              <button type="button" class="ex-tm-opt"><span>D</span><strong>Eng anliegende Kleidung tragen</strong></button>
+            </div>
+          </div>
         </div>
-      </article>
+        <footer class="ex-tm-footer">
+          <div class="ex-tm-nav">
+            <a class="ex-tm-back" href="/pruefungen/frage" data-page-link>Zurück</a>
+            <button class="ex-tm-flag" type="button" aria-label="Markiert">
+              <img src="/static/figma/exam/ex-tm-flag.svg" width="18" height="18" alt="" />
+            </button>
+            <a class="ex-tm-next" href="/pruefungen/uebersicht" data-page-link>Weiter</a>
+          </div>
+          <div class="ex-home-indicator" aria-hidden="true"></div>
+        </footer>
+      </div>
     `,
   "s06_5-abgabe-bestaetigung": () => `
-
-      <div class="screen-head"><p class="eyebrow">06.5 Pruefung</p><h2>Abgabe Bestätigung</h2>
-        <a class="secondary-button" href="/pruefungen" data-page-link>Zur Liste</a></div>
-      <article class="card exam-panel">
-        <ul class="plain-list"><li>Abschlussprüfung Teil 1</li><li>45:12 Min</li><li>Frage 38 von 45</li><li>Erklären Sie den Unterschied zwischen einer SPS und einer festverdrahteten Steuerung...</li><li>Prüfung abgeben?</li><li>Möchtest du deine Antworten wirklich einreichen und die Prüfung beenden?</li><li>Beantwortet:</li><li>38 Fragen</li><li>Offen (unbeantwortet):</li><li>7 Fragen</li><li>Markiert:</li><li>2 Fragen</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/pruefungen" data-page-link data-action="exam-start-shortcut">Session starten</a>
-          <a class="secondary-button" href="/pruefungen/abgabe" data-page-link>Abgabe</a>
-          <a class="secondary-button" href="/pruefungen/bestanden" data-page-link>Ergebnis</a>
+      <div class="ex-screen ex-dark ex-ab-screen" data-node-id="136:8398">
+        <div class="ex-ab-bg" aria-hidden="true">
+          <div class="ex-ab-bg-head">
+            <span>Abschlussprüfung Teil 1</span>
+            <em>45:12 Min</em>
+          </div>
+          <div class="ex-ab-bg-bar"><i></i></div>
+          <div class="ex-ab-bg-card">
+            <strong>Frage 38 von 45</strong>
+            <p>Erklären Sie den Unterschied zwischen einer SPS und einer festverdrahteten Steuerung...</p>
+          </div>
         </div>
-      </article>
+        <div class="ex-ab-overlay">
+          <div class="ex-ab-modal" role="dialog" aria-modal="true" aria-labelledby="ex-ab-title">
+            <div class="ex-ab-icon">
+              <img src="/static/figma/exam/ex-ab-alert.svg" width="40" height="40" alt="" />
+            </div>
+            <div class="ex-ab-text">
+              <h2 id="ex-ab-title">Prüfung abgeben?</h2>
+              <p>Möchtest du deine Antworten wirklich einreichen und die Prüfung beenden?</p>
+            </div>
+            <div class="ex-ab-summary">
+              <div><span>Beantwortet:</span><strong class="ok">38 Fragen</strong></div>
+              <div><span>Offen (unbeantwortet):</span><strong class="bad">7 Fragen</strong></div>
+              <div><span>Markiert:</span><strong class="warn">2 Fragen</strong></div>
+            </div>
+            <div class="ex-ab-callout">
+              <img src="/static/figma/exam/ex-ab-info.svg" width="18" height="18" alt="" />
+              <p>Offene Fragen werden als falsch gewertet.</p>
+            </div>
+            <div class="ex-ab-actions">
+              <a class="ex-ab-primary" href="/pruefungen/bestanden" data-page-link>Prüfung abgeben</a>
+              <a class="ex-ab-secondary" href="/pruefungen/uebersicht" data-page-link>Zurück zur Prüfung</a>
+            </div>
+          </div>
+        </div>
+      </div>
     `,
   "s06_6-ergebnis-bestanden": () => `
-
-      <div class="screen-head"><p class="eyebrow">06.6 Pruefung</p><h2>Ergebnis — Bestanden</h2>
-        <a class="secondary-button" href="/pruefungen" data-page-link>Zur Liste</a></div>
-      <article class="card exam-panel">
-        <ul class="plain-list"><li>Prüfungsergebnis</li><li>1.450 XP</li><li>Bestanden!</li><li>Hervorragende Leistung!</li><li>Deine Bewertung</li><li>Note 2</li><li>Gut</li><li>78% (35/45 richtig)</li><li>+200 XP</li><li>Erhalten</li><li>Statistik</li><li>Richtig beantwortet</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/pruefungen" data-page-link data-action="exam-start-shortcut">Session starten</a>
-          <a class="secondary-button" href="/pruefungen/abgabe" data-page-link>Abgabe</a>
-          <a class="secondary-button" href="/pruefungen/bestanden" data-page-link>Ergebnis</a>
+      <div class="ex-screen ex-dark ex-rs-screen ex-rs-pass" data-node-id="136:8446">
+        <div class="ex-rs-scroll">
+          <header class="ex-rs-header">
+            <h2>Prüfungsergebnis</h2>
+            <span class="ex-rs-xp"><img src="/static/figma/exam/ex-rs-star.svg" width="14" height="14" alt="" />1.450 XP</span>
+          </header>
+          <div class="ex-rs-hero">
+            <span class="ex-rs-spark s1" aria-hidden="true"></span>
+            <span class="ex-rs-spark s2" aria-hidden="true"></span>
+            <span class="ex-rs-spark s3" aria-hidden="true"></span>
+            <span class="ex-rs-spark s4" aria-hidden="true"></span>
+            <span class="ex-rs-spark s5" aria-hidden="true"></span>
+            <div class="ex-rs-burst">
+              <img src="/static/figma/exam/ex-rs-check.svg" width="48" height="48" alt="" />
+            </div>
+          </div>
+          <div class="ex-rs-headline">
+            <h3>Bestanden!</h3>
+            <p>Hervorragende Leistung!</p>
+          </div>
+          <article class="ex-rs-grade">
+            <div class="ex-rs-grade-main">
+              <span>Deine Bewertung</span>
+              <div class="ex-rs-note"><strong>Note 2</strong><em>Gut</em></div>
+              <p>78% (35/45 richtig)</p>
+            </div>
+            <div class="ex-rs-xp-glow">
+              <strong>+200 XP</strong>
+              <span>Erhalten</span>
+            </div>
+          </article>
+          <article class="ex-rs-stats">
+            <h4>Statistik</h4>
+            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-dot-g.svg" width="10" height="10" alt="" />Richtig beantwortet</span><strong>35 Fragen</strong></div>
+            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-dot-r.svg" width="10" height="10" alt="" />Falsch beantwortet</span><strong>8 Fragen</strong></div>
+            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-dot-s.svg" width="10" height="10" alt="" />Offen gelassen</span><strong>2 Fragen</strong></div>
+            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-clock.svg" width="16" height="16" alt="" />Benötigte Zeit</span><strong>52:18 Min</strong></div>
+            <div class="ex-rs-divider" aria-hidden="true"></div>
+            <div class="ex-rs-record"><img src="/static/figma/exam/ex-rs-record.svg" width="16" height="16" alt="" />Neuer persönlicher Rekord!</div>
+          </article>
+          <div class="ex-rs-actions">
+            <a class="ex-rs-primary" href="/pruefungen/schwach" data-page-link>Auswertung ansehen</a>
+            <a class="ex-rs-ghost" href="/dashboard" data-page-link>Zum Dashboard</a>
+          </div>
         </div>
-      </article>
+        
+        <nav class="ex-rs-tabs" aria-label="Ergebnis Navigation">
+          <a href="/lernen" data-page-link class="">
+            <img src="/static/figma/exam/ex-rs-tab-book.svg" width="22" height="22" alt="" />
+            Lernen
+          </a>
+          <a href="/pruefungen/bestanden" data-page-link class="active">
+            <img src="/static/figma/exam/ex-rs-tab-award.svg" width="22" height="22" alt="" />
+            Ergebnisse
+          </a>
+          <a href="/pruefungen/kammertermine" data-page-link class="">
+            <img src="/static/figma/exam/ex-rs-tab-cal.svg" width="22" height="22" alt="" />
+            Kalender
+          </a>
+          <a href="/mehr" data-page-link class="">
+            <img src="/static/figma/exam/ex-rs-tab-user.svg" width="22" height="22" alt="" />
+            Profil
+          </a>
+        </nav>
+        <div class="ex-rs-home" aria-hidden="true"></div>
+      </div>
     `,
   "s06_7-ergebnis-durchgefallen": () => `
-
-      <div class="screen-head"><p class="eyebrow">06.7 Pruefung</p><h2>Ergebnis — Durchgefallen</h2>
-        <a class="secondary-button" href="/pruefungen" data-page-link>Zur Liste</a></div>
-      <article class="card exam-panel">
-        <ul class="plain-list"><li>Prüfungsergebnis</li><li>1.450 XP</li><li>Nicht bestanden</li><li>Das war knapp! Kopf hoch.</li><li>Deine Bewertung</li><li>Note 5</li><li>Mangelhaft</li><li>42% (19/45 richtig)</li><li>+50 XP</li><li>Teilnahme</li><li>Nicht aufgeben!</li><li>Wiederhole deine Schwachstellen in Steuerungstechnik und lade dein Wissen vor dem nächsten Versuch auf.</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/pruefungen" data-page-link data-action="exam-start-shortcut">Session starten</a>
-          <a class="secondary-button" href="/pruefungen/abgabe" data-page-link>Abgabe</a>
-          <a class="secondary-button" href="/pruefungen/bestanden" data-page-link>Ergebnis</a>
+      <div class="ex-screen ex-dark ex-rs-screen ex-rs-fail" data-node-id="136:8542">
+        <div class="ex-rs-scroll">
+          <header class="ex-rs-header">
+            <h2>Prüfungsergebnis</h2>
+            <span class="ex-rs-xp"><img src="/static/figma/exam/ex-rs-star.svg" width="14" height="14" alt="" />1.450 XP</span>
+          </header>
+          <div class="ex-rs-hero fail">
+            <div class="ex-rs-burst fail">
+              <img src="/static/figma/exam/ex-fl-x.svg" width="44" height="44" alt="" />
+            </div>
+          </div>
+          <div class="ex-rs-headline fail">
+            <h3>Nicht bestanden</h3>
+            <p>Das war knapp! Kopf hoch.</p>
+          </div>
+          <article class="ex-rs-grade">
+            <div class="ex-rs-grade-main">
+              <span>Deine Bewertung</span>
+              <div class="ex-rs-note"><strong>Note 5</strong><em class="bad">Mangelhaft</em></div>
+              <p class="bad">42% (19/45 richtig)</p>
+            </div>
+            <div class="ex-rs-xp-soft">
+              <strong>+50 XP</strong>
+              <span>Teilnahme</span>
+            </div>
+          </article>
+          <article class="ex-rs-encourage">
+            <div class="ex-rs-encourage-title">
+              <img src="/static/figma/exam/ex-fl-book.svg" width="20" height="20" alt="" />
+              <strong>Nicht aufgeben!</strong>
+            </div>
+            <p>Wiederhole deine Schwachstellen in Steuerungstechnik und lade dein Wissen vor dem nächsten Versuch auf.</p>
+            <a class="ex-rs-encourage-btn" href="/pruefungen/schwach" data-page-link>Schwache Themen ansehen</a>
+          </article>
+          <div class="ex-rs-mini">
+            <div><span>Richtig</span><strong class="ok">19</strong></div>
+            <div><span>Falsch</span><strong class="bad">23</strong></div>
+            <div><span>Offen</span><strong>3</strong></div>
+          </div>
+          <div class="ex-rs-actions">
+            <a class="ex-rs-primary" href="/pruefungen/schwach" data-page-link>Auswertung</a>
+            <a class="ex-rs-ghost" href="/pruefungen" data-page-link>Nochmal versuchen</a>
+          </div>
         </div>
-      </article>
+        
+        <nav class="ex-rs-tabs" aria-label="Ergebnis Navigation">
+          <a href="/lernen" data-page-link class="">
+            <img src="/static/figma/exam/ex-rs-tab-book.svg" width="22" height="22" alt="" />
+            Lernen
+          </a>
+          <a href="/pruefungen/bestanden" data-page-link class="active">
+            <img src="/static/figma/exam/ex-rs-tab-award.svg" width="22" height="22" alt="" />
+            Ergebnisse
+          </a>
+          <a href="/pruefungen/kammertermine" data-page-link class="">
+            <img src="/static/figma/exam/ex-rs-tab-cal.svg" width="22" height="22" alt="" />
+            Kalender
+          </a>
+          <a href="/mehr" data-page-link class="">
+            <img src="/static/figma/exam/ex-rs-tab-user.svg" width="22" height="22" alt="" />
+            Profil
+          </a>
+        </nav>
+        <div class="ex-rs-home" aria-hidden="true"></div>
+      </div>
     `,
   "s06_8-schwache-themen": () => `
-
-      <div class="screen-head"><p class="eyebrow">06.8 Pruefung</p><h2>Schwache Themen</h2>
-        <a class="secondary-button" href="/pruefungen" data-page-link>Zur Liste</a></div>
-      <article class="card exam-panel">
-        <ul class="plain-list"><li>Schwache Themen</li><li>1.450 XP</li><li>Basierend auf deiner letzten Prüfung:</li><li>1.</li><li>Steuerungstechnik</li><li>Kritisch</li><li>2/8 (25%)</li><li>Empfehlung: Kapitel 7 wiederholen</li><li>Thema üben</li><li>2.</li><li>Hydraulik</li><li>Schwach</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/pruefungen" data-page-link data-action="exam-start-shortcut">Session starten</a>
-          <a class="secondary-button" href="/pruefungen/abgabe" data-page-link>Abgabe</a>
-          <a class="secondary-button" href="/pruefungen/bestanden" data-page-link>Ergebnis</a>
+      <div class="ex-screen ex-dark ex-wk-screen" data-node-id="136:8622">
+        <div class="ex-wk-scroll">
+          <header class="ex-wk-header">
+            <a class="ex-wk-back" href="/pruefungen/durchgefallen" data-page-link aria-label="Zurück">
+              <img src="/static/figma/exam/ex-wk-back.svg" width="18" height="18" alt="" />
+            </a>
+            <h2>Schwache Themen</h2>
+            <span class="ex-rs-xp"><img src="/static/figma/exam/ex-wk-star.svg" width="14" height="14" alt="" />1.450 XP</span>
+          </header>
+          <p class="ex-wk-sub">Basierend auf deiner letzten Prüfung:</p>
+          <div class="ex-wk-list">
+            <article class="ex-wk-card critical">
+              <div class="ex-wk-top"><div class="ex-wk-title"><em>1.</em><strong>Steuerungstechnik</strong></div><span class="ex-wk-badge">Kritisch</span></div>
+              <div class="ex-wk-bar"><div class="ex-wk-bar-track"><i style="width:25%"></i></div><span>2/8 (25%)</span></div>
+              <p>Empfehlung: Kapitel 7 wiederholen</p>
+              <div class="ex-wk-actions"><a href="/lernen" data-page-link>Thema üben</a><img src="/static/figma/exam/ex-wk-chev.svg" width="16" height="16" alt="" /></div>
+            </article>
+            <article class="ex-wk-card weak">
+              <div class="ex-wk-top"><div class="ex-wk-title"><em>2.</em><strong>Hydraulik</strong></div><span class="ex-wk-badge">Schwach</span></div>
+              <div class="ex-wk-bar"><div class="ex-wk-bar-track"><i style="width:43%"></i></div><span>3/7 (43%)</span></div>
+              <p>Empfehlung: Formeln wiederholen</p>
+              <div class="ex-wk-actions"><a href="/lernen" data-page-link>Thema üben</a><img src="/static/figma/exam/ex-wk-chev.svg" width="16" height="16" alt="" /></div>
+            </article>
+            <article class="ex-wk-card fair">
+              <div class="ex-wk-top"><div class="ex-wk-title"><em>3.</em><strong>Elektrotechnik</strong></div><span class="ex-wk-badge">Ausbaufähig</span></div>
+              <div class="ex-wk-bar"><div class="ex-wk-bar-track"><i style="width:50%"></i></div><span>4/8 (50%)</span></div>
+              <div class="ex-wk-actions"><a href="/lernen" data-page-link>Thema üben</a><img src="/static/figma/exam/ex-wk-chev.svg" width="16" height="16" alt="" /></div>
+            </article>
+            <article class="ex-wk-card ok">
+              <div class="ex-wk-top"><div class="ex-wk-title"><em>4.</em><strong>Pneumatik</strong></div><span class="ex-wk-badge">OK</span></div>
+              <div class="ex-wk-bar"><div class="ex-wk-bar-track"><i style="width:71%"></i></div><span>5/7 (71%)</span></div>
+            </article>
+            <article class="ex-wk-card perfect">
+              <div class="ex-wk-top"><div class="ex-wk-title"><em>5.</em><strong>Arbeitssicherheit</strong></div><span class="ex-wk-badge">Perfekt</span></div>
+              <div class="ex-wk-bar"><div class="ex-wk-bar-track"><i style="width:100%"></i></div><span>6/6 (100%)</span></div>
+            </article>
+          </div>
+          <div class="ex-wk-bottom">
+            <a class="ex-rs-primary" href="/lernen" data-page-link>Alle schwachen Themen üben</a>
+          </div>
         </div>
-      </article>
+        
+        <nav class="ex-rs-tabs" aria-label="Ergebnis Navigation">
+          <a href="/lernen" data-page-link class="active">
+            <img src="/static/figma/exam/ex-wk-tab-book.svg" width="22" height="22" alt="" />
+            Lernen
+          </a>
+          <a href="/pruefungen/bestanden" data-page-link>
+            <img src="/static/figma/exam/ex-wk-tab-award.svg" width="22" height="22" alt="" />
+            Ergebnisse
+          </a>
+          <a href="/pruefungen/kammertermine" data-page-link>
+            <img src="/static/figma/exam/ex-wk-tab-cal.svg" width="22" height="22" alt="" />
+            Kalender
+          </a>
+          <a href="/mehr" data-page-link>
+            <img src="/static/figma/exam/ex-wk-tab-user.svg" width="22" height="22" alt="" />
+            Profil
+          </a>
+        </nav>
+        <div class="ex-rs-home" aria-hidden="true"></div>
+      </div>
     `,
   "s06_9-kammertermine": () => `
-
-      <div class="screen-head"><p class="eyebrow">06.9 Pruefung</p><h2>Kammertermine</h2>
-        <a class="secondary-button" href="/pruefungen" data-page-link>Zur Liste</a></div>
-      <article class="card exam-panel">
-        <ul class="plain-list"><li>Prüfungstermine</li><li>1.450 XP</li><li>März 2025</li><li>M</li><li>D</li><li>M</li><li>D</li><li>F</li><li>S</li><li>S</li><li>1</li><li>2</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/pruefungen" data-page-link data-action="exam-start-shortcut">Session starten</a>
-          <a class="secondary-button" href="/pruefungen/abgabe" data-page-link>Abgabe</a>
-          <a class="secondary-button" href="/pruefungen/bestanden" data-page-link>Ergebnis</a>
+      <div class="ex-screen ex-dark ex-cal-screen" data-node-id="136:8741">
+        <div class="ex-cal-scroll">
+          <header class="ex-wk-header">
+            <a class="ex-wk-back" href="/pruefungen" data-page-link aria-label="Zurück">
+              <img src="/static/figma/exam/ex-cal-back.svg" width="18" height="18" alt="" />
+            </a>
+            <h2>Prüfungstermine</h2>
+            <span class="ex-rs-xp"><img src="/static/figma/exam/ex-cal-star.svg" width="14" height="14" alt="" />1.450 XP</span>
+          </header>
+          <div class="ex-cal-wrap">
+            <div class="ex-cal-card">
+              <div class="ex-cal-month">
+                <strong>März 2025</strong>
+                <div class="ex-cal-arrows">
+                  <button type="button" aria-label="Vorheriger Monat"><img src="/static/figma/exam/ex-cal-left.svg" width="16" height="16" alt="" /></button>
+                  <button type="button" aria-label="Nächster Monat"><img src="/static/figma/exam/ex-cal-right.svg" width="16" height="16" alt="" /></button>
+                </div>
+              </div>
+              <div class="ex-cal-weekdays"><span>M</span><span>D</span><span>M</span><span>D</span><span>F</span><span>S</span><span>S</span></div>
+              <div class="ex-cal-grid">
+            <div class="ex-cal-row">
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+              <button type="button" class="ex-cal-day">1</button>
+              <button type="button" class="ex-cal-day">2</button>
+            </div>
+            <div class="ex-cal-row">
+              <button type="button" class="ex-cal-day selected">3</button>
+              <button type="button" class="ex-cal-day">4</button>
+              <button type="button" class="ex-cal-day">5</button>
+              <button type="button" class="ex-cal-day">6</button>
+              <button type="button" class="ex-cal-day">7</button>
+              <button type="button" class="ex-cal-day">8</button>
+              <button type="button" class="ex-cal-day">9</button>
+            </div>
+            <div class="ex-cal-row">
+              <button type="button" class="ex-cal-day">10</button>
+              <button type="button" class="ex-cal-day">11</button>
+              <button type="button" class="ex-cal-day">12</button>
+              <button type="button" class="ex-cal-day">13</button>
+              <button type="button" class="ex-cal-day">14</button>
+              <button type="button" class="ex-cal-day has-dot">15<img class="ex-cal-dot" src="/static/figma/exam/ex-cal-dot-b.svg" width="4" height="4" alt="" /></button>
+              <button type="button" class="ex-cal-day">16</button>
+            </div>
+            <div class="ex-cal-row">
+              <button type="button" class="ex-cal-day">17</button>
+              <button type="button" class="ex-cal-day">18</button>
+              <button type="button" class="ex-cal-day">19</button>
+              <button type="button" class="ex-cal-day">20</button>
+              <button type="button" class="ex-cal-day">21</button>
+              <button type="button" class="ex-cal-day">22</button>
+              <button type="button" class="ex-cal-day">23</button>
+            </div>
+            <div class="ex-cal-row">
+              <button type="button" class="ex-cal-day">24</button>
+              <button type="button" class="ex-cal-day">25</button>
+              <button type="button" class="ex-cal-day">26</button>
+              <button type="button" class="ex-cal-day">27</button>
+              <button type="button" class="ex-cal-day has-dot">28<img class="ex-cal-dot" src="/static/figma/exam/ex-cal-dot-o.svg" width="4" height="4" alt="" /></button>
+              <button type="button" class="ex-cal-day">29</button>
+              <button type="button" class="ex-cal-day">30</button>
+            </div>
+            <div class="ex-cal-row">
+              <button type="button" class="ex-cal-day">31</button>
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+              <span class="ex-cal-empty" aria-hidden="true"></span>
+            </div>
+              </div>
+            </div>
+          </div>
+          <div class="ex-cal-upcoming">
+            <h3>Anstehende Termine</h3>
+            <article class="ex-cal-event">
+              <div class="ex-cal-event-top">
+                <div>
+                  <strong>Zwischenprüfung IHK</strong>
+                  <p>Samstag, 15. März 2025</p>
+                </div>
+                <span class="ex-cal-pill blue">In 12 Tagen</span>
+              </div>
+              <div class="ex-cal-event-div" aria-hidden="true"></div>
+              <div class="ex-cal-loc"><img src="/static/figma/exam/ex-cal-pin.svg" width="14" height="14" alt="" />IHK Düsseldorf, Raum 3.12</div>
+              <div class="ex-cal-ready">
+                <div class="ex-cal-ready-lab"><span>Prüfungsreife:</span><strong>67%</strong></div>
+                <div class="ex-cal-ready-bar"><i style="width:67%"></i></div>
+              </div>
+              <div class="ex-cal-warn"><img src="/static/figma/exam/ex-cal-alert.svg" width="16" height="16" alt="" />Noch nicht prüfungsreif!</div>
+            </article>
+            <article class="ex-cal-event">
+              <div class="ex-cal-event-top">
+                <div>
+                  <strong>Anmeldeschluss AP Teil 1</strong>
+                  <p>Freitag, 28. März 2025</p>
+                </div>
+                <span class="ex-cal-pill gold">Frist</span>
+              </div>
+              <div class="ex-cal-event-div" aria-hidden="true"></div>
+              <div class="ex-cal-status"><img src="/static/figma/exam/ex-cal-check.svg" width="14" height="14" alt="" />Status: Angemeldet ✓</div>
+            </article>
+          </div>
+          <div class="ex-cal-link">
+            <a href="https://www.ihk.de" target="_blank" rel="noopener">Zur IHK-Anmeldung</a>
+          </div>
         </div>
-      </article>
+        
+        <nav class="ex-rs-tabs" aria-label="Ergebnis Navigation">
+          <a href="/lernen" data-page-link>
+            <img src="/static/figma/exam/ex-cal-tab-book.svg" width="22" height="22" alt="" />
+            Lernen
+          </a>
+          <a href="/pruefungen/bestanden" data-page-link>
+            <img src="/static/figma/exam/ex-cal-tab-award.svg" width="22" height="22" alt="" />
+            Ergebnisse
+          </a>
+          <a href="/pruefungen/kammertermine" data-page-link class="active">
+            <img src="/static/figma/exam/ex-cal-tab-cal.svg" width="22" height="22" alt="" />
+            Kalender
+          </a>
+          <a href="/mehr" data-page-link>
+            <img src="/static/figma/exam/ex-cal-tab-user.svg" width="22" height="22" alt="" />
+            Profil
+          </a>
+        </nav>
+        <div class="ex-rs-home" aria-hidden="true"></div>
+      </div>
     `,
   "s07_1-fortschritt-uebersicht": () => `
       <div class="fp-screen" data-node-id="136:8922">

@@ -4459,16 +4459,20 @@ window.OLC_SCREEN_RENDERERS = {
                 <img class="mp-avatar" src="/static/figma/mehr/pr-avatar.png" width="96" height="96" alt="" />
                 <span class="mp-edit"><img src="/static/figma/mehr/pr-pencil.svg" width="14" height="14" alt="" /></span>
               </div>
-              <strong data-bind="profile-summary">Max Mustermann</strong>
-              <p>Maschinen- und Anlagenführer (Metall)</p>
-              <em>Kohorte 2024-A</em>
+              <div class="mp-titles">
+                <strong>Max Mustermann</strong>
+                <p>Maschinen- und Anlagenführer (Metall)</p>
+                <em>Kohorte 2024-A</em>
+              </div>
             </div>
             <div class="mp-stats">
-              <article><img src="/static/figma/mehr/pr-shield.svg" width="16" height="16" alt="" /><b data-bind="level">7</b><span>Level</span></article>
-              <article><img src="/static/figma/mehr/pr-sparkles.svg" width="16" height="16" alt="" /><b><span data-bind="xp">2450</span></b><span>XP</span></article>
+              <article><img src="/static/figma/mehr/pr-shield.svg" width="16" height="16" alt="" /><b>7</b><span>Level</span></article>
+              <article><img src="/static/figma/mehr/pr-sparkles.svg" width="16" height="16" alt="" /><b>2.450</b><span>XP</span></article>
               <article><img src="/static/figma/mehr/pr-fire.svg" width="16" height="16" alt="" /><b>12 Tage</b><span>Streak</span></article>
               <article><img src="/static/figma/mehr/pr-check.svg" width="16" height="16" alt="" /><b>156 beh.</b><span>Karten</span></article>
+              <article><img src="/static/figma/mehr/pr-clock.svg" width="16" height="16" alt="" /><b>42h</b><span>Lernzeit</span></article>
             </div>
+            <div hidden aria-hidden="true"><span data-bind="profile-summary"></span><span data-bind="level"></span><span data-bind="xp"></span><span data-bind="readiness"></span></div>
             <section class="mp-section">
               <div class="mp-sec-head"><span>Meine Abzeichen (8)</span><a href="/fortschritt" data-page-link>Alle ansehen</a></div>
               <div class="mp-badges">
@@ -4485,7 +4489,7 @@ window.OLC_SCREEN_RENDERERS = {
               <div class="mp-kv"><span>Träger</span><strong>BZE Düsseldorf</strong></div>
               <div class="mp-kv"><span>Beginn</span><strong>01.09.2024</strong></div>
               <hr />
-              <div class="mp-prog"><div><span>Prüfungsreife</span><b data-bind="readiness">67%</b></div><div class="mp-bar"><i style="width:67%"></i></div></div>
+              <div class="mp-prog"><div><span>Prüfungsreife</span><b>67%</b></div><div class="mp-bar"><i style="width:67%"></i></div></div>
             </article>
             <a class="mp-cta" href="/passwort" data-page-link>Profil bearbeiten</a>
           </div>
@@ -4801,7 +4805,7 @@ window.OLC_SCREEN_RENDERERS = {
               <div class="lp-ring">
                 <div class="lp-ring-vis">
                   <img class="bg" src="/static/figma/mehr/lp-ring-bg.svg" width="40" height="40" alt="" />
-                  <img class="fg" src="/static/figma/mehr/lp-ring-67.svg" width="40" height="40" alt="" />
+                  <img class="fg shift" src="/static/figma/mehr/lp-ring-67.svg" width="40" height="40" alt="" />
                   <b>67%</b>
                 </div>
                 <div><strong>Prüfungsreife</strong><span>Aktuell</span></div>
@@ -4842,7 +4846,7 @@ window.OLC_SCREEN_RENDERERS = {
               <hr class="lp-rule soft" />
               <div class="lp-prog">
                 <div class="lp-prog-lab"><span>Fortschritt</span><strong>2/5 diese Woche</strong></div>
-                <div class="lp-prog-track"><i style="width:40%"></i></div>
+                <div class="lp-prog-track"><i style="width:135px"></i></div>
               </div>
             </div>
           </section>
@@ -4850,15 +4854,15 @@ window.OLC_SCREEN_RENDERERS = {
             <div><strong>Nächste Woche</strong><span>Fokus: Steuerungstechnik + Arbeitssicherheit</span></div>
             <img src="/static/figma/mehr/lp-chev.svg" width="20" height="20" alt="" />
           </article>
+          <div class="lp-actions">
+            <button type="button" class="lp-adjust" data-action="toast" data-toast="Plan anpassen (Demo)">Plan anpassen</button>
+            <a class="lp-ask" href="/mehr/coach" data-page-link>
+              <img src="/static/figma/mehr/lp-bot-btn.svg" width="16" height="16" alt="" />
+              <span>KI fragen</span>
+            </a>
+          </div>
           <div data-bind="coach-live" hidden></div>
           <div data-bind="journey-live" hidden></div>
-        </div>
-        <div class="lp-actions">
-          <button type="button" class="lp-adjust" data-action="toast" data-toast="Plan anpassen (Demo)">Plan anpassen</button>
-          <a class="lp-ask" href="/mehr/coach" data-page-link>
-            <img src="/static/figma/mehr/lp-bot-btn.svg" width="16" height="16" alt="" />
-            <span>KI fragen</span>
-          </a>
         </div>
         <div class="lp-home" aria-hidden="true"><i></i></div>
       </div>

@@ -232,3 +232,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Mehr 09.2 Transparenz [~] + 09.7 Logout [~] (logout API preserved)
 - Mehr 09.3 KI-Coach Chat [~] ~9.5%; 09.4 Lernplan [~] ~15.8%; 09.5 Datenexport [~] ~11.0%; 09.6 Konto loeschen [~] ~8.8% (Figma assets; export/delete API + coach-live binds preserved)
 - Mehr 09.1 sibling phones: Profil [~] ~11.8%; Darstellung [~] ~7.1%; Benachrichtigungen [~] ~13.9% (routes /mehr/profil|/mehr/darstellung|/mehr/benachrichtigungen). Staff/Admin 10-16 not started.
+- Mehr tighten: 09.4 Lernplan [~] ~14.3% (fit scroll, subtitle single-line, actions in scroll); 09.5 Export [~] ~11.2%; 09.1 Profil [~] ~12.9% (stats collapse fix + Lernzeit + Figma name); 09.1 Benachrichtigungen [~] ~13.9%. Still above ~8–10% target; Staff/Admin next.

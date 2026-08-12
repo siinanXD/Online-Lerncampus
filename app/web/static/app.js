@@ -493,27 +493,41 @@ function renderGamificationMarkup() {
   if (!g) {
     return `<p class="muted">Gamification nach Login verfuegbar.</p>`;
   }
-  const badges = (g.badges || []).map((badge) => `<li>${escapeHtml(badge)}</li>`).join("") ||
-    "<li>Noch keine Badges</li>";
+  const badges = g.badges || [];
+  const badgeItems =
+    badges
+      .map(
+        (badge) => `
+      <li class="game-badge-item">
+        <span class="game-badge-ico" aria-hidden="true">🏅</span>
+        <span>${escapeHtml(badge)}</span>
+      </li>`,
+      )
+      .join("") || `<li class="muted">Noch keine Badges — weiter lernen!</li>`;
   const into = g.xp_into_level ?? (g.xp || 0) % 120;
   const per = g.xp_per_level || 120;
+  const pct = Math.max(0, Math.min(100, Math.round((into / per) * 100)));
   return `
-    <div class="metric-grid">
-      <article class="metric-card card"><strong data-bind="level">${g.level}</strong><span>Level</span></article>
-      <article class="metric-card card"><strong data-bind="xp">${g.xp}</strong><span>XP</span></article>
-      <article class="metric-card card"><strong data-bind="streak">${g.streak_days || 0}</strong><span>Streak</span></article>
-      <article class="metric-card card"><strong>${g.longest_streak_days || g.streak_days || 0}</strong><span>Longest</span></article>
-    </div>
-    <article class="card">
-      <p>Fortschritt im Level: ${into} / ${per} XP</p>
-      <div class="segmented-progress" aria-hidden="true">
-        ${Array.from({ length: 5 }, (_, index) => {
-          const filled = into / per > (index + 1) / 5;
-          return `<span class="${filled ? "filled" : ""}"></span>`;
-        }).join("")}
+    <div class="game-hero card">
+      <div class="game-level-ring" aria-hidden="true"><span>${g.level}</span></div>
+      <div>
+        <p class="eyebrow">Dein Level</p>
+        <h3 class="game-level-title">Level ${g.level}</h3>
+        <p class="muted">${into} / ${per} XP bis Level ${(g.level || 1) + 1}</p>
+        <div class="game-xp-track" role="progressbar" aria-valuenow="${pct}" aria-valuemin="0" aria-valuemax="100">
+          <span style="width:${pct}%"></span>
+        </div>
       </div>
+    </div>
+    <div class="metric-grid game-metrics">
+      <article class="metric-card card"><strong data-bind="xp">${g.xp}</strong><span>XP gesamt</span></article>
+      <article class="metric-card card"><strong data-bind="streak">${g.streak_days || 0}</strong><span>🔥 Streak</span></article>
+      <article class="metric-card card"><strong>${g.longest_streak_days || g.streak_days || 0}</strong><span>Bester Streak</span></article>
+      <article class="metric-card card"><strong>${badges.length}</strong><span>Badges</span></article>
+    </div>
+    <article class="card game-badge-card">
       <h3>Badges</h3>
-      <ul class="plain-list">${badges}</ul>
+      <ul class="game-badge-list">${badgeItems}</ul>
     </article>`;
 }
 
@@ -1078,8 +1092,38 @@ function updateChrome(config, pathname) {
       (tab === "profile" && view === "profile");
     link.classList.toggle("active", Boolean(mapped));
   });
-  document.querySelectorAll(".desk-nav a").forEach((link) => {
-    link.classList.toggle("active", link.getAttribute("href") === pathname);
+  document.querySelectorAll(".desk-nav a[data-nav]").forEach((link) => {
+    const nav = link.dataset.nav;
+    const inAdmin = Boolean(link.closest(".admin-shell"));
+    let active = false;
+    if (nav === "cockpit") {
+      active =
+        pathname === "/ausbilder" ||
+        ["/ausbilder/teilnehmer", "/ausbilder/pruefungsreife", "/ausbilder/risiko", "/ausbilder/hotspots", "/ausbilder/shell", "/ausbilder/nav"].includes(
+          pathname,
+        );
+    } else if (nav === "kohorte") {
+      active = pathname.startsWith("/ausbilder/kohorte");
+    } else if (nav === "review") {
+      active = pathname.startsWith("/ausbilder/review") || pathname === "/ausbilder/freigabe";
+    } else if (nav === "content" && !inAdmin) {
+      active = ["/ausbilder/fragen", "/ausbilder/generator", "/ausbilder/themen", "/ausbilder/frage-bearbeiten", "/ausbilder/editor", "/ausbilder/medien"].includes(
+        pathname,
+      );
+    } else if (nav === "reports") {
+      active = pathname.startsWith("/ausbilder/bericht") || pathname === "/ausbilder/planung";
+    } else if (nav === "users") {
+      active = pathname.startsWith("/admin/nutzer") || pathname === "/admin/zugangsdaten" || pathname === "/admin/einstellungen";
+    } else if (nav === "audit") {
+      active = pathname === "/admin/audit";
+    } else if (nav === "monitoring") {
+      active = pathname === "/admin/monitoring" || pathname === "/admin";
+    } else if (nav === "content" && inAdmin) {
+      active =
+        pathname.startsWith("/admin/content") ||
+        ["/admin/import", "/admin/dubletten", "/admin/wissen", "/admin/lernziele", "/admin/quiz"].includes(pathname);
+    }
+    link.classList.toggle("active", Boolean(active));
   });
 }
 

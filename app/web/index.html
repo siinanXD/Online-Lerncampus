@@ -216,15 +216,19 @@
 
       <section class="desk-shell trainer-shell" data-shell="trainer" aria-label="Ausbilder">
         <header class="desk-topnav">
-          <a class="brand" href="/ausbilder" data-page-link>
+          <a class="brand desk-brand" href="/ausbilder" data-page-link>
             <span class="brand-mark">B</span>
-            <span>Ausbilder</span>
+            <span class="desk-brand-text">
+              <strong>Online Campus</strong>
+              <small>Ausbilder</small>
+            </span>
           </a>
           <nav class="desk-nav" aria-label="Ausbilder Navigation">
             <a href="/ausbilder" data-page-link data-nav="cockpit">Cockpit</a>
-            <a href="/ausbilder/review" data-page-link data-nav="review">Review</a>
-            <a href="/ausbilder/fragen" data-page-link data-nav="content">Content</a>
-            <a href="/ausbilder/berichte" data-page-link data-nav="reports">Berichte</a>
+            <a href="/ausbilder/kohorte" data-page-link data-nav="kohorte">Kohorte</a>
+            <a href="/ausbilder/review" data-page-link data-nav="review">Review <span class="desk-nav-badge" data-bind="review-count">8</span></a>
+            <a href="/ausbilder/fragen" data-page-link data-nav="content">Fragen</a>
+            <a href="/ausbilder/berichte" data-page-link data-nav="reports">Berichtsheft</a>
             <a href="/dashboard" data-page-link>Teilnehmer-App</a>
           </nav>
         </header>
@@ -233,15 +237,18 @@
 
       <section class="desk-shell admin-shell" data-shell="admin" aria-label="Admin">
         <header class="desk-topnav">
-          <a class="brand" href="/admin" data-page-link>
+          <a class="brand desk-brand" href="/admin" data-page-link>
             <span class="brand-mark">B</span>
-            <span>Admin</span>
+            <span class="desk-brand-text">
+              <strong>Online Campus</strong>
+              <small class="desk-admin-badge">Admin</small>
+            </span>
           </a>
           <nav class="desk-nav" aria-label="Admin Navigation">
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/audit" data-page-link>Audit</a>
+            <a href="/admin/nutzer" data-page-link data-nav="users">Nutzer</a>
+            <a href="/admin/audit" data-page-link data-nav="audit">Audit</a>
+            <a href="/admin/monitoring" data-page-link data-nav="monitoring">Monitoring</a>
+            <a href="/admin/content" data-page-link data-nav="content">Content</a>
             <a href="/ausbilder" data-page-link>Ausbilder</a>
           </nav>
         </header>

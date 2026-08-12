@@ -126,6 +126,115 @@ window.OLC_ROUTE_CONFIG = {
   "/datenschutz": { aliasOf: "/mehr/export" },
 };
 
+
+function olcDeskActions() {
+  return `
+          <div class="desk-toolbar-actions">
+            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
+            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
+          </div>
+          <div class="admin-output" data-bind="trainer-output"></div>`;
+}
+
+function olcDeskPage(title, subtitle, body) {
+  return `
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div>
+            <h2 class="desk-page-title">${title}</h2>
+            ${subtitle ? `<p class="muted desk-page-sub">${subtitle}</p>` : ""}
+          </div>
+        </div>
+        ${body}
+      </div>`;
+}
+
+function olcCockpitTable(filterRisk = false) {
+  const rows = [
+    { name: "Lisa Fischer", initials: "LF", level: 7, pct: 82, tone: "ok", streak: 12, last: "Heute, 09:14", risk: null, accent: "" },
+    { name: "Tim Weber", initials: "TW", level: 4, pct: 35, tone: "warn", streak: 2, last: "Vor 3 Tagen", risk: "Risiko", accent: "risk" },
+    { name: "Anna Schmidt", initials: "AS", level: 6, pct: 67, tone: "info", streak: 8, last: "Gestern", risk: null, accent: "" },
+    { name: "Ahmed Yilmaz", initials: "AY", level: 3, pct: 22, tone: "danger", streak: 0, last: "Vor 5 Tagen", risk: "Kritisch", accent: "critical" },
+    { name: "Jonas Becker", initials: "JB", level: 8, pct: 78, tone: "ok", streak: 28, last: "Heute, 11:02", risk: null, accent: "" },
+    { name: "Sara Nguyen", initials: "SN", level: 5, pct: 58, tone: "info", streak: 5, last: "Heute, 08:40", risk: null, accent: "" },
+    { name: "Kai Hoffmann", initials: "KH", level: 4, pct: 45, tone: "warn", streak: 1, last: "Vor 2 Tagen", risk: "Risiko", accent: "risk" },
+  ].filter((r) => !filterRisk || r.risk);
+  return `
+        <div class="desk-layout">
+          <section class="desk-panel desk-panel-main">
+            <div class="desk-filters">
+              <label class="desk-search">
+                <span aria-hidden="true">🔍</span>
+                <input type="search" placeholder="Name suchen..." />
+              </label>
+              <button class="desk-select" type="button">Risiko: ${filterRisk ? "Nur Risiko" : "Alle"}</button>
+              <button class="desk-select" type="button">Sortieren: Fortschritt</button>
+            </div>
+            <div class="table-wrap desk-table-wrap">
+              <table class="data-table desk-table">
+                <thead>
+                  <tr>
+                    <th></th><th>Name</th><th>Level</th><th>Prüfungsreife</th><th>Streak</th><th>Letzte Aktivität</th><th>Risiko</th><th>Aktionen</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows
+                    .map(
+                      (r) => `
+                  <tr class="${r.accent ? `desk-row-${r.accent}` : ""}">
+                    <td><span class="desk-avatar">${r.initials}</span></td>
+                    <td><strong>${r.name}</strong></td>
+                    <td><span class="desk-level">Lv ${r.level}</span></td>
+                    <td>
+                      <div class="desk-prog">
+                        <div class="desk-prog-track"><span class="desk-prog-fill tone-${r.tone}" style="width:${r.pct}%"></span></div>
+                        <span>${r.pct}%</span>
+                      </div>
+                    </td>
+                    <td>${r.streak ? `🔥 ${r.streak}` : "—"}</td>
+                    <td class="muted">${r.last}</td>
+                    <td>${r.risk ? `<span class="badge ${r.accent === "critical" ? "danger" : "warn"}">${r.risk}</span>` : ""}</td>
+                    <td><a class="desk-link-btn" href="/ausbilder/teilnehmer" data-page-link>Detail</a></td>
+                  </tr>`,
+                    )
+                    .join("")}
+                </tbody>
+              </table>
+            </div>
+            <div class="desk-table-foot">
+              <span class="muted">Zeige 1–${rows.length} von 12 Teilnehmern</span>
+              <div class="desk-pager"><button type="button">‹</button><button class="active" type="button">1</button><button type="button">2</button><button type="button">›</button></div>
+            </div>
+          </section>
+          <aside class="desk-side-stack">
+            <article class="desk-stat-card">
+              <p class="desk-stat-label">Ø Prüfungsreife</p>
+              <p class="desk-stat-value">55%</p>
+              <p class="desk-stat-delta ok">+4.2% diese Woche</p>
+              <div class="desk-mini-bars" aria-hidden="true"><span style="height:40%"></span><span style="height:55%"></span><span style="height:48%"></span><span style="height:62%"></span><span style="height:58%"></span><span style="height:70%"></span><span style="height:66%"></span><span style="height:78%"></span></div>
+            </article>
+            <article class="desk-stat-card">
+              <p class="desk-stat-label">Risiko-Teilnehmer</p>
+              <p class="desk-stat-value danger">3</p>
+              <p class="muted">Benötigen zeitnah Aufmerksamkeit</p>
+              <ul class="desk-risk-list">
+                <li><span class="dot warn"></span>Tim Weber</li>
+                <li><span class="dot danger"></span>Ahmed Yilmaz</li>
+                <li><span class="dot warn"></span>Kai Hoffmann</li>
+              </ul>
+            </article>
+            <article class="desk-stat-card">
+              <p class="desk-stat-label">Aktive diese Woche</p>
+              <p class="desk-stat-value ok">9 / 12</p>
+              <div class="desk-prog-track wide"><span class="desk-prog-fill tone-ok" style="width:75%"></span></div>
+              <p class="muted">3 Teilnehmer seit mehr als 2 Tagen inaktiv.</p>
+            </article>
+          </aside>
+        </div>
+        ${olcDeskActions()}`;
+}
+
+
 window.OLC_SCREEN_RENDERERS = {
   "s01_1-login": () => `<div class="screen-static" data-screen="s01_1-login"></div>`,
   "s01_2-passwort-aendern": () => `
@@ -1897,1506 +2006,666 @@ window.OLC_SCREEN_RENDERERS = {
         </article>
       </div>
     `,
-  "s11_1-ausbilder-cockpit": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">11.1 Ausbilder</p><h2>Ausbilder — Cockpit</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Cockpit</li><li>Kohorte</li><li>Review</li><li>Fragen</li><li>Berichtsheft</li><li>Jürgen Beck</li><li>Ausbilder (BZE)</li><li>Mein Cockpit</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
-      </div>
-    `,
+  "s11_1-ausbilder-cockpit": () => olcDeskPage("Mein Cockpit", "Kohorte 2024-A — 12 Teilnehmer", olcCockpitTable(false)),
   "s11_2-teilnehmer-detail": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">11.2 Ausbilder</p><h2>Teilnehmer Detail</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div class="bh-subhead">
+            <a class="icon-round" href="/ausbilder" data-page-link aria-label="Zurück">‹</a>
+            <div>
+              <h2 class="desk-page-title">Lisa Fischer</h2>
+              <p class="muted">Kohorte 2024-A · Level 7 · Prüfungsreife 82%</p>
+            </div>
           </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Cockpit</li><li>Kohorte</li><li>Review</li><li>Fragen</li><li>Berichtsheft</li><li>Jürgen Beck</li><li>Ausbilder (BZE)</li><li>Zurück zur Übersicht</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+          <a class="primary-button" href="/ausbilder/pruefungsreife" data-page-link>Prüfungsreife prüfen</a>
+        </div>
+        <div class="desk-layout">
+          <section class="desk-panel desk-panel-main">
+            <div class="metric-grid desk-metrics">
+              <article class="metric-card"><strong>82%</strong><span>Prüfungsreife</span></article>
+              <article class="metric-card"><strong>Lv 7</strong><span>Level</span></article>
+              <article class="metric-card"><strong>🔥 12</strong><span>Streak</span></article>
+              <article class="metric-card"><strong>1240</strong><span>XP</span></article>
+            </div>
+            <div class="card desk-block">
+              <h3>Schwache Themen</h3>
+              <ul class="plain-list">
+                <li>Hydraulik — 42%</li>
+                <li>SPS-Grundlagen — 51%</li>
+                <li>Sicherheitsvorschriften — 58%</li>
+              </ul>
+            </div>
+            <div class="card desk-block">
+              <h3>Letzte Aktivitäten</h3>
+              <ul class="plain-list">
+                <li>Heute 09:14 — Lerneinheit Hydraulik abgeschlossen</li>
+                <li>Gestern — Berichtsheft KW 12 eingereicht</li>
+                <li>Mo — Prüfungssimulation 74%</li>
+              </ul>
+            </div>
+          </section>
+          <aside class="desk-side-stack">
+            <article class="desk-stat-card">
+              <p class="desk-stat-label">Status</p>
+              <p class="desk-stat-value ok">Stabil</p>
+              <p class="muted">Keine Risiko-Flags</p>
+            </article>
+            <article class="desk-stat-card">
+              <p class="desk-stat-label">Schnellaktionen</p>
+              <div class="desk-v-actions">
+                <a class="secondary-button" href="/ausbilder/bericht-detail" data-page-link>Berichtsheft</a>
+                <button class="secondary-button" type="button" data-action="load-reviews">Reviews laden</button>
+              </div>
+            </article>
+          </aside>
+        </div>
+        <div class="admin-output" data-bind="trainer-output"></div>
       </div>
     `,
   "s11_3-pruefungsreife-dialog": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">11.3 Ausbilder</p><h2>Prüfungsreife Dialog</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div class="bh-subhead">
+            <a class="icon-round" href="/ausbilder/teilnehmer" data-page-link aria-label="Zurück">‹</a>
+            <div><h2 class="desk-page-title">Prüfungsreife — Dialog</h2><p class="muted">Lisa Fischer · Kohorte 2024-A</p></div>
           </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Cockpit</li><li>Kohorte</li><li>Review</li><li>Fragen</li><li>Berichtsheft</li><li>Jürgen Beck</li><li>Ausbilder (BZE)</li><li>Zurück zur Übersicht</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+        </div>
+        <div class="desk-layout">
+          <section class="desk-panel desk-panel-main card desk-block">
+            <div class="desk-check-list">
+              <label class="desk-check"><input type="checkbox" checked disabled /> Fachkunde-Module ≥ 70%</label>
+              <label class="desk-check"><input type="checkbox" checked disabled /> Prüfungssimulation bestanden</label>
+              <label class="desk-check"><input type="checkbox" disabled /> Berichtsheft aktuell</label>
+              <label class="desk-check"><input type="checkbox" checked disabled /> Keine kritischen Defizite</label>
+            </div>
+            <div class="row-actions">
+              <button class="primary-button" type="button">Als prüfungsreif markieren</button>
+              <a class="secondary-button" href="/ausbilder/teilnehmer" data-page-link>Abbrechen</a>
+            </div>
+          </section>
+          <aside class="desk-side-stack">
+            <article class="desk-stat-card"><p class="desk-stat-label">Aktuelle Reife</p><p class="desk-stat-value">82%</p></article>
+          </aside>
+        </div>
+        <div class="admin-output" data-bind="trainer-output"></div>
       </div>
     `,
-  "s11_4-cockpit-risiko-filter": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">11.4 Ausbilder</p><h2>Cockpit — Risiko-Filter</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>AUSBILDER-PORTAL</li><li>Dashboard</li><li>Teilnehmer</li><li>Inhalte</li><li>Berichte</li><li>Planung</li><li>Hr. Meister</li><li>Techn. Ausbilder</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
-      </div>
-    `,
+  "s11_4-cockpit-risiko-filter": () => olcDeskPage("Cockpit — Risiko-Filter", "Nur Teilnehmer mit Risiko-Flag", olcCockpitTable(true)),
   "s11_5-hotspots-heatmap": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">11.5 Ausbilder</p><h2>Hotspots / Heatmap</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>AUSBILDER-PORTAL</li><li>Dashboard</li><li>Teilnehmer</li><li>Inhalte</li><li>Berichte</li><li>Planung</li><li>Hr. Meister</li><li>Techn. Ausbilder</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Hotspots / Heatmap</h2><p class="muted">Themen mit den häufigsten Fehlern in Kohorte 2024-A</p></div></div>
+        <div class="desk-heat-grid">
+          <article class="desk-heat hot"><strong>Hydraulik</strong><span>38 Fehler</span></article>
+          <article class="desk-heat mid"><strong>SPS</strong><span>24 Fehler</span></article>
+          <article class="desk-heat mid"><strong>Messwesen</strong><span>19 Fehler</span></article>
+          <article class="desk-heat cool"><strong>Werkstoffe</strong><span>11 Fehler</span></article>
+          <article class="desk-heat hot"><strong>Sicherheit</strong><span>31 Fehler</span></article>
+          <article class="desk-heat cool"><strong>Zeichnungen</strong><span>8 Fehler</span></article>
+        </div>
+        ${olcDeskActions()}
       </div>
     `,
   "s11_6-kohorte-vergleich": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">11.6 Ausbilder</p><h2>Kohorte — Vergleich</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>AUSBILDER-PORTAL</li><li>Dashboard</li><li>Teilnehmer</li><li>Inhalte</li><li>Berichte</li><li>Planung</li><li>Hr. Meister</li><li>Techn. Ausbilder</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Kohorte — Vergleich</h2><p class="muted">2024-A vs. 2023-B</p></div></div>
+        <div class="metric-grid desk-metrics">
+          <article class="metric-card"><strong>55%</strong><span>Ø Reife 2024-A</span></article>
+          <article class="metric-card"><strong>61%</strong><span>Ø Reife 2023-B</span></article>
+          <article class="metric-card"><strong>3</strong><span>Risiko jetzt</span></article>
+          <article class="metric-card"><strong>9/12</strong><span>Aktiv diese Woche</span></article>
+        </div>
+        <div class="table-wrap desk-table-wrap card">
+          <table class="data-table desk-table">
+            <thead><tr><th>Metrik</th><th>2024-A</th><th>2023-B</th></tr></thead>
+            <tbody>
+              <tr><td>Ø Prüfungsreife</td><td>55%</td><td>61%</td></tr>
+              <tr><td>Ø Streak</td><td>8.1</td><td>6.4</td></tr>
+              <tr><td>Berichtsheft pünktlich</td><td>75%</td><td>82%</td></tr>
+            </tbody>
+          </table>
+        </div>
+        ${olcDeskActions()}
       </div>
     `,
-  "s11_7-kohorte-einzelansicht": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">11.7 Ausbilder</p><h2>Kohorte — Einzelansicht</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>AUSBILDER-PORTAL</li><li>Dashboard</li><li>Teilnehmer</li><li>Inhalte</li><li>Berichte</li><li>Planung</li><li>Hr. Meister</li><li>Techn. Ausbilder</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
-      </div>
-    `,
+  "s11_7-kohorte-einzelansicht": () => olcDeskPage("Kohorte 2024-A", "12 Teilnehmer · Einzelansicht", olcCockpitTable(false)),
   "s12_1-review-warteschlange": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">12.1 Ausbilder</p><h2>Review — Warteschlange</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div class="desk-title-row">
+            <h2 class="desk-page-title">Review Warteschlange</h2>
+            <span class="badge warn">8 ausstehend</span>
           </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Ausbilder-Portal</li><li>Dashboard</li><li>Review</li><li>8</li><li>Fragen</li><li>Ausbilder</li><li>Thomas Müller</li><li>Chefausbilder Elektro</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="reviews-live"></div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+          <button class="desk-select" type="button">Typ: Alle</button>
+        </div>
+        <div class="desk-layout">
+          <section class="desk-queue">
+            <article class="desk-review-card">
+              <div class="desk-review-top">
+                <span class="desk-tag teal">✦ KI-Inhalt</span>
+                <span class="muted">Thema: Hydraulik · Mittel · Heute, 14:23</span>
+                <span class="desk-tag teal">Neu — KI generiert</span>
+              </div>
+              <h3>Was bewirkt eine Druckbegrenzung im Hydraulikkreislauf?</h3>
+              <div class="row-actions">
+                <a class="primary-button" href="/ausbilder/review/detail" data-page-link>Prüfen</a>
+              </div>
+            </article>
+            <article class="desk-review-card">
+              <div class="desk-review-top">
+                <span class="desk-tag orange">⚑ Teilnehmer-Meldung</span>
+                <span class="muted">Thema: Installationstechnik · Gestern</span>
+                <span class="desk-tag orange">Gemeldet</span>
+              </div>
+              <h3>Frage #142: Antwort B ist fehlerhaft laut Lehrbuch</h3>
+              <p class="muted">Gemeldet von: Max Müller</p>
+              <div class="row-actions">
+                <a class="primary-button" href="/ausbilder/review/detail" data-page-link>Prüfen</a>
+              </div>
+            </article>
+            <article class="desk-review-card">
+              <div class="desk-review-top">
+                <span class="desk-tag violet">☰ Berichtsheft</span>
+                <span class="muted">Soll 38h · Schaltanlagen</span>
+                <span class="desk-tag violet">Wartet auf Freigabe</span>
+              </div>
+              <h3>KW 13 — Lisa Fischer — Berichtsheft zur Freigabe</h3>
+              <div class="row-actions">
+                <button class="primary-button success-btn" type="button" data-action="load-reviews">Freigeben</button>
+                <button class="secondary-button danger-outline" type="button">Ablehnen</button>
+              </div>
+            </article>
+            <div class="admin-output" data-bind="reviews-live"></div>
+            <div class="admin-output" data-bind="trainer-output"></div>
+          </section>
+          <aside class="desk-side-stack">
+            <article class="desk-stat-card">
+              <h3>Warteschlangen Statistik</h3>
+              <div class="desk-kv"><span>Heute geprüft</span><strong class="ok">3 erledigt</strong></div>
+              <div class="desk-kv"><span>Aktuell Offen</span><strong class="warn">8 ausstehend</strong></div>
+              <div class="desk-kv"><span>Diese Woche</span><strong>15 Gesamt</strong></div>
+            </article>
+            <article class="desk-stat-card">
+              <h3>Schnell-Filter</h3>
+              <button class="desk-filter-chip teal" type="button">KI-Inhalte <strong>4</strong></button>
+              <button class="desk-filter-chip orange" type="button">Meldungen <strong>2</strong></button>
+              <button class="desk-filter-chip violet" type="button">Berichtshefte <strong>2</strong></button>
+            </article>
+          </aside>
+        </div>
       </div>
     `,
   "s12_2-review-detail": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">12.2 Ausbilder</p><h2>Review — Detail</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div class="bh-subhead">
+            <a class="icon-round" href="/ausbilder/review" data-page-link aria-label="Zurück">‹</a>
+            <h2 class="desk-page-title">Frage prüfen <span class="muted">#287</span></h2>
           </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Ausbilder-Portal</li><li>Dashboard</li><li>Review</li><li>8</li><li>Fragen</li><li>Ausbilder</li><li>Thomas Müller</li><li>Chefausbilder Elektro</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="reviews-live"></div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+        </div>
+        <div class="desk-layout">
+          <section class="desk-panel desk-panel-main card desk-block">
+            <div class="desk-review-top">
+              <span class="desk-tag gray">Thema: Hydraulik</span>
+              <span class="muted">Schwierigkeit: ●●○</span>
+              <span class="desk-tag teal">KI-generiert</span>
+              <span class="muted">Heute, 14:23</span>
+            </div>
+            <h3 class="desk-q-title">Was bewirkt eine Druckbegrenzung im Hydraulikkreislauf?</h3>
+            <div class="desk-answers">
+              <div class="desk-answer correct">A) Sie begrenzt den maximalen Systemdruck</div>
+              <div class="desk-answer">B) Sie erhöht die Fließgeschwindigkeit</div>
+              <div class="desk-answer">C) Sie reguliert die Temperatur</div>
+              <div class="desk-answer">D) Sie filtert Verunreinigungen</div>
+            </div>
+            <div class="desk-explain">
+              <strong>Erklärung &amp; Herleitung</strong>
+              <p>Das Druckbegrenzungsventil schützt das System vor Überlastung, indem es bei Erreichen des Einstelldrucks den überschüssigen Volumenstrom zum Tank ableitet.</p>
+            </div>
+            <p class="muted">Quelle: Fachkunde Metall, Kap. 8.3</p>
+          </section>
+          <aside class="desk-side-stack">
+            <article class="desk-stat-card">
+              <div class="row-between"><h3>KI-Bewertung</h3><span class="badge ok">94% Konfidenz</span></div>
+              <p>Empfehlung: <strong class="ok">Freigeben</strong>. Keine kritischen Syntax- oder Logikfehler gefunden.</p>
+            </article>
+            <article class="desk-stat-card">
+              <h3>Aktionen</h3>
+              <div class="desk-v-actions">
+                <button class="primary-button success-btn" type="button" data-action="review-decide" data-entity-type="question" data-entity-key="demo-q-287" data-to-status="approved">Direkt freigeben</button>
+                <a class="primary-button" href="/ausbilder/frage-bearbeiten" data-page-link>Korrigieren &amp; Freigeben</a>
+                <button class="secondary-button danger-outline" type="button" data-action="review-decide" data-entity-type="question" data-entity-key="demo-q-287" data-to-status="needs_revision">Ablehnen</button>
+              </div>
+              <label class="field"><span>Feedback / Kommentar</span><textarea rows="3" placeholder="Anmerkung für Ablehnung oder Anpassung…"></textarea></label>
+            </article>
+            <article class="desk-stat-card">
+              <h3>Historie</h3>
+              <ul class="desk-history"><li>Erstellt: Heute 14:23 durch KI-Generator</li><li>Prüfung bestanden (Technischer Check)</li></ul>
+            </article>
+          </aside>
+        </div>
+        <div class="admin-output" data-bind="reviews-live"></div>
+        <div class="admin-output" data-bind="trainer-output"></div>
       </div>
     `,
   "s12_3-fragenverwaltung": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">12.3 Ausbilder</p><h2>Fragenverwaltung</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Ausbilder-Portal</li><li>Dashboard</li><li>Review</li><li>8</li><li>Fragen</li><li>Ausbilder</li><li>Thomas Müller</li><li>Chefausbilder Elektro</li></ul>
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div><h2 class="desk-page-title">Fragenverwaltung</h2><p class="muted">Alle Fragen · Filter nach Status und Thema</p></div>
           <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
+            <a class="primary-button" href="/ausbilder/generator" data-page-link>+ KI erzeugen</a>
+            <a class="secondary-button" href="/ausbilder/frage-bearbeiten" data-page-link>Neue Frage</a>
           </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+        </div>
+        <div class="desk-filters">
+          <label class="desk-search"><span>🔍</span><input type="search" placeholder="Frage suchen…" /></label>
+          <button class="desk-select" type="button">Status: Alle</button>
+          <button class="desk-select" type="button">Thema: Alle</button>
+        </div>
+        <div class="table-wrap desk-table-wrap card">
+          <table class="data-table desk-table">
+            <thead><tr><th>ID</th><th>Frage</th><th>Thema</th><th>Status</th><th>Aktion</th></tr></thead>
+            <tbody>
+              <tr><td>#287</td><td>Druckbegrenzung Hydraulik</td><td>Hydraulik</td><td><span class="badge warn">Review</span></td><td><a href="/ausbilder/review/detail" data-page-link>Öffnen</a></td></tr>
+              <tr><td>#142</td><td>Installationstechnik Antwort B</td><td>Installation</td><td><span class="badge warn">Gemeldet</span></td><td><a href="/ausbilder/frage-bearbeiten" data-page-link>Bearbeiten</a></td></tr>
+              <tr><td>#088</td><td>Steuerventile</td><td>Hydraulik</td><td><span class="badge ok">Freigegeben</span></td><td><a href="/ausbilder/frage-bearbeiten" data-page-link>Bearbeiten</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        ${olcDeskActions()}
       </div>
     `,
   "s12_4-ki-generator-wizard": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">12.4 Ausbilder</p><h2>KI-Generator Wizard</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>BZE Campus</li><li>Admin Console</li><li>Overview</li><li>Content</li><li>Users</li><li>Settings</li><li>Dr. Anna Mueller</li><li>Content Director</li><li>KI-Fragengenerator</li><li>Generieren Sie automatisiert anspruchsvolle Prüfungsfragen.</li></ul>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">KI-Generator Wizard</h2><p class="muted">Thema wählen · Schwierigkeit · Anzahl · Review</p></div></div>
+        <div class="desk-wizard card desk-block">
+          <label class="field"><span>Thema</span><select><option>Hydraulik</option><option>SPS-Grundlagen</option><option>Sicherheit</option></select></label>
+          <label class="field"><span>Schwierigkeit</span><select><option>Leicht</option><option selected>Mittel</option><option>Schwer</option></select></label>
+          <label class="field"><span>Anzahl</span><input type="number" value="5" min="1" max="20" /></label>
           <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
+            <button class="primary-button" type="button" data-action="generate-draft">Entwürfe erzeugen</button>
+            <a class="secondary-button" href="/ausbilder/review" data-page-link>Zur Warteschlange</a>
           </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+        </div>
+        <div class="admin-output" data-bind="trainer-output"></div>
       </div>
     `,
   "s12_5-themen-crud": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">12.5 Ausbilder</p><h2>Themen CRUD</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>BZE Campus</li><li>Admin Console</li><li>Overview</li><li>Content</li><li>Users</li><li>Settings</li><li>Dr. Anna Mueller</li><li>Content Director</li><li>Themen verwalten</li><li>12 Themen</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Themen</h2><p class="muted">CRUD für Lern-Themen</p></div><button class="primary-button" type="button">+ Thema</button></div>
+        <div class="table-wrap desk-table-wrap card">
+          <table class="data-table desk-table">
+            <thead><tr><th>Thema</th><th>Fragen</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Hydraulik</td><td>48</td><td><span class="badge ok">Aktiv</span></td><td><button class="desk-link-btn" type="button">Bearbeiten</button></td></tr>
+              <tr><td>SPS-Grundlagen</td><td>36</td><td><span class="badge ok">Aktiv</span></td><td><button class="desk-link-btn" type="button">Bearbeiten</button></td></tr>
+              <tr><td>Messwesen</td><td>22</td><td><span class="badge info">Entwurf</span></td><td><button class="desk-link-btn" type="button">Bearbeiten</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+        ${olcDeskActions()}
       </div>
     `,
   "s12_6-frage-bearbeiten": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">12.6 Ausbilder</p><h2>Frage bearbeiten</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE CAMPUS</li><li>Ausbilder Portal</li><li>Dashboard</li><li>Kurse & Klassen</li><li>Inhalte</li><li>Prüfungen</li><li>Statistiken</li><li>Freigaben</li><li>Einstellungen</li></ul>
+      <div class="desk-page">
+        <div class="desk-page-head"><div class="bh-subhead"><a class="icon-round" href="/ausbilder/fragen" data-page-link>‹</a><h2 class="desk-page-title">Frage bearbeiten</h2></div></div>
+        <form class="desk-wizard card desk-block" onsubmit="return false">
+          <label class="field"><span>Fragetext</span><textarea rows="3">Was bewirkt eine Druckbegrenzung im Hydraulikkreislauf?</textarea></label>
+          <label class="field"><span>Antwort A (richtig)</span><input value="Sie begrenzt den maximalen Systemdruck" /></label>
+          <label class="field"><span>Antwort B</span><input value="Sie erhöht die Fließgeschwindigkeit" /></label>
+          <label class="field"><span>Antwort C</span><input value="Sie reguliert die Temperatur" /></label>
+          <label class="field"><span>Antwort D</span><input value="Sie filtert Verunreinigungen" /></label>
           <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
+            <button class="primary-button" type="button" data-action="review-decide" data-entity-type="question" data-entity-key="demo-q-287" data-to-status="approved">Speichern &amp; freigeben</button>
+            <a class="secondary-button" href="/ausbilder/fragen" data-page-link>Abbrechen</a>
           </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+        </form>
+        <div class="admin-output" data-bind="trainer-output"></div>
       </div>
     `,
   "s12_7-freigabe-workflow": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">12.7 Ausbilder</p><h2>Freigabe-Workflow</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE CAMPUS</li><li>Ausbilder Portal</li><li>Dashboard</li><li>Kurse & Klassen</li><li>Inhalte</li><li>Prüfungen</li><li>Statistiken</li><li>Freigaben</li><li>Einstellungen</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Freigabe-Workflow</h2><p class="muted">Entwurf → Review → Freigegeben</p></div></div>
+        <ol class="desk-steps">
+          <li class="done">Entwurf erzeugt</li>
+          <li class="active">Fachliche Prüfung</li>
+          <li>Freigabe</li>
+          <li>Live im Teilnehmer-Pool</li>
+        </ol>
+        <div class="row-actions">
+          <button class="primary-button" type="button" data-action="load-reviews">Offene Reviews laden</button>
+          <a class="secondary-button" href="/ausbilder/review" data-page-link>Warteschlange</a>
+        </div>
+        <div class="admin-output" data-bind="reviews-live"></div>
+        <div class="admin-output" data-bind="trainer-output"></div>
       </div>
     `,
   "s12_8-content-editor": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">12.8 Ausbilder</p><h2>Content-Editor</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>AUSBILDER</li><li>Dashboard</li><li>Module</li><li>Fragenpool</li><li>Medien-Bibliothek</li><li>Tools</li><li>M. Schneider</li><li>Ausbilder</li></ul>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Content-Editor</h2><p class="muted">Lerneinheit / Fragentext</p></div></div>
+        <div class="desk-wizard card desk-block">
+          <label class="field"><span>Titel</span><input value="Hydraulik — Druckbegrenzung" /></label>
+          <label class="field"><span>Inhalt</span><textarea rows="8">Merkstoff und Erklärungen für die Lerneinheit…</textarea></label>
           <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
+            <button class="primary-button" type="button">Speichern</button>
+            <button class="secondary-button" type="button" data-action="generate-draft">KI-Vorschlag</button>
           </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+        </div>
+        <div class="admin-output" data-bind="trainer-output"></div>
       </div>
     `,
   "s12_9-medien-upload": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">12.9 Ausbilder</p><h2>Medien-Upload</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>AUSBILDER</li><li>Dashboard</li><li>Module</li><li>Fragenpool</li><li>Medien-Bibliothek</li><li>Tools</li><li>M. Schneider</li><li>Ausbilder</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Medien-Upload</h2><p class="muted">Bilder, Diagramme, PDFs</p></div></div>
+        <div class="desk-upload card desk-block">
+          <p class="desk-upload-drop">Datei hierher ziehen oder auswählen</p>
+          <button class="primary-button" type="button">Datei wählen</button>
+          <ul class="plain-list"><li>hydraulik-schema.png · 240 KB</li><li>sicherheit-poster.pdf · 1.1 MB</li></ul>
+        </div>
+        ${olcDeskActions()}
       </div>
     `,
   "s13_1-berichtsheft-pruefung-liste": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">13.1 Ausbilder</p><h2>Berichtsheft-Prüfung Liste</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>Online Campus</li><li>Ausbilder</li><li>Cockpit</li><li>Kohorte</li><li>Review</li><li>Fragen</li><li>Berichtsheft</li><li>3</li><li>Berichtshefte prüfen</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div><h2 class="desk-page-title">Berichtsheft-Prüfung</h2><p class="muted">Einreichungen der Kohorte</p></div>
+          <a class="secondary-button" href="/ausbilder/bericht-export" data-page-link>Export</a>
+        </div>
+        <div class="table-wrap desk-table-wrap card">
+          <table class="data-table desk-table">
+            <thead><tr><th>Teilnehmer</th><th>KW</th><th>Stunden</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>Lisa Fischer</td><td>KW 13</td><td>38h</td><td><span class="badge warn">Zur Freigabe</span></td><td><a href="/ausbilder/bericht-detail" data-page-link>Prüfen</a></td></tr>
+              <tr><td>Jonas Becker</td><td>KW 13</td><td>40h</td><td><span class="badge ok">Freigegeben</span></td><td><a href="/ausbilder/bericht-detail" data-page-link>Öffnen</a></td></tr>
+              <tr><td>Tim Weber</td><td>KW 12</td><td>32h</td><td><span class="badge danger">Nacharbeit</span></td><td><a href="/ausbilder/bericht-detail" data-page-link>Öffnen</a></td></tr>
+            </tbody>
+          </table>
+        </div>
+        ${olcDeskActions()}
       </div>
     `,
   "s13_2-berichtsheft-detail-ausbilder": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">13.2 Ausbilder</p><h2>Berichtsheft-Detail — Ausbilder</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>logo-text</li><li>item-label</li><li>item-label</li><li>item-label</li><li>item-label</li><li>item-label</li><li>bc-root</li><li>bc-user</li><li>bc-week</li><li>reject-text</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div class="bh-subhead"><a class="icon-round" href="/ausbilder/berichte" data-page-link>‹</a><div><h2 class="desk-page-title">KW 13 — Lisa Fischer</h2><p class="muted">Schaltanlagen · 38h</p></div></div>
+        </div>
+        <div class="desk-layout">
+          <section class="desk-panel desk-panel-main card desk-block">
+            <h3>Wochenbericht</h3>
+            <p>Montage und Prüfung von Schaltanlagen, Dokumentation der Prüfergebnisse, Einweisung in Sicherheitsvorschriften.</p>
+            <div class="desk-day-list">
+              <div><strong>Mo</strong><span>8h · Schaltschrank verdrahten</span></div>
+              <div><strong>Di</strong><span>8h · Funktionsprüfung</span></div>
+              <div><strong>Mi</strong><span>7h · Dokumentation</span></div>
+              <div><strong>Do</strong><span>8h · Nacharbeit</span></div>
+              <div><strong>Fr</strong><span>7h · Übergabe</span></div>
+            </div>
+          </section>
+          <aside class="desk-side-stack">
+            <article class="desk-stat-card">
+              <h3>Freigabe</h3>
+              <div class="desk-v-actions">
+                <button class="primary-button success-btn" type="button">Freigeben</button>
+                <button class="secondary-button danger-outline" type="button">Nacharbeit anfordern</button>
+              </div>
+              <label class="field"><span>Kommentar</span><textarea rows="3" placeholder="Feedback an Teilnehmer…"></textarea></label>
+            </article>
+          </aside>
+        </div>
+        <div class="admin-output" data-bind="trainer-output"></div>
       </div>
     `,
   "s13_2-pruefungsplanung-detail": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">13.2 Ausbilder</p><h2>Prüfungsplanung — Detail</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE CAMPUS</li><li>Ausbilder Portal</li><li>Dashboard</li><li>Kurse & Klassen</li><li>Inhalte</li><li>Prüfungen</li><li>Statistiken</li><li>Freigaben</li><li>Einstellungen</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div><h2 class="desk-page-title">Prüfungsplanung</h2><p class="muted">Kohorte 2024-A</p></div>
+          <button class="primary-button" type="button">+ Termin anlegen</button>
+        </div>
+        <div class="desk-layout">
+          <section class="desk-panel desk-panel-main">
+            <article class="card desk-block desk-event">
+              <div class="row-between"><div><p class="muted">15. März 2025</p><h3>Zwischenprüfung — Simulation</h3></div><span class="badge info">Geplant</span></div>
+              <p class="muted">12 Teilnehmer · 45 Fragen · 60 Min</p>
+              <div class="desk-prog"><div class="desk-prog-track wide"><span class="desk-prog-fill tone-ok" style="width:66%"></span></div><span>8/12 TN prüfungsreif</span></div>
+            </article>
+            <article class="card desk-block desk-event">
+              <div class="row-between"><div><p class="muted">28. März 2025</p><h3>IHK Zwischenprüfung (offiziell)</h3></div><span class="badge ok">Offiziell</span></div>
+              <p class="muted">IHK Düsseldorf · 12 Teilnehmer angemeldet</p>
+            </article>
+          </section>
+          <aside class="desk-side-stack">
+            <article class="desk-stat-card"><p class="desk-stat-label">Nächste Prüfung</p><p class="desk-stat-value">14 Tage</p></article>
+            <article class="desk-stat-card"><p class="desk-stat-label">Prüfungsreife Ø</p><p class="desk-stat-value">62%</p></article>
+            <article class="desk-stat-card"><p class="desk-stat-label">Risiko-TN</p><p class="desk-stat-value danger">4</p></article>
+          </aside>
+        </div>
+        ${olcDeskActions()}
       </div>
     `,
   "s13_3-bericht-export": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">13.3 Ausbilder</p><h2>Bericht-Export</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Ausbilder Portal</li><li>Übersicht</li><li>Meine Klassen</li><li>Berichtshefte</li><li>Export & Berichte</li><li>Hilfe-Center</li><li>M. Schulze</li><li>Fachbereich Elektro</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Bericht-Export</h2><p class="muted">PDF / CSV für Ausbilder</p></div></div>
+        <div class="desk-wizard card desk-block">
+          <label class="field"><span>Zeitraum</span><div class="bh-hours-row"><input type="date" /><input type="date" /></div></label>
+          <label class="field"><span>Format</span><select><option>PDF</option><option>CSV</option></select></label>
+          <button class="primary-button" type="button">Export starten</button>
+        </div>
+        ${olcDeskActions()}
       </div>
     `,
   "s15_1-nutzerliste": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">15.1 Admin</p><h2>Nutzerliste</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div><h2 class="desk-page-title">Nutzerliste</h2><p class="muted">Teilnehmer, Ausbilder und Admins</p></div>
+          <div class="row-actions">
+            <a class="secondary-button" href="/admin/zugangsdaten" data-page-link>Zugangsdaten</a>
+            <button class="primary-button" type="button">+ Nutzer</button>
           </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Nutzer</li><li>Audit</li><li>Monitoring</li><li>Content</li><li>Admin System</li><li>Rolle: Admin</li><li>A</li><li>Nutzerverwaltung</li></ul>
-        </section>
+        </div>
+        <div class="desk-filters">
+          <label class="desk-search"><span>🔍</span><input type="search" placeholder="Name oder Login…" /></label>
+          <button class="desk-select" type="button">Rolle: Alle</button>
+          <button class="desk-select" type="button">Status: Aktiv</button>
+        </div>
+        <div class="table-wrap desk-table-wrap card">
+          <table class="data-table desk-table">
+            <thead><tr><th></th><th>Name</th><th>Login</th><th>Rolle</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td><span class="desk-avatar">LF</span></td><td>Lisa Fischer</td><td>demo-azubi</td><td>Teilnehmer</td><td><span class="badge ok">Aktiv</span></td><td><a href="/admin/nutzer/detail" data-page-link>Detail</a></td></tr>
+              <tr><td><span class="desk-avatar">JB</span></td><td>Jürgen Beck</td><td>trainer-demo</td><td>Ausbilder</td><td><span class="badge ok">Aktiv</span></td><td><a href="/admin/nutzer/detail" data-page-link>Detail</a></td></tr>
+              <tr><td><span class="desk-avatar">AD</span></td><td>Admin Demo</td><td>admin-demo</td><td>Admin</td><td><span class="badge ok">Aktiv</span></td><td><a href="/admin/nutzer/detail" data-page-link>Detail</a></td></tr>
+              <tr><td><span class="desk-avatar">RV</span></td><td>Reviewer Demo</td><td>reviewer-demo</td><td>Reviewer</td><td><span class="badge ok">Aktiv</span></td><td><a href="/admin/nutzer/detail" data-page-link>Detail</a></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     `,
   "s15_2-nutzer-detail": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">15.2 Admin</p><h2>Nutzer Detail</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Nutzer</li><li>Audit</li><li>Monitoring</li><li>Content</li><li>Admin System</li><li>Rolle: Admin</li><li>A</li><li>Tim Weber</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div class="bh-subhead"><a class="icon-round" href="/admin/nutzer" data-page-link>‹</a><div><h2 class="desk-page-title">Lisa Fischer</h2><p class="muted">demo-azubi · Teilnehmer</p></div></div></div>
+        <div class="desk-layout">
+          <section class="desk-panel desk-panel-main card desk-block">
+            <label class="field"><span>Anzeigename</span><input value="Lisa Fischer" /></label>
+            <label class="field"><span>Login</span><input value="demo-azubi" readonly /></label>
+            <label class="field"><span>Rolle</span><select><option>Teilnehmer</option><option>Ausbilder</option><option>Admin</option></select></label>
+            <label class="field"><span>Kohorte</span><input value="2024-A" /></label>
+            <div class="row-actions"><button class="primary-button" type="button">Speichern</button><button class="secondary-button" type="button">Passwort reset</button></div>
+          </section>
+          <aside class="desk-side-stack">
+            <article class="desk-stat-card"><p class="desk-stat-label">Status</p><p class="desk-stat-value ok">Aktiv</p></article>
+            <article class="desk-stat-card"><p class="desk-stat-label">Letzter Login</p><p><strong>Heute, 09:14</strong></p></article>
+          </aside>
+        </div>
       </div>
     `,
   "s15_3-audit-log": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">15.3 Admin</p><h2>Audit Log</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE CAMPUS</li><li>ADMIN CONSOLE</li><li>Dashboard</li><li>Nutzer</li><li>Content</li><li>System</li><li>Audit Log</li><li>admin@bze.de</li><li>Haupt-Administrator</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Audit Log</h2><p class="muted">Sicherheitsrelevante Ereignisse</p></div></div>
+        <div class="table-wrap desk-table-wrap card">
+          <table class="data-table desk-table">
+            <thead><tr><th>Zeit</th><th>Akteur</th><th>Aktion</th><th>Ziel</th></tr></thead>
+            <tbody>
+              <tr><td>Heute 14:23</td><td>trainer-demo</td><td>review.approve</td><td>question#287</td></tr>
+              <tr><td>Heute 11:02</td><td>admin-demo</td><td>user.update</td><td>demo-azubi</td></tr>
+              <tr><td>Gestern</td><td>system</td><td>login.fail</td><td>unknown</td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     `,
   "s15_4-systemeinstellungen": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">15.4 Admin</p><h2>Systemeinstellungen</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE CAMPUS</li><li>ADMIN CONSOLE</li><li>Dashboard</li><li>Nutzer</li><li>Content</li><li>System</li><li>Audit Log</li><li>admin@bze.de</li><li>Haupt-Administrator</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Systemeinstellungen</h2></div></div>
+        <div class="desk-wizard card desk-block">
+          <label class="field"><span>Institutionsname</span><input value="BZE Campus" /></label>
+          <label class="field"><span>Primary-Farbe</span><input value="#2563eb" /></label>
+          <label class="desk-check"><input type="checkbox" checked /> Gamification aktiv</label>
+          <label class="desk-check"><input type="checkbox" checked /> Review-Gate für KI-Inhalte</label>
+          <button class="primary-button" type="button">Speichern</button>
+        </div>
       </div>
     `,
   "s15_5-monitoring": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">15.5 Admin</p><h2>Monitoring</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Online</li><li>CAMPUS ADMIN</li><li>Dashboard Overview</li><li>Content-Liste</li><li>Qualitätsprüfung</li><li>Monitoring</li><li>Nutzerverwaltung</li><li>System-Einstellungen</li><li>Dr. Armin König</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Monitoring</h2><p class="muted">Laufzeit &amp; Nutzung</p></div></div>
+        <div class="metric-grid desk-metrics">
+          <article class="metric-card"><strong>99.2%</strong><span>Uptime 30d</span></article>
+          <article class="metric-card"><strong>184</strong><span>Aktive Sessions</span></article>
+          <article class="metric-card"><strong>42ms</strong><span>API p50</span></article>
+          <article class="metric-card"><strong>3</strong><span>Fehler / h</span></article>
+        </div>
+        <div class="card desk-block"><h3>Hinweise</h3><ul class="plain-list"><li>Review-Queue: 8 offen</li><li>Import-Job: idle</li><li>DB: healthy</li></ul></div>
       </div>
     `,
   "s15_6-zugangsdaten-drucken": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">15.6 Admin</p><h2>Zugangsdaten drucken</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Admin-Bereich</li><li>Dashboard</li><li>Benutzerverwaltung</li><li>Klassen & Kurse</li><li>Zugangsdaten</li><li>Berichte</li><li>Einstellungen</li><li>System Admin</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Zugangsdaten drucken</h2><p class="muted">Einmalcodes für neue Teilnehmer</p></div></div>
+        <div class="desk-wizard card desk-block">
+          <label class="field"><span>Kohorte</span><select><option>2024-A</option><option>2024-B</option></select></label>
+          <button class="primary-button" type="button">PDF erzeugen</button>
+          <pre class="export-pre">demo-azubi / demo-pass
+trainer-demo / demo-pass
+admin-demo / demo-pass
+reviewer-demo / demo-pass</pre>
+        </div>
       </div>
     `,
   "s16_1-content-dashboard": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">16.1 Admin</p><h2>Content Dashboard</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Content Dashboard</h2><p class="muted">Bestand &amp; Qualität</p></div>
+          <div class="row-actions">
+            <a class="secondary-button" href="/admin/import" data-page-link>Import</a>
+            <a class="secondary-button" href="/admin/dubletten" data-page-link>Dubletten</a>
           </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>Nutzer</li><li>Audit</li><li>Monitoring</li><li>Content</li><li>Admin System</li><li>Rolle: Admin</li><li>A</li><li>Content Dashboard</li></ul>
-        </section>
+        </div>
+        <div class="metric-grid desk-metrics">
+          <article class="metric-card"><strong>1.240</strong><span>Fragen</span></article>
+          <article class="metric-card"><strong>86</strong><span>Lerneinheiten</span></article>
+          <article class="metric-card"><strong>8</strong><span>In Review</span></article>
+          <article class="metric-card"><strong>12</strong><span>Dubletten-Hinweise</span></article>
+        </div>
+        <div class="link-grid">
+          <a href="/admin/content/liste" data-page-link>Content-Liste</a>
+          <a href="/admin/content/qualitaet" data-page-link>Qualitätsprüfung</a>
+          <a href="/admin/wissen" data-page-link>Wissensdatenbank</a>
+          <a href="/admin/quiz" data-page-link>Quiz-Verwaltung</a>
+        </div>
       </div>
     `,
   "s16_10-import-tool": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">16.10 Admin</p><h2>Import-Tool</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>AUSBILDER</li><li>Dashboard</li><li>Module</li><li>Fragenpool</li><li>Medien-Bibliothek</li><li>Tools</li><li>M. Schneider</li><li>Ausbilder</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Import-Tool</h2></div></div>
+        <div class="desk-upload card desk-block">
+          <p class="desk-upload-drop">JSON / CSV Content-Paket ablegen</p>
+          <button class="primary-button" type="button">Datei wählen</button>
+          <p class="muted">Validierung vor Commit in die Wissensbasis.</p>
+        </div>
       </div>
     `,
   "s16_11-dublettenpruefung": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">16.11 Admin</p><h2>Dublettenprüfung</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>AUSBILDER</li><li>Dashboard</li><li>Module</li><li>Fragenpool</li><li>Medien-Bibliothek</li><li>Tools</li><li>M. Schneider</li><li>Ausbilder</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Dublettenprüfung</h2></div></div>
+        <div class="table-wrap desk-table-wrap card">
+          <table class="data-table desk-table">
+            <thead><tr><th>Paar</th><th>Ähnlichkeit</th><th>Aktion</th></tr></thead>
+            <tbody>
+              <tr><td>#102 ↔ #287</td><td>89%</td><td><button class="desk-link-btn" type="button">Zusammenführen</button></td></tr>
+              <tr><td>#88 ↔ #91</td><td>72%</td><td><button class="desk-link-btn" type="button">Ignorieren</button></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     `,
   "s16_2-content-liste": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">16.2 Admin</p><h2>Content-Liste</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Online</li><li>CAMPUS ADMIN</li><li>Dashboard Overview</li><li>Content-Liste</li><li>Qualitätsprüfung</li><li>Monitoring</li><li>Nutzerverwaltung</li><li>System-Einstellungen</li><li>Dr. Armin König</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Content-Liste</h2></div></div>
+        <div class="table-wrap desk-table-wrap card">
+          <table class="data-table desk-table">
+            <thead><tr><th>Key</th><th>Titel</th><th>Typ</th><th>Status</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>hyd-01</td><td>Druckbegrenzung</td><td>Frage</td><td><span class="badge ok">Live</span></td><td><a href="/admin/content/detail" data-page-link>Detail</a></td></tr>
+              <tr><td>sps-03</td><td>SPS Grundlagen</td><td>Einheit</td><td><span class="badge warn">Review</span></td><td><a href="/admin/content/detail" data-page-link>Detail</a></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     `,
   "s16_3-content-detail": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">16.3 Admin</p><h2>Content-Detail</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Campus</li><li>AUSBILDER</li><li>Dashboard</li><li>Module</li><li>Fragenpool</li><li>Medien-Bibliothek</li><li>Tools</li><li>M. Schneider</li><li>Ausbilder</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div class="bh-subhead"><a class="icon-round" href="/admin/content/liste" data-page-link>‹</a><h2 class="desk-page-title">Content-Detail</h2></div></div>
+        <div class="card desk-block">
+          <p><strong>Key:</strong> hyd-01</p>
+          <p><strong>Titel:</strong> Druckbegrenzung im Hydraulikkreislauf</p>
+          <p><strong>Status:</strong> <span class="badge ok">Live</span></p>
+          <p class="muted">Quelle: Fachkunde Metall, Kap. 8.3</p>
+        </div>
       </div>
     `,
   "s16_3-qualitaetspruefung": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">16.3 Admin</p><h2>Qualitätsprüfung</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>B</li><li>BZE Online</li><li>CAMPUS ADMIN</li><li>Dashboard Overview</li><li>Content-Liste</li><li>Qualitätsprüfung</li><li>Monitoring</li><li>Nutzerverwaltung</li><li>System-Einstellungen</li><li>Dr. Armin König</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Qualitätsprüfung</h2></div></div>
+        <div class="metric-grid desk-metrics">
+          <article class="metric-card"><strong>96%</strong><span>Quellen-Coverage</span></article>
+          <article class="metric-card"><strong>4</strong><span>fehlende Erklärungen</span></article>
+          <article class="metric-card"><strong>2</strong><span>schwache Distraktoren</span></article>
+        </div>
+        <ul class="plain-list"><li>Frage #412 — Erklärung zu kurz</li><li>Frage #198 — Distraktor C identisch zu A</li></ul>
       </div>
     `,
   "s16_4-wissensdatenbank": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">16.4 Admin</p><h2>Wissensdatenbank</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>BZE</li><li>Online Campus</li><li>ADMIN PANEL</li><li>16.6 Wissensdatenbank</li><li>16.7 Lernziele</li><li>16.8 Quiz-Verwaltung</li><li>Dr. Armin Weber</li><li>Administrator</li><li>16.6 Wissensdatenbank & Wiki</li><li>Zentrales Nachschlagewerk für technische Fachartikel und Lehrmaterialien.</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Wissensdatenbank</h2></div></div>
+        <div class="desk-filters"><label class="desk-search"><span>🔍</span><input placeholder="Begriff suchen…" /></label></div>
+        <ul class="plain-list">
+          <li><strong>Druckbegrenzungsventil</strong> — schützt vor Überlastung</li>
+          <li><strong>SPS</strong> — speicherprogrammierbare Steuerung</li>
+          <li><strong>Toleranzfeld</strong> — zulässige Maßabweichung</li>
+        </ul>
       </div>
     `,
   "s16_5-lernziele-und-rahmenlehrplan": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">16.5 Admin</p><h2>Lernziele & Rahmenlehrplan</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>BZE</li><li>Online Campus</li><li>ADMIN PANEL</li><li>16.6 Wissensdatenbank</li><li>16.7 Lernziele</li><li>16.8 Quiz-Verwaltung</li><li>Dr. Armin Weber</li><li>Administrator</li><li>16.7 Lernziele & IHK-Rahmenlehrplan</li><li>Abgleich des Online-Campus Lehrmaterials mit den offiziellen Vorgaben der IHK.</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Lernziele &amp; Rahmenlehrplan</h2></div></div>
+        <div class="card desk-block">
+          <ul class="plain-list">
+            <li>LF 1 — Ausbildungsbetrieb darstellen</li>
+            <li>LF 5 — Bauteile montieren und demontieren</li>
+            <li>LF 8 — Steuerungen analysieren</li>
+          </ul>
+        </div>
       </div>
     `,
   "s16_6-quiz-verwaltung": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">16.6 Admin</p><h2>Quiz-Verwaltung</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>BZE</li><li>Online Campus</li><li>ADMIN PANEL</li><li>16.6 Wissensdatenbank</li><li>16.7 Lernziele</li><li>16.8 Quiz-Verwaltung</li><li>Dr. Armin Weber</li><li>Administrator</li><li>16.8 Quiz-Verwaltung</li><li>Tests und Übungsaufgaben erstellen, verwalten und auswerten.</li></ul>
-        </section>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Quiz-Verwaltung</h2></div><button class="primary-button" type="button">+ Quiz</button></div>
+        <div class="table-wrap desk-table-wrap card">
+          <table class="data-table desk-table">
+            <thead><tr><th>Quiz</th><th>Fragen</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>ZP Simulation Hydraulik</td><td>45</td><td><span class="badge ok">Aktiv</span></td></tr>
+              <tr><td>Wochenquiz KW 12</td><td>10</td><td><span class="badge info">Entwurf</span></td></tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     `,
   "s02_1-tab-bar": () => `
@@ -3444,163 +2713,90 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s10_1-ausbilder-top-navigation": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">10.1 Ausbilder</p><h2>Ausbilder Top Navigation</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
+      <div class="desk-page">
+        <div class="desk-page-head"><div><p class="eyebrow">10.1</p><h2 class="desk-page-title">Ausbilder — Top Navigation</h2><p class="muted">Cockpit · Kohorte · Review · Fragen · Berichtsheft</p></div></div>
+        <div class="desk-doc-card card">
+          <p>Die Top-Navigation ist im Trainer-Shell verdrahtet. Aktive Tabs nutzen Primary-Blue; Review kann eine Badge-Zahl tragen.</p>
+          <nav class="desk-doc-nav">
+            <a href="/ausbilder" data-page-link class="active">Cockpit</a>
+            <a href="/ausbilder/kohorte" data-page-link>Kohorte</a>
+            <a href="/ausbilder/review" data-page-link>Review <span class="desk-nav-badge">8</span></a>
             <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
+            <a href="/ausbilder/berichte" data-page-link>Berichtsheft</a>
           </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>Cockpit</li><li>Review</li><li>Content</li><li>Berichte</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+        </div>
       </div>
     `,
   "s10_2-ausbilder-shell-desktop": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">10.2 Ausbilder</p><h2>Ausbilder Shell Desktop</h2></div>
-        <p class="muted">Cockpit · Review · Content · Berichte</p>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Schnellzugriff</strong>
-          <nav class="settings-list">
-            <a href="/ausbilder" data-page-link>Cockpit</a>
-            <a href="/ausbilder/teilnehmer" data-page-link>Teilnehmer</a>
-            <a href="/ausbilder/review" data-page-link>Review</a>
-            <a href="/ausbilder/fragen" data-page-link>Fragen</a>
-            <a href="/ausbilder/generator" data-page-link>KI-Generator</a>
-            <a href="/ausbilder/berichte" data-page-link>Berichte</a>
-            <a href="/ausbilder/planung" data-page-link>Planung</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>24</strong><span>Teilnehmer</span></article>
-            <article class="metric-card"><strong>6</strong><span>Risiko</span></article>
-            <article class="metric-card"><strong>11</strong><span>Reviews offen</span></article>
-            <article class="metric-card"><strong>82%</strong><span>Kohorten-Schnitt</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>Name</th><th>Status</th><th>Reife</th><th>Aktion</th></tr></thead>
-              <tbody>
-                <tr><td>Alex M.</td><td><span class="badge warn">Risiko</span></td><td>54%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Samira K.</td><td><span class="badge ok">Stabil</span></td><td>78%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-                <tr><td>Jonas P.</td><td><span class="badge info">Neu</span></td><td>41%</td><td><a href="/ausbilder/teilnehmer" data-page-link>Oeffnen</a></td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>Shell</li></ul>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="load-reviews">Reviews laden</button>
-            <button class="secondary-button" type="button" data-action="generate-draft">Mission erzeugen</button>
-          </div>
-          <div class="admin-output" data-bind="trainer-output"></div>
-        </section>
+      <div class="desk-page desk-shell-placeholder">
+        <p class="eyebrow">10.2 Shell</p>
+        <h2 class="desk-page-title">Content Area</h2>
+        <p class="muted">1152×800 — Seiteninhalt erscheint hier innerhalb der Ausbilder-Shell.</p>
+        <div class="row-actions">
+          <a class="primary-button" href="/ausbilder" data-page-link>Zum Cockpit</a>
+          <a class="secondary-button" href="/ausbilder/review" data-page-link>Zur Review</a>
+        </div>
       </div>
     `,
   "s14_1-admin-shell": () => `
-
-      <div class="desk-head">
-        <div><p class="eyebrow">14.1 Admin</p><h2>Admin Shell</h2></div>
-      </div>
-      <div class="desk-grid">
-        <aside class="desk-side card">
-          <strong>Betrieb</strong>
-          <nav class="settings-list">
-            <a href="/admin" data-page-link>Shell</a>
-            <a href="/admin/nutzer" data-page-link>Nutzer</a>
-            <a href="/admin/audit" data-page-link>Audit Log</a>
-            <a href="/admin/einstellungen" data-page-link>Einstellungen</a>
-            <a href="/admin/monitoring" data-page-link>Monitoring</a>
-            <a href="/admin/content" data-page-link>Content</a>
-            <a href="/admin/import" data-page-link>Import</a>
-            <a href="/admin/dubletten" data-page-link>Dubletten</a>
-          </nav>
-        </aside>
-        <section class="desk-main card">
-          <div class="metric-grid desk-metrics">
-            <article class="metric-card"><strong>128</strong><span>Nutzer</span></article>
-            <article class="metric-card"><strong>99.9%</strong><span>Uptime</span></article>
-            <article class="metric-card"><strong>3</strong><span>Incidents</span></article>
-            <article class="metric-card"><strong>42</strong><span>Pending Content</span></article>
-          </div>
-          <div class="table-wrap">
-            <table class="data-table">
-              <thead><tr><th>ID</th><th>Ereignis</th><th>Zeit</th><th>Akteur</th></tr></thead>
-              <tbody>
-                <tr><td>A-1024</td><td>Login</td><td>heute 09:12</td><td>admin-demo</td></tr>
-                <tr><td>A-1025</td><td>Content Freigabe</td><td>heute 10:03</td><td>reviewer-demo</td></tr>
-                <tr><td>A-1026</td><td>Import</td><td>gestern 16:40</td><td>admin-demo</td></tr>
-              </tbody>
-            </table>
-          </div>
-          <ul class="plain-list"><li>Nutzer</li><li>Content</li><li>Betrieb</li></ul>
-        </section>
+      <div class="desk-page desk-shell-placeholder">
+        <p class="eyebrow">14.1 Admin</p>
+        <h2 class="desk-page-title">Admin Shell</h2>
+        <p class="muted">Nutzer · Audit · Monitoring · Content</p>
+        <div class="row-actions">
+          <a class="primary-button" href="/admin/nutzer" data-page-link>Nutzerliste</a>
+          <a class="secondary-button" href="/admin/monitoring" data-page-link>Monitoring</a>
+          <a class="secondary-button" href="/admin/content" data-page-link>Content</a>
+        </div>
       </div>
     `,
   "s18_1-gamification-uebersicht": () => `
-
-      <div class="screen-head"><p class="eyebrow">18.1</p><h2>Gamification Übersicht</h2>
-        <a class="secondary-button" href="/mehr" data-page-link>Zurueck</a></div>
-      <div data-bind="gamification-live"></div>
-      <div class="link-grid">
-        <a href="/gamification/xp" data-page-link>XP &amp; Level</a>
-        <a href="/gamification/badges" data-page-link>Badges</a>
-        <a href="/gamification/streaks" data-page-link>Streaks</a>
+      <div class="game-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/mehr" data-page-link aria-label="Zurück">‹</a>
+          <div>
+            <h2 class="page-title">Gamification</h2>
+            <p class="muted">XP, Level, Streaks &amp; Badges</p>
+          </div>
+        </div>
+        <div data-bind="gamification-live"></div>
+        <div class="link-grid game-links">
+          <a href="/gamification/xp" data-page-link>XP &amp; Level</a>
+          <a href="/gamification/badges" data-page-link>Badges</a>
+          <a href="/gamification/streaks" data-page-link>Streaks</a>
+        </div>
       </div>
     `,
   "s18_2-xp-und-level": () => `
-
-      <div class="screen-head"><p class="eyebrow">18.2</p><h2>XP & Level</h2>
-        <a class="secondary-button" href="/gamification" data-page-link>Zurueck</a></div>
-      <div data-bind="gamification-live"></div>
+      <div class="game-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/gamification" data-page-link aria-label="Zurück">‹</a>
+          <h2 class="page-title">XP &amp; Level</h2>
+        </div>
+        <div data-bind="gamification-live"></div>
+      </div>
     `,
   "s18_3-badges": () => `
-
-      <div class="screen-head"><p class="eyebrow">18.3</p><h2>Badges</h2>
-        <a class="secondary-button" href="/gamification" data-page-link>Zurueck</a></div>
-      <div data-bind="gamification-live"></div>
+      <div class="game-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/gamification" data-page-link aria-label="Zurück">‹</a>
+          <h2 class="page-title">Badges</h2>
+        </div>
+        <div data-bind="gamification-live"></div>
+      </div>
     `,
   "s18_4-streaks-und-leaderboard": () => `
-
-      <div class="screen-head"><p class="eyebrow">18.4</p><h2>Streaks & Leaderboard</h2>
-        <a class="secondary-button" href="/gamification" data-page-link>Zurueck</a></div>
-      <div data-bind="gamification-live"></div>
+      <div class="game-screen">
+        <div class="bh-subhead">
+          <a class="icon-round" href="/gamification" data-page-link aria-label="Zurück">‹</a>
+          <h2 class="page-title">Streaks</h2>
+        </div>
+        <div data-bind="gamification-live"></div>
+        <article class="card">
+          <h3>Leaderboard</h3>
+          <p class="muted">Kohorten-Rangliste folgt — aktuell siehst du deinen eigenen Streak.</p>
+        </article>
+      </div>
     `,
 };
 

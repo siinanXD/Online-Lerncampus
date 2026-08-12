@@ -25,6 +25,7 @@ def isolated_test_environment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     routes.auth_service = None
     routes.question_repository = None
     routes.progress_service = None
+    routes.exam_session_service = None
 
     yield
 

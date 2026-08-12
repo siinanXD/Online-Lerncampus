@@ -1446,6 +1446,50 @@ body[data-page-layout="app"] .campus-app {
   padding: 0 12px;
 }
 
+.exam-session-header,
+.exam-actions,
+.exam-session-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.exam-session-meta span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: #eef4ff;
+  color: var(--blue);
+  font-weight: 600;
+}
+
+.exam-answer-option.selected {
+  border-color: var(--blue);
+  background: #eef4ff;
+}
+
+.exam-open-question textarea,
+.exam-open-question input {
+  width: 100%;
+  margin-top: 8px;
+}
+
+.exam-result,
+.exam-preview,
+.exam-session {
+  display: grid;
+  gap: 16px;
+}
+
+.exam-weaknesses ul {
+  margin: 8px 0 0;
+  padding-left: 20px;
+}
+
 .progress-grid {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }

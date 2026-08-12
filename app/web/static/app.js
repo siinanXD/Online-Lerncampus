@@ -9,6 +9,11 @@ const state = {
   dashboard: null,
   currentQuestionIndex: 0,
   activeExam: null,
+  examSession: null,
+  examChoiceAnswers: {},
+  examOpenAnswers: {},
+  examResult: null,
+  examTimerHandle: null,
   accessToken: localStorage.getItem("ol_access_token"),
   learnerId: localStorage.getItem("ol_learner_id"),
 };
@@ -342,35 +347,309 @@ async function answerQuestion(index) {
   await refreshPrivateData();
 }
 
+function clearExamTimer() {
+  if (state.examTimerHandle) {
+    window.clearInterval(state.examTimerHandle);
+    state.examTimerHandle = null;
+  }
+}
+
+function resetExamAttempt() {
+  clearExamTimer();
+  state.examSession = null;
+  state.examChoiceAnswers = {};
+  state.examOpenAnswers = {};
+  state.examResult = null;
+}
+
+function formatExamTimer(expiresAt) {
+  if (!expiresAt) {
+    return "Ohne Zeitlimit";
+  }
+  const remainingMs = new Date(expiresAt).getTime() - Date.now();
+  if (remainingMs <= 0) {
+    return "Zeit abgelaufen";
+  }
+  const totalSeconds = Math.floor(remainingMs / 1000);
+  const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+  const seconds = String(totalSeconds % 60).padStart(2, "0");
+  return `${minutes}:${seconds}`;
+}
+
+function startExamTimer() {
+  clearExamTimer();
+  if (!state.examSession?.expires_at) {
+    return;
+  }
+  const timerElement = document.getElementById("exam-timer");
+  if (!timerElement) {
+    return;
+  }
+  const tick = () => {
+    timerElement.textContent = formatExamTimer(state.examSession.expires_at);
+  };
+  tick();
+  state.examTimerHandle = window.setInterval(tick, 1000);
+}
+
 function renderExamSelect() {
   const select = document.getElementById("exam-select");
   select.innerHTML = state.exams
     .map((exam) => `<option value="${exam.exam_id}">${exam.title}</option>`)
     .join("");
   state.activeExam = state.exams[0];
+  resetExamAttempt();
   renderExam();
 }
 
-function renderExam() {
+function renderExamResult() {
+  const result = state.examResult;
+  document.getElementById("exam-panel").innerHTML = `
+    <div class="exam-result">
+      <h3>Ergebnis: ${result.passed ? "Bestanden" : "Nicht bestanden"}</h3>
+      <p><strong>${result.score_percent}%</strong> (${result.choice_correct}/${result.choice_total} SC richtig)</p>
+      <p>Bestehensgrenze: ${result.passing_score_percent}%</p>
+      ${
+        result.open_max_points
+          ? `<p>Offene Aufgaben: ${result.open_score}/${result.open_max_points} Punkte</p>`
+          : ""
+      }
+      ${
+        result.weak_categories.length
+          ? `<div class="exam-weaknesses">
+              <h4>Schwache Bereiche</h4>
+              <ul>${result.weak_categories
+                .map(
+                  (item) =>
+                    `<li>${item.category_slug}: ${item.wrong_count} Fehler</li>`,
+                )
+                .join("")}</ul>
+            </div>`
+          : "<p>Keine auffaelligen Schwaechen in den SC-Aufgaben.</p>"
+      }
+      <button id="exam-restart" class="primary-button">Neue Session starten</button>
+    </div>
+  `;
+}
+
+function renderExamSession() {
+  const exam = state.examSession.exam;
+  const choiceMarkup = exam.questions
+    .map((question, index) => {
+      const selected = state.examChoiceAnswers[question.question_id];
+      return `
+        <li class="exam-question">
+          <strong>${index + 1}. ${question.prompt}</strong>
+          <div class="answer-options">
+            ${question.options
+              .map(
+                (option, optionIndex) => `
+                  <button
+                    type="button"
+                    class="exam-answer-option ${
+                      selected === optionIndex ? "selected" : ""
+                    }"
+                    data-exam-action="choice"
+                    data-question-id="${question.question_id}"
+                    data-index="${optionIndex}"
+                  >
+                    ${optionIndex + 1}. ${option}
+                  </button>
+                `,
+              )
+              .join("")}
+          </div>
+        </li>
+      `;
+    })
+    .join("");
+
+  const openMarkup = (exam.open_questions || [])
+    .map((question, index) => {
+      const saved = state.examOpenAnswers[question.question_id];
+      return `
+        <li class="exam-open-question">
+          <strong>Offen ${index + 1}. ${question.prompt}</strong>
+          <p>Max. ${question.max_points} Punkte</p>
+          <textarea
+            class="exam-open-input"
+            data-question-id="${question.question_id}"
+            rows="4"
+            placeholder="Deine Antwort..."
+          >${saved?.learner_answer || ""}</textarea>
+          <label>
+            Selbsteinschaetzung (0-${question.max_points})
+            <input
+              type="number"
+              min="0"
+              max="${question.max_points}"
+              class="exam-open-score"
+              data-question-id="${question.question_id}"
+              value="${saved?.self_score ?? ""}"
+            />
+          </label>
+          <button
+            type="button"
+            class="secondary-button"
+            data-exam-action="open"
+            data-question-id="${question.question_id}"
+          >
+            Offene Antwort speichern
+          </button>
+        </li>
+      `;
+    })
+    .join("");
+
+  document.getElementById("exam-panel").innerHTML = `
+    <div class="exam-session">
+      <div class="exam-session-header">
+        <div>
+          <h3>${exam.title}</h3>
+          <p>${exam.description}</p>
+        </div>
+        <div class="exam-session-meta">
+          <span id="exam-timer">${formatExamTimer(state.examSession.expires_at)}</span>
+          <span>Bestehen: ${state.examSession.passing_score_percent}%</span>
+        </div>
+      </div>
+      <ol class="exam-list">${choiceMarkup}</ol>
+      ${
+        openMarkup
+          ? `<h4>Offene Aufgaben</h4><ol class="exam-open-list">${openMarkup}</ol>`
+          : ""
+      }
+      <div class="exam-actions">
+        <button id="exam-submit" class="primary-button">Pruefung abgeben</button>
+        <button id="exam-cancel" class="secondary-button">Abbrechen</button>
+      </div>
+      <p id="exam-feedback" class="feedback"></p>
+    </div>
+  `;
+  startExamTimer();
+}
+
+function renderExamPreview() {
   const exam = state.activeExam;
   document.getElementById("exam-panel").innerHTML = `
-    <h3>${exam.title}</h3>
-    <p>${exam.description}</p>
-    <ol class="exam-list">
-      ${exam.questions
-        .map(
-          (question) => `
-            <li>
-              <strong>${question.prompt}</strong>
-              <div>${question.options
-                .map((option, index) => `${index + 1}. ${option}`)
-                .join("<br>")}</div>
-            </li>
-          `,
-        )
-        .join("")}
-    </ol>
+    <div class="exam-preview">
+      <h3>${exam.title}</h3>
+      <p>${exam.description}</p>
+      <p>${exam.questions.length} Single-Choice-Fragen${
+        exam.open_questions?.length
+          ? `, ${exam.open_questions.length} offene Aufgaben`
+          : ""
+      }${
+        exam.time_limit_minutes
+          ? `, Zeitlimit ${exam.time_limit_minutes} Minuten`
+          : ", ohne Zeitlimit"
+      }.</p>
+      <button id="exam-start" class="primary-button">Pruefung starten</button>
+      <p id="exam-feedback" class="feedback"></p>
+    </div>
   `;
+}
+
+function renderExam() {
+  if (state.examResult) {
+    renderExamResult();
+    return;
+  }
+  if (state.examSession) {
+    renderExamSession();
+    return;
+  }
+  if (!state.activeExam) {
+    return;
+  }
+  renderExamPreview();
+}
+
+async function startExamSession() {
+  await requireAuth();
+  resetExamAttempt();
+  const payload = await fetchJson(`/api/exams/${state.activeExam.exam_id}/sessions`, {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  state.examSession = payload;
+  renderExam();
+}
+
+async function saveExamChoiceAnswer(questionId, optionIndex) {
+  if (!state.examSession) {
+    return;
+  }
+  await fetchJson(`/api/exams/sessions/${state.examSession.session_id}/answers`, {
+    method: "POST",
+    headers: {
+      ...authHeaders(),
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      question_id: questionId,
+      selected_option_index: optionIndex,
+    }),
+  });
+  state.examChoiceAnswers[questionId] = optionIndex;
+  renderExamSession();
+}
+
+async function saveExamOpenAnswer(questionId) {
+  if (!state.examSession) {
+    return;
+  }
+  const answerInput = document.querySelector(
+    `.exam-open-input[data-question-id="${questionId}"]`,
+  );
+  const scoreInput = document.querySelector(
+    `.exam-open-score[data-question-id="${questionId}"]`,
+  );
+  const learnerAnswer = answerInput.value.trim();
+  const selfScoreRaw = scoreInput.value.trim();
+  const selfScore = selfScoreRaw === "" ? null : Number(selfScoreRaw);
+  await fetchJson(
+    `/api/exams/sessions/${state.examSession.session_id}/open-answers`,
+    {
+      method: "POST",
+      headers: {
+        ...authHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        question_id: questionId,
+        learner_answer: learnerAnswer,
+        self_score: selfScore,
+      }),
+    },
+  );
+  state.examOpenAnswers[questionId] = {
+    learner_answer: learnerAnswer,
+    self_score: selfScore,
+  };
+  document.getElementById("exam-feedback").textContent =
+    "Offene Antwort gespeichert.";
+}
+
+async function submitExamSession() {
+  if (!state.examSession) {
+    return;
+  }
+  clearExamTimer();
+  state.examResult = await fetchJson(
+    `/api/exams/sessions/${state.examSession.session_id}/submit`,
+    {
+      method: "POST",
+      headers: authHeaders(),
+    },
+  );
+  state.examSession = null;
+  renderExam();
+}
+
+function cancelExamSession() {
+  resetExamAttempt();
+  renderExam();
 }
 
 function renderProgress() {
@@ -538,6 +817,37 @@ document.addEventListener("click", async (event) => {
   if (target.matches(".answer-option")) {
     await answerQuestion(Number(target.dataset.index));
   }
+  if (target.id === "exam-start") {
+    try {
+      await startExamSession();
+    } catch (error) {
+      document.getElementById("exam-feedback").textContent = error.message;
+    }
+  }
+  if (target.id === "exam-submit") {
+    try {
+      await submitExamSession();
+    } catch (error) {
+      document.getElementById("exam-feedback").textContent = error.message;
+    }
+  }
+  if (target.id === "exam-cancel" || target.id === "exam-restart") {
+    cancelExamSession();
+  }
+  if (target.matches(".exam-answer-option")) {
+    try {
+      await saveExamChoiceAnswer(target.dataset.questionId, Number(target.dataset.index));
+    } catch (error) {
+      document.getElementById("exam-feedback").textContent = error.message;
+    }
+  }
+  if (target.dataset.examAction === "open") {
+    try {
+      await saveExamOpenAnswer(target.dataset.questionId);
+    } catch (error) {
+      document.getElementById("exam-feedback").textContent = error.message;
+    }
+  }
   if (target.matches("[data-login-demo]")) {
     event.preventDefault();
     await login("demo-azubi", "demo-pass", "BZE-2026-F");
@@ -581,6 +891,7 @@ document.getElementById("next-question").addEventListener("click", () => {
 
 document.getElementById("exam-select").addEventListener("change", (event) => {
   state.activeExam = state.exams.find((exam) => exam.exam_id === event.target.value);
+  resetExamAttempt();
   renderExam();
 });
 

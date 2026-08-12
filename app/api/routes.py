@@ -15,6 +15,12 @@ from app.schemas.content import (
     DashboardSummaryResponse,
     DataExportResponse,
     DeleteAccountResponse,
+    ExamAnswerSavedResponse,
+    ExamChoiceAnswerRequest,
+    ExamOpenAnswerRequest,
+    ExamSessionStartResponse,
+    ExamSessionStateResponse,
+    ExamSubmitResponse,
     FirstChapterResponse,
     GradingCriterionResponse,
     HealthResponse,
@@ -40,6 +46,7 @@ from app.schemas.content import (
 from app.services.auth_service import AuthService, LearnerSession
 from app.services.content_factory import ContentFactory
 from app.services.content_seeder import ContentSeeder
+from app.services.exam_session_service import ExamSessionService
 from app.services.curriculum_repository import CurriculumRepository
 from app.services.database import Database
 from app.services.progress_service import ProgressService
@@ -53,6 +60,7 @@ curriculum_repository = CurriculumRepository()
 source_repository = SourceRepository()
 question_repository: QuestionRepository | None = None
 progress_service: ProgressService | None = None
+exam_session_service: ExamSessionService | None = None
 auth_service: AuthService | None = None
 content_factory = ContentFactory(
     curriculum_repository=curriculum_repository,
@@ -81,7 +89,7 @@ def _auth() -> AuthService:
 
 def bootstrap_content_store() -> None:
     """Load or seed curriculum content and wire dependent services."""
-    global question_repository, progress_service
+    global question_repository, progress_service, exam_session_service
     current = get_settings()
     source = current.content_source
     if source not in ("db", "memory"):
@@ -99,6 +107,17 @@ def bootstrap_content_store() -> None:
         question_repository=question_repository,
         database=_database(),
     )
+    exam_session_service = ExamSessionService(
+        database=_database(),
+        question_repository=question_repository,
+    )
+
+
+def _exams() -> ExamSessionService:
+    if exam_session_service is None:
+        bootstrap_content_store()
+    assert exam_session_service is not None
+    return exam_session_service
 
 
 def _questions() -> QuestionRepository:
@@ -527,6 +546,131 @@ def list_practice_exams() -> list[PracticeExamResponse]:
 def get_practice_exam(exam_id: str) -> PracticeExamResponse:
     """Return one practice exam with embedded questions."""
     return build_exam_response(exam_id)
+
+
+@api_router.post(
+    "/exams/{exam_id}/sessions",
+    response_model=ExamSessionStartResponse,
+    status_code=status.HTTP_201_CREATED,
+)
+def start_exam_session(
+    exam_id: str,
+    authorization: str | None = Header(default=None),
+) -> ExamSessionStartResponse:
+    """Start a server-side exam session for the authenticated learner."""
+    session = get_session(authorization)
+    try:
+        state = _exams().start_session(session.learner_id, exam_id)
+    except ValueError as error:
+        raise_bad_request(error)
+    return ExamSessionStartResponse(
+        session_id=state.session_id,
+        exam_id=state.exam_id,
+        status=state.status,
+        started_at=state.started_at,
+        expires_at=state.expires_at,
+        passing_score_percent=state.passing_score_percent,
+        time_limit_minutes=state.time_limit_minutes,
+        exam=build_exam_response(exam_id),
+    )
+
+
+@api_router.get(
+    "/exams/sessions/{session_id}",
+    response_model=ExamSessionStateResponse,
+)
+def get_exam_session_state(
+    session_id: int,
+    authorization: str | None = Header(default=None),
+) -> ExamSessionStateResponse:
+    """Return the current state of one exam session."""
+    session = get_session(authorization)
+    try:
+        state = _exams().get_session(session.learner_id, session_id)
+    except ValueError as error:
+        raise_bad_request(error)
+    return ExamSessionStateResponse(
+        session_id=state.session_id,
+        exam_id=state.exam_id,
+        status=state.status,
+        started_at=state.started_at,
+        expires_at=state.expires_at,
+        submitted_at=state.submitted_at,
+        score_percent=state.score_percent,
+        passed=state.passed,
+        passing_score_percent=state.passing_score_percent,
+        time_limit_minutes=state.time_limit_minutes,
+    )
+
+
+@api_router.post(
+    "/exams/sessions/{session_id}/answers",
+    response_model=ExamAnswerSavedResponse,
+)
+def save_exam_choice_answer(
+    session_id: int,
+    request: ExamChoiceAnswerRequest,
+    authorization: str | None = Header(default=None),
+) -> ExamAnswerSavedResponse:
+    """Save one single-choice answer for an active exam session."""
+    session = get_session(authorization)
+    try:
+        payload = _exams().record_choice_answer(
+            learner_id=session.learner_id,
+            session_id=session_id,
+            question_id=request.question_id,
+            selected_option_index=request.selected_option_index,
+        )
+    except ValueError as error:
+        raise_bad_request(error)
+    return ExamAnswerSavedResponse(
+        question_id=str(payload["question_id"]),
+        saved=bool(payload["saved"]),
+    )
+
+
+@api_router.post(
+    "/exams/sessions/{session_id}/open-answers",
+    response_model=ExamAnswerSavedResponse,
+)
+def save_exam_open_answer(
+    session_id: int,
+    request: ExamOpenAnswerRequest,
+    authorization: str | None = Header(default=None),
+) -> ExamAnswerSavedResponse:
+    """Save one open task answer for an active exam session."""
+    session = get_session(authorization)
+    try:
+        payload = _exams().record_open_answer(
+            learner_id=session.learner_id,
+            session_id=session_id,
+            question_id=request.question_id,
+            learner_answer=request.learner_answer,
+            self_score=request.self_score,
+        )
+    except ValueError as error:
+        raise_bad_request(error)
+    return ExamAnswerSavedResponse(
+        question_id=str(payload["question_id"]),
+        saved=bool(payload["saved"]),
+    )
+
+
+@api_router.post(
+    "/exams/sessions/{session_id}/submit",
+    response_model=ExamSubmitResponse,
+)
+def submit_exam_session(
+    session_id: int,
+    authorization: str | None = Header(default=None),
+) -> ExamSubmitResponse:
+    """Submit and grade one exam session."""
+    session = get_session(authorization)
+    try:
+        payload = _exams().submit_session(session.learner_id, session_id)
+    except ValueError as error:
+        raise_bad_request(error)
+    return ExamSubmitResponse(**payload)
 
 
 @api_router.post(

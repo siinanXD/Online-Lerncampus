@@ -321,3 +321,69 @@ class FirstChapterResponse(BaseModel):
     fachkunde: list[str]
     subchapters: list[QuestionCategoryResponse]
     checkpoint_exam_id: str
+
+
+class ExamSessionStartResponse(BaseModel):
+    """Response after starting a timed or untimed exam session."""
+
+    session_id: int
+    exam_id: str
+    status: str
+    started_at: str
+    expires_at: str | None
+    passing_score_percent: int
+    time_limit_minutes: int
+    exam: PracticeExamResponse
+
+
+class ExamSessionStateResponse(BaseModel):
+    """Current state of one learner exam session."""
+
+    session_id: int
+    exam_id: str
+    status: str
+    started_at: str
+    expires_at: str | None
+    submitted_at: str | None
+    score_percent: float | None
+    passed: bool | None
+    passing_score_percent: int
+    time_limit_minutes: int
+
+
+class ExamChoiceAnswerRequest(BaseModel):
+    """Request body for one exam single-choice answer."""
+
+    question_id: str = Field(min_length=3, max_length=40)
+    selected_option_index: int = Field(ge=0, le=10)
+
+
+class ExamOpenAnswerRequest(BaseModel):
+    """Request body for one open exam task answer."""
+
+    question_id: str = Field(min_length=3, max_length=40)
+    learner_answer: str = Field(min_length=1, max_length=4000)
+    self_score: int | None = Field(default=None, ge=0)
+
+
+class ExamAnswerSavedResponse(BaseModel):
+    """Generic save acknowledgement for exam answers."""
+
+    question_id: str
+    saved: bool
+
+
+class ExamSubmitResponse(BaseModel):
+    """Final grading result for one submitted exam session."""
+
+    session_id: int
+    exam_id: str
+    status: str
+    score_percent: float
+    passed: bool
+    passing_score_percent: int
+    choice_correct: int
+    choice_total: int
+    open_score: int
+    open_max_points: int
+    weak_categories: list[dict[str, object]]

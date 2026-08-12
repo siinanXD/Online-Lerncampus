@@ -405,6 +405,218 @@ class Database:
                 ),
             )
 
+    def get_practice_exam_id(self, exam_id: str) -> int | None:
+        """Return the database id for one public exam id."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT id FROM practice_exams WHERE exam_id = ?",
+                (exam_id,),
+            ).fetchone()
+        return int(row["id"]) if row else None
+
+    def get_quiz_question_pk(self, question_id: str) -> int | None:
+        """Return the database id for one public quiz question id."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT id FROM quiz_questions WHERE question_id = ?",
+                (question_id,),
+            ).fetchone()
+        return int(row["id"]) if row else None
+
+    def get_open_question_pk(self, question_id: str) -> int | None:
+        """Return the database id for one public open question id."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                "SELECT id FROM open_questions WHERE question_id = ?",
+                (question_id,),
+            ).fetchone()
+        return int(row["id"]) if row else None
+
+    def create_exam_session(
+        self,
+        learner_id: str,
+        practice_exam_id: int,
+        expires_at: str | None,
+    ) -> int:
+        """Create one in-progress exam session."""
+        with self._transaction() as connection:
+            cursor = connection.execute(
+                """
+                INSERT INTO exam_sessions (
+                    learner_id,
+                    exam_id,
+                    started_at,
+                    expires_at,
+                    status
+                )
+                VALUES (?, ?, ?, ?, 'in_progress')
+                """,
+                (learner_id, practice_exam_id, utc_now_iso(), expires_at),
+            )
+            return int(cursor.lastrowid)
+
+    def get_exam_session(self, session_id: int) -> dict[str, Any] | None:
+        """Return one exam session joined with exam metadata."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                """
+                SELECT
+                    es.id,
+                    es.learner_id,
+                    es.started_at,
+                    es.expires_at,
+                    es.submitted_at,
+                    es.score_percent,
+                    es.passed,
+                    es.status,
+                    pe.exam_id AS exam_public_id,
+                    pe.passing_score_percent,
+                    pe.time_limit_minutes
+                FROM exam_sessions es
+                JOIN practice_exams pe ON pe.id = es.exam_id
+                WHERE es.id = ?
+                """,
+                (session_id,),
+            ).fetchone()
+        return dict(row) if row else None
+
+    def save_exam_choice_answer(
+        self,
+        session_id: int,
+        quiz_question_id: int,
+        selected_option_index: int,
+        is_correct: bool,
+    ) -> None:
+        """Upsert one single-choice answer for an exam session."""
+        with self._transaction() as connection:
+            connection.execute(
+                """
+                INSERT INTO exam_session_answers (
+                    session_id,
+                    quiz_question_id,
+                    selected_option_index,
+                    is_correct,
+                    answered_at
+                )
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(session_id, quiz_question_id) DO UPDATE SET
+                    selected_option_index = excluded.selected_option_index,
+                    is_correct = excluded.is_correct,
+                    answered_at = excluded.answered_at
+                """,
+                (
+                    session_id,
+                    quiz_question_id,
+                    selected_option_index,
+                    int(is_correct),
+                    utc_now_iso(),
+                ),
+            )
+
+    def save_exam_open_answer(
+        self,
+        session_id: int,
+        open_question_id: int,
+        learner_answer: str,
+        self_score: int | None,
+    ) -> None:
+        """Upsert one open answer for an exam session."""
+        with self._transaction() as connection:
+            connection.execute(
+                """
+                INSERT INTO exam_session_open_answers (
+                    session_id,
+                    open_question_id,
+                    learner_answer,
+                    self_score,
+                    answered_at
+                )
+                VALUES (?, ?, ?, ?, ?)
+                ON CONFLICT(session_id, open_question_id) DO UPDATE SET
+                    learner_answer = excluded.learner_answer,
+                    self_score = excluded.self_score,
+                    answered_at = excluded.answered_at
+                """,
+                (
+                    session_id,
+                    open_question_id,
+                    learner_answer,
+                    self_score,
+                    utc_now_iso(),
+                ),
+            )
+
+    def count_exam_choice_answers(self, session_id: int) -> int:
+        """Return how many single-choice answers were saved."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                """
+                SELECT COUNT(*) AS count
+                FROM exam_session_answers
+                WHERE session_id = ?
+                """,
+                (session_id,),
+            ).fetchone()
+        return int(row["count"])
+
+    def list_exam_choice_answers(self, session_id: int) -> list[dict[str, Any]]:
+        """Return stored single-choice answers for one session."""
+        with self._transaction() as connection:
+            rows = connection.execute(
+                """
+                SELECT quiz_question_id, selected_option_index, is_correct
+                FROM exam_session_answers
+                WHERE session_id = ?
+                """,
+                (session_id,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def list_exam_open_answers(self, session_id: int) -> list[dict[str, Any]]:
+        """Return stored open answers for one session."""
+        with self._transaction() as connection:
+            rows = connection.execute(
+                """
+                SELECT open_question_id, learner_answer, self_score
+                FROM exam_session_open_answers
+                WHERE session_id = ?
+                """,
+                (session_id,),
+            ).fetchall()
+        return [dict(row) for row in rows]
+
+    def finalize_exam_session(
+        self,
+        session_id: int,
+        score_percent: float,
+        passed: bool,
+    ) -> None:
+        """Mark one session as submitted with its final score."""
+        with self._transaction() as connection:
+            connection.execute(
+                """
+                UPDATE exam_sessions
+                SET status = 'submitted',
+                    submitted_at = ?,
+                    score_percent = ?,
+                    passed = ?
+                WHERE id = ?
+                """,
+                (utc_now_iso(), score_percent, int(passed), session_id),
+            )
+
+    def mark_exam_session_expired(self, session_id: int) -> None:
+        """Mark one in-progress session as expired."""
+        with self._transaction() as connection:
+            connection.execute(
+                """
+                UPDATE exam_sessions
+                SET status = 'expired'
+                WHERE id = ? AND status = 'in_progress'
+                """,
+                (session_id,),
+            )
+
     def record_consent(
         self,
         learner_id: str,

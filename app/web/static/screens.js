@@ -23,7 +23,7 @@ window.OLC_ROUTE_CONFIG = {
   "/lernen/formeltrainer": { layout: "app", screen: "s04_11-formeltrainer", title: "Formeltrainer", tab: "learn", num: "04.11", chrome: "formel" },
   "/lernen/fehlerdiagnose": { layout: "app", screen: "s04_12-fehlerdiagnose", title: "Fehlerdiagnose", tab: "learn", num: "04.12", chrome: "formel" },
   "/lernen/video": { layout: "app", screen: "s04_13-video-lektion", title: "Video-Lektion", tab: "learn", num: "04.13", chrome: "formel" },
-  "/lernen/detail": { layout: "app", screen: "s04_14-lern-detail", title: "Lern-Detail", tab: "learn", num: "04.14", chrome: "q-play" },
+  "/lernen/detail": { layout: "app", screen: "s04_14-lern-detail", title: "Lern-Detail", tab: "learn", num: "04.14", chrome: "ld" },
   "/lernen/tablet": { layout: "app", screen: "s04_15-lernen-hub-tablet-768px", title: "Lernen Hub — Tablet 768px", tab: "learn", num: "04.15" },
   "/lernen/lernpfad": { layout: "app", screen: "s04_16-lernpfad-map", title: "Lernpfad — Map", tab: "learn", num: "04.16" },
   "/lernen/einheit": { layout: "app", screen: "s04_17-lerneinheit-detail", title: "Lerneinheit — Detail", tab: "learn", num: "04.17" },
@@ -1103,6 +1103,7 @@ window.OLC_SCREEN_RENDERERS = {
             <a class="tool-chip" href="/lernen/glossar" data-page-link>Glossar</a>
             <a class="tool-chip" href="/lernen/formeltrainer" data-page-link>Formeltrainer</a>
             <a class="tool-chip" href="/lernen/fehlerdiagnose" data-page-link>Fehlerdiagnose</a>
+            <a class="tool-chip" href="/lernen/video" data-page-link>Video</a>
           </div>
         </article>
       </div>
@@ -1377,44 +1378,125 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s04_13-video-lektion": () => `
-
-      <div class="learn-tool-screen">
-        <div class="bh-subhead">
-          <a class="icon-round" href="/lernen" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
-          <div>
-            <h2 class="page-title">Video-Lektion</h2>
-            <p class="muted">Pneumatik · 08:24</p>
+      <div class="formel-screen vid-screen" data-node-id="136:5002">
+        <header class="formel-header">
+          <div class="formel-header-left">
+            <a class="formel-icon-btn" href="/lernen" data-page-link aria-label="Zurück">
+              <img src="/static/figma/learn2/ft-chevron-left.svg" width="16" height="16" alt="" />
+            </a>
+            <h2 class="formel-title">05.9 Videolektion</h2>
           </div>
+          <button type="button" class="formel-icon-btn calc" aria-label="Video" data-action="toast" data-toast="Video-Optionen">
+            <img src="/static/figma/learn2/vid-tv.svg" width="18" height="18" alt="" />
+          </button>
+        </header>
+        <div class="formel-scroll vid-scroll">
+          <div class="vid-player" aria-label="Videoplayer">
+            <img class="vid-poster" src="/static/figma/learn2/vid-player.png" width="358" height="220" alt="" />
+            <div class="vid-dim" aria-hidden="true"></div>
+            <div class="vid-player-top" aria-hidden="true"></div>
+            <button type="button" class="vid-play-btn" data-action="toast" data-toast="Demo-Video gestartet" aria-label="Abspielen">
+              <img src="/static/figma/learn2/vid-play.svg" width="56" height="56" alt="" />
+            </button>
+            <div class="vid-player-foot">
+              <div class="vid-player-meta">
+                <strong>Messschieber richtig ablesen</strong>
+                <span>12:34</span>
+              </div>
+              <div class="vid-timeline" aria-hidden="true"><i></i></div>
+            </div>
+          </div>
+          <div class="vid-info">
+            <h3 class="vid-title">Messschieber richtig ablesen</h3>
+            <div class="vid-meta-row">
+              <div class="vid-instructor">
+                <img class="vid-avatar" src="/static/figma/learn2/vid-avatar.png" width="28" height="28" alt="" />
+                <div>
+                  <strong>Hr. Schmidt</strong>
+                  <span>Ausbilder</span>
+                </div>
+              </div>
+              <div class="vid-tags">
+                <span class="vid-pill time">12:34 Min</span>
+                <span class="vid-pill subject">Messtechnik</span>
+              </div>
+            </div>
+          </div>
+          <img class="vid-divider" src="/static/figma/learn2/vid-divider.svg" width="358" height="1" alt="" />
+          <div class="vid-chapters">
+            <p class="vid-chapters-label">Kapitelübersicht</p>
+            <div class="vid-chapter-list">
+              <div class="vid-chapter done">
+                <div class="vid-chapter-left"><span class="t">0:00</span><span class="n">Einführung</span></div>
+                <img src="/static/figma/learn2/vid-check.svg" width="16" height="16" alt="" />
+              </div>
+              <div class="vid-chapter done">
+                <div class="vid-chapter-left"><span class="t">2:15</span><span class="n">Aufbau des Messschiebers</span></div>
+                <img src="/static/figma/learn2/vid-check.svg" width="16" height="16" alt="" />
+              </div>
+              <div class="vid-chapter active">
+                <div class="vid-chapter-left"><span class="t">5:30</span><span class="n">Nonius-Ablesung</span></div>
+                <span class="vid-now" aria-hidden="true">◄</span>
+              </div>
+              <div class="vid-chapter locked">
+                <div class="vid-chapter-left"><span class="t">8:45</span><span class="n">Übungsbeispiele</span></div>
+                <img src="/static/figma/learn2/vid-lock.svg" width="14" height="14" alt="" />
+              </div>
+              <div class="vid-chapter locked">
+                <div class="vid-chapter-left"><span class="t">11:00</span><span class="n">Zusammenfassung &amp; Quiz</span></div>
+                <img src="/static/figma/learn2/vid-lock.svg" width="14" height="14" alt="" />
+              </div>
+            </div>
+          </div>
+          <a class="vid-next" href="/lernen/detail" data-page-link>
+            <div>
+              <p class="vid-next-label">Nächste Lektion</p>
+              <strong>Bügelmessschraube richtig handhaben</strong>
+              <p class="vid-next-xp">Freischalten &amp; +20 XP sichern</p>
+            </div>
+            <img src="/static/figma/learn2/vid-arrow.svg" width="24" height="24" alt="" />
+          </a>
         </div>
-        <div class="video-stage" aria-label="Videoplayer">
-          <button class="video-play" type="button" data-action="toast" data-toast="Demo-Video gestartet" aria-label="Abspielen">▶</button>
-        </div>
-        <article class="card">
-          <h3>Doppeltwirkende Zylinder</h3>
-          <p class="muted">Aufbau, Ansteuerung und typische Einsatzfälle in der Fertigung.</p>
-          <ul class="plain-list">
-            <li>00:00 Intro &amp; Lernziele</li>
-            <li>02:10 Aufbau &amp; Anschlüsse</li>
-            <li>05:40 Praxisbeispiel Montage</li>
-          </ul>
-          <a class="primary-button btn-block" href="/lernen/frage" data-page-link>Fragen dazu üben</a>
-        </article>
+        <nav class="formel-tabs" aria-label="Videolektion Navigation">
+          <a href="/dashboard" data-page-link><img src="/static/figma/learn2/ft-tab-home.svg" width="20" height="20" alt="" />Home</a>
+          <a href="/lernen" data-page-link class="active"><img src="/static/figma/learn2/ft-tab-book.svg" width="20" height="20" alt="" />Lernen</a>
+          <a href="/fortschritt" data-page-link><img src="/static/figma/learn2/ft-tab-chart.svg" width="20" height="20" alt="" />Statistik</a>
+          <a href="/mehr" data-page-link><img src="/static/figma/learn2/ft-tab-user.svg" width="20" height="20" alt="" />Profil</a>
+        </nav>
+        <div class="formel-home-indicator" aria-hidden="true"></div>
       </div>
     `,
   "s04_14-lern-detail": () => `
-
-      <div class="screen-head"><p class="eyebrow">04.14</p><h2>Lern-Detail</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <article class="card">
-        <p class="muted">Produkt-UI gemaess Figma 04.14.</p>
-        <ul class="plain-list"><li>09:43</li><li>Zurück</li><li>Frage 3 von 10</li><li>Welches hydraulische Bauteil wird durch das unten abgebildete Schaltzeichen dargestellt?</li><li>A</li><li>Regelbares Drosselventil</li><li>B</li><li>Hydraulikpumpe (konstant)</li><li>C</li><li>Druckbegrenzungsventil</li><li>D</li><li>Wegeventil (3/2 Wege)</li></ul>
-        <div class="row-actions">
-          <a class="primary-button" href="/lernen/frage" data-page-link>Weiterueben</a>
-          <a class="secondary-button" href="/fachkunde" data-page-link>Zur Fachkunde</a>
+      <div class="ld-screen" data-node-id="136:5114">
+        <header class="ld-header">
+          <a class="ld-back" href="/lernen" data-page-link>
+            <img src="/static/figma/learn2/ld-chevron.svg" width="20" height="20" alt="" />
+            Zurück
+          </a>
+          <span class="ld-counter">Frage 3 von 10</span>
+          <button type="button" class="ld-help" aria-label="Hilfe" data-action="toast" data-toast="Hilfe folgt">
+            <img src="/static/figma/learn2/ld-help.svg" width="20" height="20" alt="" />
+          </button>
+        </header>
+        <div class="ld-segments" aria-hidden="true">
+          <i class="done"></i><i class="done"></i><i class="active"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
         </div>
-      </article>
+        <div class="ld-body">
+          <p class="ld-prompt">Welches hydraulische Bauteil wird durch das unten abgebildete Schaltzeichen dargestellt?</p>
+          <div class="ld-media">
+            <img src="/static/figma/learn2/ld-symbol.png" width="120" height="120" alt="Schaltzeichen Hydraulikpumpe" />
+          </div>
+          <div class="ld-answers">
+            <button type="button" class="ld-answer"><span class="ld-letter">A</span><span>Regelbares Drosselventil</span></button>
+            <button type="button" class="ld-answer selected"><span class="ld-letter">B</span><span>Hydraulikpumpe (konstant)</span></button>
+            <button type="button" class="ld-answer"><span class="ld-letter">C</span><span>Druckbegrenzungsventil</span></button>
+            <button type="button" class="ld-answer"><span class="ld-letter">D</span><span>Wegeventil (3/2 Wege)</span></button>
+          </div>
+        </div>
+        <div class="ld-footer">
+          <a class="ld-submit" href="/lernen/feedback/richtig" data-page-link>Antwort prüfen</a>
+        </div>
+      </div>
     `,
   "s04_15-lernen-hub-tablet-768px": () => `
 

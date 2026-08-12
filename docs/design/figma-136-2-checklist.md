@@ -71,8 +71,8 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | [~] | `136:4678` | 04.10 Übersetzungshilfe Overlay | 390×844 |
 | [x] | `136:4763` | 04.11 Formeltrainer | 390×894 |
 | [~] | `136:4890` | 04.12 Fehlerdiagnose | 390×844 |
-| [ ] | `136:5002` | 04.13 Video-Lektion | 390×905 |
-| [ ] | `136:5114` | 04.14 Lern-Detail | 390×844 |
+| [~] | `136:5002` | 04.13 Video-Lektion | 390×905 |
+| [x] | `136:5114` | 04.14 Lern-Detail | 390×844 |
 | [ ] | `136:5168` | 04.15 Lernen Hub — Tablet 768px | 768×1024 |
 | [ ] | `136:3400` | 04.16 Lernpfad — Map | 390×844 |
 | [ ] | `136:3662` | 04.17 Lerneinheit — Detail | 390×844 |
@@ -218,3 +218,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Start 03.5–03.8: Fortsetzen variants, Wochenbericht, Merksätze, Tablet 768px (+ campus chrome)
 - Lernen 04.2–04.6: Themenliste, Fragenliste Alle/Fehler, MC/Freitext; 04.7–04.10 feedback/overlays in progress
 - Lernen 04.7–04.12: tighten feedback/overlays (04.9 [x] ~6.9%); Formeltrainer 04.11 [x] ~7.7%; Fehlerdiagnose 04.12 shell [~]; 04.7/04.8/04.10 still ~9–12% delta
+- Lernen 04.13 Video [~] ~10.6% + 04.14 Lern-Detail [x] ~6.4%; feedback margins tightened (04.7 ~10.4%, 04.8 ~11.4%, 04.10 ~9.4%, 04.12 ~10.8%)

@@ -1346,8 +1346,49 @@ function updateChrome(config, pathname) {
   if (eyebrow) {
     eyebrow.textContent = config.num ? `${config.num}` : "Teilnehmer";
   }
+  const frame = document.querySelector(".app-frame");
+  const chrome = config.chrome || "default";
+  if (frame) {
+    frame.dataset.chrome = chrome;
+  }
+  const mainTabs = document.querySelector(".tab-bar-main");
+  const campusTabs = document.querySelector(".tab-bar-campus");
+  const levelPill = document.getElementById("level-pill");
+  const campusXpEl = document.getElementById("campus-xp-pill");
+  if (mainTabs) {
+    mainTabs.hidden = chrome === "campus" || chrome === "tablet";
+  }
+  if (campusTabs) {
+    campusTabs.hidden = chrome !== "campus";
+  }
+  if (levelPill) {
+    levelPill.hidden = chrome === "campus" || chrome === "tablet";
+  }
+  if (campusXpEl) {
+    campusXpEl.hidden = chrome !== "campus";
+  }
+  const xp = state.dashboard?.xp ?? state.gamification?.xp ?? 95;
+  const level = state.dashboard?.level ?? state.gamification?.level ?? 4;
+  // Campus showcase frames (03.5–03.7) match Figma header copy L4 / 95 XP.
+  const campusLevel = chrome === "campus" ? 4 : level;
+  const campusXpValue = chrome === "campus" ? 95 : xp;
+  document.querySelectorAll("[data-bind='level-short']").forEach((el) => {
+    el.textContent = `L${campusLevel}`;
+  });
+  document.querySelectorAll("[data-bind='xp-short']").forEach((el) => {
+    el.textContent = `${Number(campusXpValue).toLocaleString("de-DE")} XP`;
+  });
+  const campusTab = config.campusTab;
+  document.querySelectorAll(".tab-bar-campus a").forEach((link) => {
+    const active = link.dataset.campusTab === campusTab;
+    link.classList.toggle("active", active);
+    const icon = link.querySelector(".tab-campus-icon");
+    if (icon) {
+      icon.src = active ? icon.dataset.iconActive : icon.dataset.iconMuted;
+    }
+  });
   const tab = config.tab;
-  document.querySelectorAll(".tab-bar a").forEach((link) => {
+  document.querySelectorAll(".tab-bar-main a").forEach((link) => {
     const view = link.dataset.view;
     const mapped =
       (tab === "dashboard" && view === "dashboard") ||

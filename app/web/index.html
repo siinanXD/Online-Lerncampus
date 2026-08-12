@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Outfit:wght@600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/static/tokens.css" />
@@ -185,7 +185,10 @@
             </span>
           </div>
           <header class="app-topbar">
-            <span class="bze-badge">BZE</span>
+            <div class="logo-group">
+              <span class="bze-badge">BZE</span>
+              <span class="campus-wordmark">Campus</span>
+            </div>
             <div class="level-pill" id="level-pill" aria-label="Level">
               <span class="level-ring-wrap">
                 <img class="level-ring-track" src="/static/figma/dash/ring-track.svg" width="32" height="32" alt="" />
@@ -193,6 +196,13 @@
                 <span class="level-ring" data-bind="level">7</span>
               </span>
               <span id="level-label">LEVEL 7</span>
+            </div>
+            <div class="campus-xp-pill" id="campus-xp-pill" aria-label="Level und XP" hidden>
+              <span class="campus-l-ring">
+                <img src="/static/figma/start/ellipse-l4.svg" width="20" height="20" alt="" />
+                <strong data-bind="level-short">L4</strong>
+              </span>
+              <span data-bind="xp-short">95 XP</span>
             </div>
             <a class="menu-button" href="/mehr" data-page-link aria-label="Mehr">
               <img src="/static/figma/dash/menu.svg" width="18" height="18" alt="" />
@@ -204,7 +214,7 @@
           <div class="app-content">
             <div id="screen-root" class="screen-root"></div>
           </div>
-          <nav class="tab-bar" aria-label="App Navigation">
+          <nav class="tab-bar tab-bar-main" aria-label="App Navigation">
             <a href="/dashboard" data-page-link data-view="dashboard">
               <span class="tab-icon"><img class="tab-svg" src="/static/figma/dash/home.svg" width="20" height="20" alt="" /></span>
               Start
@@ -230,6 +240,24 @@
                 <span class="tab-badge" hidden aria-hidden="true">3</span>
               </span>
               Mehr
+            </a>
+          </nav>
+          <nav class="tab-bar tab-bar-campus" aria-label="Campus Navigation" hidden>
+            <a href="/dashboard/fortsetzen" data-page-link data-campus-tab="start">
+              <img class="tab-campus-icon" data-icon-active="/static/figma/start/house.svg" data-icon-muted="/static/figma/start/house-muted.svg" src="/static/figma/start/house.svg" width="20" height="20" alt="" />
+              Start
+            </a>
+            <a href="/dashboard/wochenbericht" data-page-link data-campus-tab="wochenbericht">
+              <img class="tab-campus-icon" data-icon-active="/static/figma/start/chart-line-active.svg" data-icon-muted="/static/figma/start/chart-line.svg" src="/static/figma/start/chart-line.svg" width="20" height="20" alt="" />
+              Wochenbericht
+            </a>
+            <a href="/dashboard/merksaetze" data-page-link data-campus-tab="merksaetze">
+              <img class="tab-campus-icon" data-icon-active="/static/figma/start/clipboard-active.svg" data-icon-muted="/static/figma/start/clipboard.svg" src="/static/figma/start/clipboard.svg" width="20" height="20" alt="" />
+              Merksätze
+            </a>
+            <a href="/mehr" data-page-link data-campus-tab="profil">
+              <img class="tab-campus-icon" data-icon-active="/static/figma/start/user.svg" data-icon-muted="/static/figma/start/user.svg" src="/static/figma/start/user.svg" width="20" height="20" alt="" />
+              Profil
             </a>
           </nav>
           <div class="app-home-indicator" aria-hidden="true"></div>

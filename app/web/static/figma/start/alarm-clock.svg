@@ -1,0 +1,10 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="alarm-clock" clip-path="url(#clip0_0_16)">
+<path id="Vector" d="M7 5.24996V7.58327L8.16676 8.74992M2.91634 1.75L1.1662 3.49998M12.8338 3.49998L11.0837 1.75M3.7214 10.9083L2.33296 12.25M10.2901 10.8907L11.6668 12.2498M11.667 7.58327C11.667 10.1606 9.57754 12.2499 7 12.2499C4.42247 12.2499 2.33296 10.1606 2.33296 7.58327C2.33296 5.00597 4.42247 2.91665 7 2.91665C9.57754 2.91665 11.667 5.00597 11.667 7.58327Z" stroke="#DC2626" stroke-width="2" stroke-linecap="round"/>
+</g>
+<defs>
+<clipPath id="clip0_0_16">
+<rect width="14" height="14" fill="white"/>
+</clipPath>
+</defs>
+</svg>

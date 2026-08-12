@@ -14,10 +14,10 @@ window.OLC_ROUTE_CONFIG = {
   "/dashboard": { layout: "app", screen: "s03_1-dashboard-default", title: "Dashboard - Default", tab: "dashboard", num: "03.1" },
   "/dashboard/tagesziel": { layout: "app", screen: "s03_2-dashboard-tagesziel", title: "Dashboard - Tagesziel", tab: "dashboard", num: "03.2" },
   "/dashboard/streak": { layout: "app", screen: "s03_3-dashboard-streak", title: "Dashboard - Streak", tab: "dashboard", num: "03.3" },
-  "/dashboard/fortsetzen": { layout: "app", screen: "s03_5-fortsetzen-varianten", title: "Fortsetzen Varianten", tab: "dashboard", num: "03.5" },
-  "/dashboard/wochenbericht": { layout: "app", screen: "s03_6-wochenbericht-karte", title: "Wochenbericht Karte", tab: "dashboard", num: "03.6" },
-  "/dashboard/merksaetze": { layout: "app", screen: "s03_7-wochenbericht-merksaetze", title: "Wochenbericht Merksätze", tab: "dashboard", num: "03.7" },
-  "/dashboard/tablet": { layout: "app", screen: "s03_8-dashboard-tablet-768px", title: "Dashboard — Tablet 768px", tab: "dashboard", num: "03.8" },
+  "/dashboard/fortsetzen": { layout: "app", screen: "s03_5-fortsetzen-varianten", title: "Fortsetzen Varianten", tab: "dashboard", num: "03.5", chrome: "campus", campusTab: "start" },
+  "/dashboard/wochenbericht": { layout: "app", screen: "s03_6-wochenbericht-karte", title: "Wochenbericht Karte", tab: "dashboard", num: "03.6", chrome: "campus", campusTab: "wochenbericht" },
+  "/dashboard/merksaetze": { layout: "app", screen: "s03_7-wochenbericht-merksaetze", title: "Wochenbericht Merksätze", tab: "dashboard", num: "03.7", chrome: "campus", campusTab: "merksaetze" },
+  "/dashboard/tablet": { layout: "app", screen: "s03_8-dashboard-tablet-768px", title: "Dashboard — Tablet 768px", tab: "dashboard", num: "03.8", chrome: "tablet" },
   "/lernen": { layout: "app", screen: "s04_1-lernen-hub", title: "Lernen Hub", tab: "learn", num: "04.1" },
   "/lernen/uebersetzung": { layout: "app", screen: "s04_10-uebersetzungshilfe-overlay", title: "Übersetzungshilfe Overlay", tab: "learn", num: "04.10" },
   "/lernen/formeltrainer": { layout: "app", screen: "s04_11-formeltrainer", title: "Formeltrainer", tab: "learn", num: "04.11" },
@@ -732,92 +732,317 @@ window.OLC_SCREEN_RENDERERS = {
       </article>
     `,
   "s03_5-fortsetzen-varianten": () => `
-
-      <div class="screen-head">
-        <p class="eyebrow">03.5 Start</p>
-        <h2>Fortsetzen Varianten</h2>
-      </div>
-      <article class="continue-card fortsetzen-card">
-        <div><p class="eyebrow">Fortsetzen</p><h3>Messschieber</h3><p class="muted">Theorie, Uebung, Fragen.</p></div>
-        <a class="btn btn-primary" href="/lernen" data-page-link>Weiter</a>
-      </article>
-      <article class="card tagesziel-card">
-        <div class="row-between"><strong>Tagesziel</strong><span class="muted">2 von 5</span></div>
-        <div class="segmented-progress"><span class="filled"></span><span class="filled"></span><span></span><span></span><span></span></div>
-      </article>
-      <div class="metric-grid">
-        <article class="metric-card card"><strong>72%</strong><span>Pruefungsreife</span></article>
-        <article class="metric-card card"><strong>12</strong><span>Streak</span></article>
-      </div>
-      <article class="card"><strong>Highlights</strong><ul class="plain-list"><li>BZE</li><li>Campus</li><li>L4</li><li>95 XP</li><li>03.4 Campus Komponenten</li><li>Fortsetzen-Varianten</li><li>Demonstration der drei verschiedenen Kartentypen für das personalisierte Weiterlernen.</li><li>Weiter lernen</li></ul>
-        <div class="hub-actions"><a class="secondary-button" href="/lernen" data-page-link>Zum Lernen</a></div>
-      </article>
+      <section class="campus-body" data-node-id="136:6177">
+        <header class="campus-intro" data-node-id="136:6178">
+          <p class="campus-eyebrow">03.4 Campus Komponenten</p>
+          <h2>Fortsetzen-Varianten</h2>
+          <p class="campus-lead">Demonstration der drei verschiedenen Kartentypen für das personalisierte Weiterlernen.</p>
+        </header>
+        <div class="fs-variants" data-node-id="136:6182">
+          <article class="fs-card fs-card-learn" data-node-id="136:6183">
+            <div class="fs-card-top">
+              <div class="fs-badge-row">
+                <span class="fs-icon-bg blue" aria-hidden="true">
+                  <img src="/static/figma/start/help-circle.svg" width="16" height="16" alt="" />
+                </span>
+                <div class="fs-labels">
+                  <p class="fs-overline blue">Weiter lernen</p>
+                  <h3>Pneumatik — 12/30 Fragen</h3>
+                </div>
+              </div>
+              <span class="fs-xp-pill">+50 XP</span>
+            </div>
+            <div class="fs-progress">
+              <div class="fs-progress-labels"><span>Fortschritt</span><strong>40%</strong></div>
+              <div class="fs-track"><span style="width:40%"></span></div>
+            </div>
+            <a class="fs-cta blue" href="/lernen" data-page-link>Fortsetzen
+              <img src="/static/figma/start/arrow-right.svg" width="14" height="14" alt="" />
+            </a>
+          </article>
+          <article class="fs-card fs-card-read" data-node-id="136:6207">
+            <div class="fs-card-top">
+              <div class="fs-badge-row">
+                <span class="fs-icon-bg teal" aria-hidden="true">
+                  <img src="/static/figma/start/book-open.svg" width="16" height="16" alt="" />
+                </span>
+                <div class="fs-labels">
+                  <p class="fs-overline teal">Weiter lesen</p>
+                  <h3>Messtechnik — Kap. 3: Messschieber</h3>
+                </div>
+              </div>
+              <span class="fs-xp-pill">+30 XP</span>
+            </div>
+            <div class="fs-progress">
+              <div class="fs-progress-labels"><span>Fortschritt</span><strong>65%</strong></div>
+              <div class="fs-track teal"><span style="width:65%"></span></div>
+            </div>
+            <a class="fs-cta teal" href="/fachkunde" data-page-link>Fortsetzen
+              <img src="/static/figma/start/arrow-right.svg" width="14" height="14" alt="" />
+            </a>
+          </article>
+          <article class="fs-card fs-card-exam" data-node-id="136:6231">
+            <div class="fs-card-top">
+              <div class="fs-badge-row">
+                <span class="fs-icon-bg violet" aria-hidden="true">
+                  <img src="/static/figma/start/list-check.svg" width="16" height="16" alt="" />
+                </span>
+                <div class="fs-labels">
+                  <p class="fs-overline violet">Prüfung fortsetzen</p>
+                  <h3>Zwischenprüfung Simulation — 18/45</h3>
+                </div>
+              </div>
+              <span class="fs-xp-pill">Simulations-Modus</span>
+            </div>
+            <div class="fs-progress">
+              <div class="fs-progress-labels"><span>Fortschritt</span><strong>40%</strong></div>
+              <div class="fs-track violet"><span style="width:40%"></span></div>
+            </div>
+            <div class="fs-meta-row">
+              <img src="/static/figma/start/alarm-clock.svg" width="14" height="14" alt="" />
+              <span>23:45 verbleibend</span>
+            </div>
+            <a class="fs-cta violet" href="/pruefungen" data-page-link>Fortsetzen
+              <img src="/static/figma/start/arrow-right.svg" width="14" height="14" alt="" />
+            </a>
+          </article>
+        </div>
+      </section>
     `,
   "s03_6-wochenbericht-karte": () => `
-
-      <div class="screen-head">
-        <p class="eyebrow">03.6 Start</p>
-        <h2>Wochenbericht Karte</h2>
-      </div>
-      <article class="continue-card fortsetzen-card">
-        <div><p class="eyebrow">Fortsetzen</p><h3>Messschieber</h3><p class="muted">Theorie, Uebung, Fragen.</p></div>
-        <a class="btn btn-primary" href="/lernen" data-page-link>Weiter</a>
-      </article>
-      <article class="card tagesziel-card">
-        <div class="row-between"><strong>Tagesziel</strong><span class="muted">2 von 5</span></div>
-        <div class="segmented-progress"><span class="filled"></span><span class="filled"></span><span></span><span></span><span></span></div>
-      </article>
-      <div class="metric-grid">
-        <article class="metric-card card"><strong>72%</strong><span>Pruefungsreife</span></article>
-        <article class="metric-card card"><strong>12</strong><span>Streak</span></article>
-      </div>
-      <article class="card"><strong>Highlights</strong><ul class="plain-list"><li>BZE</li><li>Campus</li><li>L4</li><li>95 XP</li><li>Dein Wochenbericht</li><li>KW 12 — 18.–24. März</li><li>Zeit</li><li>3h 20m</li></ul>
-        <div class="hub-actions"><a class="secondary-button" href="/lernen" data-page-link>Zum Lernen</a></div>
-      </article>
+      <section class="campus-body week-body" data-node-id="136:6311">
+        <header class="week-header" data-node-id="136:6312">
+          <h2>Dein Wochenbericht</h2>
+          <div class="week-row">
+            <img src="/static/figma/start/calendar.svg" width="14" height="14" alt="" />
+            <span>KW 12 — 18.–24. März</span>
+          </div>
+        </header>
+        <article class="week-summary-card" data-node-id="136:6319">
+          <div class="week-stats" data-node-id="136:6320">
+            <div class="week-stat"><span>Zeit</span><strong class="blue">3h 20m</strong></div>
+            <div class="week-stat"><span>Fragen</span><strong class="teal">45</strong></div>
+            <div class="week-stat"><span>Fehler</span><strong class="amber">12%</strong></div>
+            <div class="week-stat"><span>Streak</span><strong class="orange">12 T.</strong></div>
+          </div>
+          <div class="week-chart-section" data-node-id="136:6333">
+            <h3>Lernzeit nach Wochentagen</h3>
+            <div class="week-chart" data-node-id="136:6335" aria-label="Lernzeit Chart">
+              <div class="week-col"><div class="week-bar-wrap"><i style="height:13px"></i></div><span>Mo</span></div>
+              <div class="week-col"><div class="week-bar-wrap"><i style="height:40px"></i></div><span>Di</span></div>
+              <div class="week-col"><div class="week-bar-wrap"><i style="height:4px"></i></div><span>Mi</span></div>
+              <div class="week-col active"><div class="week-bar-wrap"><i style="height:67px"></i></div><span>Do</span></div>
+              <div class="week-col"><div class="week-bar-wrap"><i style="height:18px"></i></div><span>Fr</span></div>
+              <div class="week-col"><div class="week-bar-wrap"><i style="height:27px"></i></div><span>Sa</span></div>
+              <div class="week-col"><div class="week-bar-wrap"><i style="height:13px"></i></div><span>So</span></div>
+            </div>
+          </div>
+          <div class="week-topics" data-node-id="136:6364">
+            <h3>Themen gelernt diese Woche</h3>
+            <div class="week-topic"><span class="topic-bar blue"></span><strong>Pneumatik</strong><em class="blue">+120 XP</em></div>
+            <div class="week-topic"><span class="topic-bar violet"></span><strong>Werkstoffkunde</strong><em class="violet">+80 XP</em></div>
+            <div class="week-topic"><span class="topic-bar teal"></span><strong>Messtechnik</strong><em class="teal">+60 XP</em></div>
+          </div>
+        </article>
+        <div class="week-nav" data-node-id="136:6385">
+          <button class="week-nav-btn" type="button">
+            <img src="/static/figma/start/chevron-left.svg" width="14" height="14" alt="" />
+            Vorherige Woche
+          </button>
+          <button class="week-nav-btn disabled" type="button" disabled>
+            Nächste Woche
+            <img src="/static/figma/start/chevron-right.svg" width="14" height="14" alt="" />
+          </button>
+        </div>
+      </section>
     `,
   "s03_7-wochenbericht-merksaetze": () => `
-
-      <div class="screen-head">
-        <p class="eyebrow">03.7 Start</p>
-        <h2>Wochenbericht Merksätze</h2>
-      </div>
-      <article class="continue-card fortsetzen-card">
-        <div><p class="eyebrow">Fortsetzen</p><h3>Messschieber</h3><p class="muted">Theorie, Uebung, Fragen.</p></div>
-        <a class="btn btn-primary" href="/lernen" data-page-link>Weiter</a>
-      </article>
-      <article class="card tagesziel-card">
-        <div class="row-between"><strong>Tagesziel</strong><span class="muted">2 von 5</span></div>
-        <div class="segmented-progress"><span class="filled"></span><span class="filled"></span><span></span><span></span><span></span></div>
-      </article>
-      <div class="metric-grid">
-        <article class="metric-card card"><strong>72%</strong><span>Pruefungsreife</span></article>
-        <article class="metric-card card"><strong>12</strong><span>Streak</span></article>
-      </div>
-      <article class="card"><strong>Highlights</strong><ul class="plain-list"><li>BZE</li><li>Campus</li><li>L4</li><li>95 XP</li><li>Merksätze dieser Woche</li><li>Gesammelte Kern-Erkenntnisse aus deinen Lektionen</li><li>Pneumatik</li><li>Pneumatik = Puste (Luft). Arbeitsmedium ist komprimierte Luft bei 6–10 bar.</li></ul>
-        <div class="hub-actions"><a class="secondary-button" href="/lernen" data-page-link>Zum Lernen</a></div>
-      </article>
+      <section class="campus-body merk-body" data-node-id="136:6447">
+        <header class="merk-header" data-node-id="136:6448">
+          <a class="merk-back" href="/dashboard/wochenbericht" data-page-link aria-label="Zurück">
+            <img src="/static/figma/start/arrow-left.svg" width="14" height="14" alt="" />
+          </a>
+          <div>
+            <h2>Merksätze dieser Woche</h2>
+            <p>Gesammelte Kern-Erkenntnisse aus deinen Lektionen</p>
+          </div>
+        </header>
+        <div class="merk-stack" data-node-id="136:6456">
+          <article class="merk-card" data-node-id="136:6457">
+            <div class="merk-card-top">
+              <span class="merk-badge blue">Pneumatik</span>
+              <img src="/static/figma/start/bookmark.svg" width="16" height="16" alt="" />
+            </div>
+            <p>Pneumatik = Puste (Luft). Arbeitsmedium ist komprimierte Luft bei 6–10 bar.</p>
+            <div class="merk-footer">
+              <span>Aus Frage #142</span>
+              <button class="merk-share" type="button">
+                <img src="/static/figma/start/arrow-right-blue.svg" width="12" height="12" alt="" />
+                Teilen
+              </button>
+            </div>
+          </article>
+          <article class="merk-card" data-node-id="136:6473">
+            <div class="merk-card-top">
+              <span class="merk-badge violet">Hydraulik</span>
+              <img src="/static/figma/start/bookmark.svg" width="16" height="16" alt="" />
+            </div>
+            <p>Hydraulik überträgt Kraft über inkompressible Flüssigkeiten. Druck = Kraft / Fläche.</p>
+            <div class="merk-formula">p = F / A</div>
+            <div class="merk-footer">
+              <span>Aus Lektion 3.2</span>
+              <button class="merk-share" type="button">
+                <img src="/static/figma/start/arrow-right-blue.svg" width="12" height="12" alt="" />
+                Teilen
+              </button>
+            </div>
+          </article>
+          <article class="merk-card" data-node-id="136:6491">
+            <div class="merk-card-top">
+              <span class="merk-badge teal">Messtechnik</span>
+              <img src="/static/figma/start/bookmark.svg" width="16" height="16" alt="" />
+            </div>
+            <p>Nonius-Ablesung: Welcher Nonius-Strich fluchtet mit einem Hauptskalenstrich?</p>
+            <div class="merk-diagram">
+              <img src="/static/figma/start/nonius.png" width="36" height="36" alt="" />
+              <span>Diagramm: Nonius Ablesung</span>
+            </div>
+            <div class="merk-footer">
+              <span>Aus Frage #98</span>
+              <button class="merk-share" type="button">
+                <img src="/static/figma/start/arrow-right-blue.svg" width="12" height="12" alt="" />
+                Teilen
+              </button>
+            </div>
+          </article>
+          <article class="merk-card" data-node-id="136:6510">
+            <div class="merk-card-top">
+              <div class="merk-badges">
+                <span class="merk-badge amber">Arbeitssicherheit</span>
+                <span class="merk-badge danger">Prüfungsrelevant</span>
+              </div>
+              <img src="/static/figma/start/bookmark.svg" width="16" height="16" alt="" />
+            </div>
+            <p>Bei rotierenden Teilen IMMER: eng anliegende Kleidung, keine Handschuhe, Haare sichern.</p>
+            <div class="merk-footer">
+              <span>Aus Frage #56</span>
+              <button class="merk-share" type="button">
+                <img src="/static/figma/start/arrow-right-blue.svg" width="12" height="12" alt="" />
+                Teilen
+              </button>
+            </div>
+          </article>
+        </div>
+        <div class="merk-actions" data-node-id="136:6528">
+          <button class="merk-filter" type="button">
+            <img src="/static/figma/start/list-filter.svg" width="14" height="14" alt="" />
+            <span>Themen filtern</span>
+            <img src="/static/figma/start/chevron-down.svg" width="12" height="12" alt="" />
+          </button>
+          <a class="merk-all-btn" href="/lernen/glossar" data-page-link>Alle Merksätze (23)</a>
+        </div>
+      </section>
     `,
   "s03_8-dashboard-tablet-768px": () => `
-
-      <div class="screen-head">
-        <p class="eyebrow">03.8 Start</p>
-        <h2>Dashboard — Tablet 768px</h2>
+      <div class="tablet-dash" data-node-id="136:6564">
+        <header class="tablet-topbar" data-node-id="136:6565">
+          <div class="tablet-logo">
+            <span class="tablet-logo-mark" aria-hidden="true"></span>
+            <strong>BZE Campus</strong>
+          </div>
+          <div class="tablet-stats">
+            <span class="tablet-chip streak"><span aria-hidden="true">🔥</span><strong>14</strong></span>
+            <span class="tablet-chip xp"><span aria-hidden="true">⭐</span><strong>4.230</strong></span>
+            <img class="tablet-avatar" src="/static/figma/start/tablet-avatar.png" width="32" height="32" alt="" />
+          </div>
+        </header>
+        <div class="tablet-content" data-node-id="136:6577">
+          <header class="tablet-welcome" data-node-id="136:6578">
+            <h2>Guten Morgen, Max! 👋</h2>
+            <div class="tablet-level-row">
+              <span>Level 5 — Facharbeiter</span>
+              <div class="tablet-level-track"><span style="width:65%"></span></div>
+              <strong>Lvl 6</strong>
+            </div>
+          </header>
+          <article class="tablet-goal-card" data-node-id="136:6585">
+            <div class="tablet-ring" aria-hidden="true">
+              <img class="tablet-ring-track" src="/static/figma/start/tablet-ring-track.svg" width="64" height="64" alt="" />
+              <img class="tablet-ring-fill" src="/static/figma/start/tablet-ring-fill.svg" width="64" height="64" alt="" />
+              <strong>60%</strong>
+            </div>
+            <div class="tablet-goal-copy">
+              <h3>Tagesziel</h3>
+              <p>3 von 5 Fragen heute beantwortet</p>
+            </div>
+            <a class="tablet-cta" href="/lernen" data-page-link>Weiterlernen</a>
+          </article>
+          <div class="tablet-grid-2">
+            <article class="tablet-card" data-node-id="136:6596">
+              <p class="tablet-card-label">Lernserie</p>
+              <div class="tablet-streak-row"><span aria-hidden="true">🔥</span><strong>14 Tage</strong></div>
+              <div class="tablet-dots" aria-hidden="true">
+                <img src="/static/figma/start/dot-on.svg" width="8" height="8" alt="" />
+                <img src="/static/figma/start/dot-on.svg" width="8" height="8" alt="" />
+                <img src="/static/figma/start/dot-on.svg" width="8" height="8" alt="" />
+                <img src="/static/figma/start/dot-on.svg" width="8" height="8" alt="" />
+                <img src="/static/figma/start/dot-on.svg" width="8" height="8" alt="" />
+                <img src="/static/figma/start/dot-off.svg" width="8" height="8" alt="" />
+                <img src="/static/figma/start/dot-off.svg" width="8" height="8" alt="" />
+              </div>
+            </article>
+            <article class="tablet-card" data-node-id="136:6609">
+              <p class="tablet-card-label">Nächste Prüfung</p>
+              <strong class="tablet-exam-countdown">In 42 Tagen</strong>
+              <p>IHK Sommerprüfung 2026</p>
+            </article>
+          </div>
+          <article class="tablet-card tablet-rec" data-node-id="136:6614">
+            <div class="tablet-rec-head">
+              <p class="tablet-rec-label">Empfohlene Lektion</p>
+              <span class="tablet-rec-tag">Hohe Relevanz</span>
+            </div>
+            <h3>Hydraulik Druckberechnung</h3>
+            <div class="tablet-rec-progress">
+              <div class="tablet-rec-track"><span style="width:75%"></span></div>
+              <p>75% abgeschlossen (12/16 Fragen)</p>
+            </div>
+          </article>
+          <div class="tablet-grid-2">
+            <article class="tablet-card" data-node-id="136:6626">
+              <div class="tablet-card-head">
+                <p class="tablet-card-label">Berichtsheft</p>
+                <img src="/static/figma/start/plus-circle.svg" width="18" height="18" alt="" />
+              </div>
+              <strong class="tablet-kw">KW 31</strong>
+              <p>Status: 4/5 Tage ausgefüllt</p>
+            </article>
+            <article class="tablet-card" data-node-id="136:6634">
+              <p class="tablet-card-label">Fokus-Themen (Schwächen)</p>
+              <div class="tablet-weak"><span aria-hidden="true">⚠️</span><em>Elektrotechnik (35%)</em></div>
+              <div class="tablet-weak"><span aria-hidden="true">⚠️</span><em>Werkstoffkunde (42%)</em></div>
+            </article>
+          </div>
+        </div>
+        <nav class="tablet-tab-bar" data-node-id="136:6643" aria-label="Tablet Navigation">
+          <a class="active" href="/dashboard/tablet" data-page-link>
+            <img src="/static/figma/start/tab-home.svg" width="24" height="24" alt="" />
+            Home
+          </a>
+          <a href="/lernen" data-page-link>
+            <img src="/static/figma/start/tab-book.svg" width="24" height="24" alt="" />
+            Lernen
+          </a>
+          <a href="/berichtsheft" data-page-link>
+            <img src="/static/figma/start/tab-edit.svg" width="24" height="24" alt="" />
+            Berichte
+          </a>
+          <a href="/mehr" data-page-link>
+            <img src="/static/figma/start/tab-user.svg" width="24" height="24" alt="" />
+            Profil
+          </a>
+        </nav>
       </div>
-      <article class="continue-card fortsetzen-card">
-        <div><p class="eyebrow">Fortsetzen</p><h3>Messschieber</h3><p class="muted">Theorie, Uebung, Fragen.</p></div>
-        <a class="btn btn-primary" href="/lernen" data-page-link>Weiter</a>
-      </article>
-      <article class="card tagesziel-card">
-        <div class="row-between"><strong>Tagesziel</strong><span class="muted">2 von 5</span></div>
-        <div class="segmented-progress"><span class="filled"></span><span class="filled"></span><span></span><span></span><span></span></div>
-      </article>
-      <div class="metric-grid">
-        <article class="metric-card card"><strong>72%</strong><span>Pruefungsreife</span></article>
-        <article class="metric-card card"><strong>12</strong><span>Streak</span></article>
-      </div>
-      <article class="card"><strong>Highlights</strong><ul class="plain-list"><li>logo-text</li><li>streak-icon</li><li>streak-text</li><li>xp-icon</li><li>xp-text</li><li>welcome-title</li><li>level-sub</li><li>level-next</li></ul>
-        <div class="hub-actions"><a class="secondary-button" href="/lernen" data-page-link>Zum Lernen</a></div>
-      </article>
     `,
   "s04_1-lernen-hub": () => `
       <div class="learn-title-row" data-node-id="136:3577">

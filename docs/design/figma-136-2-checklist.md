@@ -50,10 +50,10 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | [x] | `136:5471` | 03.2 Dashboard - Tagesziel | 390×981 | `/dashboard/tagesziel` |
 | [x] | `136:5621` | 03.3 Dashboard - Streak | 390×1010 | `/dashboard/streak` |
 | [ ] | `136:5773` | 03.4 Design Canvas | 2218×1104 | (reference) |
-| [ ] | `136:6151` | 03.5 Fortsetzen Varianten | 390×885 | `/dashboard/fortsetzen` |
-| [ ] | `136:6285` | 03.6 Wochenbericht Karte | 390×844 | `/dashboard/wochenbericht` |
-| [ ] | `136:6421` | 03.7 Wochenbericht Merksätze | 390×985 | `/dashboard/merksaetze` |
-| [ ] | `136:6564` | 03.8 Dashboard — Tablet 768px | 768×1024 | `/dashboard/tablet` |
+| [x] | `136:6151` | 03.5 Fortsetzen Varianten | 390×885 | `/dashboard/fortsetzen` |
+| [x] | `136:6285` | 03.6 Wochenbericht Karte | 390×844 | `/dashboard/wochenbericht` |
+| [x] | `136:6421` | 03.7 Wochenbericht Merksätze | 390×985 | `/dashboard/merksaetze` |
+| [x] | `136:6564` | 03.8 Dashboard — Tablet 768px | 768×1024 | `/dashboard/tablet` |
 
 ## 04 Teilnehmer — Lernen (Fragen)
 
@@ -215,3 +215,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 
 - `6298693` Auth: pixel Login 01.1 + checklist inventory; Passwort/Sprache/Onboarding shells from Figma
 - Start: Dashboard shell + Figma tab bar (Prüfung) + 03.1 cards/assets
+- Start 03.5–03.8: Fortsetzen variants, Wochenbericht, Merksätze, Tablet 768px (+ campus chrome)

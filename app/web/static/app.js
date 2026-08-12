@@ -333,13 +333,17 @@ function bindLiveData(root, config) {
     questionList.innerHTML = source.length
       ? source
           .map(
-            (question, index) => `
+            (question, index) => {
+              const dots = ["/static/figma/learn2/dot-green.svg", "/static/figma/learn2/dot-blue.svg", "/static/figma/learn2/dot-gray.svg", "/static/figma/learn2/dot-red.svg"];
+              const dot = dots[index % dots.length];
+              return `
           <a class="q-row" href="/lernen/frage" data-page-link data-q-index="${index}">
-            <span class="q-status-dot" aria-hidden="true"></span>
-            <strong>${escapeHtml(question.prompt)}</strong>
+            <img class="q-dot" src="${dot}" width="10" height="10" alt="" />
+            <span>${escapeHtml(question.prompt)}</span>
             <span class="diff-bars" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
-            <span class="chev" aria-hidden="true">›</span>
-          </a>`,
+            <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+          </a>`;
+            },
           )
           .join("")
       : `<article class="list-row"><strong>Keine Fragen geladen</strong><span class="muted">Demo</span></article>`;
@@ -1362,7 +1366,7 @@ function updateChrome(config, pathname) {
     campusTabs.hidden = chrome !== "campus";
   }
   if (levelPill) {
-    levelPill.hidden = chrome === "campus" || chrome === "tablet";
+    levelPill.hidden = chrome === "campus" || chrome === "tablet" || chrome === "learn-drill";
   }
   if (campusXpEl) {
     campusXpEl.hidden = chrome !== "campus";

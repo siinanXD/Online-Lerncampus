@@ -29,9 +29,9 @@ window.OLC_ROUTE_CONFIG = {
   "/lernen/einheit": { layout: "app", screen: "s04_17-lerneinheit-detail", title: "Lerneinheit — Detail", tab: "learn", num: "04.17" },
   "/lernen/glossar": { layout: "app", screen: "s04_18-glossar-uebersicht", title: "Glossar — Übersicht", tab: "learn", num: "04.18" },
   "/lernen/flashcard": { layout: "app", screen: "s04_19-formeltrainer-flashcard", title: "Formeltrainer — Flashcard", tab: "learn", num: "04.19" },
-  "/lernen/themen": { layout: "app", screen: "s04_2-themenliste", title: "Themenliste", tab: "learn", num: "04.2" },
-  "/lernen/fragen": { layout: "app", screen: "s04_3-fragenliste-alle", title: "Fragenliste — Alle", tab: "learn", num: "04.3" },
-  "/lernen/fragen/fehler": { layout: "app", screen: "s04_4-fragenliste-fehler", title: "Fragenliste — Fehler", tab: "learn", num: "04.4" },
+  "/lernen/themen": { layout: "app", screen: "s04_2-themenliste", title: "Themenliste", tab: "learn", num: "04.2", chrome: "learn-drill" },
+  "/lernen/fragen": { layout: "app", screen: "s04_3-fragenliste-alle", title: "Fragenliste — Alle", tab: "learn", num: "04.3", chrome: "learn-drill" },
+  "/lernen/fragen/fehler": { layout: "app", screen: "s04_4-fragenliste-fehler", title: "Fragenliste — Fehler", tab: "learn", num: "04.4", chrome: "learn-drill" },
   "/lernen/frage": { layout: "app", screen: "s04_5-frage-multiple-choice", title: "Frage — Multiple Choice", tab: "learn", num: "04.5" },
   "/lernen/frage/freitext": { layout: "app", screen: "s04_6-frage-freitext", title: "Frage — Freitext", tab: "learn", num: "04.6" },
   "/lernen/feedback/richtig": { layout: "app", screen: "s04_7-feedback-richtig", title: "Feedback — Richtig", tab: "learn", num: "04.7" },
@@ -1289,98 +1289,129 @@ window.OLC_SCREEN_RENDERERS = {
       </article>
     `,
   "s04_2-themenliste": () => `
-
-      <a class="back-link" href="/lernen" data-page-link>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-        Fragen nach Thema
-      </a>
-      <div class="filter-pills">
-        <button type="button" class="filter-pill active">Alle</button>
-        <button type="button" class="filter-pill">Offen</button>
-        <a class="filter-pill" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
-        <button type="button" class="filter-pill">Beherrscht</button>
-      </div>
-      <div class="topic-list">
-        <a class="topic-row done" href="/lernen/fragen" data-page-link>
-          <span class="topic-icon green" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-          <span class="topic-body">
-            <span class="row-between"><strong>Grundlagen Metall</strong><span class="muted">30/30</span></span>
-            <span class="row-between"><span class="stars">★★★</span><span class="status-pill ok">Beherrscht</span></span>
-          </span>
-          <span class="chev" aria-hidden="true">›</span>
-        </a>
-        <a class="topic-row" href="/lernen/fragen" data-page-link>
-          <span class="topic-icon amber" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-          <span class="topic-body">
-            <span class="row-between"><strong>Werkstoffkunde</strong><span class="muted">26/30</span></span>
-            <span class="row-between"><span class="stars">★★☆</span><span class="mini-bar"><i style="width:86%;background:#f59e0b"></i></span></span>
-          </span>
-          <span class="chev" aria-hidden="true">›</span>
-        </a>
-        <a class="topic-row" href="/lernen/fragen" data-page-link>
-          <span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-          <span class="topic-body">
-            <span class="row-between"><strong>Messtechnik</strong><span class="muted">18/30</span></span>
-            <span class="row-between"><span class="stars">★★☆</span><span class="mini-bar"><i style="width:60%;background:#2563eb"></i></span></span>
-          </span>
-          <span class="chev" aria-hidden="true">›</span>
-        </a>
-        <a class="topic-row" href="/lernen/fragen" data-page-link>
-          <span class="topic-icon blue" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-          <span class="topic-body">
-            <span class="row-between"><strong>Pneumatik</strong><span class="muted">12/30</span></span>
-            <span class="row-between"><span class="stars">★☆☆</span><span class="mini-bar"><i style="width:40%;background:#2563eb"></i></span></span>
-          </span>
-          <span class="chev" aria-hidden="true">›</span>
-        </a>
-        <a class="topic-row" href="/lernen/fragen" data-page-link>
-          <span class="topic-icon muted" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-          <span class="topic-body">
-            <span class="row-between"><strong>Hydraulik</strong><span class="muted">3/30</span></span>
-            <span class="row-between"><span class="stars">☆☆☆</span><span class="mini-bar"><i style="width:10%;background:#6b6661"></i></span></span>
-          </span>
-          <span class="chev" aria-hidden="true">›</span>
-        </a>
-        <div class="topic-row locked">
-          <span class="topic-icon locked" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-          <span class="topic-body"><span class="row-between"><strong class="locked-title">Steuerungstechnik</strong><span class="muted">0/25</span></span></span>
-          <span class="chev" aria-hidden="true">›</span>
+      <section class="learn-drill" data-node-id="136:3719">
+        <header class="learn-drill-header" data-node-id="136:3731">
+          <a class="learn-back" href="/lernen" data-page-link>
+            <img src="/static/figma/learn2/arrow-left.svg" width="20" height="20" alt="" />
+            Fragen nach Thema
+          </a>
+          <div class="learn-drill-actions">
+            <div class="learn-pct-ring" aria-label="Fortschritt 67%">
+              <img class="learn-pct-track" src="/static/figma/learn2/ring-track.svg" width="36" height="36" alt="" />
+              <img class="learn-pct-fill" src="/static/figma/learn2/ring-fill.svg" width="36" height="36" alt="" />
+              <strong data-bind="readiness">67%</strong>
+            </div>
+            <a class="learn-menu-btn" href="/mehr" data-page-link aria-label="Menue">
+              <img src="/static/figma/learn2/menu.svg" width="20" height="20" alt="" />
+            </a>
+          </div>
+        </header>
+        <div class="filter-pills learn-filters" data-node-id="136:3744">
+          <button type="button" class="filter-pill active">Alle</button>
+          <button type="button" class="filter-pill">Offen</button>
+          <a class="filter-pill" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
+          <button type="button" class="filter-pill">Beherrscht</button>
         </div>
-        <div class="topic-row locked">
-          <span class="topic-icon locked" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span>
-          <span class="topic-body"><span class="row-between"><strong class="locked-title">Elektrotechnik</strong><span class="muted">0/28</span></span></span>
-          <span class="chev" aria-hidden="true">›</span>
+        <div class="topic-list figma-topics" data-node-id="136:3753">
+          <a class="topic-row done" href="/lernen/fragen" data-page-link>
+            <span class="topic-icon green"><img src="/static/figma/learn2/folder-green.svg" width="18" height="18" alt="" /></span>
+            <span class="topic-body">
+              <span class="row-between"><strong>Grundlagen Metall</strong><span class="muted">30/30</span></span>
+              <span class="row-between"><span class="stars-imgs"><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /></span><span class="status-pill ok">Beherrscht</span></span>
+            </span>
+            <img class="topic-chev" src="/static/figma/learn2/chevron-right.svg" width="16" height="16" alt="" />
+          </a>
+          <a class="topic-row" href="/lernen/fragen" data-page-link>
+            <span class="topic-icon amber"><img src="/static/figma/learn2/folder-amber.svg" width="18" height="18" alt="" /></span>
+            <span class="topic-body">
+              <span class="row-between"><strong>Werkstoffkunde</strong><span class="muted">26/30</span></span>
+              <span class="row-between"><span class="stars-imgs"><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-half.svg" width="12" height="12" alt="" /></span><span class="mini-bar"><i style="width:86%;background:#f59e0b"></i></span></span>
+            </span>
+            <img class="topic-chev" src="/static/figma/learn2/chevron-right.svg" width="16" height="16" alt="" />
+          </a>
+          <a class="topic-row" href="/lernen/fragen" data-page-link>
+            <span class="topic-icon blue"><img src="/static/figma/learn2/folder-blue.svg" width="18" height="18" alt="" /></span>
+            <span class="topic-body">
+              <span class="row-between"><strong>Messtechnik</strong><span class="muted">18/30</span></span>
+              <span class="row-between"><span class="stars-imgs"><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-off.svg" width="12" height="12" alt="" /></span><span class="mini-bar"><i style="width:60%;background:#2563eb"></i></span></span>
+            </span>
+            <img class="topic-chev" src="/static/figma/learn2/chevron-right.svg" width="16" height="16" alt="" />
+          </a>
+          <a class="topic-row" href="/lernen/fragen" data-page-link>
+            <span class="topic-icon blue"><img src="/static/figma/learn2/folder-blue.svg" width="18" height="18" alt="" /></span>
+            <span class="topic-body">
+              <span class="row-between"><strong>Pneumatik</strong><span class="muted">12/30</span></span>
+              <span class="row-between"><span class="stars-imgs"><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-off.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-off.svg" width="12" height="12" alt="" /></span><span class="mini-bar"><i style="width:40%;background:#2563eb"></i></span></span>
+            </span>
+            <img class="topic-chev" src="/static/figma/learn2/chevron-right.svg" width="16" height="16" alt="" />
+          </a>
+          <a class="topic-row" href="/lernen/fragen" data-page-link>
+            <span class="topic-icon muted"><img src="/static/figma/learn2/folder-gray.svg" width="18" height="18" alt="" /></span>
+            <span class="topic-body">
+              <span class="row-between"><strong>Hydraulik</strong><span class="muted">3/30</span></span>
+              <span class="row-between"><span class="stars-imgs"><img src="/static/figma/learn2/star-half.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-off.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-off.svg" width="12" height="12" alt="" /></span><span class="mini-bar"><i style="width:10%;background:#6b6661"></i></span></span>
+            </span>
+            <img class="topic-chev" src="/static/figma/learn2/chevron-right.svg" width="16" height="16" alt="" />
+          </a>
+          <div class="topic-row locked">
+            <span class="topic-icon locked"><img src="/static/figma/learn2/lock.svg" width="18" height="18" alt="" /></span>
+            <span class="topic-body"><span class="row-between"><strong class="locked-title">Steuerungstechnik</strong><span class="muted">0/25</span></span></span>
+            <img class="topic-chev" src="/static/figma/learn2/chevron-right.svg" width="16" height="16" alt="" />
+          </div>
+          <div class="topic-row locked">
+            <span class="topic-icon locked"><img src="/static/figma/learn2/lock.svg" width="18" height="18" alt="" /></span>
+            <span class="topic-body"><span class="row-between"><strong class="locked-title">Elektrotechnik</strong><span class="muted">0/28</span></span></span>
+            <img class="topic-chev" src="/static/figma/learn2/chevron-right.svg" width="16" height="16" alt="" />
+          </div>
+          <a class="topic-row done" href="/lernen/fragen" data-page-link>
+            <span class="topic-icon green"><img src="/static/figma/learn2/folder-green.svg" width="18" height="18" alt="" /></span>
+            <span class="topic-body">
+              <span class="row-between"><strong>Arbeitssicherheit</strong><span class="muted">23/25</span></span>
+              <span class="row-between"><span class="stars-imgs"><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /><img src="/static/figma/learn2/star-on.svg" width="12" height="12" alt="" /></span><span class="status-pill ok">Beherrscht</span></span>
+            </span>
+            <img class="topic-chev" src="/static/figma/learn2/chevron-right.svg" width="16" height="16" alt="" />
+          </a>
         </div>
-        <a class="topic-row done" href="/lernen/fragen" data-page-link>
-          <span class="topic-icon green" aria-hidden="true"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
-          <span class="topic-body">
-            <span class="row-between"><strong>Arbeitssicherheit</strong><span class="muted">23/25</span></span>
-            <span class="row-between"><span class="stars">★★★</span><span class="status-pill ok">Beherrscht</span></span>
-          </span>
-          <span class="chev" aria-hidden="true">›</span>
-        </a>
-      </div>
+      </section>
     `,
   "s04_3-fragenliste-alle": () => `
-
-      <a class="back-link" href="/lernen/themen" data-page-link>
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-        Pneumatik
-      </a>
-      <div class="topic-stats">
-        <div class="row-between"><strong>30 Fragen — 12 beherrscht</strong><span class="mastery-pct">40%</span></div>
-        <div class="mastery-track"><span class="mastery-fill" style="width:40%"></span></div>
-      </div>
-      <div class="filter-pills">
-        <a class="filter-pill active" href="/lernen/fragen" data-page-link>Alle</a>
-        <button type="button" class="filter-pill">Offen</button>
-        <a class="filter-pill" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
-        <button type="button" class="filter-pill">Beherrscht</button>
-      </div>
-      <div class="question-list" data-bind="question-list">
-        <article class="list-row"><strong>Frage wird geladen …</strong><span class="muted">API</span></article>
-      </div>
-      <a class="primary-button btn-block hub-cta" href="/lernen/frage" data-page-link>Alle lernen</a>
+      <section class="learn-drill" data-node-id="136:4019">
+        <header class="learn-drill-header">
+          <a class="learn-back" href="/lernen/themen" data-page-link>
+            <img src="/static/figma/learn2/q-arrow-left.svg" width="20" height="20" alt="" />
+            Pneumatik
+          </a>
+          <div class="learn-drill-actions">
+            <div class="learn-pct-ring" aria-label="Fortschritt 67%">
+              <img class="learn-pct-track" src="/static/figma/learn2/q-ring-track.svg" width="36" height="36" alt="" />
+              <img class="learn-pct-fill" src="/static/figma/learn2/q-ring-fill.svg" width="36" height="36" alt="" />
+              <strong>67%</strong>
+            </div>
+            <a class="learn-menu-btn" href="/mehr" data-page-link aria-label="Menue">
+              <img src="/static/figma/learn2/q-menu.svg" width="20" height="20" alt="" />
+            </a>
+          </div>
+        </header>
+        <div class="topic-stats figma-topic-stats">
+          <div class="row-between"><strong>30 Fragen — 12 beherrscht</strong><span class="mastery-pct">40%</span></div>
+          <div class="mastery-track"><span class="mastery-fill" style="width:40%"></span></div>
+        </div>
+        <div class="filter-pills learn-filters">
+          <a class="filter-pill active" href="/lernen/fragen" data-page-link>Alle</a>
+          <button type="button" class="filter-pill">Offen</button>
+          <a class="filter-pill" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
+          <button type="button" class="filter-pill">Beherrscht</button>
+        </div>
+        <div class="question-list figma-qlist" data-bind="question-list">
+          <a class="q-row" href="/lernen/frage" data-page-link>
+            <img class="q-dot" src="/static/figma/learn2/dot-green.svg" width="10" height="10" alt="" />
+            <span>Was ist der Unterschied zwischen 2/2 und 3/2-Wegeventilen?</span>
+            <span class="diff-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+            <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+          </a>
+        </div>
+        <a class="primary-button btn-block hub-cta learn-all-btn" href="/lernen/frage" data-page-link>Alle lernen</a>
+      </section>
     `,
   "s04_4-fragenliste-fehler": () => `
 

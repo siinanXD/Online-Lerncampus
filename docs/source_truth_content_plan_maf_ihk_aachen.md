@@ -177,6 +177,12 @@ Nach Monat 12 und Monat 24:
 6. Nutzer- und Lerndaten duerfen nie in die Source-Truth-Datenbank.
 7. Content bleibt `draft`, bis Quellencheck und Fachreview abgeschlossen sind.
 
+## Operativer Ausfuehrungsplan
+
+Fuer Hierarchie (Saeulen A/B/C), Sollmengen, Quiz-Regeln und DB-Seed-Reihenfolge
+siehe `docs/content_execution_plan_maf_bze.md`. Die Saeulen-Zuordnung liegt in
+`app/data/content/pillars.py`.
+
 ## Naechste technische Schritte
 
 - `TRUSTED_SOURCES` regelmaessig gegen die archivierten Dateien abgleichen.
@@ -186,3 +192,4 @@ Nach Monat 12 und Monat 24:
 - Admin-UI: Quellenstatus, letztes Scrape-Datum, Hash-Aenderung.
 - Content-Generator nur mit Tier-1/2-Kontext laufen lassen.
 - Review-UI: Quellenstellen anzeigen, aber keine langen Quelltexte kopieren.
+- Content-Luecke schliessen: Learning Units Monate 13–24 von 2 auf 10 je Monat.

@@ -87,12 +87,12 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 | [x] | `136:7131` | 05.2 Fachkunde — Lernpfad | 390×1172 |
 | [~] | `136:7377` | 05.3 Fachkunde — Lerneinheit | 390×958 |
 | [x] | `136:7543` | 05.4 Fachkunde — Glossar | 390×920 |
-| [ ] | `136:7765` | 05.5 Lektion abgeschlossen | 390×854 |
-| [ ] | `136:7856` | 05.6 Lernbausteine Übersicht | 390×844 |
-| [ ] | `136:7038` | 05.7 Toleranzfeld-Rechner — Default | 390×885 |
-| [ ] | `136:7290` | 05.8 Spritzgießzyklus — Phasenansicht | 390×844 |
-| [ ] | `136:7450` | 05.9 Messschieber — Übung | 390×844 |
-| [ ] | `136:7695` | 05.10 Lerneinheit — Freigabe | 390×844 |
+| [~] | `136:7765` | 05.5 Lektion abgeschlossen | 390×854 |
+| [x] | `136:7856` | 05.6 Lernbausteine Übersicht | 390×844 |
+| [~] | `136:7038` | 05.7 Toleranzfeld-Rechner — Default | 390×885 |
+| [~] | `136:7290` | 05.8 Spritzgießzyklus — Phasenansicht | 390×844 |
+| [~] | `136:7450` | 05.9 Messschieber — Übung | 390×844 |
+| [~] | `136:7695` | 05.10 Lerneinheit — Freigabe | 390×844 |
 | [ ] | `136:6664` | 05.11 Learning Components — Showcase | 1200×1642 |
 
 ## 06 Teilnehmer — Prüfung
@@ -221,3 +221,4 @@ Status legend: `[ ]` not started · `[~]` in progress · `[x]` pixel-matched vs 
 - Lernen 04.13 Video [~] ~10.6% + 04.14 Lern-Detail [x] ~6.4%; feedback margins tightened (04.7 ~10.4%, 04.8 ~11.4%, 04.10 ~9.4%, 04.12 ~10.8%)
 - Fachkunde 05.1 Einstieg [~] ~8.4% from Figma (grid + intro + Lernen/Praxis/Glossar/Profil tabs)
 - Fachkunde 05.2 Lernpfad [x] ~6.6%; 05.3 Lerneinheit [~] ~10.7%; 05.4 Glossar [x] ~7.4%; Prüfung 06.1 [~] ~9.9%; Fortschritt 07.1 [~] ~12.7%; Bericht 08.1 [~] ~10.0%
+- Fachkunde 05.5–05.10 key frames: 05.6 Lernbausteine [x] ~7.6%; 05.5 Abschluss [~] ~9.9%; 05.7 Toleranz [~] ~13.4%; 05.8 Spritzguss [~] ~12.5%; 05.9 Messschieber [~] ~19.1%; 05.10 Freigabe [~] ~10.5%

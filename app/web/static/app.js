@@ -1271,7 +1271,11 @@ async function deleteAccount() {
 }
 
 function updateChrome(config, pathname) {
-  document.body.dataset.pageLayout = config.layout || "landing";
+  const layout = config.layout || "landing";
+  document.body.dataset.pageLayout = layout;
+  if (layout === "login" || layout === "auth" || layout === "app") {
+    document.body.dataset.theme = "light";
+  }
   document.title = `${config.title || "BZE"} | BZE Online Campus`;
   const title = document.getElementById("page-title");
   const eyebrow = document.getElementById("page-eyebrow");
@@ -1537,9 +1541,17 @@ document.addEventListener("click", async (event) => {
       }
       return;
     }
-    if (target.matches(".lang-option")) {
-      document.querySelectorAll(".lang-option").forEach((el) => el.classList.remove("active"));
+    if (target.matches(".lang-option, .lang-row")) {
+      document.querySelectorAll(".lang-option, .lang-row").forEach((el) => {
+        el.classList.remove("active");
+        if (el.getAttribute("aria-selected") != null) {
+          el.setAttribute("aria-selected", "false");
+        }
+      });
       target.classList.add("active");
+      if (target.getAttribute("aria-selected") != null) {
+        target.setAttribute("aria-selected", "true");
+      }
       showToast(`Sprache: ${target.textContent}`);
     }
   } catch (error) {
@@ -1569,8 +1581,11 @@ document.addEventListener("submit", async (event) => {
       event.preventDefault();
       const data = new FormData(form);
       await login(String(data.get("identifier")), String(data.get("password")), String(data.get("cohort")));
-      document.getElementById("login-feedback").textContent =
-        "Angemeldet. Serverseitiger Lernstand ist aktiv.";
+      const loginFeedback = document.getElementById("login-feedback");
+      if (loginFeedback) {
+        loginFeedback.hidden = false;
+        loginFeedback.textContent = "Angemeldet. Serverseitiger Lernstand ist aktiv.";
+      }
       await navigateTo("/onboarding");
       return;
     }

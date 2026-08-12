@@ -239,60 +239,168 @@ function olcCockpitTable(filterRisk = false) {
 window.OLC_SCREEN_RENDERERS = {
   "s01_1-login": () => `<div class="screen-static" data-screen="s01_1-login"></div>`,
   "s01_2-passwort-aendern": () => `
-
-      <div class="auth-card screen-card">
-        <div class="login-brand"><div class="logo-mark">BZE</div><strong>Online Campus</strong></div>
-        <h1>Passwort aendern</h1>
-        <p class="muted">Dein vorlaeufiges Passwort muss geaendert werden.</p>
-        <form class="stack-form" data-action="change-password">
-          <label class="field"><span>Aktuelles Passwort</span><input type="password" name="current" required minlength="4" /></label>
-          <label class="field"><span>Neues Passwort</span><input type="password" name="next" required minlength="8" /></label>
-          <label class="field"><span>Passwort bestaetigen</span><input type="password" name="confirm" required minlength="8" /></label>
-          <ul class="hint-list"><li>Mindestens 8 Zeichen</li><li>Gross- und Kleinbuchstaben</li><li>Mindestens eine Zahl</li></ul>
-          <button class="primary-button btn-block" type="submit">Passwort speichern</button>
-        </form>
-        <p class="feedback" data-feedback></p>
-      </div>
-    `,
-  "s01_3-sprachwahl": () => `
-
-      <div class="auth-card screen-card">
-        <h1>Sprache waehlen</h1>
-        <p class="muted">Waehle deine bevorzugte Sprache fuer die Plattform.</p>
-        <div class="lang-grid">
-          <button type="button" class="lang-option active" data-lang="de">Deutsch</button>
-          <button type="button" class="lang-option" data-lang="en">English</button>
-          <button type="button" class="lang-option" data-lang="tr">Tuerkce</button>
-          <button type="button" class="lang-option" data-lang="ar">العربية</button>
-          <button type="button" class="lang-option" data-lang="uk">Ukrainisch</button>
+    <div class="auth-phone" data-node-id="136:2744" data-name="01.2 Passwort ändern">
+      <div class="auth-top">
+        <div class="login-status" aria-hidden="true">
+          <span>9:41</span>
+          <span class="login-status-icons">
+            <img class="login-status-icon" src="/static/figma/login/ios-signal.svg" width="17" height="11" alt="" />
+            <img class="login-status-icon" src="/static/figma/login/ios-wifi.svg" width="15" height="11" alt="" />
+            <img class="login-status-icon" src="/static/figma/login/ios-battery.svg" width="25" height="12" alt="" />
+          </span>
         </div>
-        <label class="field"><span>Kohortencode (optional)</span><input name="cohort" placeholder="z.B. BZE-2026-F" /></label>
-        <div class="row-actions">
-          <a class="primary-button" href="/onboarding" data-page-link>Weiter</a>
-          <a class="secondary-button" href="/dashboard" data-page-link>Ueberspringen</a>
-        </div>
-      </div>
-    `,
-  "s01_4-onboarding-willkommen": () => `
-
-      <div class="auth-card screen-card onboarding-card">
-        <h1>Willkommen bei BZE!</h1>
-        <p class="muted">Dein persoenlicher Lernbegleiter fuer die IHK-Pruefung.</p>
-        <ul class="feature-bullets">
-          <li>Pruefungsfragen mit sofortigem Feedback</li>
-          <li>Fortschritt verfolgen &amp; Schwaechen erkennen</li>
-          <li>KI-Coach fuer individuelle Erklaerungen</li>
-        </ul>
-        <article class="card">
-          <p>Bitte bestaetige die Datenschutzhinweise, bevor du startest.</p>
-          <div class="row-actions">
-            <button class="primary-button" type="button" data-action="privacy-consent" data-accepted="true">Einwilligen &amp; starten</button>
-            <button class="secondary-button" type="button" data-action="privacy-consent" data-accepted="false">Ablehnen</button>
+        <div class="auth-back-nav">
+          <a class="auth-back-pill" href="/login" data-page-link aria-label="Zurück">
+            <img src="/static/figma/auth/pw-arrow-left.svg" width="18" height="18" alt="" />
+          </a>
+          <div class="auth-mini-brand">
+            <div class="logo-mark logo-mark-sm">BZE</div>
+            <strong>Online Campus</strong>
+            <span>Maschinen- &amp; Anlagenführer</span>
           </div>
-        </article>
-        <a class="secondary-button btn-block" href="/dashboard" data-page-link>Ueberspringen</a>
+          <span class="auth-nav-spacer" aria-hidden="true"></span>
+        </div>
       </div>
-    `,
+      <div class="auth-middle auth-pw">
+        <div class="auth-pw-intro">
+          <div class="auth-pw-icon"><img src="/static/figma/auth/pw-circle-x.svg" width="24" height="24" alt="" /></div>
+          <div>
+            <h1>Passwort ändern</h1>
+            <p>Dein vorläufiges Passwort muss geändert werden.</p>
+          </div>
+        </div>
+        <form class="auth-pw-form" data-action="change-password">
+          <label class="field">
+            <span>Aktuelles Passwort</span>
+            <div class="input-box">
+              <img class="field-leading" src="/static/figma/auth/pw-lock.svg" width="20" height="20" alt="" />
+              <input type="password" name="current" required minlength="4" placeholder="••••••••" />
+            </div>
+          </label>
+          <label class="field">
+            <span>Neues Passwort</span>
+            <div class="input-box">
+              <img class="field-leading" src="/static/figma/auth/pw-lock.svg" width="20" height="20" alt="" />
+              <input id="new-password" type="password" name="next" required minlength="8" placeholder="Neues Passwort" />
+              <button class="field-trailing" type="button" data-toggle-password="#new-password" aria-label="Passwort anzeigen">
+                <img src="/static/figma/auth/pw-eye.svg" width="20" height="20" alt="" />
+              </button>
+            </div>
+          </label>
+          <div class="pw-strength" aria-live="polite">
+            <div class="pw-strength-bars"><span class="on"></span><span class="on"></span><span></span><span></span></div>
+            <div class="pw-strength-label"><span>Passwortstärke</span><strong>Mittel</strong></div>
+          </div>
+          <ul class="pw-checklist">
+            <li class="ok"><img src="/static/figma/auth/pw-check.svg" width="14" height="14" alt="" /> Mindestens 8 Zeichen</li>
+            <li class="ok"><img src="/static/figma/auth/pw-check.svg" width="14" height="14" alt="" /> Groß- und Kleinbuchstaben</li>
+            <li><img src="/static/figma/auth/pw-x.svg" width="14" height="14" alt="" /> Mindestens eine Zahl</li>
+            <li><img src="/static/figma/auth/pw-x.svg" width="14" height="14" alt="" /> Sonderzeichen</li>
+          </ul>
+          <label class="field">
+            <span>Passwort bestätigen</span>
+            <div class="input-box">
+              <img class="field-leading" src="/static/figma/auth/pw-lock.svg" width="20" height="20" alt="" />
+              <input type="password" name="confirm" required minlength="8" placeholder="Passwort wiederholen" />
+            </div>
+          </label>
+          <div class="auth-tip">
+            <img src="/static/figma/auth/pw-bulb.svg" width="20" height="20" alt="" />
+            <p><strong>Tipp:</strong> Verwende einen Satz als Passwort, z.B. <em>MeinHund-liebt-Knochen42!</em></p>
+          </div>
+          <button class="primary-button btn-block btn-pill login-submit" type="submit">Passwort speichern</button>
+          <p class="feedback" data-feedback></p>
+        </form>
+      </div>
+    </div>
+  `,
+  "s01_3-sprachwahl": () => `
+    <div class="auth-phone" data-node-id="136:2828" data-name="01.3 Sprachwahl">
+      <div class="auth-top auth-top-center">
+        <div class="login-status" aria-hidden="true">
+          <span>9:41</span>
+          <span class="login-status-icons">
+            <img class="login-status-icon" src="/static/figma/login/ios-signal.svg" width="17" height="11" alt="" />
+            <img class="login-status-icon" src="/static/figma/login/ios-wifi.svg" width="15" height="11" alt="" />
+            <img class="login-status-icon" src="/static/figma/login/ios-battery.svg" width="25" height="12" alt="" />
+          </span>
+        </div>
+        <div class="auth-steps" aria-hidden="true"><span class="active"></span><span></span><span></span></div>
+      </div>
+      <div class="auth-middle auth-lang">
+        <div class="auth-lang-intro">
+          <div class="auth-globe"><img src="/static/figma/auth/lang-globe.svg" width="32" height="32" alt="" /></div>
+          <h1>Sprache wählen</h1>
+          <p>Wähle deine bevorzugte Sprache für die Plattform.</p>
+        </div>
+        <div class="lang-list" role="listbox" aria-label="Sprache">
+          <button type="button" class="lang-row active" data-lang="de" role="option" aria-selected="true">
+            <span class="lang-left"><img class="lang-flag" src="/static/figma/login/flag-de.svg" width="20" height="15" alt="" /> Deutsch</span>
+            <span class="lang-check"><img src="/static/figma/auth/lang-check.svg" width="10" height="10" alt="" /></span>
+          </button>
+          <button type="button" class="lang-row" data-lang="en" role="option" aria-selected="false">
+            <span class="lang-left"><span class="flag-emoji">🇬🇧</span> English</span>
+            <img class="lang-radio" src="/static/figma/auth/lang-deselected.svg" width="20" height="20" alt="" />
+          </button>
+          <button type="button" class="lang-row" data-lang="tr" role="option" aria-selected="false">
+            <span class="lang-left"><span class="flag-emoji">🇹🇷</span> Türkçe</span>
+            <img class="lang-radio" src="/static/figma/auth/lang-deselected.svg" width="20" height="20" alt="" />
+          </button>
+          <button type="button" class="lang-row" data-lang="ar" role="option" aria-selected="false">
+            <span class="lang-left"><span class="flag-emoji">🇦🇪</span> العربية</span>
+            <img class="lang-radio" src="/static/figma/auth/lang-deselected.svg" width="20" height="20" alt="" />
+          </button>
+          <button type="button" class="lang-row" data-lang="uk" role="option" aria-selected="false">
+            <span class="lang-left"><span class="flag-emoji">🇺🇦</span> Українська</span>
+            <img class="lang-radio" src="/static/figma/auth/lang-deselected.svg" width="20" height="20" alt="" />
+          </button>
+        </div>
+        <hr class="auth-rule" />
+        <div class="cohort-block">
+          <div class="cohort-head">Kohortencode (optional) <img src="/static/figma/auth/lang-info.svg" width="14" height="14" alt="" /></div>
+          <label class="field">
+            <span>Code eingeben</span>
+            <div class="input-box"><input name="cohort" placeholder="z.B. BZE-2026-F" /></div>
+          </label>
+          <p class="cohort-hint">Falls du einen Code von deinem Ausbilder erhalten hast, gib ihn hier ein.</p>
+        </div>
+        <div class="auth-actions">
+          <a class="primary-button btn-block btn-pill login-submit" href="/onboarding" data-page-link>Weiter</a>
+          <a class="auth-skip" href="/dashboard" data-page-link>Überspringen</a>
+        </div>
+      </div>
+    </div>
+  `,
+  "s01_4-onboarding-willkommen": () => `
+    <div class="auth-phone auth-onboarding" data-node-id="136:2895" data-name="01.4 Onboarding — Willkommen">
+      <div class="auth-top auth-top-center">
+        <div class="login-status" aria-hidden="true">
+          <span>9:41</span>
+          <span class="login-status-icons">
+            <img class="login-status-icon" src="/static/figma/login/ios-signal.svg" width="17" height="11" alt="" />
+            <img class="login-status-icon" src="/static/figma/login/ios-wifi.svg" width="15" height="11" alt="" />
+            <img class="login-status-icon" src="/static/figma/login/ios-battery.svg" width="25" height="12" alt="" />
+          </span>
+        </div>
+        <div class="auth-steps" aria-hidden="true"><span class="active"></span><span></span><span></span></div>
+        <div class="ob-mascot"><img src="/static/figma/auth/ob-mascot.svg" width="180" height="180" alt="" /></div>
+        <div class="ob-welcome">
+          <h1>Willkommen bei BZE!</h1>
+          <p>Dein persönlicher Lernbegleiter für die IHK-Prüfung.</p>
+        </div>
+      </div>
+      <div class="ob-features">
+        <div class="ob-feature"><span class="ob-ico"><img src="/static/figma/auth/ob-target.svg" width="20" height="20" alt="" /></span><p>Prüfungsfragen mit sofortigem Feedback</p></div>
+        <div class="ob-feature"><span class="ob-ico"><img src="/static/figma/auth/ob-chart.svg" width="20" height="20" alt="" /></span><p>Fortschritt verfolgen &amp; Schwächen erkennen</p></div>
+        <div class="ob-feature"><span class="ob-ico ob-ico-xp"><img src="/static/figma/auth/ob-sparkles.svg" width="20" height="20" alt="" /></span><p>KI-Coach für individuelle Erklärungen</p></div>
+      </div>
+      <div class="ob-actions">
+        <button class="primary-button btn-pill ob-cta" type="button" data-action="privacy-consent" data-accepted="true">Los geht's!</button>
+        <a class="auth-skip underline" href="/dashboard" data-page-link>Überspringen</a>
+        <div class="home-indicator" aria-hidden="true"></div>
+      </div>
+    </div>
+  `,
   "s01_5-landing-page": () => `<div class="screen-static" data-screen="s01_5-landing-page"></div>`,
   "s01_6-level-up-animation": () => `
 

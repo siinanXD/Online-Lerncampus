@@ -1,0 +1,14 @@
+<svg preserveAspectRatio="none" overflow="visible" style="display: block;" width="180" height="180" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="canvas-area">
+<ellipse id="Ellipse" cx="90" cy="140" rx="45" ry="10" fill="#E5E7EB"/>
+<ellipse id="Ellipse_2" opacity="0.3" cx="90" cy="140" rx="35" ry="5" fill="#3B82F6"/>
+<rect id="Rectangle" x="65" y="60" width="50" height="50" rx="12" fill="#1E40AF"/>
+<rect id="Rectangle_2" x="73" y="68" width="34" height="24" rx="6" fill="#1E2937"/>
+<circle id="Ellipse_3" cx="83" cy="79" r="4" fill="#FCD34D"/>
+<circle id="Ellipse_4" cx="97" cy="79" r="4" fill="#FCD34D"/>
+<rect id="Rectangle_3" x="75" y="110" width="8" height="24" rx="4" fill="#3B82F6"/>
+<rect id="Rectangle_4" x="97" y="110" width="8" height="24" rx="4" fill="#3B82F6"/>
+<line id="Line" x1="91.5" y1="40" x2="91.5" y2="60" stroke="#3B82F6" stroke-width="3"/>
+<circle id="Ellipse_5" cx="90" cy="36" r="4" fill="#FCD34D"/>
+</g>
+</svg>

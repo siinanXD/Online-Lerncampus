@@ -1,4 +1,4 @@
-"""SQLite persistence for learner sessions, progress, and privacy actions."""
+"""Persistence for learner sessions, progress, privacy, and content ops."""
 
 from __future__ import annotations
 
@@ -7,11 +7,11 @@ import sqlite3
 from collections.abc import Iterator
 from contextlib import contextmanager
 from datetime import UTC, datetime
-from pathlib import Path
-from threading import RLock
 from typing import Any
 
+from app.db.connection import DbConnection
 from app.db.content_schema import initialize_content_schema
+from app.db.dialect import DbDialect
 from app.models.progress import QuestionProgress
 
 
@@ -20,43 +20,39 @@ def utc_now_iso() -> str:
     return datetime.now(tz=UTC).isoformat()
 
 
+def create_database(database_url: str) -> "Database":
+    """Return a database handle for SQLite or PostgreSQL URLs."""
+    return Database(database_url)
+
+
 class Database:
-    """Small SQLite repository used by the local MVP backend."""
+    """Repository for learner data, progress, exams, and content review."""
 
     def __init__(self, database_url: str) -> None:
-        """Open the configured SQLite database and initialize its schema."""
-        self.database_path = self._parse_sqlite_path(database_url)
-        self.database_path.parent.mkdir(parents=True, exist_ok=True)
-        self._lock = RLock()
-        self._connection = sqlite3.connect(
-            self.database_path,
-            check_same_thread=False,
-        )
-        self._connection.row_factory = sqlite3.Row
-        self._connection.execute("PRAGMA foreign_keys = ON")
+        """Open the configured database and initialize its schema."""
+        self.database_url = database_url
+        self._db = DbConnection(database_url)
         self._initialize_schema()
 
-    @staticmethod
-    def _parse_sqlite_path(database_url: str) -> Path:
-        """Return a filesystem path from a sqlite URL."""
-        prefix = "sqlite:///"
-        if not database_url.startswith(prefix):
-            raise ValueError("Only sqlite:/// DATABASE_URL values are supported.")
-        raw_path = database_url.removeprefix(prefix)
-        if not raw_path:
-            raise ValueError("DATABASE_URL must include a sqlite file path.")
-        return Path(raw_path).resolve()
+    @property
+    def dialect(self) -> DbDialect:
+        """Return the active database dialect."""
+        return self._db.dialect
 
     @contextmanager
-    def _transaction(self) -> Iterator[sqlite3.Connection]:
+    def _transaction(self) -> Iterator[DbConnection]:
         """Run database work under a thread lock and transaction."""
-        with self._lock:
-            try:
-                yield self._connection
-                self._connection.commit()
-            except Exception:
-                self._connection.rollback()
-                raise
+        with self._db.transaction() as connection:
+            yield connection
+
+    @staticmethod
+    def _row_dict(row: Any) -> dict[str, Any]:
+        """Normalize sqlite/psycopg rows to plain dictionaries."""
+        if row is None:
+            raise ValueError("Expected a result row.")
+        if isinstance(row, dict):
+            return row
+        return dict(row)
 
     def _initialize_schema(self) -> None:
         """Create all tables required by the MVP if they do not exist."""
@@ -114,13 +110,34 @@ class Database:
                     metadata_json TEXT NOT NULL,
                     created_at TEXT NOT NULL
                 );
+
+                CREATE TABLE IF NOT EXISTS training_reports (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    learner_id TEXT NOT NULL,
+                    report_date TEXT NOT NULL,
+                    activities TEXT NOT NULL,
+                    hours REAL NOT NULL DEFAULT 8.0,
+                    status TEXT NOT NULL DEFAULT 'draft',
+                    created_at TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    FOREIGN KEY (learner_id) REFERENCES learners (learner_id)
+                        ON DELETE CASCADE
+                );
                 """
             )
             self._ensure_password_hash_column(connection)
             initialize_content_schema(connection)
 
-    def _ensure_password_hash_column(self, connection: sqlite3.Connection) -> None:
+    def _ensure_password_hash_column(self, connection: DbConnection) -> None:
         """Add password_hash when upgrading an existing local database."""
+        if connection.dialect is not DbDialect.SQLITE:
+            connection.execute(
+                """
+                ALTER TABLE learners
+                ADD COLUMN IF NOT EXISTS password_hash TEXT
+                """
+            )
+            return
         columns = {
             row["name"]
             for row in connection.execute("PRAGMA table_info(learners)").fetchall()
@@ -140,7 +157,7 @@ class Database:
                 """,
                 (learner_id,),
             ).fetchone()
-        return dict(row) if row else None
+        return self._row_dict(row) if row else None
 
     def get_learner_by_identifier_hash(
         self, identifier_hash: str
@@ -156,7 +173,7 @@ class Database:
                 """,
                 (identifier_hash,),
             ).fetchone()
-        return dict(row) if row else None
+        return self._row_dict(row) if row else None
 
     def upsert_learner(
         self,
@@ -184,6 +201,8 @@ class Database:
                 VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
                 ON CONFLICT(learner_id) DO UPDATE SET
                     cohort_code = excluded.cohort_code,
+                    role = excluded.role,
+                    display_name = excluded.display_name,
                     password_hash = COALESCE(excluded.password_hash, learners.password_hash),
                     deleted_at = NULL
                 """,
@@ -251,7 +270,7 @@ class Database:
         if datetime.fromisoformat(row["expires_at"]) <= datetime.now(tz=UTC):
             self.revoke_session(token_hash)
             return None
-        return dict(row)
+        return self._row_dict(row)
 
     def revoke_session(self, token_hash: str) -> None:
         """Mark one session as revoked."""
@@ -340,15 +359,16 @@ class Database:
         }
 
     @staticmethod
-    def _row_to_progress(row: sqlite3.Row) -> QuestionProgress:
+    def _row_to_progress(row: Any) -> QuestionProgress:
         """Convert a database row into a progress dataclass."""
+        payload = Database._row_dict(row)
         return QuestionProgress(
-            question_id=row["question_id"],
-            answered_count=row["answered_count"],
-            wrong_count=row["wrong_count"],
-            correct_streak=row["correct_streak"],
-            mastered=bool(row["mastered"]),
-            last_selected_option_index=row["last_selected_option_index"],
+            question_id=payload["question_id"],
+            answered_count=payload["answered_count"],
+            wrong_count=payload["wrong_count"],
+            correct_streak=payload["correct_streak"],
+            mastered=bool(payload["mastered"]),
+            last_selected_option_index=payload["last_selected_option_index"],
         )
 
     def reset_progress(self, learner_id: str) -> None:
@@ -440,7 +460,7 @@ class Database:
     ) -> int:
         """Create one in-progress exam session."""
         with self._transaction() as connection:
-            cursor = connection.execute(
+            return connection.insert_returning_id(
                 """
                 INSERT INTO exam_sessions (
                     learner_id,
@@ -453,7 +473,6 @@ class Database:
                 """,
                 (learner_id, practice_exam_id, utc_now_iso(), expires_at),
             )
-            return int(cursor.lastrowid)
 
     def get_exam_session(self, session_id: int) -> dict[str, Any] | None:
         """Return one exam session joined with exam metadata."""
@@ -478,7 +497,7 @@ class Database:
                 """,
                 (session_id,),
             ).fetchone()
-        return dict(row) if row else None
+        return self._row_dict(row) if row else None
 
     def save_exam_choice_answer(
         self,
@@ -570,7 +589,7 @@ class Database:
                 """,
                 (session_id,),
             ).fetchall()
-        return [dict(row) for row in rows]
+        return [self._row_dict(row) for row in rows]
 
     def list_exam_open_answers(self, session_id: int) -> list[dict[str, Any]]:
         """Return stored open answers for one session."""
@@ -583,7 +602,7 @@ class Database:
                 """,
                 (session_id,),
             ).fetchall()
-        return [dict(row) for row in rows]
+        return [self._row_dict(row) for row in rows]
 
     def finalize_exam_session(
         self,
@@ -650,7 +669,7 @@ class Database:
                 """,
                 (learner_id,),
             ).fetchall()
-        return [dict(row) for row in rows]
+        return [self._row_dict(row) for row in rows]
 
     def record_audit_event(
         self,
@@ -717,9 +736,9 @@ class Database:
                 (learner_id,),
             ).fetchall()
         return {
-            "learner": dict(learner),
-            "question_progress": [dict(row) for row in progress_rows],
-            "consents": [dict(row) for row in consent_rows],
+            "learner": self._row_dict(learner),
+            "question_progress": [self._row_dict(row) for row in progress_rows],
+            "consents": [self._row_dict(row) for row in consent_rows],
         }
 
     def delete_learner_data(self, learner_id: str) -> None:
@@ -733,3 +752,231 @@ class Database:
                 "DELETE FROM audit_events WHERE learner_id = ?",
                 (learner_id,),
             )
+
+    def list_training_reports(self, learner_id: str) -> list[dict[str, Any]]:
+        """Return all Berichtsheft entries for one learner."""
+        with self._transaction() as connection:
+            rows = connection.execute(
+                """
+                SELECT id, report_date, activities, hours, status, created_at, updated_at
+                FROM training_reports
+                WHERE learner_id = ?
+                ORDER BY report_date DESC, id DESC
+                """,
+                (learner_id,),
+            ).fetchall()
+        return [self._row_dict(row) for row in rows]
+
+    def create_training_report(
+        self,
+        learner_id: str,
+        report_date: str,
+        activities: str,
+        hours: float,
+    ) -> dict[str, Any]:
+        """Create one draft Berichtsheft entry."""
+        timestamp = utc_now_iso()
+        with self._transaction() as connection:
+            report_id = connection.insert_returning_id(
+                """
+                INSERT INTO training_reports (
+                    learner_id,
+                    report_date,
+                    activities,
+                    hours,
+                    status,
+                    created_at,
+                    updated_at
+                )
+                VALUES (?, ?, ?, ?, 'draft', ?, ?)
+                """,
+                (learner_id, report_date, activities, hours, timestamp, timestamp),
+            )
+            row = connection.execute(
+                """
+                SELECT id, report_date, activities, hours, status, created_at, updated_at
+                FROM training_reports
+                WHERE id = ?
+                """,
+                (report_id,),
+            ).fetchone()
+        return self._row_dict(row)
+
+    def update_training_report(
+        self,
+        learner_id: str,
+        report_id: int,
+        *,
+        report_date: str | None = None,
+        activities: str | None = None,
+        hours: float | None = None,
+        status: str | None = None,
+    ) -> dict[str, Any] | None:
+        """Update one Berichtsheft entry owned by the learner."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                """
+                SELECT id
+                FROM training_reports
+                WHERE id = ? AND learner_id = ?
+                """,
+                (report_id, learner_id),
+            ).fetchone()
+            if row is None:
+                return None
+            fields: list[str] = []
+            params: list[Any] = []
+            if report_date is not None:
+                fields.append("report_date = ?")
+                params.append(report_date)
+            if activities is not None:
+                fields.append("activities = ?")
+                params.append(activities)
+            if hours is not None:
+                fields.append("hours = ?")
+                params.append(hours)
+            if status is not None:
+                fields.append("status = ?")
+                params.append(status)
+            if not fields:
+                return self.get_training_report(learner_id, report_id)
+            fields.append("updated_at = ?")
+            params.append(utc_now_iso())
+            params.extend([report_id, learner_id])
+            connection.execute(
+                f"""
+                UPDATE training_reports
+                SET {", ".join(fields)}
+                WHERE id = ? AND learner_id = ?
+                """,
+                tuple(params),
+            )
+        return self.get_training_report(learner_id, report_id)
+
+    def get_training_report(
+        self,
+        learner_id: str,
+        report_id: int,
+    ) -> dict[str, Any] | None:
+        """Return one Berichtsheft entry."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                """
+                SELECT id, report_date, activities, hours, status, created_at, updated_at
+                FROM training_reports
+                WHERE id = ? AND learner_id = ?
+                """,
+                (report_id, learner_id),
+            ).fetchone()
+        return self._row_dict(row) if row else None
+
+    def list_pending_reviews(self, limit: int = 20) -> list[dict[str, Any]]:
+        """Return draft learning units and questions awaiting review."""
+        with self._transaction() as connection:
+            unit_rows = connection.execute(
+                """
+                SELECT 'learning_unit' AS entity_type, id AS entity_id, slug AS entity_key,
+                       title, review_status
+                FROM learning_units
+                WHERE review_status IN ('draft', 'needs_revision')
+                ORDER BY updated_at DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+            question_rows = connection.execute(
+                """
+                SELECT 'quiz_question' AS entity_type, id AS entity_id, question_id AS entity_key,
+                       prompt AS title, review_status
+                FROM quiz_questions
+                WHERE review_status IN ('draft', 'needs_revision')
+                ORDER BY updated_at DESC
+                LIMIT ?
+                """,
+                (limit,),
+            ).fetchall()
+        return [self._row_dict(row) for row in [*unit_rows, *question_rows]]
+
+    def apply_content_review(
+        self,
+        entity_type: str,
+        entity_key: str,
+        to_status: str,
+        reviewer_learner_id: str,
+        notes: str,
+    ) -> dict[str, Any]:
+        """Update review status and append an audit row in content_reviews."""
+        table_map = {
+            "learning_unit": ("learning_units", "slug"),
+            "quiz_question": ("quiz_questions", "question_id"),
+            "open_question": ("open_questions", "question_id"),
+        }
+        if entity_type not in table_map:
+            raise ValueError("Unbekannter Inhaltstyp.")
+        table, key_column = table_map[entity_type]
+        with self._transaction() as connection:
+            row = connection.execute(
+                f"""
+                SELECT id, review_status
+                FROM {table}
+                WHERE {key_column} = ?
+                """,
+                (entity_key,),
+            ).fetchone()
+            if row is None:
+                raise ValueError("Inhalt wurde nicht gefunden.")
+            payload = self._row_dict(row)
+            from_status = payload["review_status"]
+            connection.execute(
+                f"""
+                UPDATE {table}
+                SET review_status = ?, updated_at = ?
+                WHERE id = ?
+                """,
+                (to_status, utc_now_iso(), payload["id"]),
+            )
+            connection.execute(
+                """
+                INSERT INTO content_reviews (
+                    entity_type,
+                    entity_id,
+                    from_status,
+                    to_status,
+                    reviewer_learner_id,
+                    notes,
+                    created_at
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    entity_type,
+                    payload["id"],
+                    from_status,
+                    to_status,
+                    reviewer_learner_id,
+                    notes,
+                    utc_now_iso(),
+                ),
+            )
+        return {
+            "entity_type": entity_type,
+            "entity_key": entity_key,
+            "from_status": from_status,
+            "to_status": to_status,
+        }
+
+    def approve_all_content(self) -> dict[str, int]:
+        """Mark all seeded content as approved for demo environments."""
+        counts: dict[str, int] = {}
+        with self._transaction() as connection:
+            for table in ("learning_units", "quiz_questions", "open_questions"):
+                cursor = connection.execute(
+                    f"""
+                    UPDATE {table}
+                    SET review_status = 'approved', updated_at = ?
+                    WHERE review_status != 'approved'
+                    """,
+                    (utc_now_iso(),),
+                )
+                counts[table] = cursor.rowcount if cursor.rowcount is not None else 0
+        return counts

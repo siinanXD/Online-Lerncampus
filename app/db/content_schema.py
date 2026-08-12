@@ -49,7 +49,7 @@ CONTENT_TABLES: tuple[str, ...] = (
 )
 
 
-def initialize_content_schema(connection: sqlite3.Connection) -> None:
+def initialize_content_schema(connection: Any) -> None:
     """Create content tables when they do not exist yet."""
     connection.executescript(CONTENT_SCHEMA_SQL)
 

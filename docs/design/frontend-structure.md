@@ -8,7 +8,7 @@ Screen-Katalog: `python tools/generate_screen_catalog.py && python tools/generat
 
 | Rolle | Layout | Chrome |
 |-------|--------|--------|
-| Teilnehmer | `app` (mobile) | Tab-Bar `Home · Lernen · Pruefung · Fortschritt · Profil` (`OLC_GX_NAV`) |
+| Teilnehmer | `app` (Phone/Tablet/Desktop) | Tab-Bar `Home · Lernen · Pruefung · Fortschritt · Profil` (`OLC_GX_NAV`); ab ~1100px als linke Leiste |
 | Auth | `auth` / `login` | Auth-Cards ohne Tab-Bar |
 | Ausbilder | `trainer` (desktop) | Top-Nav Cockpit · Review · Content · Berichte |
 | Admin | `admin` (desktop) | Top-Nav Nutzer · Content · Monitoring · Audit |
@@ -47,6 +47,8 @@ Screen-Katalog: `python tools/generate_screen_catalog.py && python tools/generat
 
 - `app/web/static/tokens.css` — BZE Tokens aus `.fig`
 - `app/web/static/ui.css` — Komponenten + Shells auf Tokens
+- `app/web/static/gx.css` — Teilnehmer Konsistenz-Set (Phone-Default)
+- `app/web/static/responsive.css` — Viewport-Füllung, Container Queries, Safe Areas (Phone/Tablet/Desktop)
 - `app/web/static/screens.js` — generiertes Screen-Registry (+ Live-Binds)
 - `app/web/static/app.js` — Routing + API-Binds
 - `app/web/index.html` — Landing/Login/App/Trainer/Admin Shells

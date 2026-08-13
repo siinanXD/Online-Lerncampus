@@ -4273,7 +4273,39 @@ async function loadLearnMonth(month, { resetIndex = false } = {}) {
   };
 }
 
+function initSiteNav() {
+  const header = document.querySelector(".site-nav");
+  const toggle = header?.querySelector(".nav-toggle");
+  if (!header || !toggle || toggle.dataset.bound === "1") {
+    return;
+  }
+  toggle.dataset.bound = "1";
+  const setOpen = (open) => {
+    header.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Menü schließen" : "Menü öffnen");
+  };
+  toggle.addEventListener("click", (event) => {
+    event.preventDefault();
+    setOpen(!header.classList.contains("is-open"));
+  });
+  header.querySelectorAll("#site-nav-links a").forEach((link) => {
+    link.addEventListener("click", () => setOpen(false));
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setOpen(false);
+    }
+  });
+  window.matchMedia("(min-width: 768px)").addEventListener("change", (event) => {
+    if (event.matches) {
+      setOpen(false);
+    }
+  });
+}
+
 async function init() {
+  initSiteNav();
   state.chapter = await fetchJson("/api/learning/first-chapter");
   await loadAllUnits();
   state.exams = await fetchJson("/api/exams");

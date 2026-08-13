@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/static/tokens.css" />
     <link rel="stylesheet" href="/static/ui.css" />
     <link rel="stylesheet" href="/static/gx.css" />
+    <link rel="stylesheet" href="/static/responsive.css" />
   </head>
   <body data-page-layout="landing">
     <script>
@@ -44,7 +45,16 @@
         <span class="brand-mark">B</span>
         <span><strong>BZE</strong> Online Campus</span>
       </a>
-      <nav class="nav-links" aria-label="Hauptnavigation">
+      <button
+        class="nav-toggle"
+        type="button"
+        aria-expanded="false"
+        aria-controls="site-nav-links"
+        aria-label="Menü öffnen"
+      >
+        <span></span><span></span><span></span>
+      </button>
+      <nav class="nav-links" id="site-nav-links" aria-label="Hauptnavigation">
         <a href="/#features" data-page-link>Features</a>
         <a href="/ausbilder" data-page-link>Fuer Ausbilder</a>
         <a href="/login" data-page-link>Login</a>

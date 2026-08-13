@@ -56,6 +56,9 @@ const state = {
   learnerId: localStorage.getItem("ol_learner_id"),
   role: localStorage.getItem("ol_role") || "learner",
   displayName: localStorage.getItem("ol_display_name") || "",
+  tenantId: localStorage.getItem("ol_tenant_id") || "",
+  tenantName: localStorage.getItem("ol_tenant_name") || "",
+  isPlatformAdmin: localStorage.getItem("ol_platform_admin") === "1",
   currentPath: "/",
 };
 
@@ -103,6 +106,9 @@ function clearSession() {
   state.learnerId = null;
   state.role = "learner";
   state.displayName = "";
+  state.tenantId = "";
+  state.tenantName = "";
+  state.isPlatformAdmin = false;
   state.profile = null;
   state.dashboard = null;
   state.gamification = null;
@@ -112,6 +118,9 @@ function clearSession() {
   localStorage.removeItem("ol_learner_id");
   localStorage.removeItem("ol_role");
   localStorage.removeItem("ol_display_name");
+  localStorage.removeItem("ol_tenant_id");
+  localStorage.removeItem("ol_tenant_name");
+  localStorage.removeItem("ol_platform_admin");
   document.body.classList.remove("is-authenticated");
 }
 
@@ -169,6 +178,7 @@ async function login(identifier, password, cohortCode) {
   state.learnerId = session.learner_id;
   state.role = session.role || "learner";
   state.displayName = session.display_name || "";
+  persistTenantProfile(session);
   localStorage.setItem("ol_access_token", session.access_token);
   localStorage.setItem("ol_learner_id", session.learner_id);
   localStorage.setItem("ol_role", state.role);
@@ -187,9 +197,39 @@ function syncAuthProfile(profile = {}) {
   };
 }
 
+function persistTenantProfile(profile = {}) {
+  state.tenantId = profile.tenant_id || "";
+  state.tenantName = profile.tenant_name || "";
+  state.isPlatformAdmin = Boolean(profile.is_platform_admin);
+  if (state.tenantId) {
+    localStorage.setItem("ol_tenant_id", state.tenantId);
+  } else {
+    localStorage.removeItem("ol_tenant_id");
+  }
+  if (state.tenantName) {
+    localStorage.setItem("ol_tenant_name", state.tenantName);
+  } else {
+    localStorage.removeItem("ol_tenant_name");
+  }
+  localStorage.setItem("ol_platform_admin", state.isPlatformAdmin ? "1" : "0");
+}
+
+function staffHomePath() {
+  if (state.role === "admin") {
+    return "/admin";
+  }
+  if (STAFF_ROLES.has(state.role)) {
+    return "/ausbilder";
+  }
+  return "/dashboard";
+}
+
 function resolvePostLoginRoute(profile = state.authProfile) {
   if (profile?.requires_password_change) {
     return "/passwort";
+  }
+  if (STAFF_ROLES.has(state.role)) {
+    return staffHomePath();
   }
   if (!profile?.onboarding_completed) {
     return "/sprache";
@@ -219,11 +259,407 @@ function requireStaff() {
   }
 }
 
+const ROLE_LABELS = {
+  learner: "Teilnehmer",
+  trainer: "Ausbilder",
+  reviewer: "Reviewer",
+  admin: "Admin",
+};
+
+function initialsFromName(name) {
+  const parts = String(name || "AZ").trim().split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0][0]}${parts[1][0]}`.toUpperCase();
+  }
+  return String(name || "AZ").slice(0, 2).toUpperCase();
+}
+
+function riskMeta(level) {
+  if (level === "hoch") {
+    return { label: "Kritisch", accent: "critical", cls: "crit" };
+  }
+  if (level === "mittel") {
+    return { label: "Risiko", accent: "risk", cls: "warn" };
+  }
+  return { label: "", accent: "", cls: "" };
+}
+
+function readinessTone(percent) {
+  if (percent >= 70) {
+    return "ok";
+  }
+  if (percent >= 40) {
+    return "warn";
+  }
+  return "danger";
+}
+
+async function bindStaffPanels(root, path) {
+  document.querySelectorAll("[data-bind='staff-display-name']").forEach((el) => {
+    el.textContent = state.displayName || ROLE_LABELS[state.role] || "Staff";
+  });
+  document.querySelectorAll("[data-bind='staff-tenant-name']").forEach((el) => {
+    el.textContent = state.isPlatformAdmin
+      ? "Plattform-Admin"
+      : state.tenantName || state.tenantId || "Mandant";
+  });
+  if (path.startsWith("/ausbilder")) {
+    await bindTrainerPanels(root, path);
+  }
+  if (path.startsWith("/admin") && state.role === "admin") {
+    await bindAdminPanels(root, path);
+  }
+}
+
+async function bindTrainerPanels(root, path) {
+  const cockpit = await fetchJson("/api/trainer/cockpit", { headers: authHeaders() }).catch(
+    () => null,
+  );
+  const reports = await fetchJson("/api/trainer/reports", { headers: authHeaders() }).catch(
+    () => [],
+  );
+  const scope = [cockpit?.tenant_name, cockpit?.cohort_code].filter(Boolean).join(" · ") || "Mandant";
+  root.querySelectorAll("[data-bind='trainer-scope-label']").forEach((el) => {
+    el.textContent = scope;
+  });
+  if (cockpit) {
+    const riskOnly = root.querySelector("[data-bind='trainer-cockpit-rows']")?.dataset.riskOnly === "1";
+    const learners = (cockpit.learners || []).filter((row) => !riskOnly || row.risk !== "niedrig");
+    const body = root.querySelector("[data-bind='trainer-cockpit-rows']");
+    if (body) {
+      body.innerHTML = learners.length
+        ? learners
+            .map((row) => {
+              const meta = riskMeta(row.risk);
+              const tone = readinessTone(row.readiness_percent);
+              return `<tr class="${meta.accent ? `desk-row-${meta.accent}` : ""}">
+                <td><span class="desk-avatar">${escapeHtml(initialsFromName(row.display_name))}</span></td>
+                <td><strong>${escapeHtml(row.display_name)}</strong><div class="muted">${escapeHtml(row.alias)}</div></td>
+                <td>${escapeHtml(row.cohort_code || "—")}</td>
+                <td>
+                  <div class="desk-prog">
+                    <div class="desk-prog-track"><span class="desk-prog-fill tone-${tone}" style="width:${row.readiness_percent}%"></span></div>
+                    <span>${row.readiness_percent}%</span>
+                  </div>
+                </td>
+                <td>${row.wrong_answers}</td>
+                <td>${row.mastered_questions}</td>
+                <td>${meta.label ? `<span class="tr-risk ${meta.cls}">${meta.label}</span>` : '<span class="muted">—</span>'}</td>
+                <td><a class="desk-link-btn" href="/ausbilder/teilnehmer" data-page-link>Detail</a></td>
+              </tr>`;
+            })
+            .join("")
+        : `<tr><td colspan="8" class="muted">Noch keine Teilnehmer in diesem Bereich.</td></tr>`;
+    }
+    const count = root.querySelector("[data-bind='trainer-cockpit-count']");
+    if (count) {
+      count.textContent = `${learners.length} Teilnehmer`;
+    }
+    const avg = root.querySelector("[data-bind='trainer-avg-readiness']");
+    if (avg) {
+      avg.textContent = `${cockpit.avg_readiness_percent}%`;
+    }
+    const riskCount = root.querySelector("[data-bind='trainer-risk-count']");
+    if (riskCount) {
+      riskCount.textContent = String(cockpit.high_risk_count);
+    }
+    const riskList = root.querySelector("[data-bind='trainer-risk-list']");
+    if (riskList) {
+      const flagged = (cockpit.learners || []).filter((row) => row.risk !== "niedrig").slice(0, 5);
+      riskList.innerHTML = flagged
+        .map(
+          (row) =>
+            `<li><span class="dot ${row.risk === "hoch" ? "danger" : "warn"}"></span>${escapeHtml(row.display_name)}</li>`,
+        )
+        .join("");
+    }
+    const pending = root.querySelector("[data-bind='trainer-pending-reports']");
+    if (pending) {
+      pending.textContent = String(cockpit.pending_reports);
+    }
+  }
+  const reportBody = root.querySelector("[data-bind='trainer-report-rows']");
+  if (reportBody) {
+    reportBody.innerHTML = reports.length
+      ? reports
+          .map((row) => {
+            const status = row.trainer_status || row.status || "pending";
+            const badge =
+              status === "approved"
+                ? '<span class="badge ok">Freigegeben</span>'
+                : status === "rejected"
+                  ? '<span class="badge danger">Nacharbeit</span>'
+                  : '<span class="badge warn">Zur Freigabe</span>';
+            return `<tr>
+              <td>${escapeHtml(row.display_name)}</td>
+              <td>${escapeHtml(row.report_date)}</td>
+              <td>${row.hours}h</td>
+              <td>${badge}</td>
+              <td>
+                <button class="desk-link-btn" type="button" data-action="report-decision" data-report-id="${row.id}" data-status="approved">Freigeben</button>
+                <button class="desk-link-btn" type="button" data-action="report-decision" data-report-id="${row.id}" data-status="rejected">Ablehnen</button>
+              </td>
+            </tr>`;
+          })
+          .join("")
+      : `<tr><td colspan="5" class="muted">Keine Berichtsheft-Eintraege in diesem Bereich.</td></tr>`;
+  }
+  if (path.startsWith("/ausbilder/hotspots")) {
+    const hotspots = await fetchJson("/api/trainer/hotspots", { headers: authHeaders() }).catch(
+      () => [],
+    );
+    const grid = root.querySelector("[data-bind='trainer-hotspot-grid']");
+    if (grid) {
+      grid.innerHTML = hotspots.length
+        ? hotspots
+            .map((item, index) => {
+              const heat = index < 2 ? "hot" : index < 4 ? "mid" : "cool";
+              return `<article class="desk-heat ${heat}"><strong>${escapeHtml(item.title)}</strong><span>${item.wrong_count} Fehler · ${item.learner_count} TN</span></article>`;
+            })
+            .join("")
+        : `<article class="desk-heat cool"><strong>Keine Hotspots</strong><span>Noch keine Fehlerdaten in dieser Kohorte</span></article>`;
+    }
+  }
+  const output = root.querySelector("[data-bind='trainer-output']");
+  if (output && cockpit) {
+    output.innerHTML = `<p>${cockpit.learner_count} Teilnehmer · Ø ${cockpit.avg_readiness_percent}% Reife · ${cockpit.high_risk_count} Risiko · ${reports.length} Berichte</p>`;
+  }
+}
+
+async function bindAdminPanels(root, path) {
+  if (path.startsWith("/admin/nutzer")) {
+    const users = await fetchJson("/api/admin/users", { headers: authHeaders() }).catch(() => []);
+    const body = root.querySelector("[data-bind='admin-user-rows']");
+    if (body) {
+      body.innerHTML = users.length
+        ? users
+            .map((row) => {
+              const options = ["learner", "trainer", "reviewer", "admin"]
+                .map(
+                  (role) =>
+                    `<option value="${role}"${role === row.role ? " selected" : ""}>${ROLE_LABELS[role]}</option>`,
+                )
+                .join("");
+              return `<tr>
+                <td><span class="desk-avatar">${escapeHtml(initialsFromName(row.display_name))}</span></td>
+                <td>${escapeHtml(row.display_name)}<div class="muted">${escapeHtml(row.learner_id)}</div></td>
+                <td>
+                  <select data-action="change-role" data-learner-id="${escapeHtml(row.learner_id)}">${options}</select>
+                </td>
+                <td>${escapeHtml(row.cohort_code || "—")}</td>
+                <td>${escapeHtml(row.tenant_id || "Plattform")}</td>
+                <td><a href="/admin/nutzer/detail" data-page-link>Detail</a></td>
+              </tr>`;
+            })
+            .join("")
+        : `<tr><td colspan="6" class="muted">Keine Konten in diesem Mandanten.</td></tr>`;
+    }
+    const tenantField = root.querySelector('form[data-form="create-user"] [name="tenant_id"]');
+    if (tenantField && state.tenantId && !tenantField.value) {
+      tenantField.value = state.tenantId;
+    }
+  }
+  if (path.startsWith("/admin/audit")) {
+    const events = await fetchJson("/api/admin/audit", { headers: authHeaders() }).catch(() => []);
+    const body = root.querySelector("[data-bind='admin-audit-rows']");
+    if (body) {
+      body.innerHTML = events.length
+        ? events
+            .map((row) => {
+              const target = JSON.stringify(row.metadata || {});
+              return `<tr>
+                <td>${escapeHtml(String(row.created_at || "").replace("T", " ").slice(0, 19))}</td>
+                <td>${escapeHtml(row.learner_id || "system")}</td>
+                <td>${escapeHtml(row.event_type)}</td>
+                <td class="muted">${escapeHtml(target)}</td>
+              </tr>`;
+            })
+            .join("")
+        : `<tr><td colspan="4" class="muted">Keine Audit-Ereignisse.</td></tr>`;
+    }
+  }
+  if (path.startsWith("/admin/monitoring") || path === "/admin") {
+    const monitoring = await fetchJson("/api/admin/monitoring", { headers: authHeaders() }).catch(
+      () => null,
+    );
+    if (monitoring) {
+      const set = (bind, value) => {
+        const el = root.querySelector(`[data-bind='${bind}']`);
+        if (el) {
+          el.textContent = String(value);
+        }
+      };
+      set("mon-learners", monitoring.learners);
+      set("mon-questions", monitoring.quiz_questions);
+      set("mon-units", monitoring.learning_units);
+      set("mon-reviews", monitoring.pending_reviews);
+      const notes = root.querySelector("[data-bind='admin-monitoring-notes']");
+      if (notes) {
+        notes.innerHTML = `
+          <li>Berichtshefte: ${monitoring.training_reports}</li>
+          <li>Content-Meldungen: ${monitoring.content_flags}</li>
+          <li>Prüfungssessions: ${monitoring.exam_sessions}</li>`;
+      }
+    }
+  }
+  if (path.startsWith("/admin/einstellungen")) {
+    const payload = await fetchJson("/api/admin/settings", { headers: authHeaders() }).catch(
+      () => ({ settings: {} }),
+    );
+    const pre = root.querySelector("[data-bind='admin-settings-json']");
+    if (pre) {
+      pre.textContent = JSON.stringify(payload.settings || {}, null, 2);
+    }
+  }
+  if (path.startsWith("/admin/mandanten") || path === "/admin") {
+    await bindTenantAdmin(root);
+  }
+  const output = root.querySelector("[data-bind='trainer-output']");
+  if (output && !output.innerHTML.trim()) {
+    const monitoring = await fetchJson("/api/admin/monitoring", { headers: authHeaders() }).catch(
+      () => null,
+    );
+    if (monitoring) {
+      output.innerHTML = `<p>Konten ${monitoring.learners} · Fragen ${monitoring.quiz_questions} · Einheiten ${monitoring.learning_units} · offene Reviews ${monitoring.pending_reviews}</p>`;
+    }
+  }
+}
+
+async function bindTenantAdmin(root) {
+  const tenants = await fetchJson("/api/tenants", { headers: authHeaders() }).catch(() => []);
+  const tenantBody = root.querySelector("[data-bind='admin-tenant-rows']");
+  if (tenantBody) {
+    tenantBody.innerHTML = tenants.length
+      ? tenants
+          .map(
+            (row) =>
+              `<tr><td><strong>${escapeHtml(row.name)}</strong></td><td>${escapeHtml(row.slug)}</td><td>${row.cohort_count}</td><td>${row.learner_count}</td></tr>`,
+          )
+          .join("")
+      : `<tr><td colspan="4" class="muted">Keine Mandanten sichtbar.</td></tr>`;
+  }
+  const select = root.querySelector("[data-bind='admin-tenant-select']");
+  if (select) {
+    select.innerHTML = tenants
+      .map(
+        (row) =>
+          `<option value="${escapeHtml(row.tenant_id)}"${row.tenant_id === state.tenantId ? " selected" : ""}>${escapeHtml(row.name)}</option>`,
+      )
+      .join("");
+  }
+  const cohortBody = root.querySelector("[data-bind='admin-cohort-rows']");
+  if (cohortBody) {
+    const allCohorts = [];
+    for (const tenant of tenants) {
+      const rows = await fetchJson(`/api/tenants/${encodeURIComponent(tenant.tenant_id)}/cohorts`, {
+        headers: authHeaders(),
+      }).catch(() => []);
+      allCohorts.push(...rows);
+    }
+    cohortBody.innerHTML = allCohorts.length
+      ? allCohorts
+          .map(
+            (row) =>
+              `<tr><td>${escapeHtml(row.code)}</td><td>${escapeHtml(row.name)}</td><td>${row.learner_count}</td></tr>`,
+          )
+          .join("")
+      : `<tr><td colspan="3" class="muted">Keine Kohorten.</td></tr>`;
+  }
+}
+
+async function createStaffUser(form) {
+  const data = new FormData(form);
+  await fetchJson("/api/admin/users", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({
+      identifier: String(data.get("identifier") || "").trim(),
+      password: String(data.get("password") || ""),
+      role: String(data.get("role") || "learner"),
+      display_name: String(data.get("display_name") || "").trim() || null,
+      cohort_code: String(data.get("cohort_code") || "").trim() || null,
+      tenant_id: String(data.get("tenant_id") || "").trim() || null,
+    }),
+  });
+  showToast("Konto angelegt");
+  await navigateTo("/admin/nutzer", false);
+}
+
+async function createTenantFromForm(form) {
+  const data = new FormData(form);
+  await fetchJson("/api/tenants", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({
+      name: String(data.get("name") || "").trim(),
+      slug: String(data.get("slug") || "").trim(),
+    }),
+  });
+  showToast("Mandant angelegt");
+  await navigateTo("/admin/mandanten", false);
+}
+
+async function createCohortFromForm(form) {
+  const data = new FormData(form);
+  const tenantId = String(data.get("tenant_id") || "").trim();
+  await fetchJson(`/api/tenants/${encodeURIComponent(tenantId)}/cohorts`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({
+      code: String(data.get("code") || "").trim(),
+      name: String(data.get("name") || "").trim(),
+    }),
+  });
+  showToast("Kohorte angelegt");
+  await navigateTo("/admin/mandanten", false);
+}
+
+async function saveAdminSetting(form) {
+  const data = new FormData(form);
+  const raw = String(data.get("value") || "");
+  let value = raw;
+  try {
+    value = JSON.parse(raw);
+  } catch (_error) {
+    value = raw;
+  }
+  await fetchJson("/api/admin/settings", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({
+      key: String(data.get("key") || "").trim(),
+      value,
+    }),
+  });
+  showToast("Einstellung gespeichert");
+  await navigateTo("/admin/einstellungen", false);
+}
+
+async function decideTrainerReport(reportId, trainerStatus) {
+  await fetchJson(`/api/trainer/reports/${reportId}/decision`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ trainer_status: trainerStatus }),
+  });
+  showToast(trainerStatus === "approved" ? "Bericht freigegeben" : "Nacharbeit angefordert");
+  await navigateTo(state.currentPath || "/ausbilder/berichte", false);
+}
+
+async function changeAdminRole(learnerId, role) {
+  await fetchJson(`/api/admin/users/${encodeURIComponent(learnerId)}/role`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ role }),
+  });
+  showToast("Rolle aktualisiert");
+}
+
 async function refreshPrivateData() {
   state.profile = await fetchJson("/api/auth/me", { headers: authHeaders() });
   state.learnerId = state.profile.learner_id;
   state.role = state.profile.role || "learner";
   state.displayName = state.profile.display_name || "";
+  persistTenantProfile(state.profile);
   syncAuthProfile(state.profile);
   localStorage.setItem("ol_learner_id", state.learnerId);
   localStorage.setItem("ol_role", state.role);
@@ -523,6 +959,22 @@ function bindLiveData(root, config) {
   });
   root.querySelectorAll("[data-bind='continue-title']").forEach((el) => {
     el.textContent = continueTitle;
+  });
+  const continueUnit = currentLearnUnit();
+  if (continueUnit) {
+    const monthUnits = learnUnitsForMonth(continueUnit.month);
+    const position = Math.max(
+      1,
+      monthUnits.findIndex((item) => item.slug === continueUnit.slug) + 1,
+    );
+    root.querySelectorAll("[data-bind='continue-unit-meta']").forEach((el) => {
+      el.textContent = `Lerneinheit ${position} von ${monthUnits.length || 10} · Monat ${continueUnit.month}`;
+    });
+  }
+  const journeyMonth = currentJourneyMonth();
+  root.querySelectorAll("[data-bind='occupation-line']").forEach((el) => {
+    const year = journeyMonth >= 13 ? "2. Lehrjahr" : "1. Lehrjahr";
+    el.textContent = `Maschinen- und Anlagenführer — ${year}`;
   });
   const answered = liveNumber(dashboard?.continue_answered, isLoggedIn() ? 0 : 12);
   const continueTotal = liveNumber(dashboard?.continue_total, isLoggedIn() ? total || 30 : 30);
@@ -1558,14 +2010,66 @@ function bindExamWeakTopics(root, config) {
 }
 
 function examKindLabel(exam) {
+  const id = String(exam?.exam_id || "");
+  const checkpointMatch = id.match(/^checkpoint-(\d+)/);
+  if (checkpointMatch) {
+    const number = Number(checkpointMatch[1]);
+    if (number === 12) {
+      return "Zwischenprüfung";
+    }
+    if (number === 24) {
+      return "Abschlussprüfung";
+    }
+    return number > 12 ? "Checkpoint Jahr 2" : "Checkpoint Jahr 1";
+  }
   const title = String(exam?.title || "");
-  if (/zwischen/i.test(title) || /ZP/i.test(exam?.exam_id || "")) {
+  if (/zwischen/i.test(title)) {
     return "Zwischenprüfung";
   }
-  if (/AP|Abschluss/i.test(title) || /AP/i.test(exam?.exam_id || "")) {
+  if (/abschluss/i.test(title) || /\bAP\b/.test(title)) {
     return "Abschlussprüfung";
   }
   return "Themenprüfung";
+}
+
+function checkpointNumber(exam) {
+  const match = String(exam?.exam_id || "").match(/^checkpoint-(\d+)/);
+  return match ? Number(match[1]) : 0;
+}
+
+function currentJourneyMonth() {
+  const unlocked = (state.journey || []).filter((entry) => !entry.locked);
+  if (!unlocked.length) {
+    return Number(state.learnMonth) || 1;
+  }
+  return Math.max(...unlocked.map((entry) => Number(entry.month) || 1));
+}
+
+function featuredExam() {
+  const exams = state.exams || [];
+  const preferId = currentJourneyMonth() >= 13 ? "checkpoint-24" : "checkpoint-12";
+  return (
+    exams.find((exam) => exam.exam_id === preferId) ||
+    exams.find((exam) => exam.is_checkpoint) ||
+    exams[0]
+  );
+}
+
+function curatedExamList(exams) {
+  const wanted = [
+    "checkpoint-12",
+    "checkpoint-24",
+    "exam-01",
+    "checkpoint-13",
+    "checkpoint-18",
+    "checkpoint-22",
+  ];
+  const byId = Object.fromEntries(exams.map((exam) => [exam.exam_id, exam]));
+  const picked = wanted.map((id) => byId[id]).filter(Boolean);
+  if (picked.length) {
+    return picked;
+  }
+  return exams.slice(0, 8);
 }
 
 function questionPracticeStatus(progress) {
@@ -1687,9 +2191,15 @@ function bindExamHub(root, config) {
     return;
   }
   const exams = state.exams || [];
-  const featured = exams[0];
+  const featured = featuredExam();
   root.querySelectorAll("[data-bind='exam-hero-title']").forEach((el) => {
     el.textContent = featured?.title || "IHK Zwischenprüfung";
+  });
+  const yearTwoCount = exams.filter((exam) => checkpointNumber(exam) >= 13).length;
+  root.querySelectorAll("[data-bind='exam-hub-subtitle']").forEach((el) => {
+    el.textContent = yearTwoCount
+      ? `24 Monate · ${yearTwoCount} Checkpoints Jahr 2 plus ZP und AP`
+      : "24 Monate · ZP, Checkpoints und Abschlussprüfung";
   });
   const icons = [
     "/static/figma/exam/ex-timer.svg",
@@ -1714,10 +2224,14 @@ function bindExamHub(root, config) {
     const kind = examKindLabel(exam).toLowerCase();
     return !state.examKindFilter || state.examKindFilter === "alle" || kind === state.examKindFilter;
   });
+  const simExams =
+    !state.examKindFilter || state.examKindFilter === "alle"
+      ? curatedExamList(visibleExams)
+      : visibleExams;
   const simGrid = root.querySelector(".gx-sim-grid");
   if (simGrid) {
-    simGrid.innerHTML = visibleExams.length
-      ? visibleExams
+    simGrid.innerHTML = simExams.length
+      ? simExams
           .map((exam, index) => {
             const count = exam.questions?.length || 0;
             const minutes = exam.time_limit_minutes || 0;
@@ -2962,30 +3476,10 @@ async function bindPlatformTools(root, config) {
       bindReportScreens(root, path);
     }
     if (path.startsWith("/ausbilder") && STAFF_ROLES.has(state.role)) {
-      const output = root.querySelector("[data-bind='trainer-output']");
-      if (output && !output.innerHTML.trim()) {
-        const [risk, reports] = await Promise.all([
-          fetchJson("/api/trainer/risk", { headers: authHeaders() }).catch(() => []),
-          fetchJson("/api/trainer/reports", { headers: authHeaders() }).catch(() => []),
-        ]);
-        output.innerHTML = `
-          <p>${risk.length} Teilnehmende im Risiko-Radar.</p>
-          <ul>${risk
-            .slice(0, 8)
-            .map(
-              (row) =>
-                `<li>${escapeHtml(row.alias)} · ${row.readiness_percent}% · Risiko ${escapeHtml(row.risk)}</li>`,
-            )
-            .join("")}</ul>
-          <p>${reports.length} Berichtsheft-Eintraege.</p>`;
-      }
+      await bindStaffPanels(root, path);
     }
     if (path.startsWith("/admin") && state.role === "admin") {
-      const output = root.querySelector("[data-bind='trainer-output']");
-      if (output && !output.innerHTML.trim()) {
-        const monitoring = await fetchJson("/api/admin/monitoring", { headers: authHeaders() });
-        output.innerHTML = `<p>Nutzer ${monitoring.learners} · Fragen ${monitoring.quiz_questions} · Einheiten ${monitoring.learning_units} · offene Reviews ${monitoring.pending_reviews}</p>`;
-      }
+      await bindStaffPanels(root, path);
     }
   } catch (error) {
     showToast(error.message);
@@ -3934,9 +4428,11 @@ function updateChrome(config, pathname) {
     if (nav === "cockpit") {
       active =
         pathname === "/ausbilder" ||
-        ["/ausbilder/teilnehmer", "/ausbilder/pruefungsreife", "/ausbilder/risiko", "/ausbilder/hotspots", "/ausbilder/shell", "/ausbilder/nav"].includes(
+        ["/ausbilder/teilnehmer", "/ausbilder/pruefungsreife", "/ausbilder/risiko", "/ausbilder/shell", "/ausbilder/nav"].includes(
           pathname,
         );
+    } else if (nav === "hotspots") {
+      active = pathname === "/ausbilder/hotspots";
     } else if (nav === "kohorte") {
       active = pathname.startsWith("/ausbilder/kohorte");
     } else if (nav === "review") {
@@ -3947,6 +4443,8 @@ function updateChrome(config, pathname) {
       );
     } else if (nav === "reports") {
       active = pathname.startsWith("/ausbilder/bericht") || pathname === "/ausbilder/planung";
+    } else if (nav === "tenants") {
+      active = pathname === "/admin/mandanten";
     } else if (nav === "users") {
       active = pathname.startsWith("/admin/nutzer") || pathname === "/admin/zugangsdaten" || pathname === "/admin/einstellungen";
     } else if (nav === "audit") {
@@ -4195,7 +4693,39 @@ async function loadLearnMonth(month, { resetIndex = false } = {}) {
   };
 }
 
+function initSiteNav() {
+  const header = document.querySelector(".site-nav");
+  const toggle = header?.querySelector(".nav-toggle");
+  if (!header || !toggle || toggle.dataset.bound === "1") {
+    return;
+  }
+  toggle.dataset.bound = "1";
+  const setOpen = (open) => {
+    header.classList.toggle("is-open", open);
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Menü schließen" : "Menü öffnen");
+  };
+  toggle.addEventListener("click", (event) => {
+    event.preventDefault();
+    setOpen(!header.classList.contains("is-open"));
+  });
+  header.querySelectorAll("#site-nav-links a").forEach((link) => {
+    link.addEventListener("click", () => setOpen(false));
+  });
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      setOpen(false);
+    }
+  });
+  window.matchMedia("(min-width: 768px)").addEventListener("change", (event) => {
+    if (event.matches) {
+      setOpen(false);
+    }
+  });
+}
+
 async function init() {
+  initSiteNav();
   state.chapter = await fetchJson("/api/learning/first-chapter");
   await loadAllUnits();
   state.exams = await fetchJson("/api/exams");
@@ -4804,6 +5334,13 @@ document.addEventListener("click", async (event) => {
       await submitTrainingReport(target.dataset.reportId);
       return;
     }
+    if (target.dataset.action === "report-decision") {
+      event.preventDefault();
+      await requireAuth();
+      requireStaff();
+      await decideTrainerReport(target.dataset.reportId, target.dataset.status);
+      return;
+    }
     if (target.dataset.action === "generate-draft") {
       await generateDraft();
       return;
@@ -4962,6 +5499,34 @@ document.addEventListener("submit", async (event) => {
     if (form.dataset.action === "create-report") {
       event.preventDefault();
       await saveTrainingReport(form, "submitted");
+      return;
+    }
+    if (form.dataset.form === "create-user") {
+      event.preventDefault();
+      await requireAuth();
+      requireStaff();
+      await createStaffUser(form);
+      return;
+    }
+    if (form.dataset.form === "create-tenant") {
+      event.preventDefault();
+      await requireAuth();
+      requireStaff();
+      await createTenantFromForm(form);
+      return;
+    }
+    if (form.dataset.form === "create-cohort") {
+      event.preventDefault();
+      await requireAuth();
+      requireStaff();
+      await createCohortFromForm(form);
+      return;
+    }
+    if (form.dataset.form === "save-settings") {
+      event.preventDefault();
+      await requireAuth();
+      requireStaff();
+      await saveAdminSetting(form);
     }
   } catch (error) {
     showToast(error.message);
@@ -4969,6 +5534,23 @@ document.addEventListener("submit", async (event) => {
     if (feedback) {
       feedback.textContent = error.message;
     }
+  }
+});
+
+document.addEventListener("change", async (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLSelectElement)) {
+    return;
+  }
+  if (target.dataset.action !== "change-role") {
+    return;
+  }
+  try {
+    await requireAuth();
+    requireStaff();
+    await changeAdminRole(target.dataset.learnerId, target.value);
+  } catch (error) {
+    showToast(error.message);
   }
 });
 

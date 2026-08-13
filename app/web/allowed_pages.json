@@ -10,6 +10,7 @@
   "admin/einstellungen",
   "admin/import",
   "admin/lernziele",
+  "admin/mandanten",
   "admin/monitoring",
   "admin/nutzer",
   "admin/nutzer/detail",

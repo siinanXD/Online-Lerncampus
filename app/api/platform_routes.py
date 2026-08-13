@@ -1,20 +1,25 @@
 """HTTP routes for learner tools, preferences, trainer and admin APIs."""
 
-from fastapi import APIRouter, Header, Query
+from fastapi import APIRouter, Header, HTTPException, Query
 from fastapi.responses import Response
 
 from app.api.routes import (
+    _auth,
     _database,
     _progress,
     get_session,
     raise_bad_request,
     require_role,
 )
+from app.db.tenant_schema import DEFAULT_TENANT_ID
 from app.schemas.platform import (
+    AdminUserCreateRequest,
     AppSettingsResponse,
     AppSettingUpdateRequest,
     AuditEventResponse,
+    CohortCreateRequest,
     CohortLearnerResponse,
+    CohortResponse,
     ContentFlagRequest,
     ContentFlagResponse,
     DailyGoalResponse,
@@ -37,6 +42,10 @@ from app.schemas.platform import (
     ReportSuggestResponse,
     RiskRowResponse,
     RoleUpdateRequest,
+    TenantCreateRequest,
+    TenantResponse,
+    TrainerCockpitResponse,
+    TrainerHotspotResponse,
     TrainerReportDecisionRequest,
     TrainerReportResponse,
     TranslationResponse,
@@ -44,7 +53,9 @@ from app.schemas.platform import (
     VideoLessonResponse,
     VideoProgressRequest,
 )
+from app.services.auth_service import LearnerSession
 from app.services.platform_service import PlatformService
+from app.services.tenant_repository import TenantRepository
 
 platform_router = APIRouter()
 
@@ -55,6 +66,43 @@ def _platform() -> PlatformService:
         database=_database(),
         progress_service=_progress(),
     )
+
+
+def _tenants() -> TenantRepository:
+    """Return the tenant repository."""
+    return TenantRepository(_database())
+
+
+def staff_scope(session: LearnerSession) -> tuple[str | None, str | None]:
+    """Return tenant and cohort filters. A None tenant means unrestricted."""
+    if session.is_platform_admin:
+        return None, None
+    tenant_id = session.tenant_id or DEFAULT_TENANT_ID
+    cohort_code = None
+    if session.role in {"trainer", "reviewer"} and session.cohort_code:
+        cohort_code = session.cohort_code
+    return tenant_id, cohort_code
+
+
+def require_platform_admin(session: LearnerSession) -> None:
+    """Allow only platform-wide administrators."""
+    require_role(session, "admin")
+    if not session.is_platform_admin:
+        raise HTTPException(
+            status_code=403,
+            detail="Nur Plattform-Admins duerfen Mandanten anlegen.",
+        )
+
+
+def assert_tenant_access(session: LearnerSession, tenant_id: str) -> None:
+    """Reject staff who try to mutate another organisation."""
+    if session.is_platform_admin:
+        return
+    if session.tenant_id != tenant_id:
+        raise HTTPException(
+            status_code=403,
+            detail="Kein Zugriff auf diesen Mandanten.",
+        )
 
 
 def _public_diagnosis(case: dict) -> DiagnosisCaseResponse:
@@ -382,12 +430,16 @@ def create_media(
 def list_trainer_learners(
     authorization: str | None = Header(default=None),
 ) -> list[CohortLearnerResponse]:
-    """Return apprentices in the trainer cohort."""
+    """Return apprentices in the trainer tenant or cohort."""
     session = get_session(authorization)
     require_role(session, "reviewer", "trainer", "admin")
+    tenant_id, cohort_code = staff_scope(session)
     return [
         CohortLearnerResponse(**row)
-        for row in _platform().repository.list_cohort_learners(session.cohort_code)
+        for row in _platform().repository.list_scoped_learners(
+            tenant_id=tenant_id,
+            cohort_code=cohort_code,
+        )
         if row["role"] == "learner" or session.role == "admin"
     ]
 
@@ -399,9 +451,47 @@ def list_trainer_risk(
     """Return a risk table derived from mastery and error counts."""
     session = get_session(authorization)
     require_role(session, "reviewer", "trainer", "admin")
+    tenant_id, cohort_code = staff_scope(session)
     return [
         RiskRowResponse(**row)
-        for row in _platform().learner_risk_rows(session.cohort_code)
+        for row in _platform().learner_risk_rows(
+            cohort_code=cohort_code,
+            tenant_id=tenant_id,
+        )
+    ]
+
+
+@platform_router.get("/trainer/cockpit", response_model=TrainerCockpitResponse)
+def get_trainer_cockpit(
+    authorization: str | None = Header(default=None),
+) -> TrainerCockpitResponse:
+    """Return live Ausbilder cockpit stats for the caller's scope."""
+    session = get_session(authorization)
+    require_role(session, "reviewer", "trainer", "admin")
+    tenant_id, cohort_code = staff_scope(session)
+    return TrainerCockpitResponse(
+        **_platform().trainer_cockpit(
+            tenant_id=tenant_id,
+            cohort_code=cohort_code,
+            tenant_name=session.tenant_name,
+        )
+    )
+
+
+@platform_router.get("/trainer/hotspots", response_model=list[TrainerHotspotResponse])
+def list_trainer_hotspots(
+    authorization: str | None = Header(default=None),
+) -> list[TrainerHotspotResponse]:
+    """Return weak topics for the trainer heatmap."""
+    session = get_session(authorization)
+    require_role(session, "reviewer", "trainer", "admin")
+    tenant_id, cohort_code = staff_scope(session)
+    return [
+        TrainerHotspotResponse(**row)
+        for row in _platform().repository.list_topic_hotspots(
+            tenant_id=tenant_id,
+            cohort_code=cohort_code,
+        )
     ]
 
 
@@ -412,9 +502,13 @@ def list_trainer_reports(
     """Return Berichtsheft entries for trainer review."""
     session = get_session(authorization)
     require_role(session, "reviewer", "trainer", "admin")
+    tenant_id, cohort_code = staff_scope(session)
     return [
         TrainerReportResponse(**row)
-        for row in _platform().repository.list_all_training_reports()
+        for row in _platform().repository.list_all_training_reports(
+            tenant_id=tenant_id,
+            cohort_code=cohort_code,
+        )
     ]
 
 
@@ -430,10 +524,13 @@ def decide_trainer_report(
     """Approve or reject one Berichtsheft entry."""
     session = get_session(authorization)
     require_role(session, "reviewer", "trainer", "admin")
+    tenant_id, cohort_code = staff_scope(session)
     try:
         row = _platform().repository.trainer_update_report(
             report_id,
             request.trainer_status,
+            tenant_id=tenant_id,
+            cohort_code=cohort_code,
         )
     except ValueError as error:
         raise_bad_request(error)
@@ -445,8 +542,10 @@ def decide_trainer_report(
         learner_id=session.learner_id,
         metadata={"report_id": report_id, "status": request.trainer_status},
     )
-    # Trainer payload includes learner fields; merge from list if needed.
-    inbox = _platform().repository.list_all_training_reports()
+    inbox = _platform().repository.list_all_training_reports(
+        tenant_id=tenant_id,
+        cohort_code=cohort_code,
+    )
     match = next((item for item in inbox if int(item["id"]) == report_id), None)
     if match is None:
         raise_bad_request(ValueError("Eintrag nicht gefunden."))
@@ -520,13 +619,61 @@ def export_training_reports_pdf(
 def list_admin_users(
     authorization: str | None = Header(default=None),
 ) -> list[CohortLearnerResponse]:
-    """Return all active accounts for the admin user list."""
+    """Return active accounts for the admin user list."""
     session = get_session(authorization)
     require_role(session, "admin")
+    tenant_id, _cohort = staff_scope(session)
     return [
         CohortLearnerResponse(**row)
-        for row in _platform().repository.list_cohort_learners(None)
+        for row in _platform().repository.list_scoped_learners(tenant_id=tenant_id)
     ]
+
+
+@platform_router.post("/admin/users", response_model=CohortLearnerResponse)
+def create_admin_user(
+    request: AdminUserCreateRequest,
+    authorization: str | None = Header(default=None),
+) -> CohortLearnerResponse:
+    """Provision a learner or staff account in the caller's organisation."""
+    session = get_session(authorization)
+    require_role(session, "admin")
+    tenant_id, _cohort = staff_scope(session)
+    target_tenant = request.tenant_id or tenant_id or DEFAULT_TENANT_ID
+    if not session.is_platform_admin:
+        if request.is_platform_admin:
+            raise HTTPException(
+                status_code=403,
+                detail="Mandanten-Admins duerfen keine Plattform-Admins anlegen.",
+            )
+        if request.tenant_id and request.tenant_id != session.tenant_id:
+            raise HTTPException(
+                status_code=403,
+                detail="Kein Zugriff auf diesen Mandanten.",
+            )
+        target_tenant = session.tenant_id or DEFAULT_TENANT_ID
+    try:
+        row = _auth().provision_user(
+            identifier=request.identifier,
+            password=request.password,
+            role=request.role,
+            display_name=request.display_name,
+            cohort_code=request.cohort_code,
+            tenant_id=None if request.is_platform_admin else target_tenant,
+            is_platform_admin=bool(
+                request.is_platform_admin and session.is_platform_admin
+            ),
+        )
+    except ValueError as error:
+        raise_bad_request(error)
+        raise
+    return CohortLearnerResponse(
+        learner_id=str(row["learner_id"]),
+        display_name=str(row["display_name"]),
+        role=str(row["role"]),
+        cohort_code=row.get("cohort_code"),
+        tenant_id=row.get("tenant_id"),
+        created_at=str(row.get("created_at") or ""),
+    )
 
 
 @platform_router.post("/admin/users/{learner_id}/role")
@@ -538,8 +685,13 @@ def update_admin_user_role(
     """Change an account role."""
     session = get_session(authorization)
     require_role(session, "admin")
+    tenant_id, _cohort = staff_scope(session)
     try:
-        row = _platform().repository.update_learner_role(learner_id, request.role)
+        row = _platform().repository.update_learner_role(
+            learner_id,
+            request.role,
+            tenant_id=tenant_id,
+        )
     except ValueError as error:
         raise_bad_request(error)
         raise
@@ -555,6 +707,7 @@ def update_admin_user_role(
         "display_name": row["display_name"],
         "role": row["role"],
         "cohort_code": row["cohort_code"],
+        "tenant_id": row.get("tenant_id"),
     }
 
 
@@ -566,9 +719,10 @@ def list_admin_audit(
     """Return recent audit events."""
     session = get_session(authorization)
     require_role(session, "admin")
+    tenant_id, _cohort = staff_scope(session)
     return [
         AuditEventResponse(**row)
-        for row in _platform().repository.list_audit_events(limit)
+        for row in _platform().repository.list_audit_events(limit, tenant_id=tenant_id)
     ]
 
 
@@ -579,7 +733,83 @@ def get_admin_monitoring(
     """Return monitoring counters."""
     session = get_session(authorization)
     require_role(session, "admin")
-    return MonitoringResponse(**_platform().repository.monitoring_snapshot())
+    tenant_id, _cohort = staff_scope(session)
+    return MonitoringResponse(
+        **_platform().repository.monitoring_snapshot(tenant_id=tenant_id)
+    )
+
+
+@platform_router.get("/tenants", response_model=list[TenantResponse])
+def list_tenants(
+    authorization: str | None = Header(default=None),
+) -> list[TenantResponse]:
+    """Return organisations visible to the caller."""
+    session = get_session(authorization)
+    require_role(session, "reviewer", "trainer", "admin")
+    tenant_id, _cohort = staff_scope(session)
+    return [TenantResponse(**row) for row in _tenants().list_tenants(tenant_id)]
+
+
+@platform_router.post("/tenants", response_model=TenantResponse)
+def create_tenant(
+    request: TenantCreateRequest,
+    authorization: str | None = Header(default=None),
+) -> TenantResponse:
+    """Create a new Bildungsbetrieb. Platform admin only."""
+    session = get_session(authorization)
+    require_platform_admin(session)
+    try:
+        row = _tenants().create_tenant(request.name, request.slug)
+    except ValueError as error:
+        raise_bad_request(error)
+        raise
+    _database().record_audit_event(
+        event_type="admin.tenant_created",
+        learner_id=session.learner_id,
+        metadata={"tenant_id": row["tenant_id"]},
+    )
+    return TenantResponse(**row)
+
+
+@platform_router.get(
+    "/tenants/{tenant_id}/cohorts",
+    response_model=list[CohortResponse],
+)
+def list_tenant_cohorts(
+    tenant_id: str,
+    authorization: str | None = Header(default=None),
+) -> list[CohortResponse]:
+    """Return class groups for one organisation."""
+    session = get_session(authorization)
+    require_role(session, "reviewer", "trainer", "admin")
+    assert_tenant_access(session, tenant_id)
+    return [CohortResponse(**row) for row in _tenants().list_cohorts(tenant_id)]
+
+
+@platform_router.post(
+    "/tenants/{tenant_id}/cohorts",
+    response_model=CohortResponse,
+)
+def create_tenant_cohort(
+    tenant_id: str,
+    request: CohortCreateRequest,
+    authorization: str | None = Header(default=None),
+) -> CohortResponse:
+    """Add a class group to an organisation."""
+    session = get_session(authorization)
+    require_role(session, "admin")
+    assert_tenant_access(session, tenant_id)
+    try:
+        row = _tenants().create_cohort(tenant_id, request.code, request.name)
+    except ValueError as error:
+        raise_bad_request(error)
+        raise
+    _database().record_audit_event(
+        event_type="admin.cohort_created",
+        learner_id=session.learner_id,
+        metadata={"tenant_id": tenant_id, "code": row["code"]},
+    )
+    return CohortResponse(**row)
 
 
 @platform_router.get("/admin/duplicates", response_model=list[DuplicatePromptResponse])

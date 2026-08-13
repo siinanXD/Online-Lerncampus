@@ -97,6 +97,38 @@ CHECKPOINT_CHOICE_QUESTIONS = 50
 CHECKPOINT_OPEN_QUESTIONS = 15
 CHECKPOINT_TIME_LIMIT_MINUTES = 120
 UNITS_PER_CHECKPOINT = 10
+MAX_CURRICULUM_MONTH = 24
+
+
+def _open_ids_for_month(month: int, open_ids: list[str]) -> list[str]:
+    """Return authored open-task ids for one curriculum month."""
+    prefix = f"open-m{month:02d}-"
+    return [question_id for question_id in open_ids if question_id.startswith(prefix)]
+
+
+def _open_ids_for_checkpoint(number: int, open_ids: list[str]) -> list[str]:
+    """Prefer the checkpoint month, then neighbours, so year-2 exams stay in year 2."""
+    selected: list[str] = []
+    seen: set[str] = set()
+    for offset in (0, -1, 1, -2, 2, -3, 3):
+        month = number + offset
+        if month < 1 or month > MAX_CURRICULUM_MONTH:
+            continue
+        for question_id in _open_ids_for_month(month, open_ids):
+            if question_id in seen:
+                continue
+            selected.append(question_id)
+            seen.add(question_id)
+            if len(selected) >= CHECKPOINT_OPEN_QUESTIONS:
+                return selected
+    for question_id in open_ids:
+        if question_id in seen:
+            continue
+        selected.append(question_id)
+        seen.add(question_id)
+        if len(selected) >= CHECKPOINT_OPEN_QUESTIONS:
+            break
+    return selected[:CHECKPOINT_OPEN_QUESTIONS]
 
 
 def _build_checkpoint_exams() -> list[PracticeExam]:
@@ -114,10 +146,7 @@ def _build_checkpoint_exams() -> list[PracticeExam]:
             question_ids[(start + offset) % len(question_ids)]
             for offset in range(CHECKPOINT_CHOICE_QUESTIONS)
         ]
-        selected_open = [
-            open_ids[(start + offset) % len(open_ids)]
-            for offset in range(CHECKPOINT_OPEN_QUESTIONS)
-        ]
+        selected_open = _open_ids_for_checkpoint(number, open_ids)
         month = min(number, len(MACHINE_OPERATOR_CURRICULUM))
         month_title = CURRICULUM_BY_MONTH[month].title
         exams.append(

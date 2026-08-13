@@ -1,0 +1,606 @@
+/* Adaptive layouts for phone, tablet, and desktop.
+   Loaded last so it can unlock Figma phone-frame locks (390/402 × 844)
+   without rewriting every chrome rule in ui.css / gx.css.
+   Layouts use container queries on the app/login/desk shells; media
+   queries remain as a fallback. */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100dvh;
+  overflow-x: clip;
+}
+
+/* ——— Marketing nav ——— */
+.nav-toggle {
+  display: inline-flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  order: 3;
+  width: 44px;
+  height: 44px;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  cursor: pointer;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--fg);
+}
+
+.site-nav {
+  gap: var(--space-3);
+  padding-block: var(--space-3);
+  padding-inline: max(var(--space-4), env(safe-area-inset-left, 0px))
+    max(var(--space-4), env(safe-area-inset-right, 0px));
+}
+
+.site-nav .brand {
+  min-width: 0;
+  order: 0;
+}
+
+.site-nav .nav-cta {
+  flex-shrink: 0;
+  order: 2;
+  margin-inline-start: auto;
+}
+
+.site-nav .nav-links {
+  display: none;
+  order: 1;
+  position: absolute;
+  top: calc(100% + 8px);
+  inset-inline: max(var(--space-4), env(safe-area-inset-left, 0px))
+    max(var(--space-4), env(safe-area-inset-right, 0px));
+  flex-direction: column;
+  gap: 0;
+  padding: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.12);
+  z-index: 40;
+}
+
+.site-nav.is-open .nav-links {
+  display: flex;
+}
+
+.site-nav .nav-links a {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+}
+
+@media (min-width: 768px) {
+  .nav-toggle {
+    display: none;
+  }
+
+  .site-nav .nav-cta {
+    margin-inline-start: 0;
+  }
+
+  .site-nav .nav-links {
+    display: flex;
+    position: static;
+    inset: auto;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--space-4);
+    padding: 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .site-nav .nav-links a {
+    min-height: 0;
+    padding: 0;
+  }
+}
+
+/* ——— Landing ——— */
+.hero-section,
+.features-section,
+.trust-bar {
+  padding-inline: max(var(--space-4), env(safe-area-inset-left, 0px))
+    max(var(--space-4), env(safe-area-inset-right, 0px));
+}
+
+body[data-page-layout="landing"] main {
+  container-type: inline-size;
+  container-name: page;
+}
+
+.hero-section {
+  container-type: inline-size;
+}
+
+.hero-copy h1 {
+  font-size: clamp(1.75rem, 4cqi + 1rem, 3.4rem);
+}
+
+@supports not (font-size: 1cqi) {
+  .hero-copy h1 {
+    font-size: clamp(1.75rem, 5vw, 3.4rem);
+  }
+}
+
+@container page (min-width: 640px) {
+  .features-section {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container page (min-width: 900px) {
+  .hero-section {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+  }
+}
+
+@media (max-width: 639px) {
+  .features-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+.phone-stage {
+  width: min(100%, 320px);
+}
+
+/* ——— Login / Auth: full-bleed on phones, centered card on larger screens ——— */
+.login-shell,
+.auth-shell {
+  min-height: 100dvh;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.login-phone,
+.auth-phone {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100dvh;
+  height: auto;
+  margin: 0 auto;
+  padding-inline: max(20px, env(safe-area-inset-left, 0px))
+    max(20px, env(safe-area-inset-right, 0px));
+  padding-bottom: max(16px, env(safe-area-inset-bottom, 0px));
+  box-sizing: border-box;
+}
+
+@media (min-width: 640px) {
+  .login-shell,
+  .auth-shell {
+    display: grid;
+    place-items: center;
+    padding: 32px 24px;
+  }
+
+  body[data-page-layout="login"] .login-shell {
+    display: grid;
+  }
+
+  body[data-page-layout="auth"] .auth-shell {
+    display: grid;
+  }
+
+  .login-phone,
+  .auth-phone {
+    width: min(100%, 440px);
+    min-height: auto;
+    margin: 0 auto;
+    padding: 28px 28px 24px;
+    background: #fff;
+    border: 1px solid var(--login-border, #e2e8f0);
+    border-radius: 24px;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+  }
+}
+
+/* ——— Participant app: fill the real device, drop 390×844 locks ——— */
+body[data-page-layout="app"] {
+  height: 100dvh;
+  overflow: hidden;
+}
+
+body[data-page-layout="app"] .campus-app {
+  min-height: 100dvh;
+  height: 100dvh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+}
+
+body[data-page-layout="app"] .app-frame,
+body[data-page-layout="app"] .app-frame[data-chrome] {
+  width: 100% !important;
+  max-width: none !important;
+  min-height: 100dvh !important;
+  height: 100dvh !important;
+  max-height: 100dvh !important;
+  margin: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  overflow: hidden;
+  container-type: inline-size;
+  container-name: app-shell;
+}
+
+.app-content,
+.screen-root {
+  min-width: 0;
+  min-height: 0;
+}
+
+.gx-screen,
+.ov-screen {
+  container-type: inline-size;
+  container-name: gx;
+  min-width: 0;
+  min-height: 0;
+}
+
+.gx-scroll {
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.gx-home-header,
+.gx-gamification-row,
+.gx-body,
+.gx-page-header,
+.gx-stats-panel,
+.gx-profil-header,
+.gx-recommend-wrap,
+.gx-path-month {
+  padding-inline: max(16px, env(safe-area-inset-left, 0px))
+    max(16px, env(safe-area-inset-right, 0px));
+}
+
+.gx-chips {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.gx-tab,
+.tab-bar a {
+  flex: 1 1 0;
+  width: auto;
+  min-width: 0;
+  min-height: 44px;
+}
+
+.gx-nav {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.gx-bottom {
+  height: auto;
+  min-height: 60px;
+  padding: 8px 8px calc(8px + env(safe-area-inset-bottom, 0px));
+}
+
+.tab-bar {
+  padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+}
+
+.gx-path-row {
+  padding-inline: clamp(16px, 6vw, 40px);
+}
+
+@supports (padding: 1cqi) {
+  .gx-path-row {
+    padding-inline: clamp(16px, 6cqi, 40px);
+  }
+}
+
+.gx-page-header h2 {
+  font-size: clamp(1.125rem, 2.4cqi + 0.7rem, 1.75rem);
+}
+
+@supports not (font-size: 1cqi) {
+  .gx-page-header h2 {
+    font-size: clamp(1.125rem, 3vw + 0.7rem, 1.75rem);
+  }
+}
+
+/* Compact tablet: two-up cards, wrapping chips, readable type */
+@container gx (min-width: 600px) {
+  .gx-home-header,
+  .gx-gamification-row,
+  .gx-body,
+  .gx-page-header,
+  .gx-stats-panel,
+  .gx-profil-header,
+  .gx-recommend-wrap {
+    max-width: 720px;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .gx-sim-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .gx-practice-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* Tablet / small laptop: two-column home, wider exam grid */
+@container gx (min-width: 700px) {
+  .gx-home-header,
+  .gx-gamification-row,
+  .gx-body,
+  .gx-page-header,
+  .gx-stats-panel,
+  .gx-profil-header,
+  .gx-recommend-wrap {
+    max-width: 1100px;
+  }
+
+  .gx-home .gx-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+    align-items: start;
+    gap: 20px;
+  }
+
+  .gx-home .gx-continue {
+    grid-column: 1;
+    min-width: 0;
+  }
+
+  .gx-home .gx-goal {
+    grid-column: 2;
+    min-width: 0;
+  }
+
+  .gx-home .gx-section {
+    grid-column: 1 / -1;
+  }
+
+  .gx-pruefung .gx-body,
+  .gx-fortschritt .gx-body,
+  .gx-profil .gx-body {
+    max-width: 1100px;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .gx-sim-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .gx-badges {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .gx-badge-row {
+    flex: 1 1 220px;
+  }
+
+  .gx-lernen .gx-path,
+  .gx-path {
+    max-width: 640px;
+    margin-inline: auto;
+  }
+}
+
+/* Desktop: rail navigation + 4-up exam cards.
+   flex-direction on .gx-screen must be queried from the parent
+   app-shell container — a container cannot restyle itself. */
+@container app-shell (min-width: 1024px) {
+  .gx-screen {
+    flex-direction: row;
+  }
+}
+
+@container gx (min-width: 1024px) {
+  .gx-scroll {
+    order: 2;
+    flex: 1 1 auto;
+  }
+
+  .gx-nav {
+    order: 1;
+    flex: 0 0 220px;
+    width: 220px;
+    height: auto;
+    border-top: 0;
+    border-right: 1px solid #e2e8f0;
+    justify-content: flex-start;
+  }
+
+  .gx-bottom {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: flex-start;
+    gap: 4px;
+    height: auto;
+    min-height: 0;
+    padding: 16px 12px;
+  }
+
+  .gx-tab {
+    width: 100%;
+    flex: 0 0 auto;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+  }
+
+  .gx-sim-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* Viewport fallback when container queries are unavailable */
+@media (min-width: 700px) {
+  @supports not (container-type: inline-size) {
+    .gx-home .gx-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      align-items: start;
+    }
+
+    .gx-home .gx-section {
+      grid-column: 1 / -1;
+    }
+
+    .gx-sim-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+}
+
+@media (min-width: 1024px) {
+  @supports not (container-type: inline-size) {
+    .gx-screen {
+      flex-direction: row;
+    }
+
+    .gx-nav {
+      flex: 0 0 220px;
+      border-top: 0;
+      border-right: 1px solid #e2e8f0;
+    }
+
+    .gx-bottom {
+      flex-direction: column;
+      align-items: stretch;
+    }
+
+    .gx-sim-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+}
+
+/* Landscape phones: keep the tab bar, let the body scroll */
+@media (max-height: 500px) and (orientation: landscape) {
+  .gx-bottom {
+    min-height: 48px;
+    padding-block: 4px;
+  }
+
+  .gx-tab {
+    min-height: 40px;
+    font-size: 10px;
+  }
+
+  .gx-home-header,
+  .gx-page-header {
+    padding-block: 8px;
+  }
+}
+
+/* Touch: keep 44px targets even when type is compact */
+@media (pointer: coarse) {
+  .gx-tab,
+  .tab-bar a,
+  .gx-chip,
+  .gx-exam-chip,
+  .nav-links a,
+  .desk-nav a {
+    min-height: 44px;
+  }
+}
+
+/* ——— Trainer / Admin desk ——— */
+.desk-shell {
+  container-type: inline-size;
+  container-name: desk;
+  min-height: 100dvh;
+}
+
+.tr-top-left,
+.tr-top-right,
+.tr-user,
+.tr-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.tr-top-left,
+.desk-nav {
+  flex-wrap: wrap;
+}
+
+.desk-topnav {
+  flex-wrap: wrap;
+  padding-inline: max(var(--space-4), env(safe-area-inset-left, 0px))
+    max(var(--space-4), env(safe-area-inset-right, 0px));
+}
+
+.desk-root {
+  padding-inline: max(var(--space-4), env(safe-area-inset-left, 0px))
+    max(var(--space-4), env(safe-area-inset-right, 0px));
+}
+
+.desk-table-wrap,
+.table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.data-table {
+  min-width: 560px;
+}
+
+@container desk (max-width: 720px) {
+  .tr-user-meta {
+    display: none;
+  }
+
+  .desk-page-head {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .desk-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .tr-user-meta {
+    display: none;
+  }
+
+  .desk-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .desk-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (min-width: 960px) {
+  .desk-grid {
+    grid-template-columns: 240px minmax(0, 1fr);
+  }
+}

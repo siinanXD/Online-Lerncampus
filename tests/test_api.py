@@ -84,6 +84,24 @@ def test_route_config_matches_page_allowlist() -> None:
     )
 
 
+def test_gx_consistency_hubs_expose_year_two_ia() -> None:
+    """Participant hubs keep the 5-tab IA and year-2 live binds."""
+    from pathlib import Path
+
+    screens = Path("app/web/static/screens.js").read_text(encoding="utf-8")
+    app_js = Path("app/web/static/app.js").read_text(encoding="utf-8")
+    assert 'label: "Home"' in screens
+    assert 'label: "Fortschritt"' in screens
+    assert 'label: "Profil"' in screens
+    assert "s19_1-home-dashboard" in screens
+    assert 'data-bind="continue-unit-meta"' in screens
+    assert 'data-bind="occupation-line"' in screens
+    assert "Maschinen- und Anlagenführer" in screens
+    assert "checkpoint-24" in app_js
+    assert "Checkpoint Jahr 2" in app_js
+    assert "Vertiefung & Abschluss" in app_js
+
+
 def test_frontend_api_calls_have_backend_routes() -> None:
     """Ensure every fetchJson /api call in static JS maps to a FastAPI route."""
     import re
@@ -291,7 +309,7 @@ def test_questions_endpoint_returns_full_catalog_without_month_filter() -> None:
     units = client.get("/api/learning/units").json()
 
     assert len(all_questions) == 480
-    assert len(units) == 144
+    assert len(units) == 240
     assert len({unit["month"] for unit in units}) == 24
 
 

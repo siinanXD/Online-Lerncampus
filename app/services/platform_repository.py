@@ -777,41 +777,71 @@ class PlatformRepository:
 
     def list_cohort_learners(self, cohort_code: str | None) -> list[dict[str, Any]]:
         """Return active learners in one cohort (no identifier hashes)."""
+        return self.list_scoped_learners(cohort_code=cohort_code)
+
+    def list_scoped_learners(
+        self,
+        *,
+        tenant_id: str | None = None,
+        cohort_code: str | None = None,
+        limit: int = 200,
+    ) -> list[dict[str, Any]]:
+        """Return active accounts limited to one tenant and/or cohort."""
+        clauses = ["deleted_at IS NULL"]
+        params: list[Any] = []
+        if tenant_id:
+            clauses.append("tenant_id = ?")
+            params.append(tenant_id)
+        if cohort_code:
+            clauses.append("cohort_code = ?")
+            params.append(cohort_code)
+        where = " AND ".join(clauses)
         with self.database._transaction() as connection:
-            if cohort_code:
+            rows = connection.execute(
+                f"""
+                SELECT learner_id, display_name, role, cohort_code, tenant_id, created_at
+                FROM learners
+                WHERE {where}
+                ORDER BY created_at DESC
+                LIMIT ?
+                """,
+                (*params, limit),
+            ).fetchall()
+        return [Database._row_dict(row) for row in rows]
+
+    def list_audit_events(
+        self,
+        limit: int = 50,
+        *,
+        tenant_id: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """Return recent audit events for admin views."""
+        with self.database._transaction() as connection:
+            if tenant_id:
                 rows = connection.execute(
                     """
-                    SELECT learner_id, display_name, role, cohort_code, created_at
-                    FROM learners
-                    WHERE deleted_at IS NULL AND cohort_code = ?
-                    ORDER BY created_at DESC
+                    SELECT audit_events.id, audit_events.learner_id,
+                           audit_events.event_type, audit_events.metadata_json,
+                           audit_events.created_at
+                    FROM audit_events
+                    LEFT JOIN learners
+                        ON learners.learner_id = audit_events.learner_id
+                    WHERE learners.tenant_id = ?
+                    ORDER BY audit_events.id DESC
+                    LIMIT ?
                     """,
-                    (cohort_code,),
+                    (tenant_id, limit),
                 ).fetchall()
             else:
                 rows = connection.execute(
                     """
-                    SELECT learner_id, display_name, role, cohort_code, created_at
-                    FROM learners
-                    WHERE deleted_at IS NULL
-                    ORDER BY created_at DESC
-                    LIMIT 200
-                    """
+                    SELECT id, learner_id, event_type, metadata_json, created_at
+                    FROM audit_events
+                    ORDER BY id DESC
+                    LIMIT ?
+                    """,
+                    (limit,),
                 ).fetchall()
-        return [Database._row_dict(row) for row in rows]
-
-    def list_audit_events(self, limit: int = 50) -> list[dict[str, Any]]:
-        """Return recent audit events for admin views."""
-        with self.database._transaction() as connection:
-            rows = connection.execute(
-                """
-                SELECT id, learner_id, event_type, metadata_json, created_at
-                FROM audit_events
-                ORDER BY id DESC
-                LIMIT ?
-                """,
-                (limit,),
-            ).fetchall()
         result = []
         for row in rows:
             payload = Database._row_dict(row)
@@ -819,15 +849,51 @@ class PlatformRepository:
             result.append(payload)
         return result
 
-    def monitoring_snapshot(self) -> dict[str, Any]:
+    def monitoring_snapshot(self, tenant_id: str | None = None) -> dict[str, Any]:
         """Return high-level counts for the admin monitoring screen."""
         with self.database._transaction() as connection:
-            def count(sql: str) -> int:
-                return int(connection.execute(sql).fetchone()["count"])
+            def count(sql: str, params: tuple[Any, ...] = ()) -> int:
+                return int(connection.execute(sql, params).fetchone()["count"])
 
-            learners = count(
-                "SELECT COUNT(*) AS count FROM learners WHERE deleted_at IS NULL"
-            )
+            if tenant_id:
+                learners = count(
+                    """
+                    SELECT COUNT(*) AS count FROM learners
+                    WHERE deleted_at IS NULL AND tenant_id = ?
+                    """,
+                    (tenant_id,),
+                )
+                sessions = count(
+                    """
+                    SELECT COUNT(*) AS count FROM exam_sessions
+                    JOIN learners ON learners.learner_id = exam_sessions.learner_id
+                    WHERE learners.tenant_id = ?
+                    """,
+                    (tenant_id,),
+                )
+                reports = count(
+                    """
+                    SELECT COUNT(*) AS count FROM training_reports
+                    JOIN learners ON learners.learner_id = training_reports.learner_id
+                    WHERE learners.tenant_id = ?
+                    """,
+                    (tenant_id,),
+                )
+                flags = count(
+                    """
+                    SELECT COUNT(*) AS count FROM content_flags
+                    JOIN learners ON learners.learner_id = content_flags.learner_id
+                    WHERE learners.tenant_id = ?
+                    """,
+                    (tenant_id,),
+                )
+            else:
+                learners = count(
+                    "SELECT COUNT(*) AS count FROM learners WHERE deleted_at IS NULL"
+                )
+                sessions = count("SELECT COUNT(*) AS count FROM exam_sessions")
+                reports = count("SELECT COUNT(*) AS count FROM training_reports")
+                flags = count("SELECT COUNT(*) AS count FROM content_flags")
             questions = count("SELECT COUNT(*) AS count FROM quiz_questions")
             units = count("SELECT COUNT(*) AS count FROM learning_units")
             pending = count(
@@ -836,9 +902,6 @@ class PlatformRepository:
                 WHERE review_status IN ('draft', 'needs_revision')
                 """
             )
-            sessions = count("SELECT COUNT(*) AS count FROM exam_sessions")
-            reports = count("SELECT COUNT(*) AS count FROM training_reports")
-            flags = count("SELECT COUNT(*) AS count FROM content_flags")
         return {
             "learners": learners,
             "quiz_questions": questions,
@@ -899,11 +962,22 @@ class PlatformRepository:
             )
         return self.get_app_settings()
 
-    def update_learner_role(self, learner_id: str, role: str) -> dict[str, Any] | None:
+    def update_learner_role(
+        self,
+        learner_id: str,
+        role: str,
+        *,
+        tenant_id: str | None = None,
+    ) -> dict[str, Any] | None:
         """Change a learner's role (admin only)."""
         allowed = {"learner", "reviewer", "trainer", "admin"}
         if role not in allowed:
             raise ValueError("Ungueltige Rolle.")
+        current = self.database.get_learner(learner_id)
+        if current is None:
+            return None
+        if tenant_id and current.get("tenant_id") != tenant_id:
+            return None
         with self.database._transaction() as connection:
             connection.execute(
                 """
@@ -942,6 +1016,9 @@ class PlatformRepository:
         self,
         report_id: int,
         trainer_status: str,
+        *,
+        tenant_id: str | None = None,
+        cohort_code: str | None = None,
     ) -> dict[str, Any] | None:
         """Approve or reject a Berichtsheft entry."""
         if trainer_status not in {"pending", "approved", "rejected"}:
@@ -949,10 +1026,21 @@ class PlatformRepository:
         timestamp = utc_now_iso()
         with self.database._transaction() as connection:
             row = connection.execute(
-                "SELECT id, learner_id FROM training_reports WHERE id = ?",
+                """
+                SELECT training_reports.id, training_reports.learner_id,
+                       learners.tenant_id, learners.cohort_code
+                FROM training_reports
+                JOIN learners ON learners.learner_id = training_reports.learner_id
+                WHERE training_reports.id = ?
+                """,
                 (report_id,),
             ).fetchone()
             if row is None:
+                return None
+            payload = Database._row_dict(row)
+            if tenant_id and payload.get("tenant_id") != tenant_id:
+                return None
+            if cohort_code and payload.get("cohort_code") != cohort_code:
                 return None
             connection.execute(
                 """
@@ -962,28 +1050,90 @@ class PlatformRepository:
                 """,
                 (trainer_status, timestamp, report_id),
             )
-        payload = Database._row_dict(row)
         return self.database.get_training_report(payload["learner_id"], report_id)
 
-    def list_all_training_reports(self, limit: int = 100) -> list[dict[str, Any]]:
+    def list_all_training_reports(
+        self,
+        limit: int = 100,
+        *,
+        tenant_id: str | None = None,
+        cohort_code: str | None = None,
+    ) -> list[dict[str, Any]]:
         """Return recent Berichtsheft entries across learners for trainers."""
+        clauses: list[str] = []
+        params: list[Any] = []
+        if tenant_id:
+            clauses.append("learners.tenant_id = ?")
+            params.append(tenant_id)
+        if cohort_code:
+            clauses.append("learners.cohort_code = ?")
+            params.append(cohort_code)
+        where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
         with self.database._transaction() as connection:
             rows = connection.execute(
-                """
+                f"""
                 SELECT training_reports.id, training_reports.learner_id,
-                       learners.display_name, learners.cohort_code,
+                       learners.display_name, learners.cohort_code, learners.tenant_id,
                        training_reports.report_date, training_reports.activities,
                        training_reports.hours, training_reports.status,
                        training_reports.trainer_status, training_reports.signed_at,
                        training_reports.created_at, training_reports.updated_at
                 FROM training_reports
                 JOIN learners ON learners.learner_id = training_reports.learner_id
+                {where}
                 ORDER BY training_reports.report_date DESC, training_reports.id DESC
                 LIMIT ?
                 """,
-                (limit,),
+                (*params, limit),
             ).fetchall()
         return [Database._row_dict(row) for row in rows]
+
+    def list_topic_hotspots(
+        self,
+        *,
+        tenant_id: str | None = None,
+        cohort_code: str | None = None,
+        limit: int = 12,
+    ) -> list[dict[str, Any]]:
+        """Aggregate wrong answers by topic for the trainer heatmap."""
+        clauses = ["learners.deleted_at IS NULL", "learners.role = 'learner'"]
+        params: list[Any] = []
+        if tenant_id:
+            clauses.append("learners.tenant_id = ?")
+            params.append(tenant_id)
+        if cohort_code:
+            clauses.append("learners.cohort_code = ?")
+            params.append(cohort_code)
+        where = " AND ".join(clauses)
+        with self.database._transaction() as connection:
+            rows = connection.execute(
+                f"""
+                SELECT question_categories.slug AS category_slug,
+                       question_categories.title AS title,
+                       COALESCE(SUM(question_progress.wrong_count), 0) AS wrong_count,
+                       COUNT(DISTINCT question_progress.learner_id) AS learner_count
+                FROM question_progress
+                JOIN quiz_questions
+                    ON quiz_questions.question_id = question_progress.question_id
+                JOIN question_categories
+                    ON question_categories.id = quiz_questions.category_id
+                JOIN learners
+                    ON learners.learner_id = question_progress.learner_id
+                WHERE {where}
+                GROUP BY question_categories.slug, question_categories.title
+                HAVING COALESCE(SUM(question_progress.wrong_count), 0) > 0
+                ORDER BY wrong_count DESC
+                LIMIT ?
+                """,
+                (*params, limit),
+            ).fetchall()
+        result = []
+        for row in rows:
+            payload = Database._row_dict(row)
+            payload["wrong_count"] = int(payload["wrong_count"])
+            payload["learner_count"] = int(payload["learner_count"])
+            result.append(payload)
+        return result
 
     def export_training_reports_text(self, learner_id: str) -> str:
         """Build a printable text export of Berichtsheft entries."""

@@ -363,6 +363,9 @@ def login(request: LoginRequest) -> LoginResponse:
         display_name=session.display_name,
         cohort_code=session.cohort_code,
         role=session.role,
+        tenant_id=session.tenant_id,
+        tenant_name=session.tenant_name,
+        is_platform_admin=session.is_platform_admin,
         **profile,
     )
 
@@ -379,6 +382,9 @@ def get_current_learner(
         display_name=session.display_name,
         cohort_code=session.cohort_code,
         role=session.role,
+        tenant_id=session.tenant_id,
+        tenant_name=session.tenant_name,
+        is_platform_admin=session.is_platform_admin,
         **profile,
     )
 

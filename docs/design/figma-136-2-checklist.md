@@ -214,11 +214,11 @@ New participant hubs added to overview `136:2` (near y≈17010 under section 18)
 | [~] | `159:320` | 19.4 fortschritt-stats | 402×943 | `/fortschritt` |
 | [~] | `159:456` | 19.5 profil-settings | 402×910 | `/mehr` |
 
-**IA change:** shell tab bar updated from Start/Lernen/Prüfung/Bericht/Mehr → Home/Lernen/Prüfung/Fortschritt/Profil. Legacy hubs kept at `*/legacy` routes. Staff/Admin paused until this set is pixel-matched.
+**IA change:** shell tab bar is **Home · Lernen · Prüfung · Fortschritt · Profil**. Berichtsheft via Schnellstarter / Profil, not a main tab. Legacy hubs at `*/legacy`. Staff/Admin paused until remaining 19.x pixel deltas are closed.
 
-**Deep chrome:** exam/fp/bh/mehr/fk/formel/learn-drill embedded navs unified to the same 5-tab IA via `OLC_GX_NAV` (Berichtsheft remains link/Schnellstarter only, not a main tab).
+**Live binds (year-2 content):** 19.1 continue-card uses month unit index across 24 months; 19.2 journey lists all 240 units; 19.3 exam hub features checkpoint-12 or checkpoint-24 from journey month and filters Checkpoint Jahr 2; 19.4 path summary stays Grundlagen / ZP / Vertiefung+Abschluss (months 1–8 / 9–12 / 13–24); 19.5 occupation line is MAF + Lehrjahr from unlocked journey month.
 
-**Pixel deltas (live vs Figma, stop per decision):** 19.1 ~8.6%; 19.2 ~4.9% [x]; 19.3 ~10.0%; 19.4 ~8.5%; 19.5 ~8.3%.
+**Pixel deltas (live vs Figma, stop per decision):** 19.1 ~8.6%; 19.2 ~4.9% [x]; 19.3 ~10.0%; 19.4 ~8.5%; 19.5 ~8.3%. No new screenshot deltas in this pass (Figma MCP unauthenticated).
 
 ---
 
@@ -254,3 +254,4 @@ New participant hubs added to overview `136:2` (near y≈17010 under section 18)
 - Mehr tighten: 09.4 Lernplan [~] ~14.3% (fit scroll, subtitle single-line, actions in scroll); 09.5 Export [~] ~11.2%; 09.1 Profil [~] ~12.9% (stats collapse fix + Lernzeit + Figma name); 09.1 Benachrichtigungen [~] ~13.9%. Still above ~8–10% target; Staff/Admin next.
 - Deep chrome unified to OLC_GX_NAV 5-tab IA (exam/fp/bh/mehr/fk/formel/learn-drill); 19.2 Lernen [x] ~4.9%; other 19.x still [~]
 - **Konsistenz-Set 19 (159:*):** inventory + implement hubs on `/dashboard` `/lernen` `/pruefungen` `/fortschritt` `/mehr` with shared `gx` chrome; shell tab bar → Home/Lernen/Prüfung/Fortschritt/Profil; Berichtsheft via Schnellstarter/Profil. Staff paused.
+- Year-2 content fill (240 units, 120 open tasks) bound into 19.1 continue-card, 19.2 journey, 19.3 exam filters (Checkpoint Jahr 2 / AP), 19.4 path chunks, 19.5 MAF Lehrjahr line.

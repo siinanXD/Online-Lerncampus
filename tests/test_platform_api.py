@@ -217,7 +217,7 @@ def test_staff_and_admin_endpoints() -> None:
     monitoring = client.get("/api/admin/monitoring", headers=admin_headers)
     assert monitoring.status_code == 200
     assert monitoring.json()["quiz_questions"] == 480
-    assert monitoring.json()["learning_units"] == 144
+    assert monitoring.json()["learning_units"] == 240
     audit = client.get("/api/admin/audit", headers=admin_headers)
     assert audit.status_code == 200
     settings = client.get("/api/admin/settings", headers=admin_headers)

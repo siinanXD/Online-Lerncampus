@@ -2,7 +2,13 @@
 
 from fastapi.testclient import TestClient
 
+from app.data.content.pillars import (
+    EXAM_MIX_MONTHS,
+    PRIMARY_PILLAR_BY_MONTH,
+    pillar_for_month,
+)
 from app.data.learning_units import LEARNING_UNITS, OPEN_QUESTIONS
+from app.data.question_bank import PRACTICE_EXAMS
 from app.data.sources import TRUSTED_SOURCES
 from app.main import app
 from app.models.domain import AnswerFormat, ReviewStatus
@@ -62,6 +68,40 @@ def test_unknown_learning_unit_returns_404() -> None:
     assert client.get("/api/learning/units/gibt-es-nicht").status_code == 404
 
 
+def test_year_two_units_and_open_tasks_fill_the_curriculum() -> None:
+    """Months 1-24 each have ten units; open tasks cover both years."""
+    assert len(LEARNING_UNITS) == 240
+    assert len({unit.slug for unit in LEARNING_UNITS}) == 240
+    assert len(OPEN_QUESTIONS) == 120
+    for month in range(1, 25):
+        units = [unit for unit in LEARNING_UNITS if unit.month == month]
+        prefix = f"open-m{month:02d}-"
+        opens = [task for task in OPEN_QUESTIONS if task.question_id.startswith(prefix)]
+        assert len(units) == 10
+        assert len(opens) == 5
+
+
+def test_didactic_pillars_cover_every_month() -> None:
+    """Pillar taxonomy must map all 24 months and mark ZP/AP as mix."""
+    assert set(PRIMARY_PILLAR_BY_MONTH) == set(range(1, 25))
+    assert pillar_for_month(13) == "B"
+    assert pillar_for_month(22) == "C"
+    assert EXAM_MIX_MONTHS == frozenset({12, 24})
+
+
+def test_year_two_checkpoints_use_year_two_open_tasks() -> None:
+    """Checkpoint 13+ should not wrap back to month-1 open tasks."""
+    exams = {exam.exam_id: exam for exam in PRACTICE_EXAMS}
+    checkpoint = exams["checkpoint-13"]
+    assert checkpoint.open_question_ids
+    assert any(item.startswith("open-m13-") for item in checkpoint.open_question_ids)
+    assert not any(
+        item.startswith("open-m01-") for item in checkpoint.open_question_ids
+    )
+    finale = exams["checkpoint-24"]
+    assert any(item.startswith("open-m24-") for item in finale.open_question_ids)
+
+
 def test_learning_units_can_be_filtered_by_month() -> None:
     """The month filter narrows the unit list."""
     client = build_client()
@@ -69,7 +109,7 @@ def test_learning_units_can_be_filtered_by_month() -> None:
     month_one = client.get("/api/learning/units?month=1").json()
     month_twenty_four = client.get("/api/learning/units?month=24").json()
     assert len(month_one) == 10
-    assert len(month_twenty_four) == 2
+    assert len(month_twenty_four) == 10
 
 
 def test_checkpoint_exam_hides_sample_solutions() -> None:

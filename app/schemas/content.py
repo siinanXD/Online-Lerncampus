@@ -40,6 +40,9 @@ class LoginResponse(BaseModel):
     requires_password_change: bool = False
     onboarding_completed: bool = False
     privacy_consent_accepted: bool = False
+    tenant_id: str | None = None
+    tenant_name: str | None = None
+    is_platform_admin: bool = False
 
 
 class CurrentLearnerResponse(BaseModel):
@@ -52,6 +55,9 @@ class CurrentLearnerResponse(BaseModel):
     requires_password_change: bool = False
     onboarding_completed: bool = False
     privacy_consent_accepted: bool = False
+    tenant_id: str | None = None
+    tenant_name: str | None = None
+    is_platform_admin: bool = False
 
 
 class LogoutResponse(BaseModel):

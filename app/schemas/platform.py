@@ -243,6 +243,7 @@ class CohortLearnerResponse(BaseModel):
     display_name: str
     role: str
     cohort_code: str | None
+    tenant_id: str | None = None
     created_at: str
 
 
@@ -253,6 +254,7 @@ class RiskRowResponse(BaseModel):
     display_name: str
     alias: str
     cohort_code: str | None
+    tenant_id: str | None = None
     readiness_percent: int
     wrong_answers: int
     mastered_questions: int
@@ -266,6 +268,7 @@ class TrainerReportResponse(BaseModel):
     learner_id: str
     display_name: str
     cohort_code: str | None = None
+    tenant_id: str | None = None
     report_date: str
     activities: str
     hours: float
@@ -346,3 +349,74 @@ class RoleUpdateRequest(BaseModel):
     """Change a learner role."""
 
     role: str = Field(pattern="^(learner|reviewer|trainer|admin)$")
+
+
+class TenantResponse(BaseModel):
+    """One Bildungsbetrieb / organisation."""
+
+    tenant_id: str
+    name: str
+    slug: str
+    status: str
+    created_at: str
+    learner_count: int = 0
+    cohort_count: int = 0
+
+
+class TenantCreateRequest(BaseModel):
+    """Create a new organisation."""
+
+    name: str = Field(min_length=2, max_length=120)
+    slug: str = Field(min_length=3, max_length=80)
+
+
+class CohortResponse(BaseModel):
+    """One class group inside an organisation."""
+
+    cohort_id: str
+    tenant_id: str
+    code: str
+    name: str
+    created_at: str
+    learner_count: int = 0
+
+
+class CohortCreateRequest(BaseModel):
+    """Create a class group."""
+
+    code: str = Field(min_length=3, max_length=40)
+    name: str = Field(min_length=2, max_length=120)
+
+
+class AdminUserCreateRequest(BaseModel):
+    """Provision a learner or staff account."""
+
+    identifier: str = Field(min_length=3, max_length=120)
+    password: str = Field(min_length=4, max_length=120)
+    role: str = Field(pattern="^(learner|reviewer|trainer|admin)$")
+    display_name: str | None = Field(default=None, max_length=80)
+    cohort_code: str | None = Field(default=None, max_length=40)
+    tenant_id: str | None = Field(default=None, max_length=80)
+    is_platform_admin: bool = False
+
+
+class TrainerHotspotResponse(BaseModel):
+    """Weak topic aggregated for the trainer heatmap."""
+
+    category_slug: str
+    title: str
+    wrong_count: int
+    learner_count: int
+
+
+class TrainerCockpitResponse(BaseModel):
+    """Live Ausbilder cockpit payload."""
+
+    tenant_id: str | None = None
+    tenant_name: str | None = None
+    cohort_code: str | None = None
+    learner_count: int
+    avg_readiness_percent: int
+    high_risk_count: int
+    pending_reports: int
+    learners: list[RiskRowResponse]

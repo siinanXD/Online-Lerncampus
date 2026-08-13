@@ -15,7 +15,7 @@ def test_content_repository_reads_seeded_questions(tmp_path: Path) -> None:
 
     assert len(repository.list_categories()) == 240
     assert len(repository.list_questions()) == 480
-    assert len(repository.list_learning_units()) == 144
+    assert len(repository.list_learning_units()) == 240
     assert len(repository.list_questions(month=1)) == 20
 
     unit = repository.get_learning_unit("messschieber")

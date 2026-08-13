@@ -4928,7 +4928,11 @@ window.OLC_SCREEN_RENDERERS = {
         </div>
       </div>
     `,
-  "s11_1-ausbilder-cockpit": () => olcDeskPage("Mein Cockpit", "Kohorte 2024-A — 12 Teilnehmer", olcCockpitTable(false)),
+  "s11_1-ausbilder-cockpit": () => olcDeskPage(
+    "Mein Cockpit",
+    `<span data-bind="trainer-scope-label">Mandant</span>`,
+    olcCockpitTable(false),
+  ),
   "s11_2-teilnehmer-detail": () => `
       <div class="desk-page">
         <div class="desk-page-head">
@@ -5044,7 +5048,11 @@ window.OLC_SCREEN_RENDERERS = {
         ${olcDeskActions()}
       </div>
     `,
-  "s11_7-kohorte-einzelansicht": () => olcDeskPage("Kohorte 2024-A", "12 Teilnehmer · Einzelansicht", olcCockpitTable(false)),
+  "s11_7-kohorte-einzelansicht": () => olcDeskPage(
+    "Kohorte",
+    `<span data-bind="trainer-scope-label">Mandant</span>`,
+    olcCockpitTable(false),
+  ),
   "s12_1-review-warteschlange": () => `
       <div class="desk-page">
         <div class="desk-page-head">

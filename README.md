@@ -42,6 +42,24 @@ Danach:
 - Docs: http://127.0.0.1:8000/docs
 - Health: http://127.0.0.1:8000/api/health
 
+Demo-Login: `azubi-bze-01` / `demo-pass`, Kohorte `BZE-2026-F`.
+Ausbilder: `trainer-demo` / `demo-pass`. Admin: `admin-demo` / `demo-pass`.
+
+## Am Handy ansehen
+
+Die App ist responsive. `127.0.0.1` funktioniert nur auf dem Rechner, auf dem der Server laeuft.
+
+**Gleiches WLAN:** Server mit `--host 0.0.0.0` starten, dann auf dem Handy `http://<LAN-IP>:8000` oeffnen.
+
+**Oeffentliche URL (Render):** Repo auf [Render](https://render.com) verbinden. `render.yaml` legt den Web-Service an. Alternativ lokal bauen:
+
+```bash
+docker build -t online-lerncampus .
+docker run --rm -p 8000:8000 -e APP_SECRET=bitte-aendern online-lerncampus
+```
+
+Preview-Tunnel (Cloudflare Quick Tunnel) sind nur solange erreichbar, wie der Agent bzw. `cloudflared` laeuft. Keine echten Azubi-Daten darueber speichern.
+
 ## Browser-Routen
 
 - `/` Landingpage

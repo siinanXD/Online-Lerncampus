@@ -5987,7 +5987,7 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
 }
 .q-media img {
   width: 100%;
-  max-height: 180px;
+  height: 158px;
   object-fit: contain;
   object-position: center;
   background: #f8fafc;

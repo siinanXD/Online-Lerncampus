@@ -55,7 +55,7 @@ window.OLC_VISUALS = {
       caption: "Abb. Spielpassung: Bohrung H7, Welle h6",
     },
     {
-      keys: ["spritz", "kunststoff", "granulat", "werkzeug", "einspritz"],
+      keys: ["spritzgieß", "spritzgiess", "spritzguss", "einspritzen", "granulat"],
       src: "/static/visuals/fig-spritzzyklus.svg",
       alt: "Spritzgießzyklus in vier Phasen",
       caption: "Abb. Spritzgießzyklus: Schließen, Einspritzen, Nachdruck, Entformen",
@@ -67,7 +67,7 @@ window.OLC_VISUALS = {
       caption: "Abb. Welle ø20 h6, Länge 80 mm, Fase 1×45°",
     },
     {
-      keys: ["psa", "helm", "schutzbrille", "gehör", "gehoer", "handschuh", "sicherheitsschuh", "arbeitsschutz", "unfall"],
+      keys: ["psa", "helm", "schutzbrille", "gehörschutz", "gehoerschutz", "handschuh", "sicherheitsschuh", "arbeitsschutz", "unfallverhütung"],
       src: "/static/visuals/fig-psa.svg",
       alt: "Persönliche Schutzausrüstung",
       caption: "Abb. PSA: Helm, Brille, Gehörschutz, Handschuhe, S3-Schuhe",

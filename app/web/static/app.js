@@ -158,13 +158,18 @@ function visualCoverForMonth(month) {
   };
 }
 
+function visualKeyMatches(haystack, key) {
+  const escaped = String(key).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-zäöü0-9])${escaped}(?![a-zäöü0-9])`, "i").test(haystack);
+}
+
 function visualForContent({ month, title, prompt, categorySlug } = {}) {
   const haystack = [title, prompt, categorySlug]
     .filter(Boolean)
     .join(" ")
     .toLowerCase();
   const figures = window.OLC_VISUALS?.figures || [];
-  const match = figures.find((fig) => fig.keys.some((key) => haystack.includes(key)));
+  const match = figures.find((fig) => fig.keys.some((key) => visualKeyMatches(haystack, key)));
   if (match) {
     return match;
   }
@@ -193,7 +198,7 @@ function fillVisualSlot(slot, visual) {
     return;
   }
   slot.hidden = false;
-  slot.innerHTML = `<img src="${escapeHtml(visual.src)}" alt="${escapeHtml(visual.alt || "")}" />${
+  slot.innerHTML = `<img src="${escapeHtml(visual.src)}" alt="${escapeHtml(visual.alt || "")}" width="680" height="260" />${
     visual.caption ? `<figcaption>${escapeHtml(visual.caption)}</figcaption>` : ""
   }`;
 }

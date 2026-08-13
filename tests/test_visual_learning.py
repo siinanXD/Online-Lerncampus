@@ -22,7 +22,7 @@ def test_visual_catalog_covers_all_months_and_is_linked() -> None:
 
     assert 'src="/static/visuals.js"' in html
     assert html.index("/static/visuals.js") < html.index("/static/app.js")
-    assert "function visualForContent" in app_js
+    assert "function visualKeyMatches" in app_js
     assert "fillVisualSlot" in app_js
     assert "unit-hero-visual" in app_js
     assert 'data-bind="question-media"' in screens

@@ -74,8 +74,11 @@ def test_year_two_units_and_open_tasks_fill_the_curriculum() -> None:
     assert len({unit.slug for unit in LEARNING_UNITS}) == 240
     assert len(OPEN_QUESTIONS) == 120
     for month in range(1, 25):
-        assert len([unit for unit in LEARNING_UNITS if unit.month == month]) == 10
-        assert len([task for task in OPEN_QUESTIONS if task.question_id.startswith(f"open-m{month:02d}-")]) == 5
+        units = [unit for unit in LEARNING_UNITS if unit.month == month]
+        prefix = f"open-m{month:02d}-"
+        opens = [task for task in OPEN_QUESTIONS if task.question_id.startswith(prefix)]
+        assert len(units) == 10
+        assert len(opens) == 5
 
 
 def test_didactic_pillars_cover_every_month() -> None:
@@ -92,7 +95,9 @@ def test_year_two_checkpoints_use_year_two_open_tasks() -> None:
     checkpoint = exams["checkpoint-13"]
     assert checkpoint.open_question_ids
     assert any(item.startswith("open-m13-") for item in checkpoint.open_question_ids)
-    assert not any(item.startswith("open-m01-") for item in checkpoint.open_question_ids)
+    assert not any(
+        item.startswith("open-m01-") for item in checkpoint.open_question_ids
+    )
     finale = exams["checkpoint-24"]
     assert any(item.startswith("open-m24-") for item in finale.open_question_ids)
 

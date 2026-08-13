@@ -110,6 +110,7 @@ window.OLC_ROUTE_CONFIG = {
   "/admin/einstellungen": { layout: "admin", screen: "s15_4-systemeinstellungen", title: "Systemeinstellungen", tab: null, num: "15.4" },
   "/admin/monitoring": { layout: "admin", screen: "s15_5-monitoring", title: "Monitoring", tab: null, num: "15.5" },
   "/admin/zugangsdaten": { layout: "admin", screen: "s15_6-zugangsdaten-drucken", title: "Zugangsdaten drucken", tab: null, num: "15.6" },
+  "/admin/mandanten": { layout: "admin", screen: "s15_7-mandanten", title: "Mandanten", tab: null, num: "15.7" },
   "/admin/content": { layout: "admin", screen: "s16_1-content-dashboard", title: "Content Dashboard", tab: null, num: "16.1" },
   "/admin/import": { layout: "admin", screen: "s16_10-import-tool", title: "Import-Tool", tab: null, num: "16.10" },
   "/admin/dubletten": { layout: "admin", screen: "s16_11-dublettenpruefung", title: "Dublettenprüfung", tab: null, num: "16.11" },
@@ -159,102 +160,53 @@ function olcDeskPage(title, subtitle, body) {
 }
 
 function olcCockpitTable(filterRisk = false) {
-  const rows = [
-    { name: "Max Müller", avatar: "av-01.png", level: 7, pct: 67, tone: "info", streak: 12, last: "vor 2h", risk: null, accent: "" },
-    { name: "Sarah Schmidt", avatar: "av-02.png", level: 9, pct: 82, tone: "ok", streak: 28, last: "vor 1h", risk: null, accent: "" },
-    { name: "Tim Weber", avatar: "av-03.png", level: 4, pct: 35, tone: "warn", streak: 0, last: "vor 5 Tagen", risk: "⚠️ Risiko", accent: "risk" },
-    { name: "Lisa Fischer", avatar: "av-04.png", level: 6, pct: 71, tone: "ok", streak: 9, last: "Heute, 09:14", risk: null, accent: "" },
-    { name: "Ahmed Yilmaz", avatar: "av-05.png", level: 3, pct: 22, tone: "danger", streak: 0, last: "vor 5 Tagen", risk: "🛑 Kritisch", accent: "critical" },
-    { name: "Jonas Becker", avatar: "av-06.png", level: 8, pct: 78, tone: "ok", streak: 15, last: "vor 3h", risk: null, accent: "" },
-    { name: "Kai Hoffmann", avatar: "av-07.png", level: 4, pct: 41, tone: "warn", streak: 1, last: "vor 2 Tagen", risk: "⚠️ Risiko", accent: "risk" },
-  ].filter((r) => !filterRisk || r.risk);
   return `
         <div class="desk-layout tr-cockpit">
           <section class="desk-panel desk-panel-main">
             <div class="desk-filters tr-filters">
               <label class="desk-search">
                 <img src="/static/figma/trainer/tr-search.svg" width="16" height="16" alt="" />
-                <input type="search" placeholder="Name suchen..." />
+                <input type="search" placeholder="Name suchen..." data-bind="trainer-search" />
               </label>
-              <button class="desk-select" type="button">Risiko: <strong>${filterRisk ? "Nur Risiko" : "Alle"}</strong><img src="/static/figma/trainer/tr-chev.svg" width="14" height="14" alt="" /></button>
-              <button class="desk-select" type="button">Sortieren: <strong>Fortschritt</strong><img src="/static/figma/trainer/tr-chev.svg" width="14" height="14" alt="" /></button>
-              <button class="tr-export" type="button" aria-label="Export" data-action="toast" data-toast="Export (Demo)">
-                <img src="/static/figma/trainer/tr-dl.svg" width="18" height="18" alt="" />
-              </button>
+              <a class="desk-select" href="${filterRisk ? "/ausbilder" : "/ausbilder/risiko"}" data-page-link>Risiko: <strong>${filterRisk ? "Nur Risiko" : "Alle"}</strong></a>
+              <button class="desk-select" type="button">Sortieren: <strong>Fortschritt</strong></button>
             </div>
             <div class="table-wrap desk-table-wrap tr-table-card">
               <table class="data-table desk-table tr-table">
                 <thead>
                   <tr>
-                    <th>Avatar</th><th>Name</th><th>Level</th><th>Prüfungsreife</th><th>Streak</th><th>Letzte Aktivität</th><th>Risiko</th><th>Aktionen</th>
+                    <th>Avatar</th><th>Name</th><th>Kohorte</th><th>Prüfungsreife</th><th>Fehler</th><th>Gemeistert</th><th>Risiko</th><th>Aktionen</th>
                   </tr>
                 </thead>
-                <tbody>
-                  ${rows
-                    .map(
-                      (r) => `
-                  <tr class="${r.accent ? `desk-row-${r.accent}` : ""}">
-                    <td><img class="desk-avatar-img" src="/static/figma/trainer/${r.avatar}" width="32" height="32" alt="" /></td>
-                    <td><strong>${r.name}</strong></td>
-                    <td><span class="desk-level">Lv ${r.level}</span></td>
-                    <td>
-                      <div class="desk-prog">
-                        <div class="desk-prog-track"><span class="desk-prog-fill tone-${r.tone}" style="width:${r.pct}%"></span></div>
-                        <span>${r.pct}%</span>
-                      </div>
-                    </td>
-                    <td>${r.streak ? `🔥 ${r.streak}` : "🔥 0"}</td>
-                    <td class="muted">${r.last}</td>
-                    <td>${r.risk ? `<span class="tr-risk ${r.accent === "critical" ? "crit" : "warn"}">${r.risk}</span>` : '<span class="muted">—</span>'}</td>
-                    <td><a class="desk-link-btn" href="/ausbilder/teilnehmer" data-page-link>Detail</a></td>
-                  </tr>`,
-                    )
-                    .join("")}
+                <tbody data-bind="trainer-cockpit-rows" data-risk-only="${filterRisk ? "1" : "0"}">
+                  <tr><td colspan="8" class="muted">Teilnehmer werden geladen…</td></tr>
                 </tbody>
               </table>
               <div class="desk-table-foot">
-                <span class="muted">Zeige 1–${rows.length} von 12 Teilnehmern</span>
-                <div class="tr-foot-right">
-                  <span class="muted">Zeilen pro Seite: 10</span>
-                  <div class="desk-pager">
-                    <button type="button" aria-label="Zurück"><img src="/static/figma/trainer/tr-chev-l.svg" width="14" height="14" alt="" /></button>
-                    <button class="active" type="button">1</button>
-                    <button type="button">2</button>
-                    <button type="button" aria-label="Weiter"><img src="/static/figma/trainer/tr-chev-r.svg" width="14" height="14" alt="" /></button>
-                  </div>
-                </div>
+                <span class="muted" data-bind="trainer-cockpit-count">—</span>
               </div>
             </div>
           </section>
           <aside class="desk-side-stack">
             <article class="desk-stat-card">
               <p class="desk-stat-label">Ø Prüfungsreife</p>
-              <p class="desk-stat-value">55%</p>
-              <p class="desk-stat-delta ok">+4.2% diese Woche</p>
-              <div class="desk-mini-bars" aria-hidden="true"><span style="height:40%"></span><span style="height:55%"></span><span style="height:48%"></span><span style="height:62%"></span><span style="height:58%"></span><span style="height:70%"></span><span style="height:78%"></span></div>
+              <p class="desk-stat-value" data-bind="trainer-avg-readiness">—</p>
+              <p class="muted" data-bind="trainer-scope-label">Mandant</p>
             </article>
             <article class="desk-stat-card">
               <p class="desk-stat-label">Risiko-Teilnehmer</p>
-              <p class="desk-stat-value danger">3</p>
+              <p class="desk-stat-value danger" data-bind="trainer-risk-count">—</p>
               <p class="muted">Benötigen zeitnah Aufmerksamkeit</p>
-              <ul class="desk-risk-list">
-                <li><span class="dot warn"></span>Tim Weber</li>
-                <li><span class="dot danger"></span>Ahmed Yilmaz</li>
-                <li><span class="dot warn"></span>Kai Hoffmann</li>
-              </ul>
+              <ul class="desk-risk-list" data-bind="trainer-risk-list"></ul>
             </article>
             <article class="desk-stat-card">
-              <p class="desk-stat-label">Aktive diese Woche</p>
-              <p class="desk-stat-value ok">9 / 12</p>
-              <div class="desk-prog-track wide"><span class="desk-prog-fill tone-ok" style="width:75%"></span></div>
-              <p class="muted">3 Teilnehmer seit mehr als 2 Tagen inaktiv.</p>
+              <p class="desk-stat-label">Offene Berichtshefte</p>
+              <p class="desk-stat-value ok" data-bind="trainer-pending-reports">—</p>
+              <p class="muted">Zur Freigabe in deiner Kohorte</p>
             </article>
           </aside>
-        </div>
-        <div class="tr-api-actions" hidden aria-hidden="true">${olcDeskActions()}</div>`;
+        </div>`;
 }
-
-
 
 window.OLC_OV_NAV = (active) => {
   const map = { start: "home", more: "profile", reports: "progress" };
@@ -5063,14 +5015,9 @@ window.OLC_SCREEN_RENDERERS = {
   "s11_4-cockpit-risiko-filter": () => olcDeskPage("Cockpit — Risiko-Filter", "Nur Teilnehmer mit Risiko-Flag", olcCockpitTable(true)),
   "s11_5-hotspots-heatmap": () => `
       <div class="desk-page">
-        <div class="desk-page-head"><div><h2 class="desk-page-title">Hotspots / Heatmap</h2><p class="muted">Themen mit den häufigsten Fehlern in Kohorte 2024-A</p></div></div>
-        <div class="desk-heat-grid">
-          <article class="desk-heat hot"><strong>Hydraulik</strong><span>38 Fehler</span></article>
-          <article class="desk-heat mid"><strong>SPS</strong><span>24 Fehler</span></article>
-          <article class="desk-heat mid"><strong>Messwesen</strong><span>19 Fehler</span></article>
-          <article class="desk-heat cool"><strong>Werkstoffe</strong><span>11 Fehler</span></article>
-          <article class="desk-heat hot"><strong>Sicherheit</strong><span>31 Fehler</span></article>
-          <article class="desk-heat cool"><strong>Zeichnungen</strong><span>8 Fehler</span></article>
+        <div class="desk-page-head"><div><h2 class="desk-page-title">Hotspots / Heatmap</h2><p class="muted" data-bind="trainer-scope-label">Themen mit den häufigsten Fehlern</p></div></div>
+        <div class="desk-heat-grid" data-bind="trainer-hotspot-grid">
+          <article class="desk-heat cool"><strong>Laden…</strong><span>Fehler werden aggregiert</span></article>
         </div>
         ${olcDeskActions()}
       </div>
@@ -5342,11 +5289,9 @@ window.OLC_SCREEN_RENDERERS = {
         </div>
         <div class="table-wrap desk-table-wrap card">
           <table class="data-table desk-table">
-            <thead><tr><th>Teilnehmer</th><th>KW</th><th>Stunden</th><th>Status</th><th></th></tr></thead>
-            <tbody>
-              <tr><td>Lisa Fischer</td><td>KW 13</td><td>38h</td><td><span class="badge warn">Zur Freigabe</span></td><td><a href="/ausbilder/bericht-detail" data-page-link>Prüfen</a></td></tr>
-              <tr><td>Jonas Becker</td><td>KW 13</td><td>40h</td><td><span class="badge ok">Freigegeben</span></td><td><a href="/ausbilder/bericht-detail" data-page-link>Öffnen</a></td></tr>
-              <tr><td>Tim Weber</td><td>KW 12</td><td>32h</td><td><span class="badge danger">Nacharbeit</span></td><td><a href="/ausbilder/bericht-detail" data-page-link>Öffnen</a></td></tr>
+            <thead><tr><th>Teilnehmer</th><th>Datum</th><th>Stunden</th><th>Status</th><th></th></tr></thead>
+            <tbody data-bind="trainer-report-rows">
+              <tr><td colspan="5" class="muted">Berichte werden geladen…</td></tr>
             </tbody>
           </table>
         </div>
@@ -5425,25 +5370,34 @@ window.OLC_SCREEN_RENDERERS = {
   "s15_1-nutzerliste": () => `
       <div class="desk-page">
         <div class="desk-page-head">
-          <div><h2 class="desk-page-title">Nutzerliste</h2><p class="muted">Teilnehmer, Ausbilder und Admins</p></div>
+          <div><h2 class="desk-page-title">Nutzerliste</h2><p class="muted">Teilnehmer, Ausbilder und Admins des Mandanten</p></div>
           <div class="row-actions">
             <a class="secondary-button" href="/admin/zugangsdaten" data-page-link>Zugangsdaten</a>
-            <button class="primary-button" type="button">+ Nutzer</button>
+            <a class="secondary-button" href="/admin/mandanten" data-page-link>Mandanten</a>
           </div>
         </div>
-        <div class="desk-filters">
-          <label class="desk-search"><span>🔍</span><input type="search" placeholder="Name oder Login…" /></label>
-          <button class="desk-select" type="button">Rolle: Alle</button>
-          <button class="desk-select" type="button">Status: Aktiv</button>
-        </div>
+        <form class="desk-wizard card desk-block" data-form="create-user">
+          <h3>Konto anlegen</h3>
+          <label class="field"><span>Login</span><input name="identifier" required minlength="3" placeholder="azubi-meier" /></label>
+          <label class="field"><span>Anzeigename</span><input name="display_name" placeholder="Azubi Meier" /></label>
+          <label class="field"><span>Passwort</span><input name="password" type="password" required minlength="4" value="demo-pass" /></label>
+          <label class="field"><span>Rolle</span>
+            <select name="role">
+              <option value="learner">Teilnehmer</option>
+              <option value="trainer">Ausbilder</option>
+              <option value="reviewer">Reviewer</option>
+              <option value="admin">Admin</option>
+            </select>
+          </label>
+          <label class="field"><span>Kohortencode</span><input name="cohort_code" placeholder="BZE-2026-F" /></label>
+          <label class="field"><span>Mandant</span><input name="tenant_id" placeholder="bze-euskirchen" /></label>
+          <button class="primary-button" type="submit">+ Nutzer anlegen</button>
+        </form>
         <div class="table-wrap desk-table-wrap card">
           <table class="data-table desk-table">
-            <thead><tr><th></th><th>Name</th><th>Login</th><th>Rolle</th><th>Status</th><th></th></tr></thead>
-            <tbody>
-              <tr><td><span class="desk-avatar">LF</span></td><td>Lisa Fischer</td><td>demo-azubi</td><td>Teilnehmer</td><td><span class="badge ok">Aktiv</span></td><td><a href="/admin/nutzer/detail" data-page-link>Detail</a></td></tr>
-              <tr><td><span class="desk-avatar">JB</span></td><td>Jürgen Beck</td><td>trainer-demo</td><td>Ausbilder</td><td><span class="badge ok">Aktiv</span></td><td><a href="/admin/nutzer/detail" data-page-link>Detail</a></td></tr>
-              <tr><td><span class="desk-avatar">AD</span></td><td>Admin Demo</td><td>admin-demo</td><td>Admin</td><td><span class="badge ok">Aktiv</span></td><td><a href="/admin/nutzer/detail" data-page-link>Detail</a></td></tr>
-              <tr><td><span class="desk-avatar">RV</span></td><td>Reviewer Demo</td><td>reviewer-demo</td><td>Reviewer</td><td><span class="badge ok">Aktiv</span></td><td><a href="/admin/nutzer/detail" data-page-link>Detail</a></td></tr>
+            <thead><tr><th></th><th>Name</th><th>Rolle</th><th>Kohorte</th><th>Mandant</th><th></th></tr></thead>
+            <tbody data-bind="admin-user-rows">
+              <tr><td colspan="6" class="muted">Nutzer werden geladen…</td></tr>
             </tbody>
           </table>
         </div>
@@ -5473,10 +5427,8 @@ window.OLC_SCREEN_RENDERERS = {
         <div class="table-wrap desk-table-wrap card">
           <table class="data-table desk-table">
             <thead><tr><th>Zeit</th><th>Akteur</th><th>Aktion</th><th>Ziel</th></tr></thead>
-            <tbody>
-              <tr><td>Heute 14:23</td><td>trainer-demo</td><td>review.approve</td><td>question#287</td></tr>
-              <tr><td>Heute 11:02</td><td>admin-demo</td><td>user.update</td><td>demo-azubi</td></tr>
-              <tr><td>Gestern</td><td>system</td><td>login.fail</td><td>unknown</td></tr>
+            <tbody data-bind="admin-audit-rows">
+              <tr><td colspan="4" class="muted">Ereignisse werden geladen…</td></tr>
             </tbody>
           </table>
         </div>
@@ -5485,25 +5437,24 @@ window.OLC_SCREEN_RENDERERS = {
   "s15_4-systemeinstellungen": () => `
       <div class="desk-page">
         <div class="desk-page-head"><div><h2 class="desk-page-title">Systemeinstellungen</h2></div></div>
-        <div class="desk-wizard card desk-block">
-          <label class="field"><span>Institutionsname</span><input value="BZE Campus" /></label>
-          <label class="field"><span>Primary-Farbe</span><input value="#2563eb" /></label>
-          <label class="desk-check"><input type="checkbox" checked /> Gamification aktiv</label>
-          <label class="desk-check"><input type="checkbox" checked /> Review-Gate für KI-Inhalte</label>
-          <button class="primary-button" type="button">Speichern</button>
-        </div>
+        <form class="desk-wizard card desk-block" data-form="save-settings">
+          <label class="field"><span>Schlüssel</span><input name="key" value="institution_name" /></label>
+          <label class="field"><span>Wert</span><input name="value" placeholder="BZE Campus" /></label>
+          <button class="primary-button" type="submit">Speichern</button>
+        </form>
+        <pre class="export-pre" data-bind="admin-settings-json">Einstellungen werden geladen…</pre>
       </div>
     `,
   "s15_5-monitoring": () => `
       <div class="desk-page">
         <div class="desk-page-head"><div><h2 class="desk-page-title">Monitoring</h2><p class="muted">Laufzeit &amp; Nutzung</p></div></div>
-        <div class="metric-grid desk-metrics">
-          <article class="metric-card"><strong>99.2%</strong><span>Uptime 30d</span></article>
-          <article class="metric-card"><strong>184</strong><span>Aktive Sessions</span></article>
-          <article class="metric-card"><strong>42ms</strong><span>API p50</span></article>
-          <article class="metric-card"><strong>3</strong><span>Fehler / h</span></article>
+        <div class="metric-grid desk-metrics" data-bind="admin-monitoring-metrics">
+          <article class="metric-card"><strong data-bind="mon-learners">—</strong><span>Konten</span></article>
+          <article class="metric-card"><strong data-bind="mon-questions">—</strong><span>Fragen</span></article>
+          <article class="metric-card"><strong data-bind="mon-units">—</strong><span>Lerneinheiten</span></article>
+          <article class="metric-card"><strong data-bind="mon-reviews">—</strong><span>Offene Reviews</span></article>
         </div>
-        <div class="card desk-block"><h3>Hinweise</h3><ul class="plain-list"><li>Review-Queue: 8 offen</li><li>Import-Job: idle</li><li>DB: healthy</li></ul></div>
+        <div class="card desk-block"><h3>Hinweise</h3><ul class="plain-list" data-bind="admin-monitoring-notes"><li>Daten werden geladen…</li></ul></div>
       </div>
     `,
   "s15_6-zugangsdaten-drucken": () => `
@@ -5516,6 +5467,48 @@ window.OLC_SCREEN_RENDERERS = {
 trainer-demo / demo-pass
 admin-demo / demo-pass
 reviewer-demo / demo-pass</pre>
+        </div>
+      </div>
+    `,
+  "s15_7-mandanten": () => `
+      <div class="desk-page">
+        <div class="desk-page-head">
+          <div><h2 class="desk-page-title">Mandanten</h2><p class="muted">Bildungsbetriebe und Kohorten</p></div>
+        </div>
+        <div class="desk-layout">
+          <section class="desk-panel desk-panel-main">
+            <form class="desk-wizard card desk-block" data-form="create-tenant">
+              <h3>Neuen Mandanten anlegen</h3>
+              <label class="field"><span>Name</span><input name="name" required minlength="2" placeholder="BZE Musterstadt" /></label>
+              <label class="field"><span>Kürzel</span><input name="slug" required minlength="3" placeholder="bze-musterstadt" /></label>
+              <button class="primary-button" type="submit">Mandant anlegen</button>
+            </form>
+            <div class="table-wrap desk-table-wrap card">
+              <table class="data-table desk-table">
+                <thead><tr><th>Name</th><th>Kürzel</th><th>Kohorten</th><th>Konten</th></tr></thead>
+                <tbody data-bind="admin-tenant-rows">
+                  <tr><td colspan="4" class="muted">Mandanten werden geladen…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+          <aside class="desk-side-stack">
+            <form class="desk-wizard card desk-block" data-form="create-cohort">
+              <h3>Kohorte anlegen</h3>
+              <label class="field"><span>Mandant</span><select name="tenant_id" data-bind="admin-tenant-select"></select></label>
+              <label class="field"><span>Code</span><input name="code" required minlength="3" placeholder="BZE-2027-F" /></label>
+              <label class="field"><span>Name</span><input name="name" required minlength="2" placeholder="Fachklasse Metall 2027" /></label>
+              <button class="primary-button" type="submit">Kohorte anlegen</button>
+            </form>
+            <div class="table-wrap desk-table-wrap card">
+              <table class="data-table desk-table">
+                <thead><tr><th>Code</th><th>Name</th><th>TN</th></tr></thead>
+                <tbody data-bind="admin-cohort-rows">
+                  <tr><td colspan="3" class="muted">Kohorten werden geladen…</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </aside>
         </div>
       </div>
     `,
@@ -5712,9 +5705,10 @@ reviewer-demo / demo-pass</pre>
       <div class="desk-page desk-shell-placeholder">
         <p class="eyebrow">14.1 Admin</p>
         <h2 class="desk-page-title">Admin Shell</h2>
-        <p class="muted">Nutzer · Audit · Monitoring · Content</p>
+        <p class="muted">Nutzer · Mandanten · Audit · Monitoring · Content</p>
         <div class="row-actions">
           <a class="primary-button" href="/admin/nutzer" data-page-link>Nutzerliste</a>
+          <a class="secondary-button" href="/admin/mandanten" data-page-link>Mandanten</a>
           <a class="secondary-button" href="/admin/monitoring" data-page-link>Monitoring</a>
           <a class="secondary-button" href="/admin/content" data-page-link>Content</a>
         </div>
@@ -5856,4 +5850,4 @@ reviewer-demo / demo-pass</pre>
     `,
 };
 
-window.OLC_ALLOWED_PAGES = ["", "admin", "admin/audit", "admin/content", "admin/content/detail", "admin/content/liste", "admin/content/qualitaet", "admin/dubletten", "admin/einstellungen", "admin/import", "admin/lernziele", "admin/monitoring", "admin/nutzer", "admin/nutzer/detail", "admin/quiz", "admin/wissen", "admin/zugangsdaten", "ausbilder", "ausbilder/bericht-detail", "ausbilder/bericht-export", "ausbilder/berichte", "ausbilder/editor", "ausbilder/frage-bearbeiten", "ausbilder/fragen", "ausbilder/freigabe", "ausbilder/generator", "ausbilder/hotspots", "ausbilder/kohorte", "ausbilder/kohorte/detail", "ausbilder/medien", "ausbilder/nav", "ausbilder/planung", "ausbilder/pruefungsreife", "ausbilder/review", "ausbilder/review/detail", "ausbilder/risiko", "ausbilder/shell", "ausbilder/teilnehmer", "ausbilder/themen", "berichtsheft", "berichtsheft/export", "berichtsheft/kalender", "berichtsheft/ki", "berichtsheft/leer", "berichtsheft/neu", "berichtsheft/unterschrift", "dashboard", "dashboard/fortsetzen", "dashboard/merksaetze", "dashboard/streak", "dashboard/tablet", "dashboard/tagesziel", "dashboard/wochenbericht", "datenschutz", "defizite", "fachkunde", "fachkunde/abschluss", "fachkunde/bausteine", "fachkunde/einheit", "fachkunde/freigabe", "fachkunde/glossar", "fachkunde/lernpfad", "fachkunde/messschieber", "fachkunde/spritzguss", "fachkunde/toleranz", "fortschritt", "fortschritt/ausstehend", "fortschritt/heatmap", "fortschritt/pruefungsreife", "fortschritt/verlauf", "fortschritt/xp", "funktionen", "gamification", "gamification/badges", "gamification/streaks", "gamification/xp", "lernen", "lernen/detail", "lernen/einheit", "lernen/feedback/falsch", "lernen/feedback/richtig", "lernen/fehlerdiagnose", "lernen/flashcard", "lernen/formeltrainer", "lernen/frage", "lernen/frage/freitext", "lernen/fragen", "lernen/fragen/fehler", "lernen/glossar", "lernen/lernpfad", "lernen/melden", "lernen/tablet", "lernen/themen", "lernen/uebersetzung", "lernen/video", "lernreise", "level-up", "login", "mehr", "mehr/benachrichtigungen", "mehr/darstellung", "mehr/profil", "mehr/ausbilder-sicht", "mehr/coach", "mehr/export", "mehr/lernplan", "mehr/loeschen", "mehr/logout", "onboarding", "passwort", "prototypen", "pruefungen", "pruefungen/abgabe", "pruefungen/bestanden", "pruefungen/durchgefallen", "pruefungen/frage", "pruefungen/kammertermine", "pruefungen/schwach", "pruefungen/timer", "pruefungen/uebersicht", "review", "shell/tab-bar", "sprache"];
+window.OLC_ALLOWED_PAGES = ["", "admin", "admin/audit", "admin/content", "admin/content/detail", "admin/content/liste", "admin/content/qualitaet", "admin/dubletten", "admin/einstellungen", "admin/import", "admin/lernziele", "admin/mandanten", "admin/monitoring", "admin/nutzer", "admin/nutzer/detail", "admin/quiz", "admin/wissen", "admin/zugangsdaten", "ausbilder", "ausbilder/bericht-detail", "ausbilder/bericht-export", "ausbilder/berichte", "ausbilder/editor", "ausbilder/frage-bearbeiten", "ausbilder/fragen", "ausbilder/freigabe", "ausbilder/generator", "ausbilder/hotspots", "ausbilder/kohorte", "ausbilder/kohorte/detail", "ausbilder/medien", "ausbilder/nav", "ausbilder/planung", "ausbilder/pruefungsreife", "ausbilder/review", "ausbilder/review/detail", "ausbilder/risiko", "ausbilder/shell", "ausbilder/teilnehmer", "ausbilder/themen", "berichtsheft", "berichtsheft/export", "berichtsheft/kalender", "berichtsheft/ki", "berichtsheft/leer", "berichtsheft/neu", "berichtsheft/unterschrift", "dashboard", "dashboard/fortsetzen", "dashboard/merksaetze", "dashboard/streak", "dashboard/tablet", "dashboard/tagesziel", "dashboard/wochenbericht", "datenschutz", "defizite", "fachkunde", "fachkunde/abschluss", "fachkunde/bausteine", "fachkunde/einheit", "fachkunde/freigabe", "fachkunde/glossar", "fachkunde/lernpfad", "fachkunde/messschieber", "fachkunde/spritzguss", "fachkunde/toleranz", "fortschritt", "fortschritt/ausstehend", "fortschritt/heatmap", "fortschritt/pruefungsreife", "fortschritt/verlauf", "fortschritt/xp", "funktionen", "gamification", "gamification/badges", "gamification/streaks", "gamification/xp", "lernen", "lernen/detail", "lernen/einheit", "lernen/feedback/falsch", "lernen/feedback/richtig", "lernen/fehlerdiagnose", "lernen/flashcard", "lernen/formeltrainer", "lernen/frage", "lernen/frage/freitext", "lernen/fragen", "lernen/fragen/fehler", "lernen/glossar", "lernen/lernpfad", "lernen/melden", "lernen/tablet", "lernen/themen", "lernen/uebersetzung", "lernen/video", "lernreise", "level-up", "login", "mehr", "mehr/benachrichtigungen", "mehr/darstellung", "mehr/profil", "mehr/ausbilder-sicht", "mehr/coach", "mehr/export", "mehr/lernplan", "mehr/loeschen", "mehr/logout", "onboarding", "passwort", "prototypen", "pruefungen", "pruefungen/abgabe", "pruefungen/bestanden", "pruefungen/durchgefallen", "pruefungen/frage", "pruefungen/kammertermine", "pruefungen/schwach", "pruefungen/timer", "pruefungen/uebersicht", "review", "shell/tab-bar", "sprache"];

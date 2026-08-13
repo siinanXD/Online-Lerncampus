@@ -299,6 +299,7 @@
             </a>
             <nav class="desk-nav tr-nav" aria-label="Ausbilder Navigation">
               <a href="/ausbilder" data-page-link data-nav="cockpit">Cockpit</a>
+              <a href="/ausbilder/hotspots" data-page-link data-nav="hotspots">Hotspots</a>
               <a href="/ausbilder/kohorte" data-page-link data-nav="kohorte">Kohorte</a>
               <a href="/ausbilder/review" data-page-link data-nav="review">Review</a>
               <a href="/ausbilder/fragen" data-page-link data-nav="content">Fragen</a>
@@ -312,8 +313,8 @@
             </button>
             <div class="tr-user">
               <div class="tr-user-meta">
-                <strong>Jürgen Beck</strong>
-                <span>Ausbilder (BZE)</span>
+                <strong data-bind="staff-display-name">Ausbilder</strong>
+                <span data-bind="staff-tenant-name">BZE Campus</span>
               </div>
               <img class="tr-user-avatar" src="/static/figma/trainer/tr-user.png" width="40" height="40" alt="" />
             </div>
@@ -328,11 +329,12 @@
             <span class="brand-mark">B</span>
             <span class="desk-brand-text">
               <strong>Online Campus</strong>
-              <small class="desk-admin-badge">Admin</small>
+              <small class="desk-admin-badge" data-bind="staff-tenant-name">Admin</small>
             </span>
           </a>
           <nav class="desk-nav" aria-label="Admin Navigation">
             <a href="/admin/nutzer" data-page-link data-nav="users">Nutzer</a>
+            <a href="/admin/mandanten" data-page-link data-nav="tenants">Mandanten</a>
             <a href="/admin/audit" data-page-link data-nav="audit">Audit</a>
             <a href="/admin/monitoring" data-page-link data-nav="monitoring">Monitoring</a>
             <a href="/admin/content" data-page-link data-nav="content">Content</a>

@@ -33,12 +33,19 @@ class PlatformService:
         )
         return result
 
-    def learner_risk_rows(self, cohort_code: str | None) -> list[dict[str, Any]]:
+    def learner_risk_rows(
+        self,
+        cohort_code: str | None = None,
+        tenant_id: str | None = None,
+    ) -> list[dict[str, Any]]:
         """Build a trainer risk table from mastery and wrong-answer counts."""
         if self.progress_service is None:
             return []
         rows: list[dict[str, Any]] = []
-        for learner in self.repository.list_cohort_learners(cohort_code):
+        for learner in self.repository.list_scoped_learners(
+            tenant_id=tenant_id,
+            cohort_code=cohort_code,
+        ):
             if learner["role"] != "learner":
                 continue
             summary = self.progress_service.dashboard_summary(learner["learner_id"])
@@ -58,6 +65,7 @@ class PlatformService:
                     "display_name": learner["display_name"],
                     "alias": f"Azubi {learner['learner_id'][-4:]}",
                     "cohort_code": learner["cohort_code"],
+                    "tenant_id": learner.get("tenant_id"),
                     "readiness_percent": readiness,
                     "wrong_answers": wrong,
                     "mastered_questions": mastered,
@@ -66,6 +74,43 @@ class PlatformService:
             )
         rows.sort(key=lambda item: item["readiness_percent"])
         return rows
+
+    def trainer_cockpit(
+        self,
+        *,
+        tenant_id: str | None,
+        cohort_code: str | None,
+        tenant_name: str | None = None,
+    ) -> dict[str, Any]:
+        """Aggregate Ausbilder cockpit stats for one tenant or cohort."""
+        learners = self.learner_risk_rows(cohort_code=cohort_code, tenant_id=tenant_id)
+        count = len(learners)
+        avg = (
+            round(sum(row["readiness_percent"] for row in learners) / count)
+            if count
+            else 0
+        )
+        high_risk = sum(1 for row in learners if row["risk"] in {"hoch", "mittel"})
+        reports = self.repository.list_all_training_reports(
+            tenant_id=tenant_id,
+            cohort_code=cohort_code,
+        )
+        pending = sum(
+            1
+            for row in reports
+            if (row.get("trainer_status") or "pending") == "pending"
+            and str(row.get("status") or "") in {"submitted", "draft"}
+        )
+        return {
+            "tenant_id": tenant_id,
+            "tenant_name": tenant_name,
+            "cohort_code": cohort_code,
+            "learner_count": count,
+            "avg_readiness_percent": avg,
+            "high_risk_count": high_risk,
+            "pending_reports": pending,
+            "learners": learners,
+        }
 
     def suggest_training_report(self, learner_id: str) -> dict[str, Any]:
         """Build a rule-based Berichtsheft draft from recent learning activity."""

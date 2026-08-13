@@ -19,6 +19,9 @@ class LearnerSession:
     display_name: str
     cohort_code: str | None
     role: str = "learner"
+    tenant_id: str | None = None
+    tenant_name: str | None = None
+    is_platform_admin: bool = False
 
 
 class AuthService:
@@ -58,6 +61,23 @@ class AuthService:
         learner_id = f"learner_{identifier_hash[:16]}"
         existing = self.database.get_learner_by_identifier_hash(identifier_hash)
         is_new_learner = existing is None
+        is_platform_admin = (
+            role == "admin" and clean_identifier.startswith("admin-")
+            if is_new_learner
+            else bool((existing or {}).get("is_platform_admin"))
+        )
+        from app.db.tenant_schema import DEFAULT_TENANT_ID
+        from app.services.tenant_repository import TenantRepository
+
+        tenants = TenantRepository(self.database)
+        tenant_id = tenants.resolve_tenant_id(
+            clean_cohort,
+            platform_admin=is_platform_admin,
+        )
+        if is_platform_admin:
+            tenant_id = None
+        elif tenant_id is None:
+            tenant_id = DEFAULT_TENANT_ID
         if is_new_learner:
             password_hash = self._hash_password(clean_password)
         else:
@@ -68,12 +88,21 @@ class AuthService:
                 password_hash = None
             else:
                 password_hash = self._hash_password(clean_password)
+            if existing.get("tenant_id") and not is_platform_admin:
+                tenant_id = existing.get("tenant_id") or tenant_id
+            role = str(existing.get("role") or role)
+            display_name = str(existing.get("display_name") or display_name)
+            if existing.get("cohort_code") and not clean_cohort:
+                clean_cohort = existing.get("cohort_code")
+        tenant = tenants.get_tenant(tenant_id) if tenant_id else None
         self.database.upsert_learner(
             learner_id=learner_id,
             identifier_hash=identifier_hash,
             display_name=display_name,
             role=role,
             cohort_code=clean_cohort,
+            tenant_id=tenant_id,
+            is_platform_admin=is_platform_admin,
             password_hash=password_hash,
         )
         if is_new_learner and self._requires_initial_password_change(clean_identifier):
@@ -92,16 +121,89 @@ class AuthService:
         self.database.record_audit_event(
             event_type="auth.login",
             learner_id=learner_id,
-            metadata={"cohort": bool(clean_cohort)},
+            metadata={"cohort": bool(clean_cohort), "tenant_id": tenant_id},
         )
-        session = LearnerSession(
+        return self._build_session(
             token=token,
             learner_id=learner_id,
             display_name=display_name,
             cohort_code=clean_cohort,
             role=role,
+            tenant_id=tenant_id,
+            is_platform_admin=is_platform_admin,
+            tenant_name=str(tenant["name"]) if tenant else None,
         )
-        return session
+
+    def provision_user(
+        self,
+        *,
+        identifier: str,
+        password: str,
+        role: str,
+        display_name: str | None = None,
+        cohort_code: str | None = None,
+        tenant_id: str | None = None,
+        is_platform_admin: bool = False,
+    ) -> dict[str, Any]:
+        """Create a staff or learner account for one organisation."""
+        allowed = {"learner", "reviewer", "trainer", "admin"}
+        if role not in allowed:
+            raise ValueError("Ungueltige Rolle.")
+        clean_identifier = identifier.strip().lower()
+        clean_password = password.strip()
+        if len(clean_identifier) < 3:
+            raise ValueError("Benutzername oder E-Mail ist zu kurz.")
+        if len(clean_password) < 4:
+            raise ValueError("Passwort ist zu kurz.")
+        from app.db.tenant_schema import DEFAULT_TENANT_ID
+        from app.services.platform_repository import PlatformRepository
+        from app.services.tenant_repository import TenantRepository
+
+        tenants = TenantRepository(self.database)
+        clean_cohort = cohort_code.strip() if cohort_code else None
+        if is_platform_admin:
+            role = "admin"
+            resolved_tenant = None
+        else:
+            resolved_tenant = tenant_id or tenants.resolve_tenant_id(
+                clean_cohort,
+                platform_admin=False,
+            )
+            if resolved_tenant is None:
+                resolved_tenant = DEFAULT_TENANT_ID
+            if tenants.get_tenant(resolved_tenant) is None:
+                raise ValueError("Mandant nicht gefunden.")
+        identifier_hash = self._build_identifier_hash(clean_identifier)
+        if self.database.get_learner_by_identifier_hash(identifier_hash):
+            raise ValueError("Konto existiert bereits.")
+        learner_id = f"learner_{identifier_hash[:16]}"
+        labels = {
+            "learner": "Azubi",
+            "trainer": "Trainer",
+            "reviewer": "Reviewer",
+            "admin": "Admin",
+        }
+        label = (display_name or "").strip() or labels[role]
+        self.database.upsert_learner(
+            learner_id=learner_id,
+            identifier_hash=identifier_hash,
+            display_name=label,
+            role=role,
+            cohort_code=clean_cohort,
+            tenant_id=resolved_tenant,
+            is_platform_admin=is_platform_admin,
+            password_hash=self._hash_password(clean_password),
+        )
+        PlatformRepository(self.database).ensure_learner_defaults(learner_id)
+        self.database.record_audit_event(
+            event_type="admin.user_created",
+            learner_id=learner_id,
+            metadata={"role": role, "tenant_id": resolved_tenant},
+        )
+        row = self.database.get_learner(learner_id)
+        if row is None:
+            raise ValueError("Konto konnte nicht angelegt werden.")
+        return row
 
     def authenticate(self, authorization_header: str | None) -> LearnerSession:
         """Return the session for a bearer token or raise a validation error."""
@@ -114,13 +216,7 @@ class AuthService:
         session_row = self.database.get_active_session(self._hash_token(token))
         if session_row is None:
             raise ValueError("Session ist unbekannt oder abgelaufen.")
-        return LearnerSession(
-            token=token,
-            learner_id=session_row["learner_id"],
-            display_name=session_row["display_name"],
-            cohort_code=session_row["cohort_code"],
-            role=session_row["role"],
-        )
+        return self._session_from_row(token, session_row)
 
     def logout(self, authorization_header: str | None) -> None:
         """Revoke the current bearer token."""
@@ -182,6 +278,55 @@ class AuthService:
         if not all(checklist.values()):
             raise ValueError("Passwort erfuellt noch nicht alle Regeln.")
         return checklist
+
+    def _session_from_row(
+        self,
+        token: str,
+        session_row: dict[str, Any],
+    ) -> LearnerSession:
+        """Hydrate a session including tenant metadata."""
+        tenant_id = session_row.get("tenant_id")
+        is_platform_admin = bool(session_row.get("is_platform_admin"))
+        tenant_name = None
+        if tenant_id:
+            from app.services.tenant_repository import TenantRepository
+
+            tenant = TenantRepository(self.database).get_tenant(str(tenant_id))
+            tenant_name = str(tenant["name"]) if tenant else None
+        return self._build_session(
+            token=token,
+            learner_id=str(session_row["learner_id"]),
+            display_name=str(session_row["display_name"]),
+            cohort_code=session_row.get("cohort_code"),
+            role=str(session_row.get("role") or "learner"),
+            tenant_id=str(tenant_id) if tenant_id else None,
+            is_platform_admin=is_platform_admin,
+            tenant_name=tenant_name,
+        )
+
+    @staticmethod
+    def _build_session(
+        *,
+        token: str,
+        learner_id: str,
+        display_name: str,
+        cohort_code: str | None,
+        role: str,
+        tenant_id: str | None,
+        is_platform_admin: bool,
+        tenant_name: str | None,
+    ) -> LearnerSession:
+        """Build the public session dataclass."""
+        return LearnerSession(
+            token=token,
+            learner_id=learner_id,
+            display_name=display_name,
+            cohort_code=cohort_code,
+            role=role,
+            tenant_id=tenant_id,
+            tenant_name=tenant_name,
+            is_platform_admin=is_platform_admin,
+        )
 
     def _build_identifier_hash(self, identifier: str) -> str:
         """Build a keyed login hash without storing the raw identifier."""

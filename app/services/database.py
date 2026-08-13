@@ -13,6 +13,7 @@ from app.db.connection import DbConnection
 from app.db.content_schema import initialize_content_schema
 from app.db.dialect import DbDialect
 from app.db.platform_schema import initialize_platform_schema
+from app.db.tenant_schema import initialize_tenant_schema
 from app.models.progress import QuestionProgress
 
 
@@ -130,6 +131,7 @@ class Database:
             self._ensure_requires_password_change_column(connection)
             initialize_content_schema(connection)
             initialize_platform_schema(connection)
+            initialize_tenant_schema(connection)
 
     def _ensure_requires_password_change_column(self, connection: DbConnection) -> None:
         """Add requires_password_change when upgrading an existing local database."""
@@ -176,7 +178,8 @@ class Database:
             row = connection.execute(
                 """
                 SELECT learner_id, identifier_hash, display_name, role,
-                       cohort_code, password_hash, requires_password_change
+                       cohort_code, tenant_id, is_platform_admin,
+                       password_hash, requires_password_change, created_at
                 FROM learners
                 WHERE learner_id = ? AND deleted_at IS NULL
                 """,
@@ -192,7 +195,8 @@ class Database:
             row = connection.execute(
                 """
                 SELECT learner_id, identifier_hash, display_name, role,
-                       cohort_code, password_hash, requires_password_change
+                       cohort_code, tenant_id, is_platform_admin,
+                       password_hash, requires_password_change, created_at
                 FROM learners
                 WHERE identifier_hash = ? AND deleted_at IS NULL
                 """,
@@ -207,6 +211,8 @@ class Database:
         display_name: str,
         role: str,
         cohort_code: str | None,
+        tenant_id: str | None = None,
+        is_platform_admin: bool = False,
         password_hash: str | None = None,
     ) -> None:
         """Create or update a learner profile without storing clear text login data."""
@@ -219,13 +225,20 @@ class Database:
                     display_name,
                     role,
                     cohort_code,
+                    tenant_id,
+                    is_platform_admin,
                     password_hash,
                     created_at,
                     deleted_at
                 )
-                VALUES (?, ?, ?, ?, ?, ?, ?, NULL)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NULL)
                 ON CONFLICT(learner_id) DO UPDATE SET
-                    cohort_code = excluded.cohort_code,
+                    cohort_code = COALESCE(excluded.cohort_code, learners.cohort_code),
+                    tenant_id = CASE
+                        WHEN excluded.is_platform_admin = 1 THEN NULL
+                        ELSE COALESCE(excluded.tenant_id, learners.tenant_id)
+                    END,
+                    is_platform_admin = excluded.is_platform_admin,
                     role = excluded.role,
                     display_name = excluded.display_name,
                     password_hash = COALESCE(excluded.password_hash, learners.password_hash),
@@ -237,6 +250,8 @@ class Database:
                     display_name,
                     role,
                     cohort_code,
+                    None if is_platform_admin else tenant_id,
+                    int(is_platform_admin),
                     password_hash,
                     utc_now_iso(),
                 ),
@@ -293,7 +308,9 @@ class Database:
                     sessions.expires_at,
                     learners.display_name,
                     learners.role,
-                    learners.cohort_code
+                    learners.cohort_code,
+                    learners.tenant_id,
+                    learners.is_platform_admin
                 FROM sessions
                 JOIN learners ON learners.learner_id = sessions.learner_id
                 WHERE sessions.token_hash = ?

@@ -177,6 +177,11 @@ Nach Monat 12 und Monat 24:
 6. Nutzer- und Lerndaten duerfen nie in die Source-Truth-Datenbank.
 7. Content bleibt `draft`, bis Quellencheck und Fachreview abgeschlossen sind.
 
+## Saeulen-Zuordnung
+
+Die didaktische Saeulen-Taxonomie (A Grundlagen, B Metall, C Kunststoff/Anlagenfuehrung)
+liegt in `app/data/content/pillars.py`. Pruefungsmonate 12 und 24 sind als Mix markiert.
+
 ## Naechste technische Schritte
 
 - `TRUSTED_SOURCES` regelmaessig gegen die archivierten Dateien abgleichen.
@@ -186,3 +191,4 @@ Nach Monat 12 und Monat 24:
 - Admin-UI: Quellenstatus, letztes Scrape-Datum, Hash-Aenderung.
 - Content-Generator nur mit Tier-1/2-Kontext laufen lassen.
 - Review-UI: Quellenstellen anzeigen, aber keine langen Quelltexte kopieren.
+- Fachreview der 240 Lerneinheiten und 120 offenen Aufgaben bis `approved`.

@@ -524,6 +524,22 @@ function bindLiveData(root, config) {
   root.querySelectorAll("[data-bind='continue-title']").forEach((el) => {
     el.textContent = continueTitle;
   });
+  const continueUnit = currentLearnUnit();
+  if (continueUnit) {
+    const monthUnits = learnUnitsForMonth(continueUnit.month);
+    const position = Math.max(
+      1,
+      monthUnits.findIndex((item) => item.slug === continueUnit.slug) + 1,
+    );
+    root.querySelectorAll("[data-bind='continue-unit-meta']").forEach((el) => {
+      el.textContent = `Lerneinheit ${position} von ${monthUnits.length || 10} · Monat ${continueUnit.month}`;
+    });
+  }
+  const journeyMonth = currentJourneyMonth();
+  root.querySelectorAll("[data-bind='occupation-line']").forEach((el) => {
+    const year = journeyMonth >= 13 ? "2. Lehrjahr" : "1. Lehrjahr";
+    el.textContent = `Maschinen- und Anlagenführer — ${year}`;
+  });
   const answered = liveNumber(dashboard?.continue_answered, isLoggedIn() ? 0 : 12);
   const continueTotal = liveNumber(dashboard?.continue_total, isLoggedIn() ? total || 30 : 30);
   root.querySelectorAll("[data-bind='continue-progress']").forEach((el) => {
@@ -1558,14 +1574,66 @@ function bindExamWeakTopics(root, config) {
 }
 
 function examKindLabel(exam) {
+  const id = String(exam?.exam_id || "");
+  const checkpointMatch = id.match(/^checkpoint-(\d+)/);
+  if (checkpointMatch) {
+    const number = Number(checkpointMatch[1]);
+    if (number === 12) {
+      return "Zwischenprüfung";
+    }
+    if (number === 24) {
+      return "Abschlussprüfung";
+    }
+    return number > 12 ? "Checkpoint Jahr 2" : "Checkpoint Jahr 1";
+  }
   const title = String(exam?.title || "");
-  if (/zwischen/i.test(title) || /ZP/i.test(exam?.exam_id || "")) {
+  if (/zwischen/i.test(title)) {
     return "Zwischenprüfung";
   }
-  if (/AP|Abschluss/i.test(title) || /AP/i.test(exam?.exam_id || "")) {
+  if (/abschluss/i.test(title) || /\bAP\b/.test(title)) {
     return "Abschlussprüfung";
   }
   return "Themenprüfung";
+}
+
+function checkpointNumber(exam) {
+  const match = String(exam?.exam_id || "").match(/^checkpoint-(\d+)/);
+  return match ? Number(match[1]) : 0;
+}
+
+function currentJourneyMonth() {
+  const unlocked = (state.journey || []).filter((entry) => !entry.locked);
+  if (!unlocked.length) {
+    return Number(state.learnMonth) || 1;
+  }
+  return Math.max(...unlocked.map((entry) => Number(entry.month) || 1));
+}
+
+function featuredExam() {
+  const exams = state.exams || [];
+  const preferId = currentJourneyMonth() >= 13 ? "checkpoint-24" : "checkpoint-12";
+  return (
+    exams.find((exam) => exam.exam_id === preferId) ||
+    exams.find((exam) => exam.is_checkpoint) ||
+    exams[0]
+  );
+}
+
+function curatedExamList(exams) {
+  const wanted = [
+    "checkpoint-12",
+    "checkpoint-24",
+    "exam-01",
+    "checkpoint-13",
+    "checkpoint-18",
+    "checkpoint-22",
+  ];
+  const byId = Object.fromEntries(exams.map((exam) => [exam.exam_id, exam]));
+  const picked = wanted.map((id) => byId[id]).filter(Boolean);
+  if (picked.length) {
+    return picked;
+  }
+  return exams.slice(0, 8);
 }
 
 function questionPracticeStatus(progress) {
@@ -1687,9 +1755,15 @@ function bindExamHub(root, config) {
     return;
   }
   const exams = state.exams || [];
-  const featured = exams[0];
+  const featured = featuredExam();
   root.querySelectorAll("[data-bind='exam-hero-title']").forEach((el) => {
     el.textContent = featured?.title || "IHK Zwischenprüfung";
+  });
+  const yearTwoCount = exams.filter((exam) => checkpointNumber(exam) >= 13).length;
+  root.querySelectorAll("[data-bind='exam-hub-subtitle']").forEach((el) => {
+    el.textContent = yearTwoCount
+      ? `24 Monate · ${yearTwoCount} Checkpoints Jahr 2 plus ZP und AP`
+      : "24 Monate · ZP, Checkpoints und Abschlussprüfung";
   });
   const icons = [
     "/static/figma/exam/ex-timer.svg",
@@ -1714,10 +1788,14 @@ function bindExamHub(root, config) {
     const kind = examKindLabel(exam).toLowerCase();
     return !state.examKindFilter || state.examKindFilter === "alle" || kind === state.examKindFilter;
   });
+  const simExams =
+    !state.examKindFilter || state.examKindFilter === "alle"
+      ? curatedExamList(visibleExams)
+      : visibleExams;
   const simGrid = root.querySelector(".gx-sim-grid");
   if (simGrid) {
-    simGrid.innerHTML = visibleExams.length
-      ? visibleExams
+    simGrid.innerHTML = simExams.length
+      ? simExams
           .map((exam, index) => {
             const count = exam.questions?.length || 0;
             const minutes = exam.time_limit_minutes || 0;

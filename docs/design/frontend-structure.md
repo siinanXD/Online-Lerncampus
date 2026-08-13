@@ -8,7 +8,7 @@ Screen-Katalog: `python tools/generate_screen_catalog.py && python tools/generat
 
 | Rolle | Layout | Chrome |
 |-------|--------|--------|
-| Teilnehmer | `app` (mobile) | Tab-Bar `Start · Lernen · Pruefung · Bericht · Mehr` |
+| Teilnehmer | `app` (mobile) | Tab-Bar `Home · Lernen · Pruefung · Fortschritt · Profil` (`OLC_GX_NAV`) |
 | Auth | `auth` / `login` | Auth-Cards ohne Tab-Bar |
 | Ausbilder | `trainer` (desktop) | Top-Nav Cockpit · Review · Content · Berichte |
 | Admin | `admin` (desktop) | Top-Nav Nutzer · Content · Monitoring · Audit |
@@ -21,7 +21,7 @@ Screen-Katalog: `python tools/generate_screen_catalog.py && python tools/generat
 ### Live (API-verdrahtet)
 
 - Auth: Login, Logout, Passwort, `/api/auth/me` (Profil/Rolle), Onboarding-Consent → `/api/privacy/consent`
-- Dashboard / Fortschritt: `/dashboard` ist Figma **03.1** (`169:879`, helles Stone-UI, Tabs Start · Lernen · Prüfung · Bericht · Mehr); mastery, XP, Level, Streak, Reset, Tagesziel, Unit-Abschluss. Altes dunkles 19.1-Hub liegt unter `/dashboard/legacy`.
+- Teilnehmer-Hubs (Konsistenz-Set **19**, Figma `159:*`): `/dashboard` **19.1 Home**, `/lernen` **19.2 Journey** (24 Monate / 240 Einheiten), `/pruefungen` **19.3** (ZP, Checkpoints Jahr 1/2, AP), `/fortschritt` **19.4**, `/mehr` **19.5 Profil**. Tab-Bar Home · Lernen · Prüfung · Fortschritt · Profil. Berichtsheft über Schnellstarter/Profil, nicht als Haupt-Tab. Legacy-Hubs unter `*/legacy` (u. a. 03.1 unter `/dashboard/legacy`).
 - Lernen: Fragen + Attempt, Lerneinheiten-Liste, Unit-Detail, `POST /api/learning/units/{slug}/complete`
 - Formeltrainer, Fehlerdiagnose, Videolektionen, Uebersetzungshilfe (Glossary)
 - Lernpfad: Journey + Curriculum/Occupations/Sources

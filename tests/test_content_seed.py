@@ -14,8 +14,8 @@ def test_seed_import_populates_content_tables(tmp_path: Path) -> None:
     assert seeder.is_empty() is True
     counts = seeder.seed_all()
     assert counts["quiz_questions"] == 480
-    assert counts["learning_units"] == 144
-    assert counts["open_questions"] == 60
+    assert counts["learning_units"] == 240
+    assert counts["open_questions"] == 120
     assert counts["question_categories"] == 240
     assert seeder.is_empty() is False
 

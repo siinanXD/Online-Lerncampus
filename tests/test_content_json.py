@@ -22,7 +22,8 @@ def test_python_and_json_bundles_match_question_count(tmp_path: Path) -> None:
     )
     json_bundle = load_json_bundle(json_path)
     assert len(json_bundle.questions) == len(python_bundle.questions) == 480
-    assert len(json_bundle.units) == len(python_bundle.units) == 144
+    assert len(json_bundle.units) == len(python_bundle.units) == 240
+    assert len(json_bundle.open_questions) == len(python_bundle.open_questions) == 120
 
 
 def test_detect_dialect_supports_sqlite_and_postgresql() -> None:

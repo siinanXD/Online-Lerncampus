@@ -520,7 +520,7 @@ window.OLC_SCREEN_RENDERERS = {
               <img src="/static/figma/gx/chevron-right.svg" width="20" height="20" alt="" />
             </div>
             <div class="gx-progress-block">
-              <div class="gx-progress-meta"><span>Lerneinheit 3 von 5</span><strong data-bind="continue-progress">12 / 30 Fragen</strong></div>
+              <div class="gx-progress-meta"><span data-bind="continue-unit-meta">Lerneinheit 1 von 10</span><strong data-bind="continue-progress">12 / 30 Fragen</strong></div>
               <div class="gx-bar"><i data-bind="continue-bar" style="width:42%"></i></div>
             </div>
           </a>
@@ -615,7 +615,7 @@ window.OLC_SCREEN_RENDERERS = {
     </div>
         <div class="gx-page-header">
           <h2>IHK-Prüfungsvorbereitung</h2>
-          <p>Simuliere echte Prüfungsverfahren</p>
+          <p data-bind="exam-hub-subtitle">24 Monate · ZP, Checkpoints und Abschlussprüfung</p>
         </div>
         <div class="gx-body">
           <article class="gx-card gx-exam-hero">
@@ -747,7 +747,7 @@ window.OLC_SCREEN_RENDERERS = {
         <div class="gx-profil-header">
           <img class="gx-avatar-lg" src="/static/figma/gx/avatar-profil.png" width="72" height="72" alt="" />
           <strong data-bind="profile-name">Max Müller</strong>
-          <p>Verfahrensmechaniker — 2. Lehrjahr</p>
+          <p data-bind="occupation-line">Maschinen- und Anlagenführer — 1. Lehrjahr</p>
           <span class="gx-level-pill soft" data-bind="level-label">Level 1 Lehrling</span>
         </div>
         <div class="gx-stats-panel">

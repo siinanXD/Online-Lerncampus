@@ -20,8 +20,11 @@ def build_unit(
     sources: list[str],
     minutes: int = 12,
 ):
+    slug = slugify(title)
+    if month >= 13:
+        slug = f"m{month:02d}-{slug}"
     return unit(
-        slug=slugify(title),
+        slug=slug,
         month=month,
         position=position,
         title=title,

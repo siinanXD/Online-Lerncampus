@@ -8,7 +8,7 @@ Screen-Katalog: `python tools/generate_screen_catalog.py && python tools/generat
 
 | Rolle | Layout | Chrome |
 |-------|--------|--------|
-| Teilnehmer | `app` (Phone/Tablet/Desktop) | Tab-Bar `Home · Lernen · Pruefung · Fortschritt · Profil` (`OLC_GX_NAV`); ab ~1100px als linke Leiste |
+| Teilnehmer | `app` (Phone/Tablet/Desktop) | Tab-Bar `Home · Lernen · Pruefung · Fortschritt · Profil` (`OLC_GX_NAV`); ab ~1024px als linke Leiste |
 | Auth | `auth` / `login` | Auth-Cards ohne Tab-Bar |
 | Ausbilder | `trainer` (desktop) | Top-Nav Cockpit · Review · Content · Berichte |
 | Admin | `admin` (desktop) | Top-Nav Nutzer · Content · Monitoring · Audit |

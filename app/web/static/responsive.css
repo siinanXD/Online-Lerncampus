@@ -344,7 +344,7 @@ body[data-page-layout="app"] .app-frame[data-chrome] {
 }
 
 /* Tablet / small laptop: two-column home, wider exam grid */
-@container gx (min-width: 840px) {
+@container gx (min-width: 700px) {
   .gx-home-header,
   .gx-gamification-row,
   .gx-body,
@@ -407,13 +407,13 @@ body[data-page-layout="app"] .app-frame[data-chrome] {
 /* Desktop: rail navigation + 4-up exam cards.
    flex-direction on .gx-screen must be queried from the parent
    app-shell container — a container cannot restyle itself. */
-@container app-shell (min-width: 1100px) {
+@container app-shell (min-width: 1024px) {
   .gx-screen {
     flex-direction: row;
   }
 }
 
-@container gx (min-width: 1100px) {
+@container gx (min-width: 1024px) {
   .gx-scroll {
     order: 2;
     flex: 1 1 auto;
@@ -456,7 +456,7 @@ body[data-page-layout="app"] .app-frame[data-chrome] {
 }
 
 /* Viewport fallback when container queries are unavailable */
-@media (min-width: 840px) {
+@media (min-width: 700px) {
   @supports not (container-type: inline-size) {
     .gx-home .gx-body {
       display: grid;
@@ -474,7 +474,7 @@ body[data-page-layout="app"] .app-frame[data-chrome] {
   }
 }
 
-@media (min-width: 1100px) {
+@media (min-width: 1024px) {
   @supports not (container-type: inline-size) {
     .gx-screen {
       flex-direction: row;

@@ -46,8 +46,8 @@ def test_responsive_assets_are_served() -> None:
     css = client.get("/static/responsive.css")
     assert css.status_code == 200
     assert "container-type: inline-size" in css.text
-    assert "@container gx (min-width: 1100px)" in css.text
-    assert "@container app-shell (min-width: 1100px)" in css.text
+    assert "@container gx (min-width: 1024px)" in css.text
+    assert "@container app-shell (min-width: 1024px)" in css.text
 
     login = client.get("/login")
     assert login.status_code == 200

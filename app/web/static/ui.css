@@ -5977,6 +5977,42 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
   gap: 20px;
   padding: 0 20px;
 }
+.q-media {
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+.q-media[hidden] {
+  display: none !important;
+}
+.q-media img {
+  width: 100%;
+  max-height: 180px;
+  object-fit: contain;
+  object-position: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  display: block;
+}
+.q-media figcaption,
+.exam-media figcaption {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+.exam-media {
+  margin: 12px 0 0;
+}
+.exam-media img {
+  width: 100%;
+  max-height: 160px;
+  object-fit: contain;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
 .q-play .fb-body {
   gap: 16px;
 }

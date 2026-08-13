@@ -145,6 +145,59 @@ function escapeHtml(value) {
     .replaceAll('"', "&quot;");
 }
 
+function visualCoverForMonth(month) {
+  const entry =
+    (window.OLC_VISUALS?.months || {})[Number(month)] || window.OLC_VISUALS?.months?.[1];
+  if (!entry) {
+    return null;
+  }
+  return {
+    src: `/static/visuals/${entry.file}`,
+    alt: entry.alt,
+    caption: entry.alt,
+  };
+}
+
+function visualForContent({ month, title, prompt, categorySlug } = {}) {
+  const haystack = [title, prompt, categorySlug]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const figures = window.OLC_VISUALS?.figures || [];
+  const match = figures.find((fig) => fig.keys.some((key) => haystack.includes(key)));
+  if (match) {
+    return match;
+  }
+  const fromSlug = Number(String(categorySlug || "").match(/^m(\d{2})/)?.[1]);
+  return visualCoverForMonth(fromSlug || month || state.learnMonth || 1);
+}
+
+function renderVisualFigure(visual, className) {
+  if (!visual?.src) {
+    return "";
+  }
+  const caption = visual.caption || visual.alt || "";
+  return `<figure class="${className}">
+    <img src="${escapeHtml(visual.src)}" alt="${escapeHtml(visual.alt || "")}" />
+    ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
+  </figure>`;
+}
+
+function fillVisualSlot(slot, visual) {
+  if (!slot) {
+    return;
+  }
+  if (!visual?.src) {
+    slot.hidden = true;
+    slot.innerHTML = "";
+    return;
+  }
+  slot.hidden = false;
+  slot.innerHTML = `<img src="${escapeHtml(visual.src)}" alt="${escapeHtml(visual.alt || "")}" />${
+    visual.caption ? `<figcaption>${escapeHtml(visual.caption)}</figcaption>` : ""
+  }`;
+}
+
 async function fetchJson(url, options = {}) {
   const response = await fetch(url, options);
   if (!response.ok) {
@@ -1119,6 +1172,14 @@ function bindLiveData(root, config) {
   if (livePrompt && state.questions.length && !isFeedbackScreen && isLearnQuestionScreen) {
     const question = state.questions[state.currentQuestionIndex % state.questions.length];
     livePrompt.textContent = question.prompt;
+    fillVisualSlot(
+      root.querySelector("[data-bind='question-media']"),
+      visualForContent({
+        prompt: question.prompt,
+        categorySlug: question.category_slug,
+        month: state.learnMonth,
+      }),
+    );
     if (liveAnswers) {
       const letters = ["A", "B", "C", "D", "E", "F"];
       liveAnswers.innerHTML = question.options
@@ -1333,10 +1394,21 @@ function renderUnitDetailMarkup() {
     return `<p class="muted">Lerneinheit wählen.</p>
       <div data-bind-nested="units">${renderUnitsMarkup()}</div>`;
   }
+  const hero = visualForContent({
+    month: unit.month,
+    title: `${unit.title} ${unit.subtitle || ""}`,
+    categorySlug: (unit.category_slugs || [])[0],
+  });
   const theory = (unit.theory_blocks || [])
-    .map(
-      (block) => `
-      <article class="gx-card">
+    .map((block, index) => {
+      const figure = visualForContent({
+        month: unit.month,
+        title: `${block.heading || ""} ${block.body || ""}`,
+        categorySlug: (unit.category_slugs || [])[0],
+      });
+      return `
+      <article class="gx-card unit-theory">
+        ${index === 0 ? renderVisualFigure(figure, "unit-inline-visual") : ""}
         <p class="gx-kicker">${escapeHtml(block.heading || "Fachkunde")}</p>
         <strong>${escapeHtml(block.heading || unit.title)}</strong>
         <p>${escapeHtml(block.body || "")}</p>
@@ -1346,8 +1418,8 @@ function renderUnitDetailMarkup() {
         ${(block.norm_references || []).length
           ? `<p class="muted">${escapeHtml(block.norm_references.join(" · "))}</p>`
           : ""}
-      </article>`,
-    )
+      </article>`;
+    })
     .join("");
   const glossaryEntries = Object.entries(unit.glossary || {});
   const glossary = glossaryEntries.length
@@ -1360,10 +1432,13 @@ function renderUnitDetailMarkup() {
       </article>`
     : "";
   return `
-    <article class="gx-card gx-continue">
-      <p class="gx-kicker">Monat ${unit.month} · Einheit ${unit.position || 1}</p>
-      <strong>${escapeHtml(unit.title)}</strong>
-      <p>${escapeHtml(unit.subtitle || unit.practice_task || "")}</p>
+    <article class="gx-card unit-hero">
+      ${renderVisualFigure(hero, "unit-hero-visual")}
+      <div class="unit-hero-copy">
+        <p class="gx-kicker">Monat ${unit.month} · Einheit ${unit.position || 1}</p>
+        <strong>${escapeHtml(unit.title)}</strong>
+        <p>${escapeHtml(unit.subtitle || unit.practice_task || "")}</p>
+      </div>
     </article>
     ${theory || `<article class="gx-card"><p>${escapeHtml(unit.practice_task || "Keine Theorie hinterlegt.")}</p></article>`}
     ${glossary}
@@ -1436,11 +1511,15 @@ function renderGxJourneyLive() {
         const index = units.findIndex((item) => item.slug === unit.slug);
         return !unit.completed && index > currentIndex;
       });
+      const cover = visualCoverForMonth(month);
       const header = `
         <div class="gx-path-month${lockedMonth ? " is-locked" : ""}">
-          <span>Monat ${month}${meta.checkpoint ? " · Checkpoint" : ""}</span>
-          <strong>${escapeHtml(title)}</strong>
-          <em>${doneCount}/${monthUnits.length} Einheiten</em>
+          ${cover ? `<img class="gx-path-cover" src="${escapeHtml(cover.src)}" alt="${escapeHtml(cover.alt)}" />` : ""}
+          <div class="gx-path-month-copy">
+            <span>Monat ${month}${meta.checkpoint ? " · Checkpoint" : ""}</span>
+            <strong>${escapeHtml(title)}</strong>
+            <em>${doneCount}/${monthUnits.length} Einheiten</em>
+          </div>
         </div>`;
       const nodes = monthUnits
         .map((unit) => {
@@ -1457,18 +1536,26 @@ function renderGxJourneyLive() {
               : `<img src="/static/figma/gx/target.svg" width="24" height="24" alt="" />`;
           const xp = unitXpReward(unit, isCurrent);
           const status = done ? `+${xp} XP` : locked ? "Noch gesperrt" : `+${xp} XP`;
+          const thumb = visualForContent({
+            month,
+            title: unit.title,
+            categorySlug: (unit.category_slugs || [])[0],
+          });
           const action = locked
             ? `type="button" data-action="toast" data-toast="Noch gesperrt"`
             : `href="/lernen/einheit" data-page-link data-action="open-unit" data-unit-slug="${escapeHtml(unit.slug)}"`;
           const tag = locked ? "button" : "a";
+          const thumbImg = thumb
+            ? `<img class="gx-node-thumb" src="${escapeHtml(thumb.src)}" alt="" />`
+            : "";
           return `
         <${tag} class="gx-path-row ${side}${locked ? " is-locked" : ""}" ${action}>
-          ${side === "left" ? `<div class="gx-node ${nodeClass}">${icon}</div>` : ""}
+          ${side === "left" ? `<div class="gx-node ${nodeClass}">${thumbImg}${icon}</div>` : ""}
           <div class="gx-node-text${side === "right" ? " end" : ""}">
             <strong>${escapeHtml(unit.title)}</strong>
             <span class="${done ? "ok" : locked ? "muted" : "now"}">${escapeHtml(status)}</span>
           </div>
-          ${side === "right" ? `<div class="gx-node ${nodeClass}">${icon}</div>` : ""}
+          ${side === "right" ? `<div class="gx-node ${nodeClass}">${thumbImg}${icon}</div>` : ""}
         </${tag}>`;
         })
         .join("");
@@ -1793,6 +1880,14 @@ function bindExamLiveScreens(root, config) {
     if (promptEl) {
       promptEl.textContent = current.prompt;
     }
+    fillVisualSlot(
+      root.querySelector("[data-bind='exam-question-media']"),
+      visualForContent({
+        prompt: current.prompt,
+        categorySlug: current.category_slug,
+        title: exam.title,
+      }),
+    );
     root.querySelectorAll("[data-bind='exam-topic']").forEach((el) => {
       el.textContent = exam.title || "Prüfung";
     });
@@ -1842,6 +1937,14 @@ function bindExamLiveScreens(root, config) {
       if (promptEl) {
         promptEl.textContent = current.prompt;
       }
+      fillVisualSlot(
+        root.querySelector("[data-bind='exam-question-media']"),
+        visualForContent({
+          prompt: current.prompt,
+          categorySlug: current.category_slug,
+          title: exam.title,
+        }),
+      );
       root.querySelectorAll("[data-bind='exam-topic']").forEach((el) => {
         el.textContent = exam.title || "Prüfung";
       });
@@ -2404,6 +2507,14 @@ function bindLearnPractice(root, config) {
   if (prompt) {
     prompt.textContent = attempt.prompt;
   }
+  fillVisualSlot(
+    root.querySelector("[data-bind='question-media']"),
+    visualForContent({
+      prompt: attempt.prompt,
+      categorySlug: attempt.category_slug,
+      month: state.learnMonth,
+    }),
+  );
   const answers = root.querySelector(".fb-answers");
   if (answers) {
     answers.innerHTML = (attempt.options || [])

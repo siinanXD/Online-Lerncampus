@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 260" role="img" aria-labelledby="t d">
+  <title id="t">Toleranzfeld Welle-Bohrung</title>
+  <desc id="d">Nennmaß 20 mm, Bohrung H7 über Nennmaß, Welle h6 unter und auf Nennmaß.</desc>
+  <rect width="680" height="260" fill="#f8fafc"/>
+  <line x1="80" y1="130" x2="600" y2="130" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 6"/>
+  <text x="608" y="134" font-family="Inter, Arial, sans-serif" font-size="12" font-weight="700" fill="#64748b">Nennmaß 20</text>
+  <rect x="160" y="58" width="140" height="72" fill="#bfdbfe" stroke="#1d4ed8" stroke-width="2"/>
+  <rect x="380" y="130" width="140" height="54" fill="#fed7aa" stroke="#c2410c" stroke-width="2"/>
+  <text x="176" y="98" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="800" fill="#1e3a8a">Bohrung H7</text>
+  <text x="396" y="162" font-family="Inter, Arial, sans-serif" font-size="16" font-weight="800" fill="#9a3412">Welle h6</text>
+  <text x="160" y="48" font-family="Inter, Arial, sans-serif" font-size="12" fill="#1d4ed8">oberes Abmaß +</text>
+  <text x="380" y="210" font-family="Inter, Arial, sans-serif" font-size="12" fill="#c2410c">unteres Abmaß </text>
+  <text x="24" y="242" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">Spielpassung: Bohrung liegt über, Welle auf/unter dem Nennmaß</text>
+</svg>

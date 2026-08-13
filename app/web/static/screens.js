@@ -2119,6 +2119,7 @@ window.OLC_SCREEN_RENDERERS = {
               </span>
             </div>
             <h3 class="q-prompt" data-bind="live-question-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
+            <figure class="q-media" data-bind="question-media" hidden></figure>
             <div class="answer-options" data-bind="live-answers">
               <button class="answer-option" type="button" data-index="0"><span class="answer-letter">A</span><span class="answer-text">Einfachwirkend: Luft nur eine Richtung, Rückstellung durch Feder</span></button>
               <button class="answer-option" type="button" data-index="1"><span class="answer-letter">B</span><span class="answer-text">Doppeltwirkend hat zwei Kolben</span></button>
@@ -2153,6 +2154,7 @@ window.OLC_SCREEN_RENDERERS = {
               </span>
             </div>
             <h3 class="q-prompt">Nenne drei Schutzmaßnahmen beim Arbeiten an drehenden Maschinenteilen.</h3>
+            <figure class="q-media" data-bind="question-media" hidden></figure>
             <div class="freetext-box">
               <textarea class="freetext-input" rows="5" maxlength="500" placeholder="Deine Antwort..." data-bind="freetext-answer" aria-label="Freitext Antwort"></textarea>
               <div class="freetext-meta">
@@ -2187,6 +2189,7 @@ window.OLC_SCREEN_RENDERERS = {
               </span>
             </div>
             <h3 class="q-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
+            <figure class="q-media" data-bind="question-media" hidden></figure>
             <div class="fb-answers">
               <div class="fb-answer correct">
                 <span class="answer-letter">A</span>
@@ -2238,6 +2241,7 @@ window.OLC_SCREEN_RENDERERS = {
               </span>
             </div>
             <h3 class="q-prompt">Was ist der Unterschied zwischen einfach- und doppeltwirkendem Zylinder?</h3>
+            <figure class="q-media" data-bind="question-media" hidden></figure>
             <div class="fb-answers">
               <div class="fb-answer correct">
                 <span class="answer-letter">A</span>
@@ -3071,6 +3075,7 @@ window.OLC_SCREEN_RENDERERS = {
               <em data-bind="exam-topic">Prüfung</em>
             </div>
             <p data-bind="exam-question-prompt">Frage wird geladen…</p>
+            <figure class="q-media exam-media" data-bind="exam-question-media" hidden></figure>
           </article>
           <div class="ex-q-options" data-bind="exam-options"></div>
         </div>
@@ -3144,6 +3149,7 @@ window.OLC_SCREEN_RENDERERS = {
                 <em data-bind="exam-topic">Prüfung</em>
               </div>
               <p data-bind="exam-question-prompt">Frage wird geladen…</p>
+              <figure class="q-media exam-media" data-bind="exam-question-media" hidden></figure>
             </article>
             <a class="ex-tm-jump" href="/pruefungen/uebersicht" data-page-link>
               <img src="/static/figma/exam/ex-tm-flag-off.svg" width="16" height="16" alt="" />

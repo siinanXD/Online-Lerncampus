@@ -511,15 +511,24 @@ function bindLiveData(root, config) {
     el.textContent = month?.title || `Monat ${state.learnMonth}`;
   });
   const continueTitle =
-    currentLearnUnit()?.title ||
     dashboard?.continue_title ||
+    currentLearnUnit()?.title ||
     dashboard?.focus_topic ||
     (isLoggedIn() ? "Weiterlernen" : "Pneumatik — Schaltpläne");
   const nextUnit = currentLearnUnit();
+  const continueSlug = dashboard?.continue_slug || nextUnit?.slug || "";
   root.querySelectorAll("[data-action='open-unit']").forEach((el) => {
-    if (!el.dataset.unitSlug && nextUnit?.slug) {
-      el.dataset.unitSlug = nextUnit.slug;
+    if (continueSlug) {
+      el.dataset.unitSlug = continueSlug;
     }
+  });
+  root.querySelectorAll(".fortsetzen-btn, .ov-fortsetzen-btn, .gx-continue").forEach((el) => {
+    if (!continueSlug || el.tagName !== "A") {
+      return;
+    }
+    el.dataset.action = el.dataset.action || "open-unit";
+    el.dataset.unitSlug = continueSlug;
+    el.setAttribute("href", "/lernen/einheit");
   });
   root.querySelectorAll("[data-bind='continue-title']").forEach((el) => {
     el.textContent = continueTitle;
@@ -912,6 +921,9 @@ function renderUnitDetailMarkup() {
       <p class="gx-kicker">Monat ${unit.month} · Einheit ${unit.position || 1}</p>
       <strong>${escapeHtml(unit.title)}</strong>
       <p>${escapeHtml(unit.subtitle || unit.practice_task || "")}</p>
+      ${unit.review_status && unit.review_status !== "approved"
+        ? `<p class="muted" data-bind="unit-draft-badge">Entwurf / ungeprüft — noch nicht fachlich freigegeben</p>`
+        : ""}
     </article>
     ${theory || `<article class="gx-card"><p>${escapeHtml(unit.practice_task || "Keine Theorie hinterlegt.")}</p></article>`}
     ${glossary}
@@ -919,12 +931,25 @@ function renderUnitDetailMarkup() {
       <p class="gx-section-label">WEITERLERNEN</p>
       <div class="gx-chips">
         <a class="gx-chip" href="/lernen/frage" data-page-link data-action="start-unit" data-unit-slug="${escapeHtml(unit.slug)}">Fragen üben</a>
+        ${unitExerciseChip(unit.slug)}
         <a class="gx-chip" href="/lernen/formeltrainer" data-page-link>Formeltrainer</a>
         <a class="gx-chip" href="/lernen/video" data-page-link>Video</a>
         <a class="gx-chip" href="/lernen/fehlerdiagnose" data-page-link>Fehlerdiagnose</a>
         <a class="gx-chip" href="/fachkunde/einheit" data-page-link data-unit-slug="${escapeHtml(unit.slug)}">Fachkunde</a>
       </div>
     </div>`;
+}
+
+function unitExerciseChip(slug) {
+  const routes = {
+    messschieber: { href: "/fachkunde/messschieber", label: "Messschieber-Übung" },
+    "toleranzen-pruefen": { href: "/fachkunde/toleranz", label: "Toleranzfeld-Übung" },
+  };
+  const route = routes[slug];
+  if (!route) {
+    return "";
+  }
+  return `<a class="gx-chip" href="${route.href}" data-page-link data-unit-slug="${escapeHtml(slug)}">${route.label}</a>`;
 }
 
 function journeyCompletionPercent() {
@@ -953,7 +978,21 @@ function learnUnitsForMonth(month = state.learnMonth || 1) {
 }
 
 function currentLearnUnit() {
-  return allLearnUnits().find((unit) => !unit.completed) || allLearnUnits()[0] || null;
+  const units = allLearnUnits();
+  const preferredSlug = state.dashboard?.continue_slug;
+  if (preferredSlug) {
+    const preferred = units.find((unit) => unit.slug === preferredSlug && !unit.completed);
+    if (preferred) {
+      return preferred;
+    }
+  }
+  for (const slug of ["messschieber", "toleranzen-pruefen"]) {
+    const pilot = units.find((unit) => unit.slug === slug && !unit.completed);
+    if (pilot) {
+      return pilot;
+    }
+  }
+  return units.find((unit) => !unit.completed) || units[0] || null;
 }
 
 function unitXpReward(unit, isCurrent) {
@@ -3443,9 +3482,151 @@ function renderInjectionPhase(root, index) {
 function bindFachkundeExercises(root, path) {
   if (path.startsWith("/fachkunde/toleranz")) {
     updateToleranceCard(root);
+    void bindCategoryPracticeExercise(root, {
+      unitSlug: "toleranzen-pruefen",
+      categorySlug: "m06-toleranzen-pruefen",
+      title: "Toleranzen pruefen",
+      ensureQuizDom: ensureToleranceQuizDom,
+      questionSel: "[data-tz-q]",
+      optionsSel: "[data-tz-options]",
+      submitSel: "[data-action='tz-submit']",
+      selectAction: "tz-select",
+    });
   }
   if (path.startsWith("/fachkunde/spritzguss")) {
     renderInjectionPhase(root, state.injectionPhase || 0);
+  }
+  if (path.startsWith("/fachkunde/messschieber")) {
+    void bindCategoryPracticeExercise(root, {
+      unitSlug: "messschieber",
+      categorySlug: "m06-messschieber",
+      title: "Messschieber",
+      questionSel: ".fk-ms-q",
+      optionsSel: ".fk-ms-options",
+      submitSel: "[data-action='ms-submit']",
+      selectAction: "ms-select",
+      captionSel: ".fk-ms-caption",
+    });
+  }
+}
+
+function ensureToleranceQuizDom(root) {
+  let quiz = root.querySelector("[data-tz-quiz]");
+  if (quiz) {
+    return quiz;
+  }
+  const scroll = root.querySelector(".fk-tz-scroll");
+  if (!scroll) {
+    return null;
+  }
+  quiz = document.createElement("div");
+  quiz.className = "fk-tz-card";
+  quiz.dataset.tzQuiz = "1";
+  quiz.innerHTML = `
+    <p class="fk-tz-label">Übung — Toleranzen bewerten</p>
+    <p data-tz-q class="fk-ms-q">Frage wird geladen…</p>
+    <div data-tz-options class="fk-ms-options"></div>
+    <button class="fk-ms-submit" type="button" data-action="tz-submit">Antwort einreichen</button>
+    <p class="muted" data-tz-hint></p>`;
+  scroll.appendChild(quiz);
+  return quiz;
+}
+
+async function bindCategoryPracticeExercise(root, config) {
+  if (typeof config.ensureQuizDom === "function") {
+    config.ensureQuizDom(root);
+  }
+  const empty = root.querySelector(config.questionSel);
+  const optionsWrap = root.querySelector(config.optionsSel);
+  const submit = root.querySelector(config.submitSel);
+  if (!optionsWrap) {
+    return;
+  }
+  if (!state.accessToken) {
+    if (empty) {
+      empty.textContent = `Bitte einloggen, um die ${config.title}-Übung zu speichern.`;
+    }
+    optionsWrap.innerHTML = "";
+    if (submit) {
+      submit.disabled = true;
+    }
+    return;
+  }
+  try {
+    await ensureQuestionProgress();
+    const questions = await fetchJson(
+      `/api/questions?category_slug=${encodeURIComponent(config.categorySlug)}`,
+    );
+    if (!questions.length) {
+      if (empty) {
+        empty.textContent =
+          `Keine freigegebenen ${config.title}-Fragen. Demo: CONTENT_REVIEW_REQUIRED=false oder Reviewer-Freigabe.`;
+      }
+      optionsWrap.innerHTML = "";
+      if (submit) {
+        submit.disabled = true;
+      }
+      return;
+    }
+    const openIndex = questions.findIndex(
+      (question) => !state.questionProgress?.[question.question_id]?.mastered,
+    );
+    const index = openIndex >= 0 ? openIndex : 0;
+    state.questions = questions;
+    state.currentQuestionIndex = index;
+    state.practiceMode = "unit";
+    state.caliperChoiceIndex = null;
+    if (!state.activeUnit || state.activeUnit.slug !== config.unitSlug) {
+      try {
+        await loadUnitBySlug(config.unitSlug);
+      } catch {
+        state.activeUnit = {
+          slug: config.unitSlug,
+          category_slugs: [config.categorySlug],
+          title: config.title,
+        };
+      }
+    }
+    const question = questions[index];
+    if (empty) {
+      empty.textContent = question.prompt;
+    }
+    if (config.captionSel) {
+      const caption = root.querySelector(config.captionSel);
+      if (caption) {
+        caption.innerHTML =
+          "Beantworte die Frage. Die Antwort wird serverseitig bewertet und im Lernstand gespeichert.";
+      }
+    }
+    const hint = root.querySelector("[data-tz-hint]");
+    if (hint) {
+      hint.textContent =
+        state.activeUnit?.review_status && state.activeUnit.review_status !== "approved"
+          ? "Entwurf / ungeprüft — Antworten werden gespeichert, Inhalt ist noch nicht freigegeben."
+          : "Antworten werden über denselben Lernstand wie Messschieber gespeichert.";
+    }
+    optionsWrap.innerHTML = question.options
+      .map(
+        (option, optionIndex) => `
+      <button type="button" class="fk-ms-opt" data-action="${config.selectAction}" data-index="${optionIndex}">
+        <img src="/static/figma/fk/fk-ms-radio.svg" width="18" height="18" alt="" />
+        <span>${escapeHtml(option)}</span>
+      </button>`,
+      )
+      .join("");
+    if (submit) {
+      submit.disabled = false;
+      submit.textContent = "Antwort einreichen";
+    }
+  } catch (error) {
+    if (empty) {
+      empty.textContent =
+        error instanceof Error ? error.message : `${config.title}-Übung konnte nicht geladen werden.`;
+    }
+    optionsWrap.innerHTML = "";
+    if (submit) {
+      submit.disabled = true;
+    }
   }
 }
 
@@ -4502,10 +4683,10 @@ document.addEventListener("click", async (event) => {
       renderInjectionPhase(root, index);
       return;
     }
-    if (target.dataset.action === "ms-select") {
+    if (target.dataset.action === "ms-select" || target.dataset.action === "tz-select") {
       event.preventDefault();
-      state.caliperChoice = target.dataset.value;
-      const wrap = target.closest(".fk-ms-options");
+      state.caliperChoiceIndex = Number(target.dataset.index);
+      const wrap = target.closest(".fk-ms-options, [data-tz-options]");
       wrap?.querySelectorAll(".fk-ms-opt").forEach((btn) => {
         const on = btn === target;
         btn.classList.toggle("selected", on);
@@ -4516,10 +4697,17 @@ document.addEventListener("click", async (event) => {
       });
       return;
     }
-    if (target.dataset.action === "ms-submit") {
+    if (target.dataset.action === "ms-submit" || target.dataset.action === "tz-submit") {
       event.preventDefault();
-      const ok = String(state.caliperChoice || "23.5") === "23.5";
-      showToast(ok ? "Richtig: 23 mm + 0.5 mm Nonius = 23.5 mm" : "Nicht ganz. Hauptskala 23 mm, Nonius 0.5 mm.");
+      if (state.caliperChoiceIndex == null || Number.isNaN(state.caliperChoiceIndex)) {
+        showToast("Bitte zuerst eine Antwort wählen.");
+        return;
+      }
+      try {
+        await answerQuestion(Number(state.caliperChoiceIndex));
+      } catch (error) {
+        showToast(error instanceof Error ? error.message : "Antwort konnte nicht gespeichert werden.");
+      }
       return;
     }
     if (target.dataset.action === "toast" && /Vorschlag übernommen|Vorschlag uebernommen/.test(target.dataset.toast || "")) {

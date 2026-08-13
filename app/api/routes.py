@@ -497,9 +497,20 @@ def get_dashboard(
     )
     units = _questions().list_learning_units()
     completed = set(extras.get("completed_unit_slugs") or [])
-    next_unit = next((unit for unit in units if unit.slug not in completed), None)
+    next_unit = _progress().resolve_continue_unit(units, completed)
     total = int(summary["total_questions"] or 1)
     mastered = int(summary["mastered_questions"])
+    continue_answered = mastered
+    continue_total = total
+    continue_category = ""
+    if next_unit is not None and next_unit.category_slugs:
+        continue_category = next_unit.category_slugs[0]
+        continue_answered, continue_total = _progress().category_mastery_counts(
+            session.learner_id,
+            list(next_unit.category_slugs),
+        )
+        if continue_total == 0:
+            continue_total = 1
     weak = list(summary.get("weak_categories") or [])
     review_topic = _category_title(str(weak[0]["category_slug"])) if weak else ""
     summary.update(
@@ -513,8 +524,10 @@ def get_dashboard(
             "study_minutes_week": extras["study_minutes_week"],
             "week_minutes": extras["week_minutes"],
             "continue_title": next_unit.title if next_unit else "",
-            "continue_answered": mastered,
-            "continue_total": total,
+            "continue_slug": next_unit.slug if next_unit else "",
+            "continue_category_slug": continue_category,
+            "continue_answered": continue_answered,
+            "continue_total": continue_total,
             "readiness_percent": round((mastered / total) * 100) if total else 0,
             "review_topic": review_topic,
             "xp_into_level": int(gamification["xp_into_level"]),

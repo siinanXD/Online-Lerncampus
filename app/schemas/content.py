@@ -168,6 +168,8 @@ class DashboardSummaryResponse(BaseModel):
     study_minutes_today: int = 0
     study_minutes_week: int = 0
     continue_title: str = ""
+    continue_slug: str = ""
+    continue_category_slug: str = ""
     continue_answered: int = 0
     continue_total: int = 0
     readiness_percent: int = 0

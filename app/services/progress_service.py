@@ -2,9 +2,19 @@
 
 from typing import Any
 
-from app.models.domain import QuizQuestion
+from app.models.domain import LearningUnit, QuizQuestion
 from app.models.progress import QuestionProgress
 from app.services.question_repository import QuestionRepository
+
+# Ordered pilot vertical slices for the dashboard continue card.
+# First incomplete slug in this list wins; after that, fall back to
+# curriculum order among remaining units.
+PILOT_CONTINUE_UNIT_SLUGS: tuple[str, ...] = (
+    "messschieber",
+    "toleranzen-pruefen",
+)
+# Backward-compatible alias for the first pilot unit.
+PILOT_CONTINUE_UNIT_SLUG = PILOT_CONTINUE_UNIT_SLUGS[0]
 
 
 class ProgressService:
@@ -75,6 +85,45 @@ class ProgressService:
             learner_id=learner_id,
             question_id=question_id,
         ) or QuestionProgress(question_id=question_id)
+
+    @staticmethod
+    def resolve_continue_unit(
+        units: list[LearningUnit],
+        completed_slugs: set[str],
+    ) -> LearningUnit | None:
+        """Pick the next unit for the dashboard continue card."""
+        by_slug = {unit.slug: unit for unit in units}
+        for slug in PILOT_CONTINUE_UNIT_SLUGS:
+            unit = by_slug.get(slug)
+            if unit is not None and unit.slug not in completed_slugs:
+                return unit
+        return next(
+            (unit for unit in units if unit.slug not in completed_slugs),
+            None,
+        )
+
+    def category_mastery_counts(
+        self,
+        learner_id: str,
+        category_slugs: list[str],
+    ) -> tuple[int, int]:
+        """Return (mastered, total) for questions in the given categories."""
+        if not category_slugs:
+            return 0, 0
+        allowed = set(category_slugs)
+        questions = [
+            question
+            for question in self.question_repository.list_questions()
+            if question.category_slug in allowed
+        ]
+        progress = self.database.list_question_progress(learner_id)
+        mastered = sum(
+            1
+            for question in questions
+            if progress.get(question.question_id)
+            and progress[question.question_id].mastered
+        )
+        return mastered, len(questions)
 
     def dashboard_summary(self, learner_id: str) -> dict[str, object]:
         """Return dashboard metrics for one learner."""

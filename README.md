@@ -106,6 +106,17 @@ Passwort-/SSO-System umgesetzt werden.
 }
 ```
 
+## Projektdokumentation
+
+- `AGENTS.md` — was dieses Repository ist (und was nicht)
+- `docs/DECISIONS.md` — offene Entscheidungen, aktuell **D-001**
+- `docs/product/ROUTES.md` — tatsaechliche Seiten
+- `docs/product/FEATURES.md` — Funktionen und Luecken
+- `docs/product/IMPLEMENTATION_STATUS.md` — Status und naechster Slice
+
+Es existiert ein paralleles Repository `siinanXD/bze-online-campus`
+(Next.js/Supabase) als Referenz. **D-001:** Produktbasis ist dieses Repo.
+
 ## Naechste Ausbaustufe
 
 - PostgreSQL und Alembic-Migrationen

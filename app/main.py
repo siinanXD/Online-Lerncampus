@@ -7,6 +7,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
+from app.api.platform_routes import platform_router
 from app.api.routes import api_router, bootstrap_content_store
 from app.core.config import get_settings
 from app.web.pages import allowed_frontend_pages
@@ -37,6 +38,7 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(api_router, prefix="/api")
+    app.include_router(platform_router, prefix="/api")
     app.mount("/static", StaticFiles(directory="app/web/static"), name="static")
 
     @app.get(

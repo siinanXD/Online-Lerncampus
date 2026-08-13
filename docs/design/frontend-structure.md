@@ -21,25 +21,27 @@ Screen-Katalog: `python tools/generate_screen_catalog.py && python tools/generat
 ### Live (API-verdrahtet)
 
 - Auth: Login, Logout, Passwort, `/api/auth/me` (Profil/Rolle), Onboarding-Consent → `/api/privacy/consent`
-- Dashboard / Fortschritt: mastery, XP, Level, Streak, Reset (`POST /api/progress/reset`)
-- Lernen: Fragen + Attempt, Lerneinheiten-Liste, Unit-Detail via `/api/learning/units/{slug}`
+- Dashboard / Fortschritt: `/dashboard` ist Figma **03.1** (`169:879`, helles Stone-UI, Tabs Start · Lernen · Prüfung · Bericht · Mehr); mastery, XP, Level, Streak, Reset, Tagesziel, Unit-Abschluss. Altes dunkles 19.1-Hub liegt unter `/dashboard/legacy`.
+- Lernen: Fragen + Attempt, Lerneinheiten-Liste, Unit-Detail, `POST /api/learning/units/{slug}/complete`
+- Formeltrainer, Fehlerdiagnose, Videolektionen, Uebersetzungshilfe (Glossary)
 - Lernpfad: Journey + Curriculum/Occupations/Sources
-- Pruefung: Sessions, Choice-Answers, **Open-Answers**, Submit (Checkpoint-Exams)
-- Berichtsheft: Create + Liste + Submit/Update (`PUT /api/training-reports/{id}`)
+- Pruefung: Sessions, Choice-Answers, Open-Answers, Submit (Checkpoint-Exams)
+- Berichtsheft: Create + Liste + Submit/Update, Signatur, Regel-Vorschlag, Text-Export
 - Privacy: Export, Account-Delete, Consent
-- Gamification: `/api/gamification` (XP/Level/Streak/Badges aus Progress+Audit)
+- Gamification: `/api/gamification` plus Kohorten-Leaderboard (`/api/leaderboard`)
 - KI-Coach / Lernplan: `/api/coach/plan` (regelbasiert aus Schwaechen/Journey)
-- Ausbilder Review: Pending-Queue + Approve/Needs-Revision (`/api/content/review/decision`), Draft-Generate + `/api/content/review`
+- Sprache, Darstellung, Benachrichtigungs-Toggles: `/api/me/preferences`, `/api/me/notifications/settings`
+- Content-Meldung: `POST /api/content/flags`
+- Ausbilder: Review-Queue, Kohorte, Risiko-Radar, Berichtsheft-Freigabe, Medien-Metadaten
+- Admin: Nutzerliste, Rollen, Monitoring, Audit, Dubletten, Settings
 - Rollen-Gate: Trainer/Admin-Layouts nur fuer `reviewer|trainer|admin`
 
 ### Noch Shell / teilweise statisch
 
-- Marketing/Landing-Illustrationen, Level-Up-Animation, Sprache
-- Formeltrainer / Fehlerdiagnose / Video / Flashcard / Uebersetzungshilfe (Demo-Toasts)
-- Berichtsheft KI-Assistent, Kalender, PDF-Export-UI (ohne Server-PDF)
-- Ausbilder: Teilnehmer-CRUD, Kohorten-Risiko-Tabellen, Medien-Upload, Editor-Voll-CRUD
-- Admin: Nutzerverwaltung, Monitoring-Charts, Import/Dubletten, Audit-UI (nur Shell)
-- Gamification-Leaderboard (nur eigener Streak/Badges, keine Kohorten-Rangliste)
+- Marketing/Landing-Illustrationen, Level-Up-Animation (XP kommt live, Animation bleibt UI)
+- Berichtsheft-Kalender-Pixelrahmen (Daten liegen in `/api/training-reports`)
+- Echte Videodateien und binaerer Medien-Upload (nur Metadaten/URL im MVP)
+- LLM-gestuetzter Berichtsheft-Text (Regelgenerator statt externem KI-Provider)
 
 ## Dateien
 

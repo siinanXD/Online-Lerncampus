@@ -34,6 +34,16 @@ def isolated_test_environment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     get_settings.cache_clear()
 
 
+def correct_option_index(question_id: str) -> int:
+    """Return the correct option index from the app's content store."""
+    from app.api import routes
+
+    assert routes.question_repository is not None
+    question = routes.question_repository.get_question(question_id)
+    assert question is not None
+    return question.correct_option_index
+
+
 def pytest_configure(config: pytest.Config) -> None:
     """Default tests to DB mode unless overridden before collection."""
     os.environ.setdefault("CONTENT_SOURCE", "db")

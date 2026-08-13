@@ -12,6 +12,7 @@ from typing import Any
 from app.db.connection import DbConnection
 from app.db.content_schema import initialize_content_schema
 from app.db.dialect import DbDialect
+from app.db.platform_schema import initialize_platform_schema
 from app.models.progress import QuestionProgress
 
 
@@ -126,7 +127,31 @@ class Database:
                 """
             )
             self._ensure_password_hash_column(connection)
+            self._ensure_requires_password_change_column(connection)
             initialize_content_schema(connection)
+            initialize_platform_schema(connection)
+
+    def _ensure_requires_password_change_column(self, connection: DbConnection) -> None:
+        """Add requires_password_change when upgrading an existing local database."""
+        if connection.dialect is not DbDialect.SQLITE:
+            connection.execute(
+                """
+                ALTER TABLE learners
+                ADD COLUMN IF NOT EXISTS requires_password_change INTEGER NOT NULL DEFAULT 0
+                """
+            )
+            return
+        columns = {
+            row["name"]
+            for row in connection.execute("PRAGMA table_info(learners)").fetchall()
+        }
+        if "requires_password_change" not in columns:
+            connection.execute(
+                """
+                ALTER TABLE learners
+                ADD COLUMN requires_password_change INTEGER NOT NULL DEFAULT 0
+                """
+            )
 
     def _ensure_password_hash_column(self, connection: DbConnection) -> None:
         """Add password_hash when upgrading an existing local database."""
@@ -151,7 +176,7 @@ class Database:
             row = connection.execute(
                 """
                 SELECT learner_id, identifier_hash, display_name, role,
-                       cohort_code, password_hash
+                       cohort_code, password_hash, requires_password_change
                 FROM learners
                 WHERE learner_id = ? AND deleted_at IS NULL
                 """,
@@ -167,7 +192,7 @@ class Database:
             row = connection.execute(
                 """
                 SELECT learner_id, identifier_hash, display_name, role,
-                       cohort_code, password_hash
+                       cohort_code, password_hash, requires_password_change
                 FROM learners
                 WHERE identifier_hash = ? AND deleted_at IS NULL
                 """,
@@ -223,10 +248,22 @@ class Database:
             connection.execute(
                 """
                 UPDATE learners
-                SET password_hash = ?
+                SET password_hash = ?, requires_password_change = 0
                 WHERE learner_id = ? AND deleted_at IS NULL
                 """,
                 (password_hash, learner_id),
+            )
+
+    def set_requires_password_change(self, learner_id: str, required: bool) -> None:
+        """Flag whether the learner must change their password on next login."""
+        with self._transaction() as connection:
+            connection.execute(
+                """
+                UPDATE learners
+                SET requires_password_change = ?
+                WHERE learner_id = ? AND deleted_at IS NULL
+                """,
+                (int(required), learner_id),
             )
 
     def create_session(
@@ -380,6 +417,26 @@ class Database:
             )
             connection.execute(
                 "DELETE FROM category_progress WHERE learner_id = ?",
+                (learner_id,),
+            )
+            connection.execute(
+                "DELETE FROM unit_progress WHERE learner_id = ?",
+                (learner_id,),
+            )
+            connection.execute(
+                "DELETE FROM formula_progress WHERE learner_id = ?",
+                (learner_id,),
+            )
+            connection.execute(
+                "DELETE FROM diagnosis_progress WHERE learner_id = ?",
+                (learner_id,),
+            )
+            connection.execute(
+                "DELETE FROM video_progress WHERE learner_id = ?",
+                (learner_id,),
+            )
+            connection.execute(
+                "DELETE FROM daily_goal_progress WHERE learner_id = ?",
                 (learner_id,),
             )
 
@@ -591,6 +648,24 @@ class Database:
             ).fetchall()
         return [self._row_dict(row) for row in rows]
 
+    def list_exam_choice_answers_with_ids(self, session_id: int) -> list[dict[str, Any]]:
+        """Return choice answers with public question ids for one session."""
+        with self._transaction() as connection:
+            rows = connection.execute(
+                """
+                SELECT
+                    quiz_questions.question_id,
+                    exam_session_answers.selected_option_index,
+                    exam_session_answers.is_correct
+                FROM exam_session_answers
+                JOIN quiz_questions
+                    ON quiz_questions.id = exam_session_answers.quiz_question_id
+                WHERE exam_session_answers.session_id = ?
+                """,
+                (session_id,),
+            ).fetchall()
+        return [self._row_dict(row) for row in rows]
+
     def list_exam_open_answers(self, session_id: int) -> list[dict[str, Any]]:
         """Return stored open answers for one session."""
         with self._transaction() as connection:
@@ -603,6 +678,65 @@ class Database:
                 (session_id,),
             ).fetchall()
         return [self._row_dict(row) for row in rows]
+
+    def list_exam_marked_question_ids(self, session_id: int) -> list[str]:
+        """Return public question ids marked for review in one session."""
+        with self._transaction() as connection:
+            rows = connection.execute(
+                """
+                SELECT quiz_questions.question_id
+                FROM exam_session_marks
+                JOIN quiz_questions
+                    ON quiz_questions.id = exam_session_marks.quiz_question_id
+                WHERE exam_session_marks.session_id = ?
+                """,
+                (session_id,),
+            ).fetchall()
+        return [str(row["question_id"]) for row in rows]
+
+    def toggle_exam_mark(self, session_id: int, quiz_question_id: int) -> bool:
+        """Toggle a review mark for one exam question. Returns the new marked state."""
+        with self._transaction() as connection:
+            existing = connection.execute(
+                """
+                SELECT 1
+                FROM exam_session_marks
+                WHERE session_id = ? AND quiz_question_id = ?
+                """,
+                (session_id, quiz_question_id),
+            ).fetchone()
+            if existing:
+                connection.execute(
+                    """
+                    DELETE FROM exam_session_marks
+                    WHERE session_id = ? AND quiz_question_id = ?
+                    """,
+                    (session_id, quiz_question_id),
+                )
+                return False
+            connection.execute(
+                """
+                INSERT INTO exam_session_marks (
+                    session_id, quiz_question_id, marked_at
+                )
+                VALUES (?, ?, ?)
+                """,
+                (session_id, quiz_question_id, utc_now_iso()),
+            )
+            return True
+
+    def count_exam_marks(self, session_id: int) -> int:
+        """Return how many questions are marked in one session."""
+        with self._transaction() as connection:
+            row = connection.execute(
+                """
+                SELECT COUNT(*) AS count
+                FROM exam_session_marks
+                WHERE session_id = ?
+                """,
+                (session_id,),
+            ).fetchone()
+        return int(row["count"])
 
     def finalize_exam_session(
         self,
@@ -670,6 +804,10 @@ class Database:
                 (learner_id,),
             ).fetchall()
         return [self._row_dict(row) for row in rows]
+
+    def has_privacy_consent(self, learner_id: str) -> bool:
+        """Return True when the learner accepted the privacy notice."""
+        return any(row["accepted"] for row in self.list_consents(learner_id))
 
     def record_audit_event(
         self,
@@ -756,10 +894,31 @@ class Database:
                 """,
                 (learner_id,),
             ).fetchall()
+            unit_rows = connection.execute(
+                """
+                SELECT learning_units.slug, unit_progress.completed_at
+                FROM unit_progress
+                JOIN learning_units
+                    ON learning_units.id = unit_progress.learning_unit_id
+                WHERE unit_progress.learner_id = ?
+                """,
+                (learner_id,),
+            ).fetchall()
+            report_rows = connection.execute(
+                """
+                SELECT report_date, activities, hours, status, created_at
+                FROM training_reports
+                WHERE learner_id = ?
+                ORDER BY report_date DESC
+                """,
+                (learner_id,),
+            ).fetchall()
         return {
             "learner": self._row_dict(learner),
             "question_progress": [self._row_dict(row) for row in progress_rows],
             "consents": [self._row_dict(row) for row in consent_rows],
+            "completed_units": [self._row_dict(row) for row in unit_rows],
+            "training_reports": [self._row_dict(row) for row in report_rows],
         }
 
     def delete_learner_data(self, learner_id: str) -> None:
@@ -779,7 +938,8 @@ class Database:
         with self._transaction() as connection:
             rows = connection.execute(
                 """
-                SELECT id, report_date, activities, hours, status, created_at, updated_at
+                SELECT id, report_date, activities, hours, status,
+                       signed_at, trainer_status, created_at, updated_at
                 FROM training_reports
                 WHERE learner_id = ?
                 ORDER BY report_date DESC, id DESC
@@ -815,7 +975,8 @@ class Database:
             )
             row = connection.execute(
                 """
-                SELECT id, report_date, activities, hours, status, created_at, updated_at
+                SELECT id, report_date, activities, hours, status,
+                       signed_at, trainer_status, created_at, updated_at
                 FROM training_reports
                 WHERE id = ?
                 """,
@@ -883,7 +1044,8 @@ class Database:
         with self._transaction() as connection:
             row = connection.execute(
                 """
-                SELECT id, report_date, activities, hours, status, created_at, updated_at
+                SELECT id, report_date, activities, hours, status,
+                       signed_at, trainer_status, created_at, updated_at
                 FROM training_reports
                 WHERE id = ? AND learner_id = ?
                 """,

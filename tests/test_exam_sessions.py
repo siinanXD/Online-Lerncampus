@@ -5,7 +5,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from app.main import create_app
-from app.services.question_repository import QuestionRepository
+from tests.conftest import correct_option_index as _correct_index
 
 
 def build_client() -> TestClient:
@@ -26,13 +26,6 @@ def login_client(client: TestClient, identifier: str | None = None) -> dict[str,
     )
     assert response.status_code == 200
     return {"Authorization": f"Bearer {response.json()['access_token']}"}
-
-
-def _correct_index(question_id: str) -> int:
-    """Resolve the correct option from the server-side question bank."""
-    question = QuestionRepository(content_source="memory").get_question(question_id)
-    assert question is not None
-    return question.correct_option_index
 
 
 def test_exam_session_requires_authentication() -> None:
@@ -79,6 +72,11 @@ def test_exam_session_lifecycle_grades_correct_answers() -> None:
     assert result["score_percent"] == 100.0
     assert result["passed"] is True
     assert result["weak_categories"] == []
+    assert result["wrong_count"] == 0
+    assert result["unanswered_count"] == 0
+    assert result["duration_seconds"] >= 0
+    assert result["xp_awarded"] == 200
+    assert result["exam_title"]
 
     state = client.get(f"/api/exams/sessions/{session_id}", headers=headers)
     assert state.status_code == 200
@@ -124,3 +122,55 @@ def test_exam_session_cannot_be_submitted_twice() -> None:
     )
     assert first.status_code == 200
     assert second.status_code == 400
+
+
+def test_exam_session_progress_and_marks_are_live() -> None:
+    """Ensure progress counts and marks come from the active session."""
+    client = build_client()
+    headers = login_client(client)
+    exam = client.get("/api/exams/exam-01").json()
+    start = client.post("/api/exams/exam-01/sessions", headers=headers)
+    session_id = start.json()["session_id"]
+    first = exam["questions"][0]
+    second = exam["questions"][1]
+
+    progress = client.get(f"/api/exams/sessions/{session_id}/progress", headers=headers)
+    assert progress.status_code == 200
+    payload = progress.json()
+    assert payload["total_questions"] == len(exam["questions"])
+    assert payload["answered_count"] == 0
+    assert payload["open_count"] == len(exam["questions"])
+    assert payload["marked_count"] == 0
+
+    mark = client.post(
+        f"/api/exams/sessions/{session_id}/marks",
+        headers=headers,
+        json={"question_id": first["question_id"]},
+    )
+    assert mark.status_code == 200
+    assert mark.json()["marked"] is True
+    assert mark.json()["marked_count"] == 1
+
+    save = client.post(
+        f"/api/exams/sessions/{session_id}/answers",
+        headers=headers,
+        json={
+            "question_id": first["question_id"],
+            "selected_option_index": _correct_index(first["question_id"]),
+        },
+    )
+    assert save.status_code == 200
+
+    progress = client.get(
+        f"/api/exams/sessions/{session_id}/progress",
+        headers=headers,
+        params={"current_question_id": second["question_id"]},
+    )
+    assert progress.status_code == 200
+    payload = progress.json()
+    assert payload["answered_count"] == 1
+    assert payload["open_count"] == len(exam["questions"]) - 1
+    assert payload["marked_count"] == 1
+    assert payload["current_question_id"] == second["question_id"]
+    assert payload["questions"][0]["answered"] is True
+    assert payload["questions"][0]["marked"] is True

@@ -57,7 +57,8 @@ class AuthService:
         identifier_hash = self._build_identifier_hash(clean_identifier)
         learner_id = f"learner_{identifier_hash[:16]}"
         existing = self.database.get_learner_by_identifier_hash(identifier_hash)
-        if existing is None:
+        is_new_learner = existing is None
+        if is_new_learner:
             password_hash = self._hash_password(clean_password)
         else:
             stored_hash = existing.get("password_hash")
@@ -75,6 +76,11 @@ class AuthService:
             cohort_code=clean_cohort,
             password_hash=password_hash,
         )
+        if is_new_learner and self._requires_initial_password_change(clean_identifier):
+            self.database.set_requires_password_change(learner_id, True)
+        from app.services.platform_repository import PlatformRepository
+
+        PlatformRepository(self.database).ensure_learner_defaults(learner_id)
         token = token_urlsafe(32)
         token_hash = self._hash_token(token)
         expires_at = datetime.now(tz=UTC) + timedelta(hours=self.session_ttl_hours)
@@ -195,6 +201,15 @@ class AuthService:
         if identifier.startswith("trainer-"):
             return "trainer", "Trainer"
         return "learner", "Azubi"
+
+    @staticmethod
+    def _requires_initial_password_change(identifier: str) -> bool:
+        """Return True when a fresh learner must visit the password screen first."""
+        if identifier in {"demo-azubi", "admin-demo", "trainer-demo", "reviewer-demo"}:
+            return False
+        if identifier.startswith(("admin-", "trainer-", "reviewer-")):
+            return False
+        return True
 
     def _hash_token(self, token: str) -> str:
         """Build a non-reversible hash for a bearer token."""

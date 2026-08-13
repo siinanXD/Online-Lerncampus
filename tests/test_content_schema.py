@@ -7,6 +7,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from app.db.content_schema import CONTENT_TABLES, initialize_content_schema, list_content_tables
+from app.db.platform_schema import list_platform_tables
 from app.main import create_app
 from app.services.database import Database
 
@@ -44,9 +45,13 @@ def test_database_class_applies_content_schema(tmp_path: Path) -> None:
     database = Database(f"sqlite:///{db_path.as_posix()}")
     with database._transaction() as connection:
         present = list_content_tables(connection)
+        platform = list_platform_tables(connection)
     assert "quiz_questions" in present
     assert "learning_units" in present
     assert "exam_sessions" in present
+    assert "formulas" in platform
+    assert "diagnosis_cases" in platform
+    assert "learner_preferences" in platform
 
 
 def test_existing_app_still_boots_with_content_schema() -> None:

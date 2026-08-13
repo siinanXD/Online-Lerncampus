@@ -15,13 +15,43 @@ const state = {
   curriculum: [],
   sources: [],
   trainingReports: [],
+  preferences: null,
+  dailyGoal: null,
+  authProfile: {
+    requires_password_change: false,
+    onboarding_completed: false,
+    privacy_consent_accepted: false,
+  },
+  selectedLanguage: "de",
+  formulas: [],
+  diagnosisCases: [],
+  activeDiagnosisSlug: null,
+  videos: [],
+  activeVideoSlug: null,
+  videoTimer: null,
+  notifications: [],
+  notificationSettings: null,
+  coachMessages: [],
+  reportSuggest: null,
+  caliperChoice: "23.5",
+  injectionPhase: 0,
   currentQuestionIndex: 0,
   activeExam: null,
   examSession: null,
   examChoiceAnswers: {},
   examOpenAnswers: {},
   examResult: null,
+  examProgress: null,
   examTimerHandle: null,
+  lastAttempt: null,
+  contentStats: null,
+  levelUp: null,
+  questionProgress: {},
+  practiceFilter: "all",
+  practiceMode: "all",
+  allQuestions: [],
+  examKindFilter: "alle",
+  currentExamQuestionIndex: 0,
   accessToken: localStorage.getItem("ol_access_token"),
   learnerId: localStorage.getItem("ol_learner_id"),
   role: localStorage.getItem("ol_role") || "learner",
@@ -46,6 +76,27 @@ function resolveRoute(pathname = window.location.pathname) {
 function authHeaders() {
   return state.accessToken ? { Authorization: `Bearer ${state.accessToken}` } : {};
 }
+
+function isLoggedIn() {
+  return Boolean(state.accessToken);
+}
+
+function liveNumber(value, demoFallback = 0) {
+  if (isLoggedIn()) {
+    return Number(value ?? 0);
+  }
+  return Number(value || demoFallback);
+}
+
+function livePercent(value, demoFallback = 0) {
+  return `${liveNumber(value, demoFallback)}%`;
+}
+
+const EXAM_SHORTCUT_IDS = {
+  zp: "MAF-ASSESS-ZP-SIM",
+  ap: "MAF-ASSESS-AP-PT",
+  diag: "MAF-ASSESS-DIAG-START",
+};
 
 function clearSession() {
   state.accessToken = null;
@@ -123,7 +174,30 @@ async function login(identifier, password, cohortCode) {
   localStorage.setItem("ol_role", state.role);
   localStorage.setItem("ol_display_name", state.displayName);
   document.body.classList.add("is-authenticated");
+  syncAuthProfile(session);
   await refreshPrivateData();
+  return session;
+}
+
+function syncAuthProfile(profile = {}) {
+  state.authProfile = {
+    requires_password_change: Boolean(profile.requires_password_change),
+    onboarding_completed: Boolean(profile.onboarding_completed),
+    privacy_consent_accepted: Boolean(profile.privacy_consent_accepted),
+  };
+}
+
+function resolvePostLoginRoute(profile = state.authProfile) {
+  if (profile?.requires_password_change) {
+    return "/passwort";
+  }
+  if (!profile?.onboarding_completed) {
+    return "/sprache";
+  }
+  if (!profile?.privacy_consent_accepted) {
+    return "/onboarding";
+  }
+  return "/dashboard";
 }
 
 async function ensureAuthenticated() {
@@ -150,6 +224,7 @@ async function refreshPrivateData() {
   state.learnerId = state.profile.learner_id;
   state.role = state.profile.role || "learner";
   state.displayName = state.profile.display_name || "";
+  syncAuthProfile(state.profile);
   localStorage.setItem("ol_learner_id", state.learnerId);
   localStorage.setItem("ol_role", state.role);
   localStorage.setItem("ol_display_name", state.displayName);
@@ -162,6 +237,14 @@ async function refreshPrivateData() {
   state.trainingReports = await fetchJson("/api/training-reports", {
     headers: authHeaders(),
   }).catch(() => []);
+  state.preferences = await fetchJson("/api/me/preferences", { headers: authHeaders() }).catch(
+    () => null,
+  );
+  state.notificationSettings = await fetchJson("/api/me/notifications/settings", {
+    headers: authHeaders(),
+  }).catch(() => null);
+  applyAppearance(state.preferences);
+  state.dailyGoal = await fetchJson("/api/daily-goal", { headers: authHeaders() }).catch(() => null);
   if (STAFF_ROLES.has(state.role)) {
     state.pendingReviews = await fetchJson("/api/content/review/pending", {
       headers: authHeaders(),
@@ -200,6 +283,7 @@ function renderScreen(config) {
     ? renderer()
     : `<article class="card"><p>Screen fehlt: ${config.screen || "?"}</p></article>`;
   bindLiveData(root, config);
+  bindPlatformTools(root, config);
   syncPasswordStrength(root);
   syncMehrPrivacyForms(root);
 }
@@ -268,16 +352,16 @@ function syncPasswordStrength(root = document) {
   const score = Object.values(rules).filter(Boolean).length;
   const labels = ["Schwach", "Schwach", "Mittel", "Gut", "Stark"];
   const colors = ["#ef4444", "#ef4444", "#10b981", "#10b981", "#059669"];
-  // Match Figma default for "SicheresKennw": 2 bars / Mittel when score is 2
-  const activeBars = value ? Math.max(score, 1) : 2;
+  // Empty field: no bars; otherwise reflect live rule score.
+  const activeBars = value ? Math.max(score, 1) : 0;
   strength.querySelectorAll(".pw-strength-bars span").forEach((bar, index) => {
     bar.classList.toggle("on", index < activeBars);
   });
   const label = strength.querySelector("strong");
   if (label) {
-    const idx = value ? score : 2;
-    label.textContent = labels[idx];
-    label.style.color = colors[idx];
+    const idx = value ? score : 0;
+    label.textContent = labels[idx] || labels[0];
+    label.style.color = colors[idx] || colors[0];
   }
   checklist.querySelectorAll("[data-rule]").forEach((item) => {
     const ok = rules[item.dataset.rule];
@@ -294,29 +378,47 @@ function bindLiveData(root, config) {
   const mastered = dashboard?.mastered_questions || 0;
   const wrong = dashboard?.wrong_answers || 0;
   const total = dashboard?.total_questions || 0;
-  const readiness = total ? Math.round((mastered / total) * 100) : 0;
-  const xp = dashboard?.xp ?? state.gamification?.xp ?? 0;
-  const level = dashboard?.level ?? state.gamification?.level ?? 1;
-  const streak = dashboard?.streak_days ?? state.gamification?.streak_days ?? 0;
+  const readinessRaw = dashboard?.readiness_percent ?? (total ? Math.round((mastered / total) * 100) : 0);
+  const readiness = liveNumber(readinessRaw, 67);
+  const xp = liveNumber(dashboard?.xp ?? state.gamification?.xp, 2450);
+  const level = liveNumber(dashboard?.level ?? state.gamification?.level, 7);
+  const streak = liveNumber(dashboard?.streak_days ?? state.gamification?.streak_days, 12);
+  const badges = state.gamification?.badges || dashboard?.badges || [];
+  const xpInto = dashboard?.xp_into_level ?? (xp % 120);
+  const xpPer = dashboard?.xp_per_level || 120;
+  const xpPct = Math.max(0, Math.min(100, Math.round((xpInto / xpPer) * 100)));
 
   root.querySelectorAll("[data-bind='mastered']").forEach((el) => {
-    el.textContent = String(mastered || 156);
+    el.textContent = String(liveNumber(mastered, 156));
   });
   root.querySelectorAll("[data-bind='wrong']").forEach((el) => {
-    el.textContent = String(wrong);
+    el.textContent = String(liveNumber(wrong, isLoggedIn() ? 0 : 3));
+  });
+  root.querySelectorAll(".ov-screen [data-bind='wrong']").forEach((el) => {
+    el.textContent = String(liveNumber(wrong, 3));
   });
   root.querySelectorAll("[data-bind='readiness']").forEach((el) => {
-    el.textContent = `${readiness || 67}%`;
+    el.textContent = livePercent(readinessRaw, 67);
   });
   root.querySelectorAll("[data-bind='total-questions']").forEach((el) => {
-    el.textContent = String(total || state.questions?.length || 312);
+    el.textContent = String(liveNumber(total || state.questions?.length || state.allQuestions?.length, 480));
   });
   root.querySelectorAll("[data-bind='open-questions']").forEach((el) => {
-    const open = Math.max((total || 312) - (mastered || 156), 0);
-    el.textContent = String(total ? open : 23);
+    const openCount = Number(dashboard?.open_questions);
+    const fallback = Math.max(liveNumber(total, 312) - liveNumber(mastered, 156), 0);
+    el.textContent = String(Number.isFinite(openCount) ? openCount : (isLoggedIn() ? fallback : fallback || 23));
   });
-  const unitsCount = state.units?.length || 12;
-  const unitsDone = state.units?.filter((u) => u.completed || u.status === "done").length || 8;
+  root.querySelectorAll("[data-bind='correct-once']").forEach((el) => {
+    el.textContent = String(Number(dashboard?.correct_once_questions) || 0);
+  });
+  root.querySelectorAll("[data-bind='wrong-questions']").forEach((el) => {
+    el.textContent = String(Number(dashboard?.wrong_questions) || 0);
+  });
+  const unitsCount = state.units?.length || dashboard?.units_total || 12;
+  const unitsDone =
+    state.units?.filter((u) => u.completed || u.status === "done").length ||
+    dashboard?.units_completed ||
+    0;
   root.querySelectorAll("[data-bind='units-count']").forEach((el) => {
     el.textContent = String(unitsCount);
   });
@@ -324,7 +426,13 @@ function bindLiveData(root, config) {
     el.textContent = String(unitsDone);
   });
   root.querySelectorAll(".mastery-fill").forEach((el) => {
-    el.style.width = `${readiness || 67}%`;
+    el.style.width = `${liveNumber(readinessRaw, 67)}%`;
+  });
+  root.querySelectorAll("[data-bind='readiness-bar']").forEach((el) => {
+    el.style.width = `${liveNumber(readinessRaw, 67)}%`;
+  });
+  root.querySelectorAll("[data-bind='xp-bar-fill']").forEach((el) => {
+    el.style.width = `${xpPct}%`;
   });
   root.querySelectorAll("[data-bind='xp']").forEach((el) => {
     el.textContent = Number(xp).toLocaleString("de-DE");
@@ -335,41 +443,201 @@ function bindLiveData(root, config) {
   root.querySelectorAll("[data-bind='streak']").forEach((el) => {
     el.textContent = String(streak);
   });
-  const firstName = (state.displayName || "Max").split(/\s+/)[0];
+  root.querySelectorAll(".ov-screen [data-bind='streak']").forEach((el) => {
+    el.textContent = String(streak);
+  });
+  root.querySelectorAll(".ov-screen [data-bind='xp']").forEach((el) => {
+    el.textContent = Number(xp).toLocaleString("de-DE");
+  });
+  root.querySelectorAll(".ov-header [data-bind='level']").forEach((el) => {
+    el.textContent = String(level);
+  });
+  const firstName = (state.displayName || (isLoggedIn() ? "Azubi" : "Max")).split(/\s+/)[0];
+  root.querySelectorAll("[data-bind='first-name']").forEach((el) => {
+    el.textContent = firstName;
+  });
   root.querySelectorAll("[data-bind='greeting-name']").forEach((el) => {
     el.textContent = `Hallo, ${firstName}!`;
   });
   root.querySelectorAll("[data-bind='level-label']").forEach((el) => {
-    el.textContent = `Level ${level > 1 ? level : 7}`;
+    el.textContent = `Level ${level}`;
+  });
+  root.querySelectorAll(".gx-level-pill.soft").forEach((el) => {
+    el.textContent = `Level ${level} Lehrling`;
   });
   root.querySelectorAll("[data-bind='streak-days']").forEach((el) => {
-    el.textContent = `${streak || 12} Tage`;
+    el.textContent = `${streak} Tage`;
   });
   root.querySelectorAll("[data-bind='profile-name']").forEach((el) => {
-    el.textContent = state.displayName || "Max Müller";
+    el.textContent = state.displayName || (isLoggedIn() ? "Azubi" : "Max Müller");
   });
   root.querySelectorAll("[data-bind='xp-num']").forEach((el) => {
-    el.textContent = Number(xp || 2450).toLocaleString("de-DE");
+    el.textContent = Number(xp).toLocaleString("de-DE");
   });
   root.querySelectorAll("[data-bind='xp-level']").forEach((el) => {
-    el.textContent = `${Number(xp || 2450).toLocaleString("de-DE")} / 3.000 XP`;
+    const nextLevelXp = xpPer * level;
+    el.textContent = `${Number(xp).toLocaleString("de-DE")} / ${Number(nextLevelXp).toLocaleString("de-DE")} XP`;
   });
   root.querySelectorAll("[data-bind='readiness-pct']").forEach((el) => {
-    const r = dashboard?.readiness ?? state.dashboard?.readiness ?? 67;
-    el.textContent = `${Math.round(Number(r))}%`;
+    el.textContent = livePercent(dashboard?.readiness_percent ?? readinessRaw, 67);
   });
-  const continueTitle = dashboard?.continue_title || dashboard?.focus_topic || "Pneumatik — Schaltpläne";
+  root.querySelectorAll("[data-bind='badge-count']").forEach((el) => {
+    el.textContent = String(badges.length);
+  });
+  const languageLabels = { de: "Deutsch", en: "English", tr: "Türkçe", ar: "العربية", uk: "Українська" };
+  const languageKey = state.preferences?.language || state.selectedLanguage || "de";
+  root.querySelectorAll("[data-bind='language-label']").forEach((el) => {
+    el.textContent = languageLabels[languageKey] || "Deutsch";
+  });
+  const reports = state.trainingReports || [];
+  const reportsDone = reports.filter((item) =>
+    ["approved", "submitted", "freigegeben", "eingereicht"].includes(String(item.status || "").toLowerCase()),
+  ).length;
+  const reportsTarget = 24;
+  const reportsMissing = Math.max(reportsTarget - reports.length, 0);
+  root.querySelectorAll("[data-bind='report-summary']").forEach((el) => {
+    el.textContent = reports.length
+      ? `Ausbildungsnachweis ${reportsDone} von ${reportsTarget} Wochen gepflegt`
+      : "Noch keine Berichtsheft-Einträge";
+  });
+  root.querySelectorAll("[data-bind='report-missing']").forEach((el) => {
+    el.textContent = reports.length ? `${reportsMissing} fehlen` : "Offen";
+  });
+  root.querySelectorAll("[data-bind='journey-pct']").forEach((el) => {
+    el.textContent = `${journeyCompletionPercent()}% abgeschlossen`;
+  });
+  root.querySelectorAll("[data-bind='journey-month-title']").forEach((el) => {
+    const month = state.journey.find((entry) => entry.month === state.learnMonth);
+    el.textContent = month?.title || `Monat ${state.learnMonth}`;
+  });
+  const continueTitle =
+    currentLearnUnit()?.title ||
+    dashboard?.continue_title ||
+    dashboard?.focus_topic ||
+    (isLoggedIn() ? "Weiterlernen" : "Pneumatik — Schaltpläne");
+  const nextUnit = currentLearnUnit();
+  root.querySelectorAll("[data-action='open-unit']").forEach((el) => {
+    if (!el.dataset.unitSlug && nextUnit?.slug) {
+      el.dataset.unitSlug = nextUnit.slug;
+    }
+  });
   root.querySelectorAll("[data-bind='continue-title']").forEach((el) => {
     el.textContent = continueTitle;
   });
-  const answered = dashboard?.continue_answered ?? Math.min(mastered || 12, 30);
-  const continueTotal = dashboard?.continue_total ?? 30;
+  const answered = liveNumber(dashboard?.continue_answered, isLoggedIn() ? 0 : 12);
+  const continueTotal = liveNumber(dashboard?.continue_total, isLoggedIn() ? total || 30 : 30);
   root.querySelectorAll("[data-bind='continue-progress']").forEach((el) => {
-    el.textContent = `${answered} / ${continueTotal} Fragen`;
+    el.textContent =
+      el.dataset.format === "compact"
+        ? `${answered}/${continueTotal} Fragen`
+        : `${answered} / ${continueTotal} Fragen`;
   });
   root.querySelectorAll("[data-bind='continue-bar']").forEach((el) => {
     const pct = continueTotal ? Math.round((answered / continueTotal) * 100) : 0;
     el.style.width = `${Math.max(4, Math.min(100, pct))}%`;
+  });
+  const dailyDone = dashboard?.daily_lessons_done ?? state.dailyGoal?.lessons_completed ?? 0;
+  const dailyTarget = dashboard?.daily_lessons_goal ?? state.dailyGoal?.lessons_goal ?? 5;
+  const dailyLeft = Math.max(dailyTarget - dailyDone, 0);
+  root.querySelectorAll("[data-bind='daily-goal']").forEach((el) => {
+    el.textContent =
+      el.dataset.format === "meta"
+        ? `${dailyDone} von ${dailyTarget} Lektionen heute`
+        : `Tagesziel: ${dailyDone} von ${dailyTarget} Lektionen`;
+  });
+  const dailyPct = dailyTarget ? Math.round((Math.min(dailyDone, dailyTarget) / dailyTarget) * 100) : 0;
+  root.querySelectorAll("[data-bind='daily-pct']").forEach((el) => {
+    el.textContent = `${dailyPct}%`;
+  });
+  root.querySelectorAll(".ov-screen [data-bind='daily-goal']").forEach((el) => {
+    el.textContent = `${dailyDone} von ${dailyTarget} Lektionen heute`;
+  });
+  root.querySelectorAll("[data-bind='daily-remaining']").forEach((el) => {
+    if (!dailyLeft) {
+      el.textContent = "Tagesziel erreicht!";
+      return;
+    }
+    el.textContent =
+      el.dataset.format === "short"
+        ? `Noch ${dailyLeft} für dein Tagesziel`
+        : `Noch ${dailyLeft} Lektionen bis zum Tagesbonus (+50 XP)!`;
+  });
+  root.querySelectorAll(".ov-screen [data-bind='daily-remaining']").forEach((el) => {
+    const left = Math.max(dailyTarget - dailyDone, 0);
+    el.textContent = left ? `Noch ${left} für dein Tagesziel` : "Tagesziel erreicht!";
+  });
+  root.querySelectorAll("[data-bind='daily-segments']").forEach((el) => {
+    const n = Math.max(1, Number(dailyTarget) || 5);
+    const done = Math.max(0, Math.min(Number(dailyDone) || 0, n));
+    el.innerHTML = Array.from({ length: n }, (_, i) =>
+      `<span${i < done ? ' class="filled"' : ""}></span>`,
+    ).join("");
+  });
+  root.querySelectorAll(".ov-screen [data-bind='daily-segments']").forEach((el) => {
+    const n = Math.max(1, Number(dailyTarget) || 5);
+    const done = Math.max(0, Math.min(Number(dailyDone) || 0, n));
+    el.innerHTML = Array.from({ length: n }, (_, i) =>
+      `<span${i < done ? ' class="filled"' : ""}></span>`,
+    ).join("");
+  });
+  root.querySelectorAll("[data-bind='level-caps']").forEach((el) => {
+    el.textContent = `LEVEL ${level}`;
+  });
+  const minutesToday = dashboard?.study_minutes_today ?? state.dailyGoal?.minutes_studied ?? 0;
+  const minutesWeek = dashboard?.study_minutes_week ?? state.dailyGoal?.minutes_studied_week ?? 0;
+  root.querySelectorAll("[data-bind='study-minutes']").forEach((el) => {
+    el.textContent = `${minutesToday} Min`;
+  });
+  root.querySelectorAll(".ov-screen [data-bind='study-minutes']").forEach((el) => {
+    el.textContent = `${minutesToday} Min`;
+  });
+  root.querySelectorAll("[data-bind='week-total']").forEach((el) => {
+    const hours = Math.floor(minutesWeek / 60);
+    const mins = minutesWeek % 60;
+    el.textContent = hours ? `${hours}h ${mins}min diese Woche` : `${mins}min diese Woche`;
+  });
+  root.querySelectorAll(".ov-screen [data-bind='week-total']").forEach((el) => {
+    if (isLoggedIn() || minutesWeek) {
+      const hours = Math.floor(minutesWeek / 60);
+      const mins = minutesWeek % 60;
+      el.textContent = hours ? `${hours}h ${mins}min diese Woche` : `${mins}min diese Woche`;
+    }
+  });
+  const weekMinutes = Array.isArray(dashboard?.week_minutes)
+    ? dashboard.week_minutes
+    : [0, 0, 0, 0, 0, 0, 0];
+  const weekLabels = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"];
+  const weekMax = Math.max(...weekMinutes, 1);
+  const gxWeekDays = root.querySelector("[data-bind='gx-week-days']");
+  if (gxWeekDays) {
+    gxWeekDays.innerHTML = weekLabels
+      .map((label, index) => {
+        const mins = Number(weekMinutes[index]) || 0;
+        return `<div class="gx-day${mins ? " done" : ""}"><i></i><span>${label}</span></div>`;
+      })
+      .join("");
+  }
+  root.querySelectorAll("[data-bind='week-bars-live']").forEach((el) => {
+    el.innerHTML = weekLabels
+      .map((label, index) => {
+        const mins = Number(weekMinutes[index]) || 0;
+        const height = mins ? Math.max(8, Math.round((mins / weekMax) * 55)) : 4;
+        const emptyClass = mins ? "" : ' class="empty"';
+        return `<div class="week-bar"><i${emptyClass} style="height:${height}px"></i><span>${label}</span></div>`;
+      })
+      .join("");
+  });
+  const reviewTopic =
+    dashboard?.review_topic ||
+    (dashboard?.weak_categories?.[0]
+      ? categorySlugToTitle(String(dashboard.weak_categories[0].category_slug))
+      : "");
+  root.querySelectorAll("[data-bind='review-topic']").forEach((el) => {
+    el.textContent = reviewTopic ? `Wiederholung: ${reviewTopic}` : "Wiederholung";
+  });
+  root.querySelectorAll(".level-ring-progress").forEach((el) => {
+    const pct = xpPer ? Math.max(0, Math.min(100, Math.round((xpInto / xpPer) * 100))) : 0;
+    el.style.opacity = `${0.35 + pct / 200}`;
   });
   const levelLabel = document.getElementById("level-label");
   if (levelLabel) {
@@ -388,51 +656,44 @@ function bindLiveData(root, config) {
   });
 
   const questionList = root.querySelector("[data-bind='question-list']");
-  if (questionList && questionList.dataset.static !== "figma") {
-    const source =
-      config.path === "/lernen/fragen/fehler" || config.screen?.includes("fehler")
-        ? state.questions.slice(0, 8)
-        : state.questions.slice(0, 12);
-    questionList.innerHTML = source.length
-      ? source
-          .map(
-            (question, index) => {
-              const dots = ["/static/figma/learn2/dot-green.svg", "/static/figma/learn2/dot-blue.svg", "/static/figma/learn2/dot-gray.svg", "/static/figma/learn2/dot-red.svg"];
-              const dot = dots[index % dots.length];
-              return `
-          <a class="q-row" href="/lernen/frage" data-page-link data-q-index="${index}">
-            <img class="q-dot" src="${dot}" width="10" height="10" alt="" />
-            <span>${escapeHtml(question.prompt)}</span>
-            <span class="diff-bars" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
-            <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
-          </a>`;
-            },
-          )
-          .join("")
-      : `<article class="list-row"><strong>Keine Fragen geladen</strong><span class="muted">Demo</span></article>`;
+  if (questionList) {
+    renderPracticeQuestionList(root, config, questionList);
   }
 
-  const livePrompt = root.querySelector("[data-bind='live-question-prompt']");
-  const liveAnswers = root.querySelector("[data-bind='live-answers']");
+  const livePrompt = root.querySelector("[data-bind='live-question-prompt'], .ld-prompt");
+  const liveAnswers = root.querySelector("[data-bind='live-answers'], .ld-answers");
   const isFeedbackScreen = Boolean(config.screen?.includes("feedback"));
-  if (livePrompt && state.questions.length && !isFeedbackScreen) {
+  const isLearnQuestionScreen = ["/lernen/frage", "/lernen/detail"].includes(config.path);
+  if (livePrompt && state.questions.length && !isFeedbackScreen && isLearnQuestionScreen) {
     const question = state.questions[state.currentQuestionIndex % state.questions.length];
-    // Keep Figma demo copy on MC pixel frame when prompt already matches design.
-    const keepFigmaCopy = config.path === "/lernen/frage" && livePrompt.textContent.includes("einfach- und doppeltwirkendem");
-    if (!keepFigmaCopy) {
-      livePrompt.textContent = question.prompt;
-    }
-    if (liveAnswers && !keepFigmaCopy) {
+    livePrompt.textContent = question.prompt;
+    if (liveAnswers) {
       const letters = ["A", "B", "C", "D", "E", "F"];
       liveAnswers.innerHTML = question.options
         .map(
           (option, index) => `
-          <button class="answer-option" type="button" data-index="${index}">
-            <span class="answer-letter">${letters[index] || index + 1}</span>
-            <span class="answer-text">${escapeHtml(option)}</span>
+          <button class="${liveAnswers.matches(".ld-answers") ? "ld-answer" : "answer-option"}" type="button" data-index="${index}">
+            <span class="${liveAnswers.matches(".ld-answers") ? "ld-letter" : "answer-letter"}">${letters[index] || index + 1}</span>
+            <span>${escapeHtml(option)}</span>
           </button>`,
         )
         .join("");
+    }
+    const ldCounter = root.querySelector(".ld-counter");
+    if (ldCounter && state.questions.length) {
+      ldCounter.textContent = `Frage ${state.currentQuestionIndex + 1} von ${state.questions.length}`;
+    }
+    const topicPill = root.querySelector(".q-meta-row .topic-pill");
+    if (topicPill) {
+      topicPill.textContent = categoryDisplayTitle(question.category_slug || "Fachkunde");
+    }
+    const tracker = root.querySelector("[data-bind='q-tracker']");
+    if (tracker) {
+      tracker.textContent = `${state.currentQuestionIndex + 1}/${state.questions.length}`;
+    }
+    const fill = root.querySelector(".q-progress-fill");
+    if (fill && state.questions.length) {
+      fill.style.width = `${Math.round(((state.currentQuestionIndex + 1) / state.questions.length) * 100)}%`;
     }
   }
 
@@ -470,6 +731,32 @@ function bindLiveData(root, config) {
   if (journeyLive) {
     journeyLive.innerHTML = renderJourneyMarkup();
   }
+
+  const gxJourneyLive = root.querySelector("[data-bind='gx-journey-live']");
+  if (gxJourneyLive) {
+    gxJourneyLive.innerHTML = renderGxJourneyLive();
+  }
+
+  const gxBadgesLive = root.querySelector("[data-bind='gx-badges-live']");
+  if (gxBadgesLive) {
+    gxBadgesLive.innerHTML = renderGxBadgesLive(badges);
+  }
+
+  const gxJourneySummary = root.querySelector("[data-bind='gx-journey-summary-live']");
+  if (gxJourneySummary) {
+    gxJourneySummary.innerHTML = renderGxJourneySummary();
+  }
+
+  bindExamLiveScreens(root, config);
+  bindExamHub(root, config);
+  bindExamResultScreens(root, config);
+  bindExamWeakTopics(root, config);
+  bindLearnPractice(root, config);
+  bindGxLearnScreen(root, config);
+  bindFachkundeScreens(root, config);
+  bindProgressScreens(root, config);
+  bindAuthScreens(root, config);
+  bindLevelUpScreen(root, config);
 
   const gamificationLive = root.querySelector("[data-bind='gamification-live']");
   if (gamificationLive) {
@@ -591,38 +878,1388 @@ function renderUnitsMarkup() {
 function renderUnitDetailMarkup() {
   const unit = state.activeUnit;
   if (!unit) {
-    return `<p class="muted">Lerneinheit waehlen.</p>
+    return `<p class="muted">Lerneinheit wählen.</p>
       <div data-bind-nested="units">${renderUnitsMarkup()}</div>`;
   }
   const theory = (unit.theory_blocks || [])
     .map(
       (block) => `
-      <section class="card">
-        <h3>${escapeHtml(block.heading)}</h3>
-        <p>${escapeHtml(block.body)}</p>
-        <ul class="plain-list">${(block.key_points || [])
+      <article class="gx-card">
+        <p class="gx-kicker">${escapeHtml(block.heading || "Fachkunde")}</p>
+        <strong>${escapeHtml(block.heading || unit.title)}</strong>
+        <p>${escapeHtml(block.body || "")}</p>
+        <ul class="gx-key-list">${(block.key_points || [])
           .map((point) => `<li>${escapeHtml(point)}</li>`)
           .join("")}</ul>
-        <p class="muted">${escapeHtml((block.norm_references || []).join(" · "))}</p>
-      </section>`,
+        ${(block.norm_references || []).length
+          ? `<p class="muted">${escapeHtml(block.norm_references.join(" · "))}</p>`
+          : ""}
+      </article>`,
     )
     .join("");
-  const glossary = Object.entries(unit.glossary || {})
-    .map(([term, definition]) => `<li><strong>${escapeHtml(term)}</strong> — ${escapeHtml(definition)}</li>`)
-    .join("");
+  const glossaryEntries = Object.entries(unit.glossary || {});
+  const glossary = glossaryEntries.length
+    ? `<article class="gx-card">
+        <p class="gx-kicker">Glossar</p>
+        <ul class="gx-key-list">${glossaryEntries
+          .map(([term, definition]) => `<li><strong>${escapeHtml(term)}</strong> — ${escapeHtml(definition)}</li>`)
+          .join("")}</ul>
+        <a class="gx-chip" href="/lernen/glossar" data-page-link>Alle Begriffe</a>
+      </article>`
+    : "";
   return `
-    <article class="card">
-      <p class="eyebrow">Monat ${unit.month} · ${escapeHtml(unit.review_status)}</p>
-      <h3>${escapeHtml(unit.title)}</h3>
-      <p class="muted">${escapeHtml(unit.subtitle || "")}</p>
-      <p><strong>Uebung:</strong> ${escapeHtml(unit.practice_task || "")}</p>
+    <article class="gx-card gx-continue">
+      <p class="gx-kicker">Monat ${unit.month} · Einheit ${unit.position || 1}</p>
+      <strong>${escapeHtml(unit.title)}</strong>
+      <p>${escapeHtml(unit.subtitle || unit.practice_task || "")}</p>
     </article>
-    ${theory}
-    <article class="card"><h3>Glossar</h3><ul class="plain-list">${glossary || "<li>Kein Glossar</li>"}</ul></article>
-    <div class="row-actions">
-      <a class="primary-button" href="/lernen/frage" data-page-link>Fragen ueben</a>
-      <a class="secondary-button" href="/fachkunde" data-page-link>Zur Fachkunde</a>
+    ${theory || `<article class="gx-card"><p>${escapeHtml(unit.practice_task || "Keine Theorie hinterlegt.")}</p></article>`}
+    ${glossary}
+    <div class="gx-section">
+      <p class="gx-section-label">WEITERLERNEN</p>
+      <div class="gx-chips">
+        <a class="gx-chip" href="/lernen/frage" data-page-link data-action="start-unit" data-unit-slug="${escapeHtml(unit.slug)}">Fragen üben</a>
+        <a class="gx-chip" href="/lernen/formeltrainer" data-page-link>Formeltrainer</a>
+        <a class="gx-chip" href="/lernen/video" data-page-link>Video</a>
+        <a class="gx-chip" href="/lernen/fehlerdiagnose" data-page-link>Fehlerdiagnose</a>
+        <a class="gx-chip" href="/fachkunde/einheit" data-page-link data-unit-slug="${escapeHtml(unit.slug)}">Fachkunde</a>
+      </div>
     </div>`;
+}
+
+function journeyCompletionPercent() {
+  if (!state.journey.length) {
+    return 0;
+  }
+  const totals = state.journey.reduce(
+    (acc, month) => {
+      acc.completed += month.completed_categories || 0;
+      acc.total += month.total_categories || 0;
+      return acc;
+    },
+    { completed: 0, total: 0 },
+  );
+  return totals.total ? Math.round((totals.completed / totals.total) * 100) : 0;
+}
+
+function allLearnUnits() {
+  return [...(state.units || [])].sort(
+    (a, b) => (Number(a.month) || 0) - (Number(b.month) || 0) || (a.position || 0) - (b.position || 0),
+  );
+}
+
+function learnUnitsForMonth(month = state.learnMonth || 1) {
+  return allLearnUnits().filter((unit) => Number(unit.month) === Number(month));
+}
+
+function currentLearnUnit() {
+  return allLearnUnits().find((unit) => !unit.completed) || allLearnUnits()[0] || null;
+}
+
+function unitXpReward(unit, isCurrent) {
+  if (isCurrent) {
+    return 40;
+  }
+  return Math.max(20, Number(unit?.estimated_minutes) || 30);
+}
+
+function renderGxJourneyLive() {
+  const units = allLearnUnits();
+  if (!units.length) {
+    return `<p class="muted">Keine Lerneinheiten geladen.</p>`;
+  }
+  const firstOpen = units.findIndex((unit) => !unit.completed);
+  const currentIndex = firstOpen < 0 ? units.length - 1 : firstOpen;
+  const months = [...new Set(units.map((unit) => Number(unit.month) || 1))];
+  const journeyByMonth = Object.fromEntries(
+    (state.journey || []).map((entry) => [Number(entry.month), entry]),
+  );
+  return months
+    .map((month) => {
+      const monthUnits = units.filter((unit) => Number(unit.month) === month);
+      const meta = journeyByMonth[month] || {};
+      const title = meta.title || `Monat ${month}`;
+      const doneCount = monthUnits.filter((unit) => unit.completed).length;
+      const lockedMonth = monthUnits.every((unit) => {
+        const index = units.findIndex((item) => item.slug === unit.slug);
+        return !unit.completed && index > currentIndex;
+      });
+      const header = `
+        <div class="gx-path-month${lockedMonth ? " is-locked" : ""}">
+          <span>Monat ${month}${meta.checkpoint ? " · Checkpoint" : ""}</span>
+          <strong>${escapeHtml(title)}</strong>
+          <em>${doneCount}/${monthUnits.length} Einheiten</em>
+        </div>`;
+      const nodes = monthUnits
+        .map((unit) => {
+          const index = units.findIndex((item) => item.slug === unit.slug);
+          const side = index % 2 === 0 ? "left" : "right";
+          const done = Boolean(unit.completed);
+          const locked = !done && index > currentIndex;
+          const isCurrent = !done && index === currentIndex;
+          const nodeClass = done ? "done" : isCurrent ? "current" : "locked";
+          const icon = done
+            ? `<img src="/static/figma/gx/check.svg" width="24" height="24" alt="" />`
+            : locked
+              ? `<img src="/static/figma/gx/lock.svg" width="22" height="22" alt="" />`
+              : `<img src="/static/figma/gx/target.svg" width="24" height="24" alt="" />`;
+          const xp = unitXpReward(unit, isCurrent);
+          const status = done ? `+${xp} XP` : locked ? "Noch gesperrt" : `+${xp} XP`;
+          const action = locked
+            ? `type="button" data-action="toast" data-toast="Noch gesperrt"`
+            : `href="/lernen/einheit" data-page-link data-action="open-unit" data-unit-slug="${escapeHtml(unit.slug)}"`;
+          const tag = locked ? "button" : "a";
+          return `
+        <${tag} class="gx-path-row ${side}${locked ? " is-locked" : ""}" ${action}>
+          ${side === "left" ? `<div class="gx-node ${nodeClass}">${icon}</div>` : ""}
+          <div class="gx-node-text${side === "right" ? " end" : ""}">
+            <strong>${escapeHtml(unit.title)}</strong>
+            <span class="${done ? "ok" : locked ? "muted" : "now"}">${escapeHtml(status)}</span>
+          </div>
+          ${side === "right" ? `<div class="gx-node ${nodeClass}">${icon}</div>` : ""}
+        </${tag}>`;
+        })
+        .join("");
+      return header + nodes;
+    })
+    .join("");
+}
+
+function renderGxBadgesLive(earned) {
+  const earnedSet = new Set((earned || []).map(String));
+  const tiles = GAME_BADGE_CATALOG.slice(0, 8).map((badge) => {
+    const unlocked =
+      badge.match.some((label) => earnedSet.has(label)) || earnedSet.has(badge.name);
+    return `<div class="gx-badge ${unlocked ? "on" : "off"}"><i>${badge.emoji}</i><span>${escapeHtml(badge.name)}</span></div>`;
+  });
+  return `<div class="gx-badge-row">${tiles.slice(0, 4).join("")}</div><div class="gx-badge-row">${tiles.slice(4, 8).join("")}</div>`;
+}
+
+function renderGxJourneySummary() {
+  if (!state.journey.length) {
+    return `<p class="muted">Lernreise nach Login verfügbar.</p>`;
+  }
+  const chunks = [
+    { title: "Grundlagen & Einstieg", months: state.journey.slice(0, 8) },
+    { title: "Zwischenprüfungsvorbereitung", months: state.journey.slice(8, 12) },
+    { title: "Vertiefung & Abschluss", months: state.journey.slice(12, 24) },
+  ];
+  return chunks
+    .map((chunk) => {
+      const total = chunk.months.reduce((sum, month) => sum + (month.total_categories || 0), 0);
+      const done = chunk.months.reduce((sum, month) => sum + (month.completed_categories || 0), 0);
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      const icon =
+        pct >= 100 ? "check-circle.svg" : pct > 0 ? "fp-clock.svg" : "fp-lock.svg";
+      const status = pct >= 100 ? "Erledigt" : pct > 0 ? `In Arbeit (${pct}%)` : "Nicht gestartet";
+      return `
+        <a class="gx-path-item${pct <= 0 ? " muted" : ""}" href="/lernen" data-page-link>
+          <img src="/static/figma/gx/${icon}" width="18" height="18" alt="" />
+          <div><strong>${escapeHtml(chunk.title)}</strong><span>${escapeHtml(status)}</span></div>
+        </a>`;
+    })
+    .join("");
+}
+
+function getCurrentExamQuestion() {
+  const exam = state.examSession?.exam;
+  const questions = exam?.questions || [];
+  if (!questions.length) {
+    return null;
+  }
+  const progressId = state.examProgress?.current_question_id;
+  if (progressId) {
+    return (
+      questions.find((question) => question.question_id === progressId) ||
+      questions[state.currentExamQuestionIndex] ||
+      questions[0]
+    );
+  }
+  return questions[state.currentExamQuestionIndex] || questions[0];
+}
+
+function syncExamStateFromProgress(progress) {
+  state.examProgress = progress;
+  state.currentExamQuestionIndex = Math.max(0, (progress?.current_index || 1) - 1);
+  state.examChoiceAnswers = {};
+  for (const item of progress?.questions || []) {
+    if (
+      item.answered &&
+      item.selected_option_index !== null &&
+      item.selected_option_index !== undefined
+    ) {
+      state.examChoiceAnswers[item.question_id] = item.selected_option_index;
+    }
+  }
+}
+
+async function refreshExamProgress(currentQuestionId = null) {
+  if (!state.examSession?.session_id || !state.accessToken) {
+    return null;
+  }
+  const resolvedId = currentQuestionId || getCurrentExamQuestion()?.question_id;
+  const base = `/api/exams/sessions/${state.examSession.session_id}/progress`;
+  const url = resolvedId
+    ? `${base}?current_question_id=${encodeURIComponent(resolvedId)}`
+    : base;
+  const progress = await fetchJson(url, { headers: authHeaders() });
+  syncExamStateFromProgress(progress);
+  return progress;
+}
+
+function formatExamCountLabel(count) {
+  return `${Number(count || 0)} Frage${Number(count || 0) === 1 ? "" : "n"}`;
+}
+
+function formatExamDuration(seconds) {
+  const total = Math.max(0, Number(seconds) || 0);
+  const mins = Math.floor(total / 60);
+  const secs = total % 60;
+  return `${mins}:${String(secs).padStart(2, "0")} Min`;
+}
+
+function examGradeFromPercent(percent) {
+  const score = Number(percent) || 0;
+  if (score >= 92) {
+    return { note: "1", label: "Sehr gut" };
+  }
+  if (score >= 81) {
+    return { note: "2", label: "Gut" };
+  }
+  if (score >= 67) {
+    return { note: "3", label: "Befriedigend" };
+  }
+  if (score >= 50) {
+    return { note: "4", label: "Ausreichend" };
+  }
+  if (score >= 30) {
+    return { note: "5", label: "Mangelhaft" };
+  }
+  return { note: "6", label: "Ungenügend" };
+}
+
+function examResultSubtitle(result) {
+  const score = Number(result?.score_percent) || 0;
+  if (result?.passed) {
+    if (score >= 90) {
+      return "Hervorragende Leistung!";
+    }
+    if (score >= 75) {
+      return "Sehr gute Leistung!";
+    }
+    return "Bestanden — weiter so!";
+  }
+  if (score >= 45) {
+    return "Das war knapp! Kopf hoch.";
+  }
+  return "Dranbleiben — du schaffst das!";
+}
+
+function examWeakTopicLabel(result) {
+  const weak = result?.weak_categories?.[0];
+  if (!weak?.category_slug) {
+    return "deine Schwachstellen";
+  }
+  return weak.category_slug.replace(/-/g, " ");
+}
+
+function persistExamResult(result) {
+  state.examResult = result;
+  try {
+    sessionStorage.setItem("ol_exam_result", JSON.stringify(result));
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
+function loadExamResult() {
+  if (state.examResult) {
+    return state.examResult;
+  }
+  try {
+    const raw = sessionStorage.getItem("ol_exam_result");
+    state.examResult = raw ? JSON.parse(raw) : null;
+  } catch {
+    state.examResult = null;
+  }
+  return state.examResult;
+}
+
+function clearExamResult() {
+  state.examResult = null;
+  try {
+    sessionStorage.removeItem("ol_exam_result");
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
+function bindExamResultScreens(root, config) {
+  if (!["/pruefungen/bestanden", "/pruefungen/durchgefallen"].includes(config.path)) {
+    return;
+  }
+  const result = loadExamResult();
+  if (!result) {
+    return;
+  }
+  const grade = examGradeFromPercent(result.score_percent);
+  const xpTotal = liveNumber(state.dashboard?.xp ?? state.gamification?.xp, 0);
+  const correct = Number(result.choice_correct) || 0;
+  const wrong = Number(result.wrong_count) || 0;
+  const open = Number(result.unanswered_count) || 0;
+  const total = Number(result.choice_total) || correct + wrong + open;
+  const scoreSummary = `${result.score_percent}% (${correct}/${total} richtig)`;
+  const subtitle = examResultSubtitle(result);
+  const encourage = `Wiederhole deine Schwachstellen in ${examWeakTopicLabel(result)} und lade dein Wissen vor dem nächsten Versuch auf.`;
+
+  root.querySelectorAll("[data-bind='exam-result-xp-total']").forEach((el) => {
+    el.textContent = `${Number(xpTotal).toLocaleString("de-DE")} XP`;
+  });
+  root.querySelectorAll("[data-bind='exam-result-subtitle']").forEach((el) => {
+    el.textContent = subtitle;
+  });
+  root.querySelectorAll("[data-bind='exam-result-grade-note']").forEach((el) => {
+    el.textContent = `Note ${grade.note}`;
+  });
+  root.querySelectorAll("[data-bind='exam-result-grade-label']").forEach((el) => {
+    el.textContent = grade.label;
+  });
+  root.querySelectorAll("[data-bind='exam-result-score-summary']").forEach((el) => {
+    el.textContent = scoreSummary;
+  });
+  root.querySelectorAll("[data-bind='exam-result-xp-awarded']").forEach((el) => {
+    el.textContent = `+${Number(result.xp_awarded) || 0} XP`;
+  });
+  root.querySelectorAll("[data-bind='exam-result-correct-count']").forEach((el) => {
+    el.textContent = formatExamCountLabel(correct);
+  });
+  root.querySelectorAll("[data-bind='exam-result-wrong-count']").forEach((el) => {
+    el.textContent = formatExamCountLabel(wrong);
+  });
+  root.querySelectorAll("[data-bind='exam-result-open-count']").forEach((el) => {
+    el.textContent = formatExamCountLabel(open);
+  });
+  root.querySelectorAll("[data-bind='exam-result-duration']").forEach((el) => {
+    el.textContent = formatExamDuration(result.duration_seconds);
+  });
+  root.querySelectorAll("[data-bind='exam-result-correct-num']").forEach((el) => {
+    el.textContent = String(correct);
+  });
+  root.querySelectorAll("[data-bind='exam-result-wrong-num']").forEach((el) => {
+    el.textContent = String(wrong);
+  });
+  root.querySelectorAll("[data-bind='exam-result-open-num']").forEach((el) => {
+    el.textContent = String(open);
+  });
+  root.querySelectorAll("[data-bind='exam-result-encourage']").forEach((el) => {
+    el.textContent = encourage;
+  });
+  root.querySelectorAll("[data-bind='exam-result-record']").forEach((el) => {
+    const showRecord = Boolean(result.passed && Number(result.score_percent) >= 75);
+    el.hidden = !showRecord;
+  });
+}
+
+function bindExamSharedFields(root, progress) {
+  if (!progress) {
+    return;
+  }
+  const timerText = formatExamTimer(state.examSession?.expires_at);
+  root.querySelectorAll("[data-bind='exam-timer']").forEach((el) => {
+    el.textContent = timerText;
+  });
+  root.querySelectorAll("[data-bind='exam-progress-label']").forEach((el) => {
+    el.textContent = `${progress.current_index}/${progress.total_questions}`;
+  });
+  root.querySelectorAll("[data-bind='exam-title']").forEach((el) => {
+    el.textContent = progress.exam_title || state.examSession?.exam?.title || "Prüfung";
+  });
+  root.querySelectorAll("[data-bind='exam-answered-count']").forEach((el) => {
+    el.textContent = String(progress.answered_count);
+  });
+  root.querySelectorAll("[data-bind='exam-open-count']").forEach((el) => {
+    el.textContent = String(progress.open_count);
+  });
+  root.querySelectorAll("[data-bind='exam-marked-count']").forEach((el) => {
+    el.textContent = String(progress.marked_count);
+  });
+  root.querySelectorAll("[data-bind='exam-answered-summary']").forEach((el) => {
+    el.textContent = formatExamCountLabel(progress.answered_count);
+  });
+  root.querySelectorAll("[data-bind='exam-open-summary']").forEach((el) => {
+    el.textContent = formatExamCountLabel(progress.open_count);
+  });
+  root.querySelectorAll("[data-bind='exam-marked-summary']").forEach((el) => {
+    el.textContent = formatExamCountLabel(progress.marked_count);
+  });
+  root.querySelectorAll("[data-bind='exam-progress-bar']").forEach((el) => {
+    el.style.width = `${Math.max(0, Math.min(100, progress.progress_percent || 0))}%`;
+  });
+  root.querySelectorAll("[data-bind='exam-bg-question-label']").forEach((el) => {
+    el.textContent = `Frage ${progress.current_index} von ${progress.total_questions}`;
+  });
+  root.querySelectorAll("[data-bind='exam-bg-question-prompt']").forEach((el) => {
+    el.textContent = progress.current_prompt || "Keine Frage geladen.";
+  });
+}
+
+function renderExamOverviewGrid(progress) {
+  return (progress.questions || [])
+    .map((item) => {
+      const classes = ["ex-ov-cell"];
+      if (item.is_current) {
+        classes.push("current");
+      } else if (item.answered) {
+        classes.push("answered");
+      } else {
+        classes.push("open");
+      }
+      if (item.marked) {
+        classes.push("marked");
+      }
+      return `<button type="button" class="${classes.join(" ")}" data-exam-action="goto-question" data-question-id="${item.question_id}" data-q-index="${item.index - 1}">${item.index}${item.marked ? "<i aria-hidden=\"true\"></i>" : ""}</button>`;
+    })
+    .join("");
+}
+
+function bindExamLiveScreens(root, config) {
+  if (!state.examSession || !config.path?.startsWith("/pruefungen/")) {
+    return;
+  }
+  const progress = state.examProgress;
+  if (!progress) {
+    return;
+  }
+  bindExamSharedFields(root, progress);
+  if (config.path?.startsWith("/pruefungen/frage")) {
+    const exam = state.examSession.exam;
+    const current = getCurrentExamQuestion();
+    if (!current) {
+      return;
+    }
+    const promptEl = root.querySelector("[data-bind='exam-question-prompt']");
+    if (promptEl) {
+      promptEl.textContent = current.prompt;
+    }
+    root.querySelectorAll("[data-bind='exam-topic']").forEach((el) => {
+      el.textContent = exam.title || "Prüfung";
+    });
+    root.querySelectorAll("[data-bind='exam-question-label']").forEach((el) => {
+      el.textContent = `Frage ${progress.current_index}`;
+    });
+    const optionsRoot = root.querySelector("[data-bind='exam-options']");
+    if (optionsRoot) {
+      const letters = ["A", "B", "C", "D", "E", "F"];
+      optionsRoot.innerHTML = current.options
+        .map(
+          (option, index) => `
+          <button type="button" class="ex-q-opt${
+            state.examChoiceAnswers[current.question_id] === index ? " selected" : ""
+          }" data-exam-action="choice" data-question-id="${current.question_id}" data-index="${index}">
+            <span>${letters[index] || index + 1}</span>
+            <strong>${escapeHtml(option)}</strong>
+          </button>`,
+        )
+        .join("");
+    }
+    const flagBtn = root.querySelector("[data-exam-action='toggle-mark']");
+    if (flagBtn) {
+      const marked = Boolean(
+        progress.questions?.find((item) => item.question_id === current.question_id)?.marked,
+      );
+      flagBtn.classList.toggle("active", marked);
+      flagBtn.setAttribute("aria-pressed", marked ? "true" : "false");
+    }
+    startExamTimer(root);
+    return;
+  }
+  if (config.path === "/pruefungen/uebersicht") {
+    const grid = root.querySelector("[data-bind='exam-overview-grid']");
+    if (grid) {
+      grid.innerHTML = renderExamOverviewGrid(progress);
+    }
+    startExamTimer(root);
+    return;
+  }
+  if (config.path === "/pruefungen/timer") {
+    const exam = state.examSession.exam;
+    const current = getCurrentExamQuestion();
+    bindExamSharedFields(root, progress);
+    if (current) {
+      const promptEl = root.querySelector("[data-bind='exam-question-prompt']");
+      if (promptEl) {
+        promptEl.textContent = current.prompt;
+      }
+      root.querySelectorAll("[data-bind='exam-topic']").forEach((el) => {
+        el.textContent = exam.title || "Prüfung";
+      });
+      root.querySelectorAll("[data-bind='exam-question-label']").forEach((el) => {
+        el.textContent = `Frage ${progress.current_index}`;
+      });
+      const optionsRoot = root.querySelector("[data-bind='exam-options']");
+      if (optionsRoot) {
+        const letters = ["A", "B", "C", "D", "E", "F"];
+        optionsRoot.innerHTML = current.options
+          .map(
+            (option, index) => `
+          <button type="button" class="ex-tm-opt${
+            state.examChoiceAnswers[current.question_id] === index ? " selected" : ""
+          }" data-exam-action="choice" data-question-id="${current.question_id}" data-index="${index}">
+            <span>${letters[index] || index + 1}</span>
+            <strong>${escapeHtml(option)}</strong>
+          </button>`,
+          )
+          .join("");
+      }
+    }
+    const warn = root.querySelector(".ex-tm-warn");
+    if (warn && state.examSession.expires_at) {
+      const remainingMs = new Date(state.examSession.expires_at).getTime() - Date.now();
+      warn.hidden = remainingMs > 10 * 60 * 1000;
+    }
+    const marked = (progress.questions || []).filter((item) => item.marked).map((item) => `#${item.index}`);
+    const jumpStrong = root.querySelector(".ex-tm-jump strong");
+    if (jumpStrong) {
+      jumpStrong.textContent = marked.length ? marked.join(", ") : "keine";
+    }
+    startExamTimer(root);
+    return;
+  }
+  if (config.path === "/pruefungen/abgabe") {
+    startExamTimer(root);
+  }
+}
+
+function categorySlugToTitle(slug) {
+  return String(slug || "")
+    .replace(/-/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+    .trim();
+}
+
+function resolveCategoryTitle(slug) {
+  const categories = state.chapter?.subchapters || [];
+  const match = categories.find((item) => item.slug === slug);
+  if (match?.title) {
+    return match.title;
+  }
+  return categorySlugToTitle(slug);
+}
+
+function categoryDisplayTitle(slug) {
+  const full = resolveCategoryTitle(slug);
+  const parts = full.split(": ");
+  return parts.length > 1 ? parts[parts.length - 1].trim() : full;
+}
+
+function weakTopicMeta(percent) {
+  const score = Number(percent) || 0;
+  if (score >= 90) {
+    return { className: "perfect", label: "Perfekt", hint: "" };
+  }
+  if (score >= 70) {
+    return { className: "ok", label: "OK", hint: "" };
+  }
+  if (score >= 55) {
+    return { className: "fair", label: "Ausbaufähig", hint: "Empfehlung: Grundlagen auffrischen" };
+  }
+  if (score >= 40) {
+    return { className: "weak", label: "Schwach", hint: "Empfehlung: Formeln wiederholen" };
+  }
+  return { className: "critical", label: "Kritisch", hint: "Empfehlung: Kapitel erneut durcharbeiten" };
+}
+
+function resolveWeakTopics() {
+  const examResult = loadExamResult();
+  const examTopics = examResult?.category_breakdown || examResult?.weak_categories;
+  if (Array.isArray(examTopics) && examTopics.length) {
+    return { source: "exam", topics: examTopics };
+  }
+  const dashboardTopics = state.dashboard?.weak_categories;
+  if (Array.isArray(dashboardTopics) && dashboardTopics.length) {
+    return {
+      source: "dashboard",
+      topics: dashboardTopics.map((item) => {
+        const wrong = Number(item.wrong_count) || 0;
+        const total = Number(item.total_count) || Math.max(wrong, 1);
+        const correct = Math.max(total - wrong, 0);
+        const percent = Number(item.percent) || Math.round((correct / total) * 100);
+        return {
+          category_slug: item.category_slug,
+          wrong_count: wrong,
+          total_count: total,
+          correct_count: correct,
+          percent,
+        };
+      }),
+    };
+  }
+  return { source: "empty", topics: [] };
+}
+
+function renderWeakTopicCard(topic, index) {
+  const title = categorySlugToTitle(topic.category_slug);
+  const total = Number(topic.total_count) || Math.max(Number(topic.wrong_count) || 0, 1);
+  const correct = Number(topic.correct_count);
+  const resolvedCorrect = Number.isFinite(correct) ? correct : Math.max(total - (Number(topic.wrong_count) || 0), 0);
+  const percent = Number(topic.percent) || Math.round((resolvedCorrect / total) * 100);
+  const meta = weakTopicMeta(percent);
+  const hint = meta.hint
+    ? `<p>${escapeHtml(meta.hint)}</p>`
+    : "";
+  const actions =
+    percent < 90
+      ? `<div class="ex-wk-actions"><a href="/lernen/fragen/fehler" data-page-link>Thema üben</a><img src="/static/figma/exam/ex-wk-chev.svg" width="16" height="16" alt="" /></div>`
+      : "";
+  return `
+    <article class="ex-wk-card ${meta.className}">
+      <div class="ex-wk-top">
+        <div class="ex-wk-title"><em>${index + 1}.</em><strong>${escapeHtml(title)}</strong></div>
+        <span class="ex-wk-badge">${escapeHtml(meta.label)}</span>
+      </div>
+      <div class="ex-wk-bar">
+        <div class="ex-wk-bar-track"><i style="width:${percent}%"></i></div>
+        <span>${resolvedCorrect}/${total} (${percent}%)</span>
+      </div>
+      ${hint}
+      ${actions}
+    </article>`;
+}
+
+function bindExamWeakTopics(root, config) {
+  if (config.path !== "/pruefungen/schwach") {
+    return;
+  }
+  const { source, topics } = resolveWeakTopics();
+  const xpTotal = liveNumber(state.dashboard?.xp ?? state.gamification?.xp, 0);
+  root.querySelectorAll("[data-bind='exam-result-xp-total']").forEach((el) => {
+    el.textContent = `${Number(xpTotal).toLocaleString("de-DE")} XP`;
+  });
+  root.querySelectorAll("[data-bind='weak-topics-sub']").forEach((el) => {
+    el.textContent =
+      source === "exam"
+        ? "Basierend auf deiner letzten Prüfung:"
+        : source === "dashboard"
+          ? "Basierend auf deinem Lernstand:"
+          : "Noch keine Schwachstellen erkannt.";
+  });
+  const back = root.querySelector("[data-bind='weak-back-link']");
+  if (back) {
+    const result = loadExamResult();
+    back.setAttribute("href", result ? (result.passed ? "/pruefungen/bestanden" : "/pruefungen/durchgefallen") : "/pruefungen");
+  }
+  const list = root.querySelector("[data-bind='exam-weak-list']");
+  if (!list) {
+    return;
+  }
+  list.innerHTML = topics.length
+    ? topics.map((topic, index) => renderWeakTopicCard(topic, index)).join("")
+    : `<article class="ex-wk-card ok"><div class="ex-wk-top"><div class="ex-wk-title"><strong>Alles im grünen Bereich</strong></div></div><p>Starte eine Prüfung oder beantworte Fragen, um gezielte Empfehlungen zu erhalten.</p></article>`;
+}
+
+function examKindLabel(exam) {
+  const title = String(exam?.title || "");
+  if (/zwischen/i.test(title) || /ZP/i.test(exam?.exam_id || "")) {
+    return "Zwischenprüfung";
+  }
+  if (/AP|Abschluss/i.test(title) || /AP/i.test(exam?.exam_id || "")) {
+    return "Abschlussprüfung";
+  }
+  return "Themenprüfung";
+}
+
+function questionPracticeStatus(progress) {
+  if (!progress || !Number(progress.answered_count)) {
+    return "open";
+  }
+  if (progress.mastered) {
+    return "done";
+  }
+  if (Number(progress.correct_streak) >= 1) {
+    return "once";
+  }
+  return "wrong";
+}
+
+function practiceQuestionPool() {
+  if (state.practiceMode === "unit") {
+    return state.questions || [];
+  }
+  return state.allQuestions?.length ? state.allQuestions : state.questions || [];
+}
+
+function questionMonthNumber(question) {
+  const cats = state.chapter?.subchapters || [];
+  const cat = cats.find((item) => item.slug === question.category_slug);
+  if (cat?.month) {
+    return Number(cat.month);
+  }
+  const match = String(question.category_slug || "").match(/^m(\d{2})-/);
+  return match ? Number(match[1]) : 0;
+}
+
+function filteredPracticeQuestions(filter = state.practiceFilter || "all") {
+  return practiceQuestionPool().filter((question) => {
+    const status = questionPracticeStatus(state.questionProgress?.[question.question_id]);
+    return filter === "all" || status === filter;
+  });
+}
+
+function renderPracticeQuestionList(root, config, questionList) {
+  if (config.path === "/lernen/fragen/fehler" && !state.practiceFilter) {
+    state.practiceFilter = "wrong";
+  }
+  const filter = state.practiceFilter || (config.path === "/lernen/fragen/fehler" ? "wrong" : "all");
+  state.practiceFilter = filter;
+  const source = filteredPracticeQuestions(filter);
+  const dots = {
+    done: "/static/figma/learn2/dot-green.svg",
+    once: "/static/figma/learn2/dot-blue.svg",
+    open: "/static/figma/learn2/dot-gray.svg",
+    wrong: "/static/figma/learn2/dot-red.svg",
+  };
+  root.querySelectorAll("[data-practice-filter]").forEach((el) => {
+    el.classList.toggle("active", el.dataset.practiceFilter === filter);
+  });
+  const total = practiceQuestionPool().length;
+  const done = filteredPracticeQuestions("done").length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  const stats = root.querySelector(".topic-stats .row-between strong, .figma-topic-stats .row-between strong");
+  if (stats) {
+    stats.textContent = `${source.length} von ${total} Fragen — ${done} abgeschlossen`;
+  }
+  const pctLabel = root.querySelector(".mastery-pct, .learn-pct-ring strong");
+  if (pctLabel) {
+    pctLabel.textContent = `${pct}%`;
+  }
+  const fill = root.querySelector(".mastery-fill");
+  if (fill) {
+    fill.style.width = `${pct}%`;
+  }
+  const months = new Map();
+  source.forEach((question) => {
+    const month = questionMonthNumber(question);
+    if (!months.has(month)) {
+      months.set(month, new Map());
+    }
+    const categories = months.get(month);
+    const key = question.category_slug || "allgemein";
+    if (!categories.has(key)) {
+      categories.set(key, []);
+    }
+    categories.get(key).push(question);
+  });
+  const pool = practiceQuestionPool();
+  const journeyByMonth = Object.fromEntries(
+    (state.journey || []).map((entry) => [Number(entry.month), entry]),
+  );
+  questionList.innerHTML = source.length
+    ? [...months.entries()]
+        .map(([month, categories]) => {
+          const monthTitle = journeyByMonth[month]?.title || `Monat ${month}`;
+          const categoryBlocks = [...categories.entries()]
+            .map(([slug, questions]) => {
+              const title = categoryDisplayTitle(slug);
+              const rows = questions
+                .map((question) => {
+                  const resolvedIndex = pool.findIndex((item) => item.question_id === question.question_id);
+                  const status = questionPracticeStatus(state.questionProgress?.[question.question_id]);
+                  return `
+          <a class="q-row" href="/lernen/frage" data-page-link data-q-index="${Math.max(resolvedIndex, 0)}">
+            <img class="q-dot" src="${dots[status] || dots.open}" width="10" height="10" alt="" />
+            <span>${escapeHtml(question.prompt)}</span>
+            <span class="q-status-label">${status === "done" ? "fertig" : status === "once" ? "1× richtig" : status === "wrong" ? "falsch" : "offen"}</span>
+            <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
+          </a>`;
+                })
+                .join("");
+              return `<div class="q-group"><p class="q-group-title">${escapeHtml(title)}</p>${rows}</div>`;
+            })
+            .join("");
+          return `<div class="q-month"><p class="q-month-title">Monat ${month} · ${escapeHtml(monthTitle)}</p>${categoryBlocks}</div>`;
+        })
+        .join("")
+    : `<p class="muted">Keine Fragen in diesem Filter.</p>`;
+}
+
+function bindExamHub(root, config) {
+  if (!["/pruefungen", "/pruefungen/liste-legacy"].includes(config.path)) {
+    return;
+  }
+  const exams = state.exams || [];
+  const featured = exams[0];
+  root.querySelectorAll("[data-bind='exam-hero-title']").forEach((el) => {
+    el.textContent = featured?.title || "IHK Zwischenprüfung";
+  });
+  const icons = [
+    "/static/figma/exam/ex-timer.svg",
+    "/static/figma/exam/ex-settings.svg",
+    "/static/figma/gx/clock.svg",
+    "/static/figma/gx/star.svg",
+  ];
+  const colors = ["purple", "blue", "", ""];
+  const kinds = [...new Set(exams.map((exam) => examKindLabel(exam)))];
+  const chipHost = root.querySelector("[data-bind='exam-kind-chips']");
+  if (chipHost) {
+    const activeKind = state.examKindFilter || "alle";
+    chipHost.innerHTML = ["Alle", ...kinds]
+      .map((kind) => {
+        const value = kind.toLowerCase();
+        const on = activeKind === value || (kind === "Alle" && activeKind === "alle");
+        return `<button type="button" class="gx-exam-chip${on ? " active" : ""}" data-action="exam-kind-filter" data-exam-kind="${escapeHtml(value)}">${escapeHtml(kind)}</button>`;
+      })
+      .join("");
+  }
+  const visibleExams = exams.filter((exam) => {
+    const kind = examKindLabel(exam).toLowerCase();
+    return !state.examKindFilter || state.examKindFilter === "alle" || kind === state.examKindFilter;
+  });
+  const simGrid = root.querySelector(".gx-sim-grid");
+  if (simGrid) {
+    simGrid.innerHTML = visibleExams.length
+      ? visibleExams
+          .map((exam, index) => {
+            const count = exam.questions?.length || 0;
+            const minutes = exam.time_limit_minutes || 0;
+            return `
+          <button class="gx-card gx-sim" type="button" data-action="exam-start-shortcut" data-exam-id="${escapeHtml(exam.exam_id)}">
+            <img src="${icons[index % icons.length]}" width="24" height="24" alt="" />
+            <strong>${escapeHtml(exam.title)}</strong>
+            <span>${count} Fragen${minutes ? ` • ${minutes} Min` : ""}</span>
+            <em${exam.is_checkpoint ? ' class="ok"' : ""}>${escapeHtml(examKindLabel(exam))}</em>
+          </button>`;
+          })
+          .join("")
+      : `<p class="muted">Keine Prüfungen in diesem Bereich.</p>`;
+  }
+  const featuredHost = root.querySelector("[data-bind='exam-list-live']");
+  if (featuredHost) {
+    featuredHost.innerHTML = exams.length
+      ? exams
+          .slice(0, 4)
+          .map((exam, index) => {
+            const count = exam.questions?.length || 0;
+            const minutes = exam.time_limit_minutes || 0;
+            const featured = index === 0 ? " featured" : "";
+            return `
+            <article class="ex-card${featured}">
+              <div class="ex-card-top">
+                <span class="ex-ico ${colors[index % colors.length] || "blue"}"><img src="${icons[index % icons.length]}" width="22" height="22" alt="" /></span>
+                <div>
+                  <strong>${escapeHtml(exam.title)}</strong>
+                  <p>${count} Fragen${minutes ? ` — ${minutes} Minuten` : ""}</p>
+                </div>
+              </div>
+              <div class="ex-divider" aria-hidden="true"></div>
+              <div class="ex-card-bottom">
+                <div class="ex-attempt">
+                  <img src="/static/figma/exam/ex-alert.svg" width="14" height="14" alt="" />
+                  <span>${exam.passing_score_percent}% Bestehensgrenze</span>
+                </div>
+                <button class="ex-start${index === 0 ? " purple" : ""}" type="button" data-action="exam-start-shortcut" data-exam-id="${escapeHtml(exam.exam_id)}">Starten</button>
+              </div>
+            </article>`;
+          })
+          .join("")
+      : `<p class="muted">Keine Prüfungen geladen.</p>`;
+  }
+  const resultsRoot = root.querySelector(".gx-results") || root.querySelector("[data-bind='exam-results-live']");
+  const last = loadExamResult();
+  if (resultsRoot) {
+    if (!last) {
+      resultsRoot.innerHTML = `<p class="muted">Noch keine Prüfungsergebnisse.</p>`;
+    } else {
+      const href = last.passed ? "/pruefungen/bestanden" : "/pruefungen/durchgefallen";
+      const cls = last.passed ? "ok" : "warn";
+      resultsRoot.innerHTML = `
+        <a class="gx-card gx-result" href="${href}" data-page-link>
+          <div><strong>${escapeHtml(last.exam_title || "Prüfung")}</strong><span>Letzter Versuch</span></div>
+          <div class="gx-score ${cls}">${last.score_percent}%<i></i></div>
+        </a>
+        <a class="gx-card gx-result" href="/pruefungen/schwach" data-page-link>
+          <div><strong>Schwache Themen</strong><span>Auswertung</span></div>
+          <div class="gx-score warn">Öffnen<i></i></div>
+        </a>`;
+    }
+  }
+}
+
+function bindGxLearnScreen(root, config) {
+  if (config.path !== "/lernen") {
+    return;
+  }
+  const units = allLearnUnits();
+  const unit = currentLearnUnit();
+  const months = new Set(units.map((item) => Number(item.month) || 1));
+  root.querySelectorAll("[data-bind='journey-month-title']").forEach((el) => {
+    el.textContent = `${months.size || 24} Monate · ${units.length} Lerneinheiten`;
+  });
+  if (!unit) {
+    return;
+  }
+  root.querySelectorAll("[data-bind='continue-title']").forEach((el) => {
+    el.textContent = `Lernmodul: ${unit.title}`;
+  });
+  const recommend = root.querySelector(".gx-recommend");
+  if (recommend) {
+    recommend.dataset.unitSlug = unit.slug;
+  }
+}
+
+async function ensureQuestionProgress() {
+  if (!state.accessToken) {
+    return;
+  }
+  const rows = await fetchJson("/api/progress", { headers: authHeaders() }).catch(() => []);
+  state.questionProgress = Object.fromEntries(
+    (rows || []).map((item) => [item.question_id, item]),
+  );
+}
+
+async function startPracticeQuestions(filter = "all") {
+  await requireAuth();
+  state.practiceFilter = filter || "all";
+  state.practiceMode = "all";
+  await loadAllQuestions();
+  await ensureQuestionProgress();
+  await navigateTo("/lernen/fragen");
+}
+
+async function openLearnUnit(slug) {
+  await requireAuth();
+  const unit =
+    (state.units || []).find((item) => item.slug === slug) || currentLearnUnit();
+  if (!unit) {
+    await startPracticeQuestions("all");
+    return;
+  }
+  try {
+    await loadUnitBySlug(unit.slug);
+  } catch {
+    state.activeUnit = unit;
+  }
+  await navigateTo("/lernen/einheit");
+}
+
+async function startLearnUnit(slug) {
+  await requireAuth();
+  const unit =
+    (state.units || []).find((item) => item.slug === slug) || currentLearnUnit();
+  if (!unit) {
+    await startPracticeQuestions("all");
+    return;
+  }
+  state.activeUnit = unit;
+  state.practiceMode = "unit";
+  const categorySlug = (unit.category_slugs || [])[0];
+  const month = unit.month || state.learnMonth || 1;
+  const questions = categorySlug
+    ? await fetchJson(`/api/questions?category_slug=${encodeURIComponent(categorySlug)}`).catch(() => [])
+    : await fetchJson(`/api/questions?month=${month}`).catch(() => []);
+  if (questions.length) {
+    state.questions = questions;
+    state.currentQuestionIndex = 0;
+  } else {
+    await loadAllQuestions();
+  }
+  await navigateTo("/lernen/frage");
+}
+
+function bindLearnPractice(root, config) {
+  if (config.path === "/lernen/fragen/fehler") {
+    const banner = root.querySelector(".error-alert-banner p");
+    if (banner) {
+      const weak = state.dashboard?.weak_categories?.[0];
+      const wrong = Number(state.dashboard?.wrong_answers) || 0;
+      banner.textContent = weak
+        ? `${wrong || weak.wrong_count} Fehler in ${categorySlugToTitle(weak.category_slug)} — Wiederholung empfohlen!`
+        : wrong
+          ? `${wrong} Fehler — Wiederholung empfohlen!`
+          : "Noch keine Fehler gespeichert.";
+    }
+  }
+  if (!["/lernen/feedback/richtig", "/lernen/feedback/falsch"].includes(config.path)) {
+    return;
+  }
+  const attempt = state.lastAttempt;
+  if (!attempt) {
+    return;
+  }
+  const letters = ["A", "B", "C", "D", "E", "F"];
+  const prompt = root.querySelector(".q-prompt");
+  if (prompt) {
+    prompt.textContent = attempt.prompt;
+  }
+  const answers = root.querySelector(".fb-answers");
+  if (answers) {
+    answers.innerHTML = (attempt.options || [])
+      .map((option, index) => {
+        const isCorrect = index === attempt.correct_option_index;
+        const isSelectedWrong = index === attempt.selected_option_index && !attempt.is_correct;
+        const cls = isCorrect ? "correct" : isSelectedWrong ? "wrong" : "dim";
+        const mark = isCorrect
+          ? `<img class="fb-mark" src="/static/figma/learn2/q-check-green.svg" width="18" height="18" alt="" />`
+          : isSelectedWrong
+            ? `<img class="fb-mark" src="/static/figma/learn2/q-x-red.svg" width="18" height="18" alt="" />`
+            : "";
+        return `<div class="fb-answer ${cls}"><span class="answer-letter">${letters[index] || index + 1}</span><span class="answer-text">${escapeHtml(option)}</span>${mark}</div>`;
+      })
+      .join("");
+  }
+  const explain = root.querySelector(".fb-explain p:not(.fb-label):not(.fb-correct-answer):not(.fb-explain-text)") ||
+    root.querySelector(".fb-explain-text") ||
+    root.querySelector(".fb-explain p:nth-of-type(2)");
+  if (explain && attempt.explanation) {
+    explain.textContent = attempt.explanation;
+  }
+  const correctLine = root.querySelector(".fb-correct-answer");
+  if (correctLine && attempt.options) {
+    const letter = letters[attempt.correct_option_index] || "";
+    correctLine.textContent = `${letter}) ${attempt.options[attempt.correct_option_index] || ""}`;
+  }
+  const xpPill = root.querySelector(".xp-pill");
+  if (xpPill) {
+    xpPill.textContent = attempt.is_correct ? "+20 XP" : "+0 XP";
+  }
+  const topicPill = root.querySelector(".q-meta-row .topic-pill");
+  if (topicPill) {
+    topicPill.textContent = categoryDisplayTitle(attempt.category_slug || "Fachkunde");
+  }
+  root.querySelectorAll(".q-tracker, .ld-counter").forEach((el) => {
+    if (state.questions.length) {
+      el.textContent = `${state.currentQuestionIndex + 1}/${state.questions.length}`;
+    }
+  });
+  const fill = root.querySelector(".q-progress-fill");
+  if (fill && state.questions.length) {
+    fill.style.width = `${Math.round(((state.currentQuestionIndex + 1) / state.questions.length) * 100)}%`;
+  }
+}
+
+function bindFachkundeScreens(root, config) {
+  if (!config.path?.startsWith("/fachkunde")) {
+    return;
+  }
+  const units = state.units || [];
+  const done = units.filter((unit) => unit.completed).length;
+  const total = units.length;
+  const pct = total ? Math.round((done / total) * 100) : 0;
+  if (config.path === "/fachkunde") {
+    const introText = root.querySelector(".fk-intro-prog-text strong");
+    if (introText) {
+      introText.textContent = `${done} von ${total || 0} Lerneinheiten`;
+    }
+    const introBar = root.querySelector(".fk-intro-bar i");
+    if (introBar) {
+      introBar.style.width = `${pct}%`;
+    }
+    const grid = root.querySelector(".fk-grid2");
+    if (grid && units.length) {
+      const icons = [
+        "fk-settings.svg",
+        "fk-diamond.svg",
+        "fk-ruler.svg",
+        "fk-wind.svg",
+        "fk-droplets.svg",
+        "fk-cpu.svg",
+      ];
+      grid.innerHTML = units
+        .slice(0, 24)
+        .map((unit, index) => {
+          const status = unit.completed ? "ok" : "info";
+          const label = unit.completed ? "✓ Fertig" : "Offen";
+          const unitPct = unit.completed ? 100 : 0;
+          return `
+            <a class="fk-card" href="/fachkunde/einheit" data-page-link data-unit-slug="${escapeHtml(unit.slug)}">
+              <div class="fk-card-top">
+                <span class="fk-ico ${unit.completed ? "green" : "blue"}"><img src="/static/figma/fk/${icons[index % icons.length]}" width="18" height="18" alt="" /></span>
+                <span class="fk-status ${status}">${label}</span>
+              </div>
+              <strong>${escapeHtml(unit.title)}</strong>
+              <div class="fk-card-prog"><span>Monat ${unit.month}</span><b>${unitPct}%</b></div>
+              <div class="fk-mini"><i class="${unit.completed ? "green" : ""}" style="width:${unitPct}%"></i></div>
+            </a>`;
+        })
+        .join("");
+    }
+  }
+  const unit = state.activeUnit || units[0];
+  if (!unit) {
+    return;
+  }
+  if (config.path === "/fachkunde/einheit") {
+    const kicker = root.querySelector(".fk-eu-kicker");
+    if (kicker) {
+      kicker.textContent = `Lerneinheit ${unit.position || 1} · Monat ${unit.month}`;
+    }
+    const headTitle = root.querySelector(".fk-eu-head-center strong");
+    if (headTitle) {
+      headTitle.textContent = unit.title;
+    }
+    const leadH = root.querySelector(".fk-eu-lead h2");
+    if (leadH) {
+      leadH.textContent = unit.title;
+    }
+    const leadP = root.querySelector(".fk-eu-lead p");
+    if (leadP) {
+      leadP.textContent = unit.subtitle || unit.practice_task || "Theorie & Praxis";
+    }
+    const sectionH = root.querySelector(".fk-eu-section h3");
+    const sectionP = root.querySelector(".fk-eu-section p");
+    const block = unit.theory_blocks?.[0];
+    if (sectionH && block) {
+      sectionH.textContent = block.heading;
+    }
+    if (sectionP && block) {
+      sectionP.textContent = block.body;
+    }
+    const merke = root.querySelector(".fk-eu-merke p");
+    if (merke && block?.key_points?.[0]) {
+      merke.textContent = `Merke: ${block.key_points[0]}`;
+    }
+  }
+  if (config.path === "/fachkunde/abschluss") {
+    const head = root.querySelector(".fk-ac-head-title");
+    if (head) {
+      head.textContent = unit.title;
+    }
+    const heroP = root.querySelector(".fk-ac-hero-text p");
+    if (heroP) {
+      heroP.textContent = unit.subtitle || unit.title;
+    }
+  }
+  bindFachkundeExercises(root, config.path || "");
+}
+
+function bindProgressScreens(root, config) {
+  const weekMinutes = Array.isArray(state.dashboard?.week_minutes)
+    ? state.dashboard.week_minutes
+    : [0, 0, 0, 0, 0, 0, 0];
+  const weekMax = Math.max(...weekMinutes, 1);
+  const weekLetters = ["M", "D", "M", "D", "F", "S", "S"];
+  const gxWeek = root.querySelector(".gx-week-bars");
+  if (gxWeek) {
+    gxWeek.innerHTML = weekLetters
+      .map((label, index) => {
+        const mins = Number(weekMinutes[index]) || 0;
+        const height = mins ? Math.max(8, Math.round((mins / weekMax) * 80)) : 4;
+        const muted = mins ? "" : " muted";
+        return `<div class="gx-wbar${muted}"><i style="height:${height}px"></i><span>${label}</span></div>`;
+      })
+      .join("");
+  }
+  if (!["/fortschritt/pruefungsreife", "/fortschritt/ausstehend"].includes(config.path)) {
+    return;
+  }
+  const readiness = Number(state.dashboard?.readiness_percent) || 0;
+  root.querySelectorAll(".fp-pr-ring strong, .fp-pr-score-info p").forEach((el) => {
+    if (el.matches(".fp-pr-ring strong")) {
+      el.textContent = `${readiness}%`;
+    }
+  });
+  const badge = root.querySelector(".fp-pr-badge");
+  if (badge) {
+    badge.textContent = readiness >= 80 ? "Prüfungsreif" : "Noch nicht prüfungsreif";
+    badge.classList.toggle("warn", readiness < 80);
+    badge.classList.toggle("ok", readiness >= 80);
+  }
+  const list = root.querySelector(".fp-pr-list");
+  if (!list) {
+    return;
+  }
+  const months = (state.journey || []).slice(0, 8);
+  if (!months.length) {
+    return;
+  }
+  list.innerHTML = months
+    .map((month) => {
+      const total = Number(month.total_categories) || 0;
+      const done = Number(month.completed_categories) || 0;
+      const pct = total ? Math.round((done / total) * 100) : 0;
+      const cls = month.locked ? "locked" : pct >= 80 ? "ok" : pct >= 40 ? "warn" : "bad";
+      const icon = month.locked
+        ? "fp-pr-lock.svg"
+        : pct >= 80
+          ? "fp-pr-check.svg"
+          : pct >= 40
+            ? "fp-pr-alert.svg"
+            : "fp-pr-x.svg";
+      return `
+        <article class="fp-pr-item ${cls}">
+          <img src="/static/figma/fp/${icon}" width="20" height="20" alt="" />
+          <div class="fp-pr-item-body">
+            <div class="fp-pr-item-top"><strong>${escapeHtml(month.title || `Monat ${month.month}`)}</strong><em>${pct}%</em></div>
+            <div class="fp-pr-item-bar"><i style="width:${pct}%"></i></div>
+          </div>
+        </article>`;
+    })
+    .join("");
+}
+
+function persistLevelUp(payload) {
+  state.levelUp = payload;
+  try {
+    sessionStorage.setItem("ol_level_up", JSON.stringify(payload));
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
+function loadLevelUp() {
+  if (state.levelUp) {
+    return state.levelUp;
+  }
+  try {
+    const raw = sessionStorage.getItem("ol_level_up");
+    state.levelUp = raw ? JSON.parse(raw) : null;
+  } catch {
+    state.levelUp = null;
+  }
+  return state.levelUp;
+}
+
+function clearLevelUp() {
+  state.levelUp = null;
+  try {
+    sessionStorage.removeItem("ol_level_up");
+  } catch {
+    /* ignore storage errors */
+  }
+}
+
+function bindLevelUpScreen(root, config) {
+  if (config.path !== "/level-up") {
+    return;
+  }
+  const payload = loadLevelUp();
+  if (!payload) {
+    return;
+  }
+  const level = Number(payload.to) || Number(state.dashboard?.level) || 1;
+  const title = levelTitleFor(level);
+  const xp = liveNumber(state.dashboard?.xp ?? state.gamification?.xp, 0);
+  const xpPer = liveNumber(state.dashboard?.xp_per_level ?? state.gamification?.xp_per_level, 120);
+  const xpInto = liveNumber(state.dashboard?.xp_into_level ?? state.gamification?.xp_into_level, xp % xpPer);
+  const remaining = Math.max(xpPer - xpInto, 0);
+  const badges = state.gamification?.badges || state.dashboard?.badges || [];
+  const latestBadge = badges[badges.length - 1];
+  root.querySelectorAll("[data-bind='level-up-num']").forEach((el) => {
+    el.textContent = String(level);
+  });
+  root.querySelectorAll("[data-bind='level-up-summary']").forEach((el) => {
+    el.textContent = `Level ${level} erreicht · Neuer Titel: ${title}`;
+  });
+  const rewards = root.querySelector("[data-bind='level-up-rewards']");
+  if (rewards) {
+    const items = [`+${Number(payload.bonus_xp) || 100} Bonus-XP`];
+    if (latestBadge) {
+      items.push(`Neues Abzeichen: ${latestBadge}`);
+    }
+    if (payload.unlock_title) {
+      items.push(`Freischaltung: ${payload.unlock_title}`);
+    }
+    rewards.innerHTML = items.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  }
+  root.querySelectorAll("[data-bind='level-up-next']").forEach((el) => {
+    el.textContent =
+      remaining > 0
+        ? `Level ${level + 1} in ${Number(remaining).toLocaleString("de-DE")} XP`
+        : "Maximales Level erreicht";
+  });
+  root.querySelectorAll("[data-bind='level-up-continue']").forEach((el) => {
+    el.setAttribute("href", payload.returnTo || "/dashboard");
+  });
+}
+
+async function bindLandingStats() {
+  if (!state.contentStats) {
+    state.contentStats = await fetchJson("/api/content/stats").catch(() => null);
+  }
+  const stats = state.contentStats;
+  if (!stats) {
+    return;
+  }
+  document.querySelectorAll("[data-bind='stat-questions']").forEach((el) => {
+    el.textContent = Number(stats.quiz_questions || 0).toLocaleString("de-DE");
+  });
+  document.querySelectorAll("[data-bind='stat-units']").forEach((el) => {
+    el.textContent = Number(stats.learning_units || 0).toLocaleString("de-DE");
+  });
+  document.querySelectorAll("[data-bind='stat-exams']").forEach((el) => {
+    el.textContent = Number(stats.exams || 0).toLocaleString("de-DE");
+  });
+  document.querySelectorAll("[data-bind='landing-preview-unit']").forEach((el) => {
+    el.textContent = stats.preview_unit_title || "Lerneinheit";
+  });
+}
+
+const LEARN_CONTINUE = "__learn_continue__";
+
+function maybeQueueLevelUp(previousLevel, returnTo = "/dashboard", nextLevel = null) {
+  const prev = Number(previousLevel) || 0;
+  const next = Number(nextLevel ?? state.dashboard?.level ?? state.gamification?.level) || prev;
+  if (next <= prev) {
+    return false;
+  }
+  const unlockTitle = state.dashboard?.continue_title || state.dashboard?.review_topic || "";
+  persistLevelUp({
+    from: prev,
+    to: next,
+    bonus_xp: 100,
+    unlock_title: unlockTitle,
+    returnTo,
+  });
+  return true;
+}
+
+function applyAppearance(prefs = state.preferences) {
+  const theme = prefs?.theme || localStorage.getItem("ol_theme") || "light";
+  const language = prefs?.language || state.selectedLanguage || localStorage.getItem("ol_language") || "de";
+  const high = Boolean(prefs?.high_contrast ?? localStorage.getItem("ol_high_contrast") === "1");
+  const reduce = Boolean(prefs?.reduce_motion ?? localStorage.getItem("ol_reduce_motion") === "1");
+  const root = document.documentElement;
+  if (theme === "system") {
+    root.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+    root.dataset.themePref = "system";
+  } else {
+    root.dataset.theme = theme === "dark" ? "dark" : "light";
+    delete root.dataset.themePref;
+  }
+  root.lang = language;
+  root.classList.toggle("high-contrast", high);
+  root.classList.toggle("reduce-motion", reduce);
+  localStorage.setItem("ol_theme", theme);
+  localStorage.setItem("ol_language", language);
+  localStorage.setItem("ol_high_contrast", high ? "1" : "0");
+  localStorage.setItem("ol_reduce_motion", reduce ? "1" : "0");
+  state.selectedLanguage = language;
+  if (prefs) {
+    state.preferences = { ...prefs, theme, language, high_contrast: high, reduce_motion: reduce };
+  }
+}
+
+function bindAuthScreens(root, config) {
+  if (config.path === "/sprache") {
+    const activeLang = state.preferences?.language || state.selectedLanguage || "de";
+    state.selectedLanguage = activeLang;
+    const cohortInput = root.querySelector('input[name="cohort"]');
+    if (cohortInput && state.preferences?.cohort_code) {
+      cohortInput.value = state.preferences.cohort_code;
+    }
+    root.querySelectorAll(".lang-row[data-lang]").forEach((row) => {
+      const selected = row.dataset.lang === activeLang;
+      row.classList.toggle("active", selected);
+      row.setAttribute("aria-selected", selected ? "true" : "false");
+      const check = row.querySelector(".lang-check");
+      const radio = row.querySelector(".lang-radio");
+      if (check) {
+        check.hidden = !selected;
+      }
+      if (radio) {
+        radio.hidden = selected;
+      }
+    });
+  }
 }
 
 function renderJourneyMarkup() {
@@ -961,9 +2598,10 @@ function clearExamTimer() {
 function resetExamAttempt() {
   clearExamTimer();
   state.examSession = null;
+  state.examProgress = null;
   state.examChoiceAnswers = {};
   state.examOpenAnswers = {};
-  state.examResult = null;
+  clearExamResult();
 }
 
 function formatExamTimer(expiresAt) {
@@ -985,7 +2623,11 @@ function startExamTimer(root) {
   if (!state.examSession?.expires_at) {
     return;
   }
-  const timerElement = root.querySelector("#exam-timer");
+  const timerElement =
+    root.querySelector("[data-bind='exam-timer']") ||
+    root.querySelector("#exam-timer") ||
+    root.querySelector(".ex-q-timer strong") ||
+    root.querySelector(".ex-tm-timer strong");
   if (!timerElement) {
     return;
   }
@@ -1113,7 +2755,78 @@ async function startExamSession() {
     headers: authHeaders(),
   });
   state.examSession = payload;
-  await navigateTo("/pruefungen", false);
+  state.currentExamQuestionIndex = 0;
+  await refreshExamProgress();
+  await navigateTo("/pruefungen/frage", false);
+}
+
+async function gotoExamQuestion(questionId, questionIndex) {
+  if (questionId) {
+    state.currentExamQuestionIndex = questionIndex ?? state.currentExamQuestionIndex;
+    await refreshExamProgress(questionId);
+  }
+  await navigateTo("/pruefungen/frage", false);
+}
+
+async function gotoNextExamQuestion() {
+  const progress = state.examProgress;
+  const questions = progress?.questions || [];
+  const currentIndex = Math.max(0, (progress?.current_index || 1) - 1);
+  const next = questions[currentIndex + 1];
+  if (next) {
+    await gotoExamQuestion(next.question_id, next.index - 1);
+    return;
+  }
+  await navigateTo("/pruefungen/abgabe", false);
+}
+
+async function gotoPreviousExamQuestion() {
+  const progress = state.examProgress;
+  const questions = progress?.questions || [];
+  const currentIndex = Math.max(0, (progress?.current_index || 1) - 1);
+  const previous = questions[currentIndex - 1];
+  if (previous) {
+    await gotoExamQuestion(previous.question_id, previous.index - 1);
+    return;
+  }
+  await navigateTo("/pruefungen/uebersicht", false);
+}
+
+async function toggleExamMark(questionId) {
+  if (!state.examSession?.session_id) {
+    return;
+  }
+  const resolvedId = questionId || getCurrentExamQuestion()?.question_id;
+  if (!resolvedId) {
+    return;
+  }
+  await fetchJson(`/api/exams/sessions/${state.examSession.session_id}/marks`, {
+    method: "POST",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ question_id: resolvedId }),
+  });
+  await refreshExamProgress(resolvedId);
+  await navigateTo(window.location.pathname, false);
+}
+
+async function startExamShortcut(examId) {
+  await requireAuth();
+  if (!state.exams.length) {
+    showToast("Keine Pruefungen geladen.");
+    return;
+  }
+  const resolvedId =
+    examId ||
+    EXAM_SHORTCUT_IDS.zp ||
+    state.exams.find((exam) => /ZP-SIM|Zwischenpr/i.test(exam.title))?.exam_id;
+  const exam = state.exams.find((item) => item.exam_id === resolvedId) || state.exams[0];
+  if (!exam) {
+    showToast("Pruefung nicht gefunden.");
+    return;
+  }
+  state.activeExam = exam;
+  await startExamSession();
+  showToast(`${exam.title} gestartet`);
 }
 
 async function saveExamChoiceAnswer(questionId, optionIndex) {
@@ -1129,7 +2842,7 @@ async function saveExamChoiceAnswer(questionId, optionIndex) {
     }),
   });
   state.examChoiceAnswers[questionId] = optionIndex;
-  await navigateTo("/pruefungen", false);
+  await refreshExamProgress(questionId);
 }
 
 async function saveExamOpenAnswer(questionId, root) {
@@ -1161,18 +2874,696 @@ async function submitExamSession() {
     return;
   }
   clearExamTimer();
-  state.examResult = await fetchJson(
+  const prevLevel = Number(state.dashboard?.level ?? state.gamification?.level) || 0;
+  const result = await fetchJson(
     `/api/exams/sessions/${state.examSession.session_id}/submit`,
     { method: "POST", headers: authHeaders() },
   );
   state.examSession = null;
+  persistExamResult(result);
   await refreshPrivateData();
-  await navigateTo(state.examResult.passed ? "/pruefungen/bestanden" : "/pruefungen/durchgefallen");
+  const returnTo = result.passed ? "/pruefungen/bestanden" : "/pruefungen/durchgefallen";
+  if (maybeQueueLevelUp(prevLevel, returnTo)) {
+    await navigateTo("/level-up");
+    return;
+  }
+  await navigateTo(returnTo);
+}
+
+async function bindPlatformTools(root, config) {
+  const path = config?.path || window.location.pathname;
+  if (path.startsWith("/fachkunde/toleranz") || path.startsWith("/fachkunde/spritz") || path.startsWith("/fachkunde/messschieber")) {
+    bindFachkundeExercises(root, path);
+  }
+  if (!state.accessToken) {
+    applyAppearance();
+    return;
+  }
+  try {
+    if (path.startsWith("/lernen/formeltrainer") || path.startsWith("/lernen/flashcard")) {
+      state.formulas = await fetchJson("/api/formulas");
+      renderFormulas(root, state.formulas);
+    }
+    if (path.startsWith("/lernen/fehlerdiagnose")) {
+      state.diagnosisCases = await fetchJson("/api/diagnosis", { headers: authHeaders() });
+      renderDiagnosis(root, state.diagnosisCases);
+    }
+    if (path.startsWith("/lernen/video")) {
+      state.videos = await fetchJson("/api/videos", { headers: authHeaders() });
+      renderVideos(root, state.videos);
+    }
+    if (path.startsWith("/lernen/uebersetzung") || path.startsWith("/lernen/glossar")) {
+      if (path.startsWith("/lernen/uebersetzung")) {
+        await renderTranslationOverlay(root);
+      }
+      const input = root.querySelector("[data-action='glossary-search']");
+      const query = input?.value || "";
+      const terms = await fetchJson(query ? `/api/glossary?q=${encodeURIComponent(query)}` : "/api/glossary");
+      renderGlossary(root, terms);
+      if (input && !input.dataset.bound) {
+        input.dataset.bound = "1";
+        let timer = 0;
+        input.addEventListener("input", () => {
+          window.clearTimeout(timer);
+          timer = window.setTimeout(async () => {
+            const next = await fetchJson(
+              input.value ? `/api/glossary?q=${encodeURIComponent(input.value)}` : "/api/glossary",
+            );
+            renderGlossary(root, next);
+          }, 200);
+        });
+      }
+    }
+    if (path.startsWith("/lernen/flashcard")) {
+      if (!state.formulas.length) {
+        state.formulas = await fetchJson("/api/formulas");
+      }
+      renderFlashcard(root, state.formulas);
+    }
+    if (path.startsWith("/mehr/darstellung")) {
+      bindAppearanceScreen(root);
+    }
+    if (path.startsWith("/mehr/benachrichtigungen") || path === "/notifications") {
+      state.notifications = await fetchJson("/api/notifications", { headers: authHeaders() }).catch(() => []);
+      if (!state.notificationSettings) {
+        state.notificationSettings = await fetchJson("/api/me/notifications/settings", {
+          headers: authHeaders(),
+        });
+      }
+      bindNotificationScreen(root);
+    }
+    if (path.startsWith("/mehr/coach") || path.startsWith("/mehr/lernplan")) {
+      if (!state.coachPlan) {
+        state.coachPlan = await fetchJson("/api/coach/plan", { headers: authHeaders() }).catch(() => null);
+      }
+      bindCoachScreens(root, path);
+    }
+    if (path.startsWith("/berichtsheft")) {
+      bindReportScreens(root, path);
+    }
+    if (path.startsWith("/ausbilder") && STAFF_ROLES.has(state.role)) {
+      const output = root.querySelector("[data-bind='trainer-output']");
+      if (output && !output.innerHTML.trim()) {
+        const [risk, reports] = await Promise.all([
+          fetchJson("/api/trainer/risk", { headers: authHeaders() }).catch(() => []),
+          fetchJson("/api/trainer/reports", { headers: authHeaders() }).catch(() => []),
+        ]);
+        output.innerHTML = `
+          <p>${risk.length} Teilnehmende im Risiko-Radar.</p>
+          <ul>${risk
+            .slice(0, 8)
+            .map(
+              (row) =>
+                `<li>${escapeHtml(row.alias)} · ${row.readiness_percent}% · Risiko ${escapeHtml(row.risk)}</li>`,
+            )
+            .join("")}</ul>
+          <p>${reports.length} Berichtsheft-Eintraege.</p>`;
+      }
+    }
+    if (path.startsWith("/admin") && state.role === "admin") {
+      const output = root.querySelector("[data-bind='trainer-output']");
+      if (output && !output.innerHTML.trim()) {
+        const monitoring = await fetchJson("/api/admin/monitoring", { headers: authHeaders() });
+        output.innerHTML = `<p>Nutzer ${monitoring.learners} · Fragen ${monitoring.quiz_questions} · Einheiten ${monitoring.learning_units} · offene Reviews ${monitoring.pending_reviews}</p>`;
+      }
+    }
+  } catch (error) {
+    showToast(error.message);
+  }
+}
+
+function renderFormulas(root, formulas) {
+  const scroll = root.querySelector(".formel-scroll");
+  if (!scroll || !formulas.length) {
+    return;
+  }
+  const chips = scroll.querySelector(".formel-chips");
+  const topics = ["alle", ...new Set(formulas.map((item) => item.topic))];
+  if (chips) {
+    chips.innerHTML = topics
+      .map(
+        (topic, index) =>
+          `<button type="button" class="formel-chip${index === 0 ? " active" : ""}" data-action="filter-formulas" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`,
+      )
+      .join("");
+  }
+  const cards = formulas
+    .map((formula, index) => {
+      if (index === 0) {
+        const legend = (formula.legend || [])
+          .map((item) => `<div><b>${escapeHtml(item.symbol)}</b><span>${escapeHtml(item.meaning)}</span></div>`)
+          .join("");
+        return `<article class="formel-card expanded">
+          <div class="formel-card-head"><div><strong>${escapeHtml(formula.title)}</strong><p>${escapeHtml(formula.topic)}</p></div></div>
+          <div class="formel-box">${escapeHtml(formula.expression)}</div>
+          <div class="formel-legend">${legend}</div>
+          <div class="formel-example"><p class="formel-example-label">Beispiel:</p><p>${escapeHtml(formula.example)}</p></div>
+          <div class="formel-card-foot">
+            <span class="formel-diff">${escapeHtml(formula.difficulty)}</span>
+            <button type="button" class="formel-practice" data-action="practice-formula" data-slug="${escapeHtml(formula.slug)}">Ueben <span>+10 XP</span></button>
+          </div>
+        </article>`;
+      }
+      return `<button type="button" class="formel-card collapsed" data-action="practice-formula" data-slug="${escapeHtml(formula.slug)}">
+        <div class="formel-card-left"><strong>${escapeHtml(formula.title)}</strong><span class="formel-eq">${escapeHtml(formula.expression)}</span></div>
+        <div class="formel-card-right"><span class="formel-diff">${escapeHtml(formula.difficulty)}</span></div>
+      </button>`;
+    })
+    .join("");
+  const chipHtml = chips ? chips.outerHTML : "";
+  scroll.innerHTML = `${chipHtml}${cards}<p class="formel-all-btn">${formulas.length} Formeln geladen</p>`;
+}
+
+function renderGlossary(root, terms) {
+  const host = root.querySelector("[data-bind='glossary-live']");
+  if (!host) {
+    return;
+  }
+  const grouped = new Map();
+  (terms || []).forEach((item) => {
+    const key = item.term || item.translation;
+    if (!grouped.has(key)) {
+      grouped.set(key, []);
+    }
+    grouped.get(key).push(item);
+  });
+  host.innerHTML = grouped.size
+    ? [...grouped.entries()]
+        .map(([term, rows]) => {
+          const definition = rows.find((row) => row.definition)?.definition || rows[0].translation;
+          const langs = rows
+            .map((row) => `${row.language.toUpperCase()}: ${row.translation}`)
+            .join(" · ");
+          return `<article class="gx-card gx-glossar-item">
+            <strong>${escapeHtml(term)}</strong>
+            <p>${escapeHtml(definition)}</p>
+            <span class="muted">${escapeHtml(langs)}</span>
+          </article>`;
+        })
+        .join("")
+    : `<p class="muted">Keine Begriffe gefunden.</p>`;
+}
+
+function renderFlashcard(root, formulas) {
+  const host = root.querySelector("[data-bind='flashcard-live']");
+  if (!host || !formulas.length) {
+    return;
+  }
+  const currentSlug = state.activeFormulaSlug || formulas[0].slug;
+  const index = Math.max(0, formulas.findIndex((item) => item.slug === currentSlug));
+  const formula = formulas[index] || formulas[0];
+  state.activeFormulaSlug = formula.slug;
+  const legend = (formula.legend || [])
+    .map((item) => `<div><b>${escapeHtml(item.symbol)}</b><span>${escapeHtml(item.meaning)}</span></div>`)
+    .join("");
+  host.innerHTML = `
+    <article class="gx-card">
+      <p class="gx-kicker">${escapeHtml(formula.topic)} · ${escapeHtml(formula.difficulty)}</p>
+      <strong>${escapeHtml(formula.title)}</strong>
+      <p class="gx-formula">${escapeHtml(formula.expression)}</p>
+      <div class="gx-legend">${legend}</div>
+      <p>${escapeHtml(formula.example)}</p>
+    </article>
+    <div class="gx-chips">
+      <button class="gx-chip" type="button" data-action="practice-formula" data-slug="${escapeHtml(formula.slug)}">Geprüft (+10 XP)</button>
+      <button class="gx-chip" type="button" data-action="next-formula">Nächste Formel</button>
+      <a class="gx-chip" href="/lernen/formeltrainer" data-page-link>Alle Formeln</a>
+    </div>`;
+}
+
+function renderDiagnosis(root, cases) {
+  const list = root.querySelector(".fd-cases");
+  if (!list || !cases.length) {
+    return;
+  }
+  const colors = ["blue", "green", "red", "muted"];
+  const solvedCount = cases.filter((item) => item.solved).length;
+  list.innerHTML = cases
+    .map((item, index) => {
+      const color = colors[index % colors.length];
+      const open = state.activeDiagnosisSlug === item.slug && !item.solved;
+      const options = (item.options || [])
+        .map(
+          (option, optionIndex) =>
+            `<button type="button" class="fd-option" data-action="solve-diagnosis" data-slug="${escapeHtml(item.slug)}" data-index="${optionIndex}">${escapeHtml(option)}</button>`,
+        )
+        .join("");
+      const action = item.solved
+        ? `<button type="button" class="fd-again" data-action="open-diagnosis" data-slug="${escapeHtml(item.slug)}">Nochmal</button>`
+        : `<button type="button" class="fd-start ${color}" data-action="open-diagnosis" data-slug="${escapeHtml(item.slug)}">Starten</button>`;
+      return `<article class="fd-case ${color}${item.solved ? " solved" : ""}">
+        <div class="fd-case-body">
+          <div class="fd-case-head"><div><p class="fd-cat">${escapeHtml(item.topic)}</p><strong>${escapeHtml(item.title)}</strong></div></div>
+          <p>${escapeHtml(item.symptom)}</p>
+          ${open ? `<div class="fd-options">${options}</div>` : ""}
+          ${item.solved && item.explanation ? `<p class="fd-explain">${escapeHtml(item.explanation)}</p>` : ""}
+          <div class="fd-case-meta ${item.solved ? "solved" : ""}">
+            <span>${item.solved ? "Gelöst" : `${escapeHtml(item.difficulty)} · ${item.estimated_minutes} Min`}</span>
+            ${action}
+          </div>
+        </div>
+      </article>`;
+    })
+    .join("");
+  const progress = root.querySelector(".fd-prog-text");
+  if (progress) {
+    const pct = cases.length ? Math.round((solvedCount / cases.length) * 100) : 0;
+    progress.innerHTML = `<span>${solvedCount} von ${cases.length} Szenarien gelöst</span><strong>${pct}%</strong>`;
+    const bar = root.querySelector(".fd-prog-bar i");
+    if (bar) {
+      bar.style.width = `${pct}%`;
+    }
+  }
+}
+
+function formatVideoTime(seconds) {
+  const total = Math.max(0, Math.round(Number(seconds) || 0));
+  const minutes = Math.floor(total / 60);
+  const rest = total % 60;
+  return `${minutes}:${String(rest).padStart(2, "0")}`;
+}
+
+function renderVideos(root, videos) {
+  if (!videos.length) {
+    return;
+  }
+  const current =
+    videos.find((item) => item.slug === state.activeVideoSlug) || videos[0];
+  state.activeVideoSlug = current.slug;
+  const title = root.querySelector(".vid-title, .vid-player-meta strong");
+  if (title) {
+    title.textContent = current.title;
+  }
+  const instructor = root.querySelector(".vid-instructor strong");
+  if (instructor) {
+    instructor.textContent = current.instructor;
+  }
+  const durationEls = root.querySelectorAll(".vid-player-meta span, .vid-pill.time");
+  durationEls.forEach((el) => {
+    el.textContent = `${formatVideoTime(current.duration_seconds)} Min`.replace(" Min Min", " Min");
+  });
+  const play = root.querySelector(".vid-play-btn");
+  if (play) {
+    play.dataset.action = "watch-video";
+    play.dataset.slug = current.slug;
+    play.dataset.toast = "";
+  }
+  const timeline = root.querySelector(".vid-timeline i");
+  if (timeline) {
+    const pct = current.duration_seconds
+      ? Math.min(100, Math.round((current.watched_seconds / current.duration_seconds) * 100))
+      : 0;
+    timeline.style.width = `${pct}%`;
+  }
+  const chapters = root.querySelector(".vid-chapter-list");
+  if (chapters) {
+    chapters.innerHTML = (current.chapters || [])
+      .map((chapter) => {
+        const done = current.watched_seconds >= chapter.start_seconds;
+        const active =
+          current.watched_seconds >= chapter.start_seconds &&
+          current.watched_seconds < chapter.start_seconds + 90;
+        return `<button type="button" class="vid-chapter${done ? " done" : ""}${active ? " active" : ""}" data-action="seek-video" data-slug="${escapeHtml(current.slug)}" data-seconds="${chapter.start_seconds}">
+          <div class="vid-chapter-left"><span class="t">${formatVideoTime(chapter.start_seconds)}</span><span class="n">${escapeHtml(chapter.title)}</span></div>
+        </button>`;
+      })
+      .join("");
+  }
+  const next = root.querySelector(".vid-next strong");
+  if (next && current.next_slug) {
+    const upcoming = videos.find((item) => item.slug === current.next_slug);
+    if (upcoming) {
+      next.textContent = upcoming.title;
+    }
+    const link = root.querySelector(".vid-next");
+    if (link) {
+      link.dataset.action = "open-video";
+      link.dataset.slug = current.next_slug;
+    }
+  }
+}
+
+function bindAppearanceScreen(root) {
+  const prefs = state.preferences || {};
+  const theme = prefs.theme || "light";
+  root.querySelectorAll("[data-action='set-theme']").forEach((btn) => {
+    btn.classList.toggle("on", btn.dataset.theme === theme);
+  });
+  root.querySelectorAll("[data-action='toggle-pref']").forEach((btn) => {
+    const on = Boolean(prefs[btn.dataset.pref]);
+    btn.classList.toggle("on", on);
+    btn.setAttribute("aria-pressed", on ? "true" : "false");
+  });
+}
+
+function setNotificationToggle(btn, on) {
+  btn.classList.toggle("on", on);
+  btn.setAttribute("aria-pressed", on ? "true" : "false");
+  const img = btn.querySelector("img");
+  if (img) {
+    img.src = on ? "/static/figma/mehr/bn-toggle-on.svg" : "/static/figma/mehr/bn-toggle-off.svg";
+  }
+}
+
+function bindNotificationScreen(root) {
+  const settings = state.notificationSettings || {};
+  root.querySelectorAll("[data-action='toggle-notification']").forEach((btn) => {
+    setNotificationToggle(btn, Boolean(settings[btn.dataset.setting]));
+  });
+}
+
+function coachTime() {
+  return new Date().toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
+}
+
+function ensureCoachMessages() {
+  if (state.coachMessages.length) {
+    return;
+  }
+  const greeting =
+    state.coachPlan?.greeting ||
+    "Hallo! Ich kann Fragen erklären, Formeln ableiten oder deinen Lernplan optimieren.";
+  state.coachMessages = [{ role: "ai", text: greeting, time: coachTime() }];
+}
+
+function renderCoachChat(root) {
+  const host = root.querySelector(".kc-chat");
+  if (!host) {
+    return;
+  }
+  ensureCoachMessages();
+  host.innerHTML = state.coachMessages
+    .map((item) => {
+      const href = item.href
+        ? `<p><a href="${escapeHtml(item.href)}" data-page-link>Öffnen</a></p>`
+        : "";
+      return `<div class="kc-msg ${item.role === "me" ? "me" : "ai"}">
+        <div class="kc-bubble">${escapeHtml(item.text).replace(/\n/g, "<br>")}${href}</div>
+        <time>${escapeHtml(item.time || "")}</time>
+      </div>`;
+    })
+    .join("");
+  host.scrollTop = host.scrollHeight;
+}
+
+function bindCoachScreens(root, path) {
+  if (path.startsWith("/mehr/coach")) {
+    renderCoachChat(root);
+  }
+  if (path.startsWith("/mehr/lernplan")) {
+    const plan = state.coachPlan;
+    if (!plan) {
+      return;
+    }
+    const goal = root.querySelector(".lp-goal-head strong");
+    if (goal) {
+      goal.textContent = `Ziel: Monat ${plan.focus_month} abschließen`;
+    }
+    const rings = root.querySelectorAll(".lp-ring b");
+    if (rings[0]) {
+      rings[0].textContent = `${plan.readiness_percent}%`;
+    }
+    const week = root.querySelector(".lp-week-card");
+    if (week) {
+      const days = ["Mo", "Di", "Mi", "Do", "Fr"];
+      const tips = plan.tips || [];
+      week.querySelectorAll(".lp-day").forEach((row, index) => {
+        const tip = tips[index % Math.max(tips.length, 1)];
+        const title = row.querySelector("strong");
+        const meta = row.querySelector("span");
+        if (title && tip) {
+          title.textContent = tip.title;
+        }
+        if (meta) {
+          meta.textContent = `${days[index] || ""} • 25 Min`;
+        }
+      });
+    }
+  }
+}
+
+async function bindReportScreens(root, path) {
+  if (path === "/berichtsheft/ki") {
+    try {
+      state.reportSuggest = await fetchJson("/api/training-reports/suggest", {
+        headers: authHeaders(),
+      });
+    } catch {
+      state.reportSuggest = null;
+    }
+    const box = root.querySelector(".bh-ki-suggest-box");
+    if (box && state.reportSuggest?.activities) {
+      box.textContent = state.reportSuggest.activities;
+    }
+  }
+  if (path === "/berichtsheft/neu" && state.reportSuggest?.activities) {
+    const hidden = root.querySelector("textarea[name='activities']");
+    const first = root.querySelector("textarea[name='mon']");
+    if (hidden && !hidden.value) {
+      hidden.value = state.reportSuggest.activities;
+    }
+    if (first && !first.value) {
+      first.value = state.reportSuggest.activities;
+    }
+  }
+  if (path === "/berichtsheft/unterschrift") {
+    const report =
+      (state.trainingReports || []).find((item) => item.status === "draft") ||
+      (state.trainingReports || [])[0];
+    const title = root.querySelector(".bh-sig-card-head strong");
+    const hours = root.querySelector(".bh-sig-card-head em");
+    const days = root.querySelector(".bh-sig-days");
+    if (report && title) {
+      title.textContent = `Bericht ${report.report_date}`;
+    }
+    if (report && hours) {
+      hours.textContent = `${report.hours} Stunden`;
+    }
+    if (report && days) {
+      days.innerHTML = `<div><b>Eintrag</b><span>${escapeHtml(report.activities)}</span></div>`;
+    }
+  }
+}
+
+const ISO_IT = { 6: 0.016, 7: 0.025, 8: 0.039 };
+const ISO_FUND = {
+  H: { es: (it) => it, ei: () => 0 },
+  f: { es: () => -0.025, ei: (it) => -0.025 - it },
+  g: { es: () => -0.009, ei: (it) => -0.009 - it },
+};
+
+function parseIsoClass(label) {
+  const match = String(label || "").trim().match(/^([A-Za-z])(\d+)$/);
+  if (!match) {
+    return null;
+  }
+  return { letter: match[1], grade: Number(match[2]) };
+}
+
+function isoDeviations(label) {
+  const parsed = parseIsoClass(label);
+  if (!parsed) {
+    return { es: 0.025, ei: 0 };
+  }
+  const it = ISO_IT[parsed.grade] || 0.025;
+  const fund = ISO_FUND[parsed.letter] || ISO_FUND.H;
+  return { es: fund.es(it), ei: fund.ei(it), it };
+}
+
+function formatMm(value) {
+  const sign = value > 0 ? "+" : "";
+  return `${sign}${value.toFixed(3)} mm`;
+}
+
+function updateToleranceCard(root) {
+  const isoBtn = root.querySelector(".fk-tz-iso button.active") || root.querySelector(".fk-tz-iso button");
+  const iso = isoBtn?.dataset.iso || "H7";
+  const nominal = Number(root.querySelector("[data-tz-nominal]")?.textContent || "50") || 50;
+  const { es, ei } = isoDeviations(iso);
+  const limits = root.querySelectorAll(".fk-tz-limit");
+  if (limits[0]) {
+    limits[0].textContent = formatMm(es);
+  }
+  if (limits[1]) {
+    limits[1].textContent = formatMm(ei);
+  }
+  const badge = root.querySelector(".fk-tz-badge strong");
+  if (badge) {
+    badge.textContent = `${nominal} ${iso}`;
+  }
+  const span = root.querySelector(".fk-tz-badge span");
+  if (span) {
+    span.textContent = `Toleranz: ${Math.abs(es - ei).toFixed(3)} mm`;
+  }
+  const measures = root.querySelector(".fk-tz-measures div");
+  if (measures) {
+    measures.innerHTML = `<span>Go: ${(nominal + ei).toFixed(3)} mm</span><span>NoGo: ${(nominal + es).toFixed(3)} mm</span>`;
+  }
+}
+
+const SG_PHASES = [
+  { title: "Werkzeug schließen", time: "t: 2.5s", desc: "Die Werkzeughälften fahren zusammen. Zuhaltekraft verhindert Aufspritzen.", p1: "Schließkraft: 800 kN", p2: "Schließgeschwindigkeit: 250 mm/s" },
+  { title: "Einspritzen", time: "t: 1.8s", desc: "Die Schnecke fördert die Schmelze unter hohem Druck in die Kavität.", p1: "Einspritzdruck: 900 bar", p2: "Einspritzgeschwindigkeit: 80 mm/s" },
+  { title: "Nachdrücken", time: "t: 4.0s", desc: "Nachdruck gleicht Schwindung aus, bis der Anguss erstarrt.", p1: "Nachdruck: 450 bar", p2: "Nachdruckzeit: 4 s" },
+  { title: "Kühlen", time: "t: 18s", desc: "Das Formteil erstarrt. Kühlzeit bestimmt oft die Zykluszeit.", p1: "Werkzeugtemperatur: 40 °C", p2: "Kühlzeit: 18 s" },
+  { title: "Auswerfen", time: "t: 2.2s", desc: "Das Werkzeug öffnet, Auswerfer stossen das Teil aus.", p1: "Öffnungsweg: 120 mm", p2: "Auswerferhub: 25 mm" },
+];
+
+function renderInjectionPhase(root, index) {
+  const phase = SG_PHASES[index] || SG_PHASES[0];
+  state.injectionPhase = index;
+  root.querySelectorAll(".fk-sg-step").forEach((el, i) => {
+    el.classList.toggle("active", i === index);
+  });
+  const title = root.querySelector(".fk-sg-detail-title strong");
+  const num = root.querySelector(".fk-sg-detail-title em");
+  const time = root.querySelector(".fk-sg-time");
+  const desc = root.querySelector(".fk-sg-desc");
+  const params = root.querySelectorAll(".fk-sg-params b");
+  if (num) {
+    num.textContent = String(index + 1);
+  }
+  if (title) {
+    title.textContent = phase.title;
+  }
+  if (time) {
+    time.textContent = phase.time;
+  }
+  if (desc) {
+    desc.textContent = phase.desc;
+  }
+  if (params[0]) {
+    params[0].textContent = phase.p1.split(": ")[1] || phase.p1;
+  }
+  if (params[1]) {
+    params[1].textContent = phase.p2.split(": ")[1] || phase.p2;
+  }
+}
+
+function bindFachkundeExercises(root, path) {
+  if (path.startsWith("/fachkunde/toleranz")) {
+    updateToleranceCard(root);
+  }
+  if (path.startsWith("/fachkunde/spritzguss")) {
+    renderInjectionPhase(root, state.injectionPhase || 0);
+  }
+}
+
+async function renderTranslationOverlay(root) {
+  const question = state.questions[state.currentQuestionIndex];
+  const prompt = question?.prompt || root.querySelector(".q-overlay-prompt")?.textContent || "";
+  let terms = [];
+  try {
+    terms = await fetchJson("/api/glossary");
+  } catch {
+    terms = [];
+  }
+  const match =
+    terms.find((item) => prompt.toLowerCase().includes(String(item.term || "").toLowerCase())) ||
+    terms.find((item) => item.term === "Doppeltwirkender Zylinder") ||
+    terms[0];
+  if (!match) {
+    return;
+  }
+  const grouped = terms.filter((item) => item.term === match.term);
+  const de = root.querySelector(".term-de");
+  if (de) {
+    de.textContent = match.term;
+  }
+  const explain = root.querySelector(".explain-box p:last-child");
+  if (explain) {
+    explain.textContent = match.definition || "";
+  }
+  const flags = { en: "🇬🇧 English", tr: "🇹🇷 Türkçe", ar: "🇦🇪 العربية", uk: "🇺🇦 Українська", pl: "🇵🇱 Polski" };
+  const rows = root.querySelector(".lang-rows");
+  if (rows) {
+    rows.innerHTML = grouped
+      .map((item) => {
+        const label = flags[item.language] || item.language.toUpperCase();
+        return `<div><span>${label}</span><strong>${escapeHtml(item.translation)}</strong></div>`;
+      })
+      .join("");
+  }
+  root.dataset.term = match.term;
+  root.dataset.speak = grouped.find((item) => item.language === (state.selectedLanguage || "de"))?.translation || match.term;
+}
+
+async function completeActiveLearnUnit() {
+  const unit =
+    state.activeUnit ||
+    (state.units || []).find((item) =>
+      (item.category_slugs || []).includes(state.questions[0]?.category_slug),
+    );
+  if (!unit?.slug || !state.accessToken) {
+    return;
+  }
+  try {
+    await fetchJson(`/api/learning/units/${encodeURIComponent(unit.slug)}/complete`, {
+      method: "POST",
+      headers: authHeaders(),
+    });
+    state.units = (state.units || []).map((item) =>
+      item.slug === unit.slug ? { ...item, completed: true } : item,
+    );
+    state.activeUnit = { ...unit, completed: true };
+  } catch {
+    /* unit stays open if the server rejects completion */
+  }
+}
+
+async function goToNextLearnStep(retry = false) {
+  if (!state.questions.length) {
+    await navigateTo("/lernen");
+    return;
+  }
+  if (!retry) {
+    if (state.practiceMode === "unit") {
+      const next = Number(state.currentQuestionIndex) + 1;
+      if (next >= state.questions.length) {
+        await completeActiveLearnUnit();
+        showToast("Lerneinheit abgeschlossen!");
+        await loadAllUnits();
+        state.currentQuestionIndex = 0;
+        await navigateTo("/lernen");
+        return;
+      }
+      state.currentQuestionIndex = next;
+    } else {
+      const current = state.questions[state.currentQuestionIndex];
+      const pool = filteredPracticeQuestions();
+      const pos = pool.findIndex((question) => question.question_id === current?.question_id);
+      const nextItem = pos >= 0 ? pool[pos + 1] : pool[0];
+      if (!nextItem || nextItem.question_id === current?.question_id) {
+        showToast("Alle Fragen in diesem Filter durchgearbeitet!");
+        state.currentQuestionIndex = 0;
+        await navigateTo("/lernen/fragen");
+        return;
+      }
+      const full = practiceQuestionPool();
+      const nextIndex = full.findIndex((question) => question.question_id === nextItem.question_id);
+      state.currentQuestionIndex = Math.max(0, nextIndex);
+      state.questions = full;
+    }
+  }
+  await navigateTo("/lernen/frage");
+}
+
+async function advanceLearnQuestion(retry = false) {
+  if (!retry && loadLevelUp()) {
+    persistLevelUp({ ...loadLevelUp(), returnTo: LEARN_CONTINUE });
+    await navigateTo("/level-up");
+    return;
+  }
+  await goToNextLearnStep(retry);
 }
 
 async function answerQuestion(index) {
   await requireAuth();
   const question = state.questions[state.currentQuestionIndex % state.questions.length];
+  if (!question) {
+    throw new Error("Keine Frage geladen.");
+  }
+  const prevLevel = Number(state.dashboard?.level ?? state.gamification?.level) || 1;
   const result = await fetchJson("/api/progress/attempt", {
     method: "POST",
     headers: { "Content-Type": "application/json", ...authHeaders() },
@@ -1181,44 +3572,60 @@ async function answerQuestion(index) {
       selected_option_index: index,
     }),
   });
-  document.querySelectorAll(".answer-option").forEach((button) => {
-    const optionIndex = Number(button.dataset.index);
-    button.disabled = true;
-    if (optionIndex === result.correct_option_index) {
-      button.classList.add("correct");
+  state.lastAttempt = {
+    ...result,
+    prompt: question.prompt,
+    options: question.options,
+    category_slug: question.category_slug,
+    selected_option_index: index,
+  };
+  if (state.dashboard) {
+    if (result.level != null) {
+      state.dashboard.level = result.level;
     }
-    if (optionIndex === index && !result.is_correct) {
-      button.classList.add("wrong");
+    if (result.xp != null) {
+      state.dashboard.xp = result.xp;
     }
-  });
-  const feedback = document.querySelector("[data-bind='live-feedback']");
-  if (feedback) {
-    feedback.textContent = result.explanation;
   }
-  await refreshPrivateData();
-  showToast(result.is_correct ? "Richtig! +XP" : "Leider falsch");
+  if (result.leveled_up || Number(result.level) > prevLevel) {
+    maybeQueueLevelUp(prevLevel, LEARN_CONTINUE, result.level);
+  }
+  state.questionProgress = state.questionProgress || {};
+  state.questionProgress[result.question_id] = {
+    question_id: result.question_id,
+    answered_count: result.answered_count,
+    wrong_count: result.wrong_count,
+    correct_streak: result.correct_streak,
+    mastered: result.mastered,
+  };
+  void refreshPrivateData().catch(() => null);
+  await navigateTo(result.is_correct ? "/lernen/feedback/richtig" : "/lernen/feedback/falsch");
 }
 
-async function saveTrainingReport(formElement) {
+async function saveTrainingReport(formElement, status = "draft") {
   await requireAuth();
   const form = new FormData(formElement);
-  const activities = String(form.get("activities") || "").trim();
+  const days = ["mon", "tue", "wed", "thu", "fri"]
+    .map((name) => String(form.get(name) || "").trim())
+    .filter(Boolean);
+  const activities = (days.join(" ") || String(form.get("activities") || "")).trim();
   if (activities.length < 10) {
     throw new Error("Taetigkeiten muessen mindestens 10 Zeichen haben.");
   }
+  const hours = Number(form.get("hours") || 8);
   await fetchJson("/api/training-reports", {
     method: "POST",
     headers: { ...authHeaders(), "Content-Type": "application/json" },
     body: JSON.stringify({
-      report_date: String(form.get("report_date")),
+      report_date: String(form.get("report_date") || new Date().toISOString().slice(0, 10)),
       activities,
-      hours: Number(form.get("hours")),
-      status: "draft",
+      hours,
+      status,
     }),
   });
   await refreshPrivateData();
-  showToast("Berichtsheft-Eintrag gespeichert");
-  await navigateTo("/berichtsheft");
+  showToast(status === "submitted" ? "Bericht eingereicht" : "Berichtsheft-Eintrag gespeichert");
+  await navigateTo(status === "submitted" ? "/berichtsheft/unterschrift" : "/berichtsheft");
 }
 
 async function submitTrainingReport(reportId) {
@@ -1260,6 +3667,41 @@ async function changePassword(formElement) {
     }),
   });
   showToast("Passwort gespeichert");
+  syncAuthProfile({ ...state.authProfile, requires_password_change: false });
+  await navigateTo("/sprache");
+}
+
+async function saveLanguagePreference() {
+  await requireAuth();
+  const language = state.selectedLanguage || "de";
+  state.preferences = await fetchJson("/api/me/preferences", {
+    method: "PUT",
+    headers: { ...authHeaders(), "Content-Type": "application/json" },
+    body: JSON.stringify({ language }),
+  });
+  applyAppearance(state.preferences);
+  showToast("Sprache gespeichert");
+  if (state.authProfile?.onboarding_completed) {
+    await navigateTo("/mehr");
+    return;
+  }
+  await navigateTo("/onboarding");
+}
+
+async function completeOnboardingFlow() {
+  await requireAuth();
+  await recordConsent(true);
+  await fetchJson("/api/auth/onboarding/complete", {
+    method: "POST",
+    headers: authHeaders(),
+  });
+  syncAuthProfile({
+    ...state.authProfile,
+    onboarding_completed: true,
+    privacy_consent_accepted: true,
+  });
+  showToast("Willkommen im Lerncampus!");
+  await navigateTo("/dashboard");
 }
 
 async function recordConsent(accepted = true) {
@@ -1416,8 +3858,8 @@ async function deleteAccount() {
 function updateChrome(config, pathname) {
   const layout = config.layout || "landing";
   document.body.dataset.pageLayout = layout;
-  if (layout === "login" || layout === "auth" || layout === "app") {
-    document.body.dataset.theme = "light";
+  if (layout === "login" || layout === "auth" || layout === "app" || layout === "landing") {
+    document.documentElement.dataset.theme = "light";
   }
   document.title = `${config.title || "BZE"} | BZE Online Campus`;
   const title = document.getElementById("page-title");
@@ -1439,7 +3881,7 @@ function updateChrome(config, pathname) {
   const levelPill = document.getElementById("level-pill");
   const campusXpEl = document.getElementById("campus-xp-pill");
   if (mainTabs) {
-    mainTabs.hidden = chrome === "campus" || chrome === "tablet" || chrome === "q-play" || chrome === "learn-drill" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld" || chrome === "fk" || chrome === "exam" || chrome === "fp" || chrome === "bh" || chrome === "mehr" || chrome === "gx";
+    mainTabs.hidden = chrome === "campus" || chrome === "tablet" || chrome === "q-play" || chrome === "learn-drill" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld" || chrome === "fk" || chrome === "exam" || chrome === "fp" || chrome === "bh" || chrome === "mehr" || chrome === "gx" || chrome === "ov";
   }
   if (campusTabs) {
     campusTabs.hidden = chrome !== "campus";
@@ -1448,7 +3890,7 @@ function updateChrome(config, pathname) {
     learnTabs.hidden = chrome !== "learn-drill";
   }
   if (levelPill) {
-    levelPill.hidden = chrome === "campus" || chrome === "tablet" || chrome === "learn-drill" || chrome === "q-play" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld" || chrome === "fk" || chrome === "exam" || chrome === "fp" || chrome === "bh" || chrome === "mehr" || chrome === "gx";
+    levelPill.hidden = chrome === "campus" || chrome === "tablet" || chrome === "learn-drill" || chrome === "q-play" || chrome === "q-overlay" || chrome === "formel" || chrome === "ld" || chrome === "fk" || chrome === "exam" || chrome === "fp" || chrome === "bh" || chrome === "mehr" || chrome === "gx" || chrome === "ov";
   }
   if (campusXpEl) {
     campusXpEl.hidden = chrome !== "campus";
@@ -1481,7 +3923,7 @@ function updateChrome(config, pathname) {
       (tab === "learn" && view === "learn") ||
       (tab === "exam" && view === "exam") ||
       (tab === "progress" && view === "progress") ||
-      (tab === "reports" && view === "progress") ||
+      (tab === "reports" && view === "reports") ||
       (tab === "profile" && view === "profile");
     link.classList.toggle("active", Boolean(mapped));
   });
@@ -1523,12 +3965,99 @@ function updateChrome(config, pathname) {
 async function navigateTo(pathname, pushState = true) {
   const resolved = resolveRoute(pathname);
   const config = { ...resolved.config, path: resolved.pathname };
-  if (pushState && window.location.pathname !== resolved.pathname) {
-    window.history.pushState({}, "", resolved.pathname);
-  } else if (pushState && pathname !== resolved.pathname && routeConfig[pathname]?.aliasOf) {
-    window.history.replaceState({}, "", resolved.pathname);
+  if (window.location.pathname !== resolved.pathname) {
+    if (pushState && !routeConfig[pathname]?.aliasOf) {
+      window.history.pushState({}, "", resolved.pathname);
+    } else {
+      window.history.replaceState({}, "", resolved.pathname);
+    }
   }
   state.currentPath = resolved.pathname;
+  if (["/passwort", "/sprache", "/onboarding"].includes(resolved.pathname) && !state.accessToken) {
+    await navigateTo("/login", false);
+    return;
+  }
+  if (["/passwort", "/sprache", "/onboarding"].includes(resolved.pathname) && state.accessToken) {
+    try {
+      const profile = await fetchJson("/api/auth/me", { headers: authHeaders() });
+      syncAuthProfile(profile);
+    } catch (error) {
+      clearSession();
+      await navigateTo("/login", false);
+      return;
+    }
+  }
+  if (state.accessToken) {
+    if (resolved.pathname === "/passwort" && !state.authProfile.requires_password_change) {
+      await navigateTo(resolvePostLoginRoute(), false);
+      return;
+    }
+    if (
+      resolved.pathname === "/sprache" &&
+      state.authProfile.onboarding_completed &&
+      state.authProfile.privacy_consent_accepted
+    ) {
+      await navigateTo("/dashboard", false);
+      return;
+    }
+    if (resolved.pathname === "/onboarding" && state.authProfile.privacy_consent_accepted) {
+      await navigateTo("/dashboard", false);
+      return;
+    }
+  }
+  if (["/pruefungen/bestanden", "/pruefungen/durchgefallen"].includes(resolved.pathname)) {
+    if (!loadExamResult()) {
+      showToast("Kein Prüfungsergebnis vorhanden.");
+      await navigateTo("/pruefungen", false);
+      return;
+    }
+  }
+  if (resolved.pathname === "/level-up" && !loadLevelUp()) {
+    await navigateTo("/dashboard", false);
+    return;
+  }
+  if (resolved.pathname === "/" || config.layout === "landing") {
+    await bindLandingStats();
+  }
+  if (resolved.pathname === "/dashboard" || resolved.pathname.startsWith("/dashboard/")) {
+    if (state.accessToken) {
+      state.dashboard = await fetchJson("/api/dashboard", { headers: authHeaders() }).catch(
+        () => state.dashboard,
+      );
+    }
+  }
+  if (resolved.pathname.startsWith("/fachkunde")) {
+    const unitHeaders = state.accessToken ? authHeaders() : {};
+    state.units = await fetchJson("/api/learning/units", { headers: unitHeaders }).catch(
+      () => state.units || [],
+    );
+  }
+  if (["/lernen/fragen", "/lernen/fragen/fehler"].includes(resolved.pathname)) {
+    state.practiceMode = "all";
+    if (!state.allQuestions?.length) {
+      await loadAllQuestions();
+    } else {
+      state.questions = state.allQuestions;
+    }
+    await ensureQuestionProgress();
+  }
+  if (["/lernen/frage", "/lernen/detail"].includes(resolved.pathname)) {
+    if (state.practiceMode === "all") {
+      if (!state.allQuestions?.length) {
+        await loadAllQuestions();
+      } else {
+        state.questions = state.allQuestions;
+      }
+    } else if (!state.questions.length) {
+      await loadAllQuestions();
+    }
+    await ensureQuestionProgress();
+  }
+  if (["/lernen/feedback/richtig", "/lernen/feedback/falsch"].includes(resolved.pathname)) {
+    if (!state.questions.length) {
+      await loadAllQuestions();
+    }
+  }
   if (["app", "trainer", "admin"].includes(config.layout) && state.accessToken) {
     try {
       await ensureAuthenticated();
@@ -1546,6 +4075,16 @@ async function navigateTo(pathname, pushState = true) {
     return;
   }
   if (
+    ["/lernen", "/lernen/lernpfad", "/dashboard", "/lernen/einheit"].includes(resolved.pathname)
+  ) {
+    await loadAllUnits();
+    if (state.accessToken) {
+      state.journey = await fetchJson("/api/learning/journey", { headers: authHeaders() }).catch(
+        () => state.journey,
+      );
+    }
+  }
+  if (
     ["/lernen/einheit", "/fachkunde/einheit", "/fachkunde/bausteine"].includes(resolved.pathname)
   ) {
     if (!state.activeUnit && state.units[0]) {
@@ -1553,29 +4092,98 @@ async function navigateTo(pathname, pushState = true) {
     }
   }
   if (
-    ["/fachkunde/lernpfad", "/lernen/lernpfad", "/ausbilder/planung"].includes(resolved.pathname)
+    ["/fachkunde/lernpfad", "/ausbilder/planung"].includes(resolved.pathname)
   ) {
     await loadCurriculumBundle();
   }
-  if (["/gamification", "/gamification/xp", "/gamification/badges", "/gamification/streaks", "/fortschritt/xp"].includes(resolved.pathname) && state.accessToken) {
-    state.gamification = await fetchJson("/api/gamification", { headers: authHeaders() }).catch(
-      () => state.gamification,
-    );
+  if (
+    [
+      "/gamification",
+      "/gamification/xp",
+      "/gamification/badges",
+      "/gamification/streaks",
+      "/fortschritt",
+      "/fortschritt/xp",
+      "/pruefungen",
+      "/mehr",
+    ].includes(resolved.pathname) &&
+    state.accessToken
+  ) {
+    const [dashboard, journey, gamification] = await Promise.all([
+      fetchJson("/api/dashboard", { headers: authHeaders() }).catch(() => state.dashboard),
+      fetchJson("/api/learning/journey", { headers: authHeaders() }).catch(() => state.journey),
+      fetchJson("/api/gamification", { headers: authHeaders() }).catch(() => state.gamification),
+    ]);
+    state.dashboard = dashboard;
+    state.journey = journey;
+    state.gamification = gamification;
+    if (resolved.pathname === "/pruefungen") {
+      await ensureQuestionProgress();
+    }
   }
   if (["/mehr/coach", "/mehr/lernplan"].includes(resolved.pathname) && state.accessToken) {
     state.coachPlan = await fetchJson("/api/coach/plan", { headers: authHeaders() }).catch(
       () => state.coachPlan,
     );
   }
+  const examLivePaths = [
+    "/pruefungen/frage",
+    "/pruefungen/uebersicht",
+    "/pruefungen/abgabe",
+    "/pruefungen/timer",
+  ];
+  if (examLivePaths.includes(resolved.pathname)) {
+    if (!state.examSession?.session_id) {
+      showToast("Keine aktive Prüfungssession.");
+      if (resolved.pathname !== "/pruefungen") {
+        await navigateTo("/pruefungen", false);
+      }
+      return;
+    }
+    try {
+      await refreshExamProgress(getCurrentExamQuestion()?.question_id);
+    } catch (error) {
+      showToast(error.message);
+      resetExamAttempt();
+      if (resolved.pathname !== "/pruefungen") {
+        await navigateTo("/pruefungen", false);
+      }
+      return;
+    }
+  }
   updateChrome(config, resolved.pathname);
   renderScreen(config);
 }
 
-async function loadLearnMonth(month) {
+async function loadAllUnits() {
+  const unitHeaders = state.accessToken ? authHeaders() : {};
+  state.units = await fetchJson("/api/learning/units", { headers: unitHeaders }).catch(
+    () => state.units || [],
+  );
+}
+
+async function loadAllQuestions() {
+  const [questions, categories] = await Promise.all([
+    fetchJson("/api/questions"),
+    fetchJson("/api/questions/categories"),
+  ]);
+  state.allQuestions = questions;
+  state.questions = questions;
+  state.chapter = {
+    title: "Alle Fragen",
+    subchapters: categories,
+  };
+}
+
+async function loadLearnMonth(month, { resetIndex = false } = {}) {
+  const monthChanged = state.learnMonth !== month;
   state.learnMonth = month;
-  state.currentQuestionIndex = 0;
+  if (resetIndex || monthChanged || !state.questions.length) {
+    state.currentQuestionIndex = 0;
+  }
+  const unitHeaders = state.accessToken ? authHeaders() : {};
   const [units, questions, categories] = await Promise.all([
-    fetchJson(`/api/learning/units?month=${month}`),
+    fetchJson(`/api/learning/units?month=${month}`, { headers: unitHeaders }),
     fetchJson(`/api/questions?month=${month}`),
     fetchJson(`/api/questions/categories?month=${month}`),
   ]);
@@ -1589,31 +4197,512 @@ async function loadLearnMonth(month) {
 
 async function init() {
   state.chapter = await fetchJson("/api/learning/first-chapter");
-  state.questions = await fetchJson("/api/questions?month=1");
-  state.units = await fetchJson("/api/learning/units?month=1");
+  await loadAllUnits();
   state.exams = await fetchJson("/api/exams");
   state.activeExam =
-    state.exams.find((exam) => exam.exam_id === "checkpoint-01") || state.exams[0] || null;
+    state.exams.find((exam) => exam.exam_id === EXAM_SHORTCUT_IDS.diag) || state.exams[0] || null;
   await loadCurriculumBundle();
+  state.contentStats = await fetchJson("/api/content/stats").catch(() => null);
+  loadExamResult();
+  loadLevelUp();
   if (state.accessToken) {
     try {
       await refreshPrivateData();
     } catch (error) {
       clearSession();
     }
+  } else {
+    applyAppearance();
   }
   await navigateTo(window.location.pathname, false);
 }
 
 document.addEventListener("click", async (event) => {
-  const target = event.target.closest("a, button");
+  const target = event.target.closest("a, button, [data-action]");
   if (!target) {
     return;
   }
   try {
+    if (target.dataset.action === "filter-formulas") {
+      event.preventDefault();
+      const topic = target.dataset.topic === "alle" ? "" : target.dataset.topic;
+      state.formulas = await fetchJson(topic ? `/api/formulas?topic=${encodeURIComponent(topic)}` : "/api/formulas");
+      renderFormulas(document.getElementById("screen-root") || document, state.formulas);
+      return;
+    }
+    if (target.dataset.action === "practice-formula") {
+      event.preventDefault();
+      await requireAuth();
+      await fetchJson(`/api/formulas/${target.dataset.slug}/practice`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ correct: true }),
+      });
+      await refreshPrivateData();
+      showToast("Formel geuebt. +XP");
+      return;
+    }
+    if (target.dataset.action === "solve-diagnosis") {
+      event.preventDefault();
+      await requireAuth();
+      const result = await fetchJson(`/api/diagnosis/${target.dataset.slug}/solve`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ selected_option_index: Number(target.dataset.index || 0) }),
+      });
+      showToast(result.is_correct ? "Richtig diagnostiziert" : result.explanation);
+      state.activeDiagnosisSlug = null;
+      state.diagnosisCases = await fetchJson("/api/diagnosis", { headers: authHeaders() });
+      renderDiagnosis(document.getElementById("screen-root") || document, state.diagnosisCases);
+      return;
+    }
+    if (target.dataset.action === "open-diagnosis") {
+      event.preventDefault();
+      state.activeDiagnosisSlug = target.dataset.slug;
+      renderDiagnosis(document.getElementById("screen-root") || document, state.diagnosisCases);
+      return;
+    }
+    if (target.dataset.action === "watch-video" || target.dataset.action === "seek-video" || target.dataset.action === "open-video") {
+      event.preventDefault();
+      await requireAuth();
+      const slug = target.dataset.slug || state.activeVideoSlug;
+      if (!slug) {
+        return;
+      }
+      state.activeVideoSlug = slug;
+      if (target.dataset.action === "open-video") {
+        state.videos = await fetchJson("/api/videos", { headers: authHeaders() });
+        renderVideos(document.getElementById("screen-root") || document, state.videos);
+      }
+      const video = (state.videos || []).find((item) => item.slug === slug);
+      const duration = video?.duration_seconds || 120;
+      const watched =
+        target.dataset.action === "seek-video"
+          ? Number(target.dataset.seconds || 0)
+          : Math.min(duration, (video?.watched_seconds || 0) + 30);
+      const completed = watched >= duration - 5;
+      await fetchJson(`/api/videos/${slug}/progress`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ watched_seconds: watched, completed }),
+      });
+      state.videos = await fetchJson("/api/videos", { headers: authHeaders() });
+      renderVideos(document.getElementById("screen-root") || document, state.videos);
+      showToast(completed ? "Videolektion abgeschlossen" : "Videofortschritt gespeichert");
+      return;
+    }
+    if (target.dataset.action === "speak-translation") {
+      event.preventDefault();
+      const root = document.getElementById("screen-root") || document;
+      const text = root.dataset.speak || root.querySelector(".term-de")?.textContent || "";
+      if (window.speechSynthesis && text) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = state.selectedLanguage === "en" ? "en-GB" : "de-DE";
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      }
+      showToast("Aussprache");
+      return;
+    }
+    if (target.dataset.action === "bookmark-term") {
+      event.preventDefault();
+      const root = document.getElementById("screen-root") || document;
+      const term = root.dataset.term || root.querySelector(".term-de")?.textContent;
+      if (term) {
+        const bookmarks = JSON.parse(localStorage.getItem("ol_bookmarks") || "[]");
+        if (!bookmarks.includes(term)) {
+          bookmarks.push(term);
+          localStorage.setItem("ol_bookmarks", JSON.stringify(bookmarks));
+        }
+      }
+      showToast("Zur Merkliste hinzugefügt");
+      await navigateTo("/dashboard/merksaetze");
+      return;
+    }
+    if (target.dataset.action === "set-theme") {
+      event.preventDefault();
+      await requireAuth();
+      state.preferences = await fetchJson("/api/me/preferences", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ theme: target.dataset.theme }),
+      });
+      applyAppearance(state.preferences);
+      bindAppearanceScreen(document.getElementById("screen-root") || document);
+      showToast("Darstellung gespeichert");
+      return;
+    }
+    if (target.dataset.action === "toggle-pref") {
+      event.preventDefault();
+      await requireAuth();
+      const key = target.dataset.pref;
+      const next = target.getAttribute("aria-pressed") !== "true";
+      state.preferences = await fetchJson("/api/me/preferences", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ [key]: next }),
+      });
+      applyAppearance(state.preferences);
+      bindAppearanceScreen(document.getElementById("screen-root") || document);
+      showToast("Einstellung gespeichert");
+      return;
+    }
+    if (target.dataset.action === "toggle-notification") {
+      event.preventDefault();
+      await requireAuth();
+      const key = target.dataset.setting;
+      const next = target.getAttribute("aria-pressed") !== "true";
+      state.notificationSettings = await fetchJson("/api/me/notifications/settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ [key]: next }),
+      });
+      bindNotificationScreen(document.getElementById("screen-root") || document);
+      showToast("Benachrichtigung gespeichert");
+      return;
+    }
+    if (target.dataset.action === "coach-send" || target.dataset.action === "coach-chip") {
+      event.preventDefault();
+      await requireAuth();
+      const input = document.querySelector("[data-coach-input]");
+      const message =
+        target.dataset.action === "coach-chip"
+          ? target.dataset.message
+          : String(input?.value || "").trim();
+      if (!message) {
+        return;
+      }
+      if (input) {
+        input.value = "";
+      }
+      ensureCoachMessages();
+      state.coachMessages.push({ role: "me", text: message, time: coachTime() });
+      const reply = await fetchJson("/api/coach/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({ message }),
+      });
+      state.coachMessages.push({
+        role: "ai",
+        text: reply.reply,
+        href: reply.href,
+        time: coachTime(),
+      });
+      if (window.location.pathname.startsWith("/mehr/coach")) {
+        renderCoachChat(document.getElementById("screen-root") || document);
+      } else if (reply.href) {
+        await navigateTo(reply.href);
+      }
+      return;
+    }
+    if (target.dataset.action === "coach-attach") {
+      event.preventDefault();
+      showToast("Anhänge folgen in einer späteren Version. Schreibe deine Frage als Text.");
+      return;
+    }
+    if (target.dataset.action === "apply-report-suggest") {
+      event.preventDefault();
+      await requireAuth();
+      const draft =
+        state.reportSuggest ||
+        (await fetchJson("/api/training-reports/suggest", { headers: authHeaders() }));
+      state.reportSuggest = draft;
+      showToast("Vorschlag übernommen");
+      await navigateTo("/berichtsheft/neu");
+      return;
+    }
+    if (target.dataset.action === "dismiss-report-suggest") {
+      event.preventDefault();
+      state.reportSuggest = null;
+      showToast("Vorschlag verworfen");
+      await navigateTo("/berichtsheft/neu");
+      return;
+    }
+    if (target.dataset.action === "save-report-draft") {
+      event.preventDefault();
+      const form = target.closest("form") || document.querySelector("form[data-action='create-report']");
+      if (form) {
+        await saveTrainingReport(form, "draft");
+      }
+      return;
+    }
+    if (target.dataset.action === "sign-report") {
+      event.preventDefault();
+      await requireAuth();
+      const checkbox = document.querySelector(".bh-sig-check input");
+      if (checkbox && !checkbox.checked) {
+        showToast("Bitte die Richtigkeit bestätigen");
+        return;
+      }
+      const reports = state.trainingReports.length
+        ? state.trainingReports
+        : await fetchJson("/api/training-reports", { headers: authHeaders() });
+      const draft = reports.find((row) => row.status === "draft") || reports[0];
+      if (!draft) {
+        showToast("Kein Eintrag zum Unterschreiben");
+        return;
+      }
+      await fetchJson(`/api/training-reports/${draft.id}/sign`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      await refreshPrivateData();
+      showToast("Zur Unterschrift eingereicht");
+      await navigateTo("/berichtsheft");
+      return;
+    }
+    if (target.dataset.action === "export-report-pdf") {
+      event.preventDefault();
+      await requireAuth();
+      const response = await fetch("/api/training-reports/export.pdf", { headers: authHeaders() });
+      if (!response.ok) {
+        throw new Error("PDF-Export fehlgeschlagen");
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "berichtsheft.pdf";
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("PDF heruntergeladen");
+      return;
+    }
+    if (target.dataset.action === "tz-iso") {
+      event.preventDefault();
+      const wrap = target.closest(".fk-tz-iso");
+      wrap?.querySelectorAll("button").forEach((btn) => btn.classList.toggle("active", btn === target));
+      updateToleranceCard(document.getElementById("screen-root") || document);
+      return;
+    }
+    if (target.dataset.action === "tz-fit") {
+      event.preventDefault();
+      const root = document.getElementById("screen-root") || document;
+      const hole = isoDeviations(root.querySelector(".fk-tz-iso button.active")?.dataset.iso || "H7");
+      const shaft = isoDeviations("g6");
+      const minClear = hole.ei - shaft.es;
+      const result = root.querySelector(".fk-tz-result p");
+      if (result) {
+        result.innerHTML = `Spielpassung <span>— Mindestspiel:</span> <b>${minClear.toFixed(3)} mm</b>`;
+      }
+      showToast("Passung berechnet");
+      return;
+    }
+    if (target.dataset.action === "sg-next" || target.dataset.action === "sg-prev" || target.dataset.action === "sg-phase") {
+      event.preventDefault();
+      const root = document.getElementById("screen-root") || document;
+      let index = state.injectionPhase || 0;
+      if (target.dataset.action === "sg-next") {
+        index = Math.min(SG_PHASES.length - 1, index + 1);
+      } else if (target.dataset.action === "sg-prev") {
+        index = Math.max(0, index - 1);
+      } else {
+        index = Number(target.dataset.phase || 0);
+      }
+      renderInjectionPhase(root, index);
+      return;
+    }
+    if (target.dataset.action === "ms-select") {
+      event.preventDefault();
+      state.caliperChoice = target.dataset.value;
+      const wrap = target.closest(".fk-ms-options");
+      wrap?.querySelectorAll(".fk-ms-opt").forEach((btn) => {
+        const on = btn === target;
+        btn.classList.toggle("selected", on);
+        const img = btn.querySelector("img");
+        if (img) {
+          img.src = on ? "/static/figma/fk/fk-ms-radio-on.svg" : "/static/figma/fk/fk-ms-radio.svg";
+        }
+      });
+      return;
+    }
+    if (target.dataset.action === "ms-submit") {
+      event.preventDefault();
+      const ok = String(state.caliperChoice || "23.5") === "23.5";
+      showToast(ok ? "Richtig: 23 mm + 0.5 mm Nonius = 23.5 mm" : "Nicht ganz. Hauptskala 23 mm, Nonius 0.5 mm.");
+      return;
+    }
+    if (target.dataset.action === "toast" && /Vorschlag übernommen|Vorschlag uebernommen/.test(target.dataset.toast || "")) {
+      event.preventDefault();
+      await requireAuth();
+      const draft = await fetchJson("/api/training-reports/suggest", { headers: authHeaders() });
+      const textarea = document.querySelector("textarea[name='activities'], textarea.bh-ne-input, textarea");
+      if (textarea) {
+        textarea.value = draft.activities;
+      }
+      showToast("Vorschlag aus Lernstand übernommen");
+      return;
+    }
+    if (target.dataset.action === "toast" && /PDF/.test(target.dataset.toast || "")) {
+      event.preventDefault();
+      await requireAuth();
+      const exported = await fetchJson("/api/training-reports/export", { headers: authHeaders() });
+      const blob = new Blob([exported.body], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = exported.filename || "berichtsheft-export.txt";
+      link.click();
+      URL.revokeObjectURL(url);
+      showToast("Berichtsheft-Export heruntergeladen");
+      return;
+    }
+    if (target.dataset.action === "toast" && /Unterschrift/.test(target.dataset.toast || "")) {
+      event.preventDefault();
+      await requireAuth();
+      const reports = state.trainingReports.length
+        ? state.trainingReports
+        : await fetchJson("/api/training-reports", { headers: authHeaders() });
+      const draft = reports.find((row) => row.status === "draft") || reports[0];
+      if (!draft) {
+        showToast("Kein Eintrag zum Unterschreiben");
+        return;
+      }
+      await fetchJson(`/api/training-reports/${draft.id}/sign`, {
+        method: "POST",
+        headers: authHeaders(),
+      });
+      await refreshPrivateData();
+      showToast("Zur Unterschrift eingereicht");
+      return;
+    }
+    if (target.dataset.action === "toast" && /Meldung gesendet/.test(target.dataset.toast || "")) {
+      event.preventDefault();
+      await requireAuth();
+      const question = state.questions[state.currentQuestionIndex] || {};
+      await fetchJson("/api/content/flags", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", ...authHeaders() },
+        body: JSON.stringify({
+          entity_type: "quiz_question",
+          entity_key: question.question_id || "unknown",
+          reason: "meldung",
+          notes: "Aus der App gemeldet.",
+        }),
+      });
+      showToast("Meldung gespeichert");
+      return;
+    }
+    if (target.dataset.action === "exam-submit-confirm") {
+      event.preventDefault();
+      await submitExamSession();
+      return;
+    }
+    if (target.dataset.action === "practice-questions") {
+      event.preventDefault();
+      await startPracticeQuestions(target.dataset.practiceFilter || "all");
+      return;
+    }
+    if (target.dataset.action === "practice-start") {
+      event.preventDefault();
+      state.practiceMode = "all";
+      if (!state.allQuestions?.length) {
+        await loadAllQuestions();
+      }
+      const pool = filteredPracticeQuestions();
+      const full = practiceQuestionPool();
+      if (!pool.length) {
+        showToast("Keine Fragen in diesem Filter.");
+        return;
+      }
+      state.questions = full;
+      state.currentQuestionIndex = Math.max(
+        0,
+        full.findIndex((question) => question.question_id === pool[0].question_id),
+      );
+      await navigateTo("/lernen/frage");
+      return;
+    }
+    if (target.dataset.action === "practice-filter") {
+      event.preventDefault();
+      state.practiceFilter = target.dataset.practiceFilter || "all";
+      await navigateTo("/lernen/fragen");
+      return;
+    }
+    if (target.dataset.action === "exam-kind-filter") {
+      event.preventDefault();
+      state.examKindFilter = target.dataset.examKind || "alle";
+      bindExamHub(document.getElementById("screen-root") || document, { path: "/pruefungen" });
+      return;
+    }
     if (target.dataset.action === "exam-start-shortcut" || target.id === "exam-start") {
       event.preventDefault();
-      await startExamSession();
+      const shortcut = target.closest("[data-action='exam-start-shortcut']") || target;
+      const examId =
+        shortcut.dataset.examId ||
+        EXAM_SHORTCUT_IDS[shortcut.dataset.examKey || ""] ||
+        null;
+      await startExamShortcut(examId);
+      return;
+    }
+    if (target.dataset.examAction === "choice" || target.closest("[data-exam-action='choice']")) {
+      event.preventDefault();
+      const button = target.closest("[data-exam-action='choice']") || target;
+      await saveExamChoiceAnswer(button.dataset.questionId, Number(button.dataset.index));
+      const progress = state.examProgress;
+      if ((progress?.answered_count || 0) >= (progress?.total_questions || 0)) {
+        await navigateTo("/pruefungen/abgabe", false);
+      } else {
+        await gotoNextExamQuestion();
+      }
+      return;
+    }
+    if (target.dataset.examAction === "next") {
+      event.preventDefault();
+      await gotoNextExamQuestion();
+      return;
+    }
+    if (target.dataset.examAction === "prev") {
+      event.preventDefault();
+      await gotoPreviousExamQuestion();
+      return;
+    }
+    if (target.dataset.examAction === "toggle-mark") {
+      event.preventDefault();
+      await toggleExamMark(getCurrentExamQuestion()?.question_id);
+      return;
+    }
+    if (target.dataset.examAction === "goto-current") {
+      event.preventDefault();
+      await gotoExamQuestion(state.examProgress?.current_question_id);
+      return;
+    }
+    if (target.dataset.examAction === "goto-question" || target.closest("[data-exam-action='goto-question']")) {
+      event.preventDefault();
+      const button = target.closest("[data-exam-action='goto-question']") || target;
+      await gotoExamQuestion(button.dataset.questionId, Number(button.dataset.qIndex || "0"));
+      return;
+    }
+    if (target.dataset.learnAction === "retry") {
+      event.preventDefault();
+      await advanceLearnQuestion(true);
+      return;
+    }
+    if (target.dataset.learnAction === "next") {
+      event.preventDefault();
+      await advanceLearnQuestion(false);
+      return;
+    }
+    if (target.dataset.action === "start-unit" || target.dataset.action === "start-next-unit") {
+      event.preventDefault();
+      await startLearnUnit(target.dataset.unitSlug || currentLearnUnit()?.slug);
+      return;
+    }
+    if (target.dataset.action === "open-unit") {
+      event.preventDefault();
+      await openLearnUnit(target.dataset.unitSlug || currentLearnUnit()?.slug);
+      return;
+    }
+    if (target.dataset.action === "next-formula") {
+      event.preventDefault();
+      const formulas = state.formulas || [];
+      if (!formulas.length) {
+        return;
+      }
+      const index = formulas.findIndex((item) => item.slug === state.activeFormulaSlug);
+      const next = formulas[(index + 1 + formulas.length) % formulas.length];
+      state.activeFormulaSlug = next.slug;
+      renderFlashcard(document.getElementById("screen-root") || document, formulas);
       return;
     }
     if (target.matches("[data-page-link]")) {
@@ -1638,7 +4727,7 @@ document.addEventListener("click", async (event) => {
     if (target.matches("[data-login-demo]")) {
       event.preventDefault();
       await login("demo-azubi", "demo-pass", "BZE-2026-F");
-      await navigateTo("/dashboard");
+      await navigateTo(resolvePostLoginRoute());
       return;
     }
     if (target.dataset.action === "toast") {
@@ -1658,8 +4747,53 @@ document.addEventListener("click", async (event) => {
       return;
     }
     if (target.dataset.action === "privacy-consent") {
-      await recordConsent(target.dataset.accepted !== "false");
-      await navigateTo("/dashboard");
+      await completeOnboardingFlow();
+      return;
+    }
+    if (target.dataset.action === "save-language") {
+      event.preventDefault();
+      await saveLanguagePreference();
+      return;
+    }
+    if (target.matches("[data-bind='level-up-continue']")) {
+      event.preventDefault();
+      const payload = loadLevelUp();
+      const href = target.getAttribute("href") || payload?.returnTo || "/dashboard";
+      clearLevelUp();
+      if (href === LEARN_CONTINUE) {
+        await goToNextLearnStep(false);
+        return;
+      }
+      await navigateTo(href);
+      return;
+    }
+    if (target.matches(".lang-row[data-lang]")) {
+      event.preventDefault();
+      state.selectedLanguage = target.dataset.lang || "de";
+      const list = target.closest(".lang-list");
+      if (list) {
+        list.querySelectorAll(".lang-row[data-lang]").forEach((row) => {
+          const selected = row === target;
+          row.classList.toggle("active", selected);
+          row.setAttribute("aria-selected", selected ? "true" : "false");
+          const check = row.querySelector(".lang-check");
+          const radio = row.querySelector(".lang-radio");
+          if (check) {
+            check.hidden = !selected;
+          }
+          if (radio) {
+            radio.hidden = selected;
+          }
+        });
+      }
+      if (state.accessToken) {
+        state.preferences = await fetchJson("/api/me/preferences", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", ...authHeaders() },
+          body: JSON.stringify({ language: state.selectedLanguage }),
+        });
+        applyAppearance(state.preferences);
+      }
       return;
     }
     if (target.dataset.action === "reset-progress") {
@@ -1687,8 +4821,8 @@ document.addEventListener("click", async (event) => {
       return;
     }
     if (target.dataset.action === "load-month") {
-      await loadLearnMonth(Number(target.dataset.month || "1"));
-      showToast(`Monat ${state.learnMonth} geladen`);
+      state.learnMonth = Number(target.dataset.month || "1");
+      showToast(`Monat ${state.learnMonth}`);
       await navigateTo("/lernen", false);
       return;
     }
@@ -1710,9 +4844,12 @@ document.addEventListener("click", async (event) => {
       await saveExamChoiceAnswer(target.dataset.questionId, Number(target.dataset.index));
       return;
     }
-    if (target.matches(".answer-option") && target.dataset.index !== undefined) {
-      const optionsRoot = target.closest("[data-bind='live-answers']") || target.parentElement;
-      optionsRoot.querySelectorAll(".answer-option").forEach((el) => el.classList.remove("selected"));
+    if (target.matches(".answer-option, .ld-answer") && target.dataset.index !== undefined) {
+      const optionsRoot =
+        target.closest("[data-bind='live-answers'], .ld-answers") || target.parentElement;
+      optionsRoot.querySelectorAll(".answer-option, .ld-answer").forEach((el) => {
+        el.classList.remove("selected");
+      });
       target.classList.add("selected");
       const confirmBtn = document.querySelector("[data-action='confirm-answer']");
       if (confirmBtn) {
@@ -1758,6 +4895,18 @@ document.addEventListener("click", async (event) => {
         radio.replaceWith(wrap);
       }
       const label = target.querySelector(".lang-left")?.textContent?.trim() || target.textContent;
+      const language = /english|englisch/i.test(label)
+        ? "en"
+        : /türk|tuerk|turk/i.test(label)
+          ? "tr"
+          : "de";
+      if (state.accessToken) {
+        await fetchJson("/api/me/preferences", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json", ...authHeaders() },
+          body: JSON.stringify({ language }),
+        });
+      }
       showToast(`Sprache: ${label}`);
     }
   } catch (error) {
@@ -1798,7 +4947,7 @@ document.addEventListener("submit", async (event) => {
         loginFeedback.hidden = false;
         loginFeedback.textContent = "Angemeldet. Serverseitiger Lernstand ist aktiv.";
       }
-      await navigateTo("/onboarding");
+      await navigateTo(resolvePostLoginRoute());
       return;
     }
     if (form.dataset.action === "change-password") {
@@ -1812,7 +4961,7 @@ document.addEventListener("submit", async (event) => {
     }
     if (form.dataset.action === "create-report") {
       event.preventDefault();
-      await saveTrainingReport(form);
+      await saveTrainingReport(form, "submitted");
     }
   } catch (error) {
     showToast(error.message);
@@ -1821,6 +4970,19 @@ document.addEventListener("submit", async (event) => {
       feedback.textContent = error.message;
     }
   }
+});
+
+document.addEventListener("keydown", async (event) => {
+  if (event.key !== "Enter") {
+    return;
+  }
+  const input = event.target?.closest?.("[data-coach-input]");
+  if (!input) {
+    return;
+  }
+  event.preventDefault();
+  const send = document.querySelector("[data-action='coach-send']");
+  send?.click();
 });
 
 window.addEventListener("popstate", async () => {

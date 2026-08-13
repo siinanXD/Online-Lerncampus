@@ -760,6 +760,8 @@ def first_chapter_payload(
     chapter = first_chapter or load_python_bundle().first_chapter
     slugs = chapter["category_slugs"]
     categories = [row for row in category_rows if row["slug"] in slugs]
+    if not categories:
+        categories = list(category_rows)
     categories.sort(key=lambda row: row["subchapter_number"])
     return {
         "title": chapter["title"],

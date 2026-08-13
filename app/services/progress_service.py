@@ -83,6 +83,7 @@ class ProgressService:
         questions = self.question_repository.list_questions()
         total_questions = len(questions)
         wrong = sum(item.wrong_count for item in learner_progress.values())
+        buckets = self._question_buckets(questions, learner_progress)
         weak_categories = self._weak_categories(learner_progress)
         return {
             "learner_id": learner_id,
@@ -90,6 +91,9 @@ class ProgressService:
             "mastered_questions": gamification["mastered_questions"],
             "total_questions": total_questions,
             "wrong_answers": wrong,
+            "open_questions": buckets["open"],
+            "correct_once_questions": buckets["once"],
+            "wrong_questions": buckets["wrong"],
             "xp": gamification["xp"],
             "level": gamification["level"],
             "streak_days": gamification["streak_days"],
@@ -208,6 +212,52 @@ class ProgressService:
             "weak_categories": weak,
         }
 
+    def coach_chat(self, learner_id: str, message: str) -> dict[str, object]:
+        """Answer a learner message from the current coaching plan (no LLM)."""
+        plan = self.coach_plan(learner_id)
+        tips = list(plan["tips"] or [])
+        lowered = (message or "").strip().lower()
+        href: str | None = None
+        if any(token in lowered for token in ("formel", "kolben", "kraft", "berechn")):
+            reply = (
+                "Die Kolbenkraft ist F = p × A. Faustformel: p in bar und A in cm² "
+                "ergibt F in N (Beispiel 6 bar × 20 cm² = 120 N). "
+                "Im Formeltrainer kannst du das direkt üben."
+            )
+            href = "/lernen/formeltrainer"
+        elif any(token in lowered for token in ("plan", "woche", "lernplan", "fokus")):
+            tip = tips[1] if len(tips) > 1 else (tips[0] if tips else None)
+            reply = (
+                f"{plan['greeting']} Fokus Monat {plan['focus_month']}. "
+                f"{tip['body'] if tip else 'Arbeite die offene Lerneinheit ab.'}"
+            )
+            href = str((tip or {}).get("action_href") or "/mehr/lernplan")
+        elif any(token in lowered for token in ("fehler", "schwach", "wiederhol")):
+            tip = tips[0] if tips else None
+            reply = str((tip or {}).get("body") or "Wiederhole zuerst deine Fehlerfragen.")
+            href = str((tip or {}).get("action_href") or "/lernen/fragen/fehler")
+        elif any(token in lowered for token in ("prüfung", "pruefung", "reife", "exam")):
+            tip = tips[-1] if tips else None
+            reply = (
+                f"Aktuelle Prüfungsreife: {plan['readiness_percent']}%. "
+                f"{(tip or {}).get('body') or 'Mache als Nächstes eine Checkpoint-Session.'}"
+            )
+            href = str((tip or {}).get("action_href") or "/pruefungen")
+        elif any(token in lowered for token in ("danke", "alles klar", "ok")):
+            reply = "Gern. Als Nächstes: Lernplan öffnen oder fünf Fragen üben."
+            href = "/mehr/lernplan"
+        elif any(token in lowered for token in ("übung", "uebung", "fragen")):
+            reply = "Starten wir mit Fragen üben — zuerst offene, dann Fehlerfragen."
+            href = "/lernen/fragen"
+        else:
+            tip = tips[0] if tips else None
+            reply = (
+                f"{plan['greeting']} Fokus Monat {plan['focus_month']}. "
+                f"{(tip or {}).get('body') or 'Setze die aktuelle Lerneinheit fort.'}"
+            )
+            href = str((tip or {}).get("action_href") or "/lernen")
+        return {"reply": reply, "href": href}
+
     def learning_journey(self, learner_id: str) -> list[dict[str, object]]:
         """Return month-by-month journey state for one learner."""
         learner_progress = self.database.list_question_progress(learner_id)
@@ -219,6 +269,7 @@ class ProgressService:
                 question.question_id
             )
         months: list[dict[str, object]] = []
+        previous_complete = True
         for month_number in range(1, 25):
             month_categories = [
                 category for category in categories if category.month == month_number
@@ -236,13 +287,14 @@ class ProgressService:
             months.append(
                 {
                     "month": month_number,
-                    "title": month_categories[0].chapter_title if month_categories else "",
+                    "title": month_categories[0].chapter_title if month_categories else f"Monat {month_number}",
                     "completed_categories": completed_categories,
                     "total_categories": total,
-                    "locked": month_number > 1 and completed_categories == 0,
+                    "locked": month_number > 1 and not previous_complete,
                     "checkpoint": month_number in (12, 24),
                 }
             )
+            previous_complete = total == 0 or completed_categories >= total
         return months
 
     def reset(self, learner_id: str) -> None:
@@ -290,6 +342,38 @@ class ProgressService:
             questions_total=len(questions),
         )
 
+    def list_question_progress_items(self, learner_id: str) -> list[dict[str, object]]:
+        """Return compact progress rows for every attempted question."""
+        return [
+            {
+                "question_id": item.question_id,
+                "answered_count": item.answered_count,
+                "wrong_count": item.wrong_count,
+                "correct_streak": item.correct_streak,
+                "mastered": item.mastered,
+            }
+            for item in self.database.list_question_progress(learner_id).values()
+        ]
+
+    @staticmethod
+    def _question_buckets(questions, learner_progress: dict[str, QuestionProgress]) -> dict[str, int]:
+        """Split questions into open / once-correct / wrong / mastered buckets."""
+        open_count = 0
+        once = 0
+        wrong = 0
+        done = 0
+        for question in questions:
+            item = learner_progress.get(question.question_id)
+            if item is None or item.answered_count <= 0:
+                open_count += 1
+            elif item.mastered:
+                done += 1
+            elif item.correct_streak >= 1:
+                once += 1
+            else:
+                wrong += 1
+        return {"open": open_count, "once": once, "wrong": wrong, "done": done}
+
     def _weak_categories(
         self,
         learner_progress: dict[str, QuestionProgress],
@@ -299,6 +383,11 @@ class ProgressService:
             question.question_id: question
             for question in self.question_repository.list_questions()
         }
+        category_totals: dict[str, int] = {}
+        for question in questions.values():
+            category_totals[question.category_slug] = (
+                category_totals.get(question.category_slug, 0) + 1
+            )
         category_counts: dict[str, int] = {}
         for question_id, progress in learner_progress.items():
             if progress.wrong_count <= 0:
@@ -309,14 +398,25 @@ class ProgressService:
             category_counts[question.category_slug] = (
                 category_counts.get(question.category_slug, 0) + progress.wrong_count
             )
-        return [
-            {"category_slug": category_slug, "wrong_count": wrong_count}
-            for category_slug, wrong_count in sorted(
-                category_counts.items(),
-                key=lambda item: item[1],
-                reverse=True,
-            )[:5]
-        ]
+        rows: list[dict[str, object]] = []
+        for category_slug, wrong_count in sorted(
+            category_counts.items(),
+            key=lambda item: item[1],
+            reverse=True,
+        )[:5]:
+            total = category_totals.get(category_slug, wrong_count)
+            correct = max(total - wrong_count, 0)
+            percent = round((correct / total) * 100) if total else 0
+            rows.append(
+                {
+                    "category_slug": category_slug,
+                    "wrong_count": wrong_count,
+                    "total_count": total,
+                    "correct_count": correct,
+                    "percent": percent,
+                }
+            )
+        return rows
 
     def _streak_stats(self, learner_id: str) -> tuple[int, int]:
         """Compute current and longest consecutive activity-day streaks."""

@@ -173,3 +173,8 @@
   --login-border: #334155;
   --login-gradient-end: #0f172a;
 }
+
+:root.high-contrast {
+  --fg: #000000;
+  --border: #111827;
+}

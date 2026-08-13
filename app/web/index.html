@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="de">
+<html lang="de" data-theme="light">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="/static/ui.css" />
     <link rel="stylesheet" href="/static/gx.css" />
   </head>
-  <body data-page-layout="landing" data-theme="light">
+  <body data-page-layout="landing">
     <script>
       (() => {
         const path = (location.pathname || "/").replace(/\/+$/, "") || "/";
@@ -25,8 +25,17 @@
         else if (path.startsWith("/admin")) layout = "admin";
         else if (path !== "/" && path !== "/funktionen") layout = "app";
         document.body.dataset.pageLayout = layout;
-        if (layout === "login" || layout === "auth" || layout === "app") {
-          document.body.dataset.theme = "light";
+        if (layout === "login" || layout === "auth" || layout === "app" || layout === "landing") {
+          const stored = localStorage.getItem("ol_theme") || "light";
+          if (stored === "system") {
+            document.documentElement.dataset.theme = window.matchMedia("(prefers-color-scheme: dark)").matches
+              ? "dark"
+              : "light";
+          } else {
+            document.documentElement.dataset.theme = stored;
+          }
+          document.documentElement.classList.toggle("high-contrast", localStorage.getItem("ol_high_contrast") === "1");
+          document.documentElement.classList.toggle("reduce-motion", localStorage.getItem("ol_reduce_motion") === "1");
         }
       })();
     </script>
@@ -45,7 +54,7 @@
     </header>
 
     <main id="top">
-      <section class="hero-section" data-shell="landing">
+      <section class="hero-section" data-shell="landing" data-node-id="136:2948" data-name="01.5 Landing Page">
         <div class="hero-copy">
           <p class="pill">Maschinen- und Anlagenfuehrer · Metall/Kunststoff</p>
           <h1>BZE Online Campus</h1>
@@ -54,9 +63,9 @@
             pruefungsnah.
           </p>
           <div class="hero-stats" aria-label="Kennzahlen">
-            <span><strong>480</strong> Fragen</span>
-            <span><strong>144</strong> Lerneinheiten</span>
-            <span><strong>20</strong> Testpruefungen</span>
+            <span><strong data-bind="stat-questions">—</strong> Fragen</span>
+            <span><strong data-bind="stat-units">—</strong> Lerneinheiten</span>
+            <span><strong data-bind="stat-exams">—</strong> Testpruefungen</span>
           </div>
           <div class="hero-actions">
             <a class="primary-button" href="/login" data-page-link>Login starten</a>
@@ -67,7 +76,7 @@
           <div class="phone-shell">
             <div class="phone-screen">
               <div class="phone-status"><span>09:41</span><span>BZE</span></div>
-              <div class="level-card"><strong>Heute weiterlernen</strong><span>Messschieber</span></div>
+              <div class="level-card"><strong>Heute weiterlernen</strong><span data-bind="landing-preview-unit">—</span></div>
               <div class="mini-question">
                 <span>FACHKUNDE</span>
                 <strong>Wozu dient der Nonius am Messschieber?</strong>
@@ -107,14 +116,6 @@
       <section class="login-shell" data-shell="login" data-node-id="136:2691" aria-label="Login">
         <div class="login-phone" data-name="01.1 Login">
           <div class="login-top" data-node-id="136:2692" data-name="top-area">
-            <div class="login-status" data-node-id="136:2693" data-name="status-bar" aria-hidden="true">
-              <span>9:41</span>
-              <span class="login-status-icons" data-node-id="136:2695">
-                <img class="login-status-icon" src="/static/figma/login/ios-signal.svg" width="17" height="11" alt="" />
-                <img class="login-status-icon" src="/static/figma/login/ios-wifi.svg" width="15" height="11" alt="" />
-                <img class="login-status-icon" src="/static/figma/login/ios-battery.svg" width="25" height="12" alt="" />
-              </span>
-            </div>
             <div class="login-brand" data-node-id="136:2702" data-name="logo-header">
               <div class="logo-mark" data-node-id="136:2703">BZE</div>
               <div class="login-brand-labels" data-node-id="136:2705">
@@ -177,14 +178,6 @@
 
       <section class="campus-app" data-shell="app" aria-label="Lern-App">
         <div class="app-frame" data-node-id="136:5326">
-          <div class="app-status login-status" aria-hidden="true">
-            <span>9:41</span>
-            <span class="login-status-icons">
-              <img class="login-status-icon" src="/static/figma/login/ios-signal.svg" width="17" height="11" alt="" />
-              <img class="login-status-icon" src="/static/figma/login/ios-wifi.svg" width="15" height="11" alt="" />
-              <img class="login-status-icon" src="/static/figma/login/ios-battery.svg" width="25" height="12" alt="" />
-            </span>
-          </div>
           <header class="app-topbar">
             <div class="logo-group">
               <span class="bze-badge">BZE</span>

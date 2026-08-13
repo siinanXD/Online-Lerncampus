@@ -324,6 +324,15 @@ CREATE TABLE IF NOT EXISTS exam_session_open_answers (
     FOREIGN KEY (open_question_id) REFERENCES open_questions (id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS exam_session_marks (
+    session_id INTEGER NOT NULL,
+    quiz_question_id INTEGER NOT NULL,
+    marked_at TEXT NOT NULL DEFAULT (datetime('now')),
+    PRIMARY KEY (session_id, quiz_question_id),
+    FOREIGN KEY (session_id) REFERENCES exam_sessions (id) ON DELETE CASCADE,
+    FOREIGN KEY (quiz_question_id) REFERENCES quiz_questions (id) ON DELETE CASCADE
+);
+
 -- ---------------------------------------------------------------------------
 -- Schema-Metadaten
 -- ---------------------------------------------------------------------------

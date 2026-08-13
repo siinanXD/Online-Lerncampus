@@ -17,6 +17,7 @@ from app.models.domain import (
     ReviewStatus,
     TheoryBlock,
 )
+from app.data.content.helpers import rotate_question_options
 from app.data.question_bank import FIRST_CHAPTER
 from app.services.database import Database
 
@@ -297,14 +298,23 @@ class ContentRepository:
         category_rows: list[dict[str, object]],
     ) -> dict[str, object]:
         slugs = FIRST_CHAPTER["category_slugs"]
-        categories = [row for row in category_rows if row["slug"] in slugs]
+        matched = [row for row in category_rows if row["slug"] in slugs]
+        using_defaults = bool(matched)
+        categories = matched or list(category_rows)
         categories.sort(key=lambda row: row["subchapter_number"])
+        title = FIRST_CHAPTER["title"]
+        checkpoint = FIRST_CHAPTER["checkpoint_exam_id"]
+        if not using_defaults and categories:
+            title = f"Monat 1: {categories[0]['chapter_title']}"
+            exams = self.list_exams()
+            if exams:
+                checkpoint = exams[0].exam_id
         return {
-            "title": FIRST_CHAPTER["title"],
+            "title": title,
             "mission_goal": FIRST_CHAPTER["mission_goal"],
             "fachkunde": FIRST_CHAPTER["fachkunde"],
             "subchapters": categories,
-            "checkpoint_exam_id": FIRST_CHAPTER["checkpoint_exam_id"],
+            "checkpoint_exam_id": checkpoint,
         }
 
     def _hydrate_learning_unit(
@@ -379,16 +389,18 @@ class ContentRepository:
 
     def _row_to_quiz_question(self, row: sqlite3.Row) -> QuizQuestion:
         source_keys = self._split_csv(row["source_keys"])
-        return QuizQuestion(
-            question_id=row["question_id"],
-            category_slug=row["category_slug"],
-            prompt=row["prompt"],
-            options=json.loads(row["options_json"]),
-            correct_option_index=row["correct_option_index"],
-            explanation=row["explanation"],
-            difficulty=row["difficulty"],
-            exam_style=row["exam_style"],
-            source_keys=source_keys,
+        return rotate_question_options(
+            QuizQuestion(
+                question_id=row["question_id"],
+                category_slug=row["category_slug"],
+                prompt=row["prompt"],
+                options=json.loads(row["options_json"]),
+                correct_option_index=row["correct_option_index"],
+                explanation=row["explanation"],
+                difficulty=row["difficulty"],
+                exam_style=row["exam_style"],
+                source_keys=source_keys,
+            )
         )
 
     def _row_to_learning_unit(self, row: sqlite3.Row) -> LearningUnit:

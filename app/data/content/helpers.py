@@ -1,5 +1,7 @@
 """Shared builders for curriculum content seed data."""
 
+import re
+
 from app.models.domain import (
     GradingCriterion,
     LearningUnit,
@@ -84,6 +86,93 @@ def quiz(
         difficulty=difficulty,
         exam_style=exam_style,
         source_keys=source_keys,
+    )
+
+
+def _quoted_title_pattern(title: str) -> str:
+    """Return a regex-safe quoted title pattern."""
+    return rf"['\"]{re.escape(title.strip())}['\"]"
+
+
+def humanize_question_prompt(prompt: str, category_title: str | None = None) -> str:
+    """Remove redundant category titles from templated JSONL prompts."""
+    if not prompt or not category_title:
+        return prompt
+    title = category_title.strip()
+    if not title:
+        return prompt
+
+    quoted = _quoted_title_pattern(title)
+    result = prompt
+
+    result = re.sub(
+        rf"\s+(?:zu|für|zum Thema|im Thema)\s+{quoted}\s*\?",
+        "?",
+        result,
+        flags=re.IGNORECASE,
+    )
+    result = re.sub(
+        rf"^Bei\s+{quoted}\s+",
+        "",
+        result,
+        flags=re.IGNORECASE,
+    )
+    result = re.sub(rf"\s+{quoted}", "", result, flags=re.IGNORECASE)
+    result = re.sub(r"\s+\?", "?", result)
+    result = re.sub(r"\?\?+", "?", result)
+
+    if result and result[0].islower():
+        result = result[0].upper() + result[1:]
+    return result.strip()
+
+
+def humanize_question_options(
+    options: list[str],
+    category_title: str | None = None,
+) -> list[str]:
+    """Remove redundant category titles from templated answer options."""
+    if not category_title:
+        return list(options)
+    title = category_title.strip()
+    if not title:
+        return list(options)
+
+    quoted = _quoted_title_pattern(title)
+    cleaned: list[str] = []
+    for option in options:
+        text = re.sub(
+            rf"^(?:Zum Thema|Im Thema|Für das Thema|Beim Thema)\s+{quoted}\s+",
+            "",
+            option,
+            flags=re.IGNORECASE,
+        )
+        text = re.sub(rf"\s+{quoted}\s+", " ", text, flags=re.IGNORECASE)
+        text = text.strip()
+        if text and text[0].islower():
+            text = text[0].upper() + text[1:]
+        cleaned.append(text)
+    return cleaned
+
+
+def rotate_question_options(question: QuizQuestion) -> QuizQuestion:
+    """Shift options so the correct answer is not always the first choice."""
+    options = list(question.options)
+    count = len(options)
+    if count < 2:
+        return question
+    correct = options[question.correct_option_index]
+    shift = 1 + (sum(ord(char) for char in question.question_id) % (count - 1))
+    rotated = options[shift:] + options[:shift]
+    return QuizQuestion(
+        question_id=question.question_id,
+        category_slug=question.category_slug,
+        prompt=question.prompt,
+        options=rotated,
+        correct_option_index=rotated.index(correct),
+        explanation=question.explanation,
+        difficulty=question.difficulty,
+        exam_style=question.exam_style,
+        source_keys=list(question.source_keys),
     )
 
 

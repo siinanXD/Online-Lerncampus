@@ -11,6 +11,15 @@ class HealthResponse(BaseModel):
     status: str
 
 
+class ContentStatsResponse(BaseModel):
+    """Public content inventory for marketing and landing pages."""
+
+    quiz_questions: int
+    learning_units: int
+    exams: int
+    preview_unit_title: str = ""
+
+
 class LoginRequest(BaseModel):
     """Request schema for pseudonymous login."""
 
@@ -28,6 +37,9 @@ class LoginResponse(BaseModel):
     display_name: str
     cohort_code: str | None
     role: str
+    requires_password_change: bool = False
+    onboarding_completed: bool = False
+    privacy_consent_accepted: bool = False
 
 
 class CurrentLearnerResponse(BaseModel):
@@ -37,6 +49,9 @@ class CurrentLearnerResponse(BaseModel):
     display_name: str
     cohort_code: str | None
     role: str
+    requires_password_change: bool = False
+    onboarding_completed: bool = False
+    privacy_consent_accepted: bool = False
 
 
 class LogoutResponse(BaseModel):
@@ -57,6 +72,12 @@ class ConsentResponse(BaseModel):
 
     accepted: bool
     consent_version: str
+
+
+class OnboardingCompleteResponse(BaseModel):
+    """Response schema after finishing the welcome onboarding."""
+
+    onboarding_completed: bool = True
 
 
 class DataExportResponse(BaseModel):
@@ -94,6 +115,16 @@ class ProgressAttemptRequest(BaseModel):
     selected_option_index: int = Field(ge=0, le=10)
 
 
+class QuestionProgressItemResponse(BaseModel):
+    """Progress for one question without solution data."""
+
+    question_id: str
+    answered_count: int
+    wrong_count: int
+    correct_streak: int
+    mastered: bool
+
+
 class QuestionProgressResponse(BaseModel):
     """Serializable question progress state."""
 
@@ -106,6 +137,10 @@ class QuestionProgressResponse(BaseModel):
     correct_option_index: int
     is_correct: bool
     explanation: str
+    xp: int = 0
+    level: int = 1
+    xp_awarded: int = 0
+    leveled_up: bool = False
 
 
 class DashboardSummaryResponse(BaseModel):
@@ -116,12 +151,30 @@ class DashboardSummaryResponse(BaseModel):
     mastered_questions: int
     total_questions: int
     wrong_answers: int
+    open_questions: int = 0
+    correct_once_questions: int = 0
+    wrong_questions: int = 0
     xp: int
     level: int
     streak_days: int = 0
     badges: list[str] = Field(default_factory=list)
     mastery_rule: str
     weak_categories: list[dict[str, object]]
+    units_completed: int = 0
+    units_total: int = 0
+    daily_lessons_done: int = 0
+    daily_lessons_goal: int = 5
+    daily_questions_done: int = 0
+    study_minutes_today: int = 0
+    study_minutes_week: int = 0
+    continue_title: str = ""
+    continue_answered: int = 0
+    continue_total: int = 0
+    readiness_percent: int = 0
+    review_topic: str = ""
+    xp_into_level: int = 0
+    xp_per_level: int = 120
+    week_minutes: list[int] = Field(default_factory=lambda: [0, 0, 0, 0, 0, 0, 0])
 
 
 class GamificationResponse(BaseModel):
@@ -156,6 +209,19 @@ class CoachPlanResponse(BaseModel):
     focus_month: int
     tips: list[CoachTipResponse]
     weak_categories: list[dict[str, object]]
+
+
+class CoachChatRequest(BaseModel):
+    """Learner message to the rule-based coach."""
+
+    message: str = Field(min_length=1, max_length=2000)
+
+
+class CoachChatResponse(BaseModel):
+    """Coach reply plus an optional follow-up screen."""
+
+    reply: str
+    href: str | None = None
 
 
 class LearningJourneyMonthResponse(BaseModel):
@@ -334,6 +400,7 @@ class LearningUnitResponse(BaseModel):
     source_keys: list[str]
     review_status: ReviewStatus
     estimated_minutes: int
+    completed: bool = False
 
 
 class PracticeExamResponse(BaseModel):
@@ -414,15 +481,64 @@ class ExamSubmitResponse(BaseModel):
 
     session_id: int
     exam_id: str
+    exam_title: str
     status: str
     score_percent: float
     passed: bool
     passing_score_percent: int
     choice_correct: int
     choice_total: int
+    wrong_count: int
+    unanswered_count: int
+    duration_seconds: int
+    xp_awarded: int
     open_score: int
     open_max_points: int
     weak_categories: list[dict[str, object]]
+    category_breakdown: list[dict[str, object]] = Field(default_factory=list)
+
+
+class ExamQuestionProgressItem(BaseModel):
+    """Progress state for one exam question."""
+
+    index: int
+    question_id: str
+    answered: bool
+    marked: bool
+    is_current: bool
+    selected_option_index: int | None = None
+
+
+class ExamSessionProgressResponse(BaseModel):
+    """Live progress for an active exam session."""
+
+    session_id: int
+    exam_id: str
+    exam_title: str
+    expires_at: str | None
+    total_questions: int
+    answered_count: int
+    open_count: int
+    marked_count: int
+    current_index: int
+    current_question_id: str | None
+    current_prompt: str | None
+    progress_percent: int
+    questions: list[ExamQuestionProgressItem]
+
+
+class ExamMarkToggleRequest(BaseModel):
+    """Request body to toggle a question mark."""
+
+    question_id: str = Field(min_length=3, max_length=40)
+
+
+class ExamMarkToggleResponse(BaseModel):
+    """Response after toggling a question mark."""
+
+    question_id: str
+    marked: bool
+    marked_count: int
 
 
 class ContentReviewDecisionRequest(BaseModel):
@@ -460,7 +576,7 @@ class TrainingReportRequest(BaseModel):
 
     report_date: str = Field(min_length=10, max_length=10)
     activities: str = Field(min_length=10, max_length=4000)
-    hours: float = Field(default=8.0, gt=0, le=12)
+    hours: float = Field(default=8.0, gt=0, le=60)
     status: str | None = Field(default=None, pattern="^(draft|submitted)$")
 
 
@@ -472,5 +588,7 @@ class TrainingReportResponse(BaseModel):
     activities: str
     hours: float
     status: str
+    signed_at: str | None = None
+    trainer_status: str | None = None
     created_at: str
     updated_at: str

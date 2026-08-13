@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import sqlite3
 from pathlib import Path
+from typing import Any
 
 _SCHEMA_PATH = Path(__file__).with_name("content_schema.sql")
 
@@ -45,6 +46,7 @@ CONTENT_TABLES: tuple[str, ...] = (
     "exam_sessions",
     "exam_session_answers",
     "exam_session_open_answers",
+    "exam_session_marks",
     "schema_migrations",
 )
 
@@ -52,6 +54,23 @@ CONTENT_TABLES: tuple[str, ...] = (
 def initialize_content_schema(connection: Any) -> None:
     """Create content tables when they do not exist yet."""
     connection.executescript(CONTENT_SCHEMA_SQL)
+    _ensure_exam_session_marks_table(connection)
+
+
+def _ensure_exam_session_marks_table(connection: Any) -> None:
+    """Create exam mark bookmarks when upgrading an existing database."""
+    connection.execute(
+        """
+        CREATE TABLE IF NOT EXISTS exam_session_marks (
+            session_id INTEGER NOT NULL,
+            quiz_question_id INTEGER NOT NULL,
+            marked_at TEXT NOT NULL DEFAULT (datetime('now')),
+            PRIMARY KEY (session_id, quiz_question_id),
+            FOREIGN KEY (session_id) REFERENCES exam_sessions (id) ON DELETE CASCADE,
+            FOREIGN KEY (quiz_question_id) REFERENCES quiz_questions (id) ON DELETE CASCADE
+        )
+        """
+    )
 
 
 def list_content_tables(connection: sqlite3.Connection) -> set[str]:

@@ -247,6 +247,17 @@ img {
   padding: var(--space-8) var(--space-6) var(--space-6);
   max-width: 1100px;
   margin: 0 auto;
+  background: linear-gradient(180deg, #ffffff 0%, #f0f7ff 100%);
+}
+
+@media (min-width: 900px) {
+  .hero-section {
+    grid-template-columns: 1.1fr 0.9fr;
+    align-items: center;
+    min-height: 72vh;
+    padding: 64px 48px 48px;
+    max-width: 1440px;
+  }
 }
 
 .hero-copy h1 {
@@ -465,6 +476,11 @@ body[data-page-layout="admin"] .admin-shell {
 
 body[data-page-layout="login"],
 body[data-page-layout="auth"] {
+  --login-fg: #1e293b;
+  --login-muted: #64748b;
+  --login-subtle: #94a3b8;
+  --login-border: #e2e8f0;
+  --login-gradient-end: #f0f7ff;
   background: #ffffff;
   color: var(--login-fg);
 }
@@ -824,6 +840,15 @@ body[data-page-layout="auth"] main {
   min-height: 100vh;
   background: var(--bg);
 }
+body[data-page-layout="app"] {
+  overflow: hidden;
+  height: 100dvh;
+}
+body[data-page-layout="app"] .campus-app {
+  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
+}
 
 .app-frame {
   width: min(100%, 390px);
@@ -836,8 +861,12 @@ body[data-page-layout="auth"] main {
   font-family: var(--font-sans);
 }
 
-.app-status {
-  flex-shrink: 0;
+.app-status,
+.login-status,
+.gx-status,
+.ov-status,
+.ios-status {
+  display: none !important;
 }
 
 .app-topbar {
@@ -2990,6 +3019,34 @@ body[data-page-layout="auth"] main {
 
 .levelup-card {
   text-align: center;
+}
+
+.auth-levelup .auth-middle.levelup-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 20px 32px;
+}
+
+.auth-levelup .reward-list {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  text-align: left;
+}
+
+.auth-levelup .reward-list li {
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--primary-subtle);
+  border: 1px solid var(--primary-border);
+  color: var(--login-fg);
+  font-size: 14px;
+  font-weight: 600;
 }
 
 .level-burst {
@@ -5690,7 +5747,7 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
   height: 10px;
   flex-shrink: 0;
 }
-.figma-qlist .q-row > span:not(.diff-bars) {
+.figma-qlist .q-row > span:not(.diff-bars):not(.q-status-label) {
   flex: 1;
   min-width: 0;
   overflow: hidden;
@@ -5780,15 +5837,19 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
 .fb-play {
   justify-content: flex-start;
   overflow: hidden;
+  min-height: 0;
 }
 .fb-play .q-play-main {
-  flex: 0 0 auto;
-  overflow: visible;
-  min-height: 0;
+  flex: 1 1 0;
+  overflow: auto;
+  min-height: 120px;
 }
 .fb-play .fb-sheet {
   margin-top: 0;
-  flex-shrink: 0;
+  flex: 0 1 auto;
+  max-height: 58%;
+  min-height: 0;
+  overflow: hidden;
 }
 .fb-play .fb-body .fb-answers {
   gap: 10px;
@@ -5798,17 +5859,16 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
   padding-bottom: 0;
 }
 .fb-play .fb-sheet.ok {
-  padding: 24px 20px 20px;
-  gap: 16px;
-  border-radius: 24px 24px 32px 32px;
-  /* Figma frame clips sheet bottom; pull up so Weiter peeks like design */
-  margin-top: -28px;
+  padding: 20px 20px 16px;
+  gap: 12px;
+  border-radius: 24px 24px 0 0;
+  margin-top: 0;
 }
 .fb-play .fb-sheet.bad {
-  border-radius: 24px 24px 32px 32px;
-  padding: 20px;
-  gap: 14px;
-  margin-top: -14px;
+  border-radius: 24px 24px 0 0;
+  padding: 16px 20px;
+  gap: 12px;
+  margin-top: 0;
 }
 .app-frame[data-chrome="q-play"] {
   overflow: hidden;
@@ -5829,8 +5889,9 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
   display: none !important;
 }
 .app-frame[data-chrome="q-play"] {
-  min-height: 844px;
-  height: 844px;
+  min-height: 100dvh;
+  height: 100dvh;
+  max-height: 100dvh;
   overflow: hidden;
 }
 .app-frame[data-chrome="q-play"] .app-content {
@@ -6058,12 +6119,15 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
 .fb-play .fb-sheet {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 24px 20px 20px;
-  border-radius: 24px 24px 32px 32px;
+  gap: 12px;
+  padding: 20px 20px 16px;
+  border-radius: 24px 24px 0 0;
   border-top: 2px solid;
   margin-top: 0;
-  flex-shrink: 0;
+  flex: 0 1 auto;
+  min-height: 0;
+  max-height: 58%;
+  overflow: hidden;
   box-sizing: border-box;
 }
 .fb-play .fb-sheet.ok {
@@ -6119,6 +6183,9 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
   border-radius: 16px;
   background: #fff;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.02);
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
 }
 .fb-play .fb-sheet.bad .fb-explain {
   gap: 10px;
@@ -6179,6 +6246,11 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
   width: 18px;
   height: 18px;
   flex-shrink: 0;
+}
+.fb-play .success-button,
+.fb-play .fb-actions-row {
+  flex: 0 0 auto;
+  margin-top: auto;
 }
 .fb-play .success-button {
   min-height: 52px;
@@ -7102,6 +7174,27 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
 }
 .fd-start.blue { background: #3b82f6; }
 .fd-start.dark { background: #0f172a; }
+.fd-options {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 8px 0 12px;
+}
+.fd-option {
+  text-align: left;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: #0f172a;
+  font-size: 13px;
+  cursor: pointer;
+}
+.fd-explain {
+  margin: 0 0 8px;
+  color: #334155;
+  font-size: 13px;
+}
 .fd-again {
   color: #3b82f6;
   font-size: 12px;
@@ -7329,6 +7422,10 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
   background: #fff;
   border: 1px solid #e2e8f0;
   box-sizing: border-box;
+  width: 100%;
+  font: inherit;
+  cursor: pointer;
+  text-align: left;
 }
 .vid-chapter.active {
   background: #eff6ff;
@@ -9827,6 +9924,15 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
 }
 .ex-ab-primary { background: #3b82f6; color: #f8fafc; font-weight: 700; }
 .ex-ab-secondary { border: 1px solid #334155; color: #e2e8f0; font-weight: 600; }
+.ex-ov-grid button.ex-ov-cell,
+.ex-q-nav button.ex-q-back,
+.ex-q-nav button.ex-q-next,
+.ex-ov-footer button.ex-ov-primary {
+  font: inherit;
+  cursor: pointer;
+  background: none;
+}
+.ex-q-flag.active { filter: brightness(1.2); opacity: 1; }
 
 /* 06.6 / 06.7 results */
 .ex-rs-screen { justify-content: space-between; background: #0f172a; color: #f8fafc; }
@@ -11837,3 +11943,13 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
 }
 .bn-row .mp-toggle { background: transparent; }
 .bn-row .mp-toggle::after { display: none; }
+
+html.high-contrast {
+  filter: contrast(1.12);
+}
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation: none !important;
+  transition: none !important;
+}

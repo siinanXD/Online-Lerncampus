@@ -5,7 +5,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from app.main import create_app
-from app.services.question_repository import QuestionRepository
+from tests.conftest import correct_option_index as _correct_index
 
 
 def build_client() -> TestClient:
@@ -89,18 +89,20 @@ def test_frontend_api_calls_have_backend_routes() -> None:
     import re
     from pathlib import Path
 
+    from app.api.platform_routes import platform_router
     from app.api.routes import api_router
 
     backend: set[tuple[str, str]] = set()
-    for route in api_router.routes:
-        methods = getattr(route, "methods", None) or set()
-        path = getattr(route, "path", None)
-        if not path:
-            continue
-        for method in methods:
-            if method in {"HEAD", "OPTIONS"}:
+    for router in (api_router, platform_router):
+        for route in router.routes:
+            methods = getattr(route, "methods", None) or set()
+            path = getattr(route, "path", None)
+            if not path:
                 continue
-            backend.add((method.upper(), f"/api{path}"))
+            for method in methods:
+                if method in {"HEAD", "OPTIONS"}:
+                    continue
+                backend.add((method.upper(), f"/api{path}"))
 
     calls: set[tuple[str, str]] = set()
     for js_path in Path("app/web/static").glob("*.js"):
@@ -228,6 +230,18 @@ def test_login_endpoint_returns_pseudonymous_session() -> None:
     assert payload["role"] == "learner"
 
 
+def test_content_stats_endpoint_returns_inventory() -> None:
+    """Ensure public landing stats come from the live content store."""
+    client = build_client()
+    response = client.get("/api/content/stats")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["quiz_questions"] > 0
+    assert payload["learning_units"] > 0
+    assert payload["exams"] > 0
+
+
 def test_dashboard_requires_authentication() -> None:
     """Ensure private learning metrics require a bearer token."""
     client = build_client()
@@ -250,6 +264,8 @@ def test_dashboard_endpoint_returns_mastery_rule() -> None:
     )
     assert payload["mastered_questions"] == 0
     assert payload["total_questions"] >= 120
+    assert len(payload["week_minutes"]) == 7
+    assert payload["xp_per_level"] == 120
 
 
 def test_learning_journey_endpoint_returns_24_months() -> None:
@@ -261,15 +277,22 @@ def test_learning_journey_endpoint_returns_24_months() -> None:
     assert response.status_code == 200
     payload = response.json()
     assert len(payload) == 24
+    assert payload[0]["locked"] is False
+    assert payload[1]["locked"] is True
     assert payload[11]["checkpoint"] is True
     assert payload[23]["checkpoint"] is True
 
 
-def _correct_index(question_id: str) -> int:
-    """Resolve the correct option from the server-side question bank."""
-    question = QuestionRepository().get_question(question_id)
-    assert question is not None
-    return question.correct_option_index
+def test_questions_endpoint_returns_full_catalog_without_month_filter() -> None:
+    """Practice mode needs every question, not only month 1."""
+    client = build_client()
+    month_one = client.get("/api/questions?month=1").json()
+    all_questions = client.get("/api/questions").json()
+    units = client.get("/api/learning/units").json()
+
+    assert len(all_questions) == 480
+    assert len(units) == 144
+    assert len({unit["month"] for unit in units}) == 24
 
 
 def test_questions_do_not_leak_solutions() -> None:
@@ -279,6 +302,36 @@ def test_questions_do_not_leak_solutions() -> None:
     assert payload
     assert "correct_option_index" not in payload[0]
     assert "explanation" not in payload[0]
+
+
+def test_questions_hide_redundant_topic_titles_in_prompts() -> None:
+    """Templated prompts should not repeat the category title shown in the UI pill."""
+    client = build_client()
+    categories = {
+        item["slug"]: item["title"]
+        for item in client.get("/api/questions/categories?month=1").json()
+    }
+    questions = client.get("/api/questions?month=1").json()
+    assert questions
+    sample = next(
+        (question for question in questions if question["category_slug"] in categories),
+        questions[0],
+    )
+    title = categories[sample["category_slug"]]
+    assert title not in sample["prompt"]
+    assert all(title not in option for option in sample["options"])
+
+
+def test_correct_answers_are_not_always_option_a() -> None:
+    """Practice questions must rotate the correct option across A–D."""
+    from app.api import routes
+
+    client = build_client()
+    client.get("/api/questions?month=1")
+    questions = routes.question_repository.list_questions(month=1)
+    indexes = {question.correct_option_index for question in questions}
+    assert len(questions) >= 4
+    assert indexes != {0}
 
 
 def test_progress_attempt_requires_two_correct_answers_for_mastery() -> None:
@@ -304,8 +357,56 @@ def test_progress_attempt_requires_two_correct_answers_for_mastery() -> None:
 
     assert first_attempt.status_code == 200
     assert first_attempt.json()["mastered"] is False
+    assert first_attempt.json()["level"] >= 1
+    assert first_attempt.json()["xp"] >= 0
+    assert first_attempt.json()["leveled_up"] is False
     assert second_attempt.status_code == 200
     assert second_attempt.json()["mastered"] is True
+
+
+def test_progress_overview_counts_open_and_mastered_questions() -> None:
+    """Dashboard and /api/progress expose practice buckets for the learner."""
+    client = build_client()
+    headers = login_client(client)
+    question = client.get("/api/questions?month=1").json()[0]
+    payload = {
+        "question_id": question["question_id"],
+        "selected_option_index": _correct_index(question["question_id"]),
+    }
+    client.post("/api/progress/attempt", headers=headers, json=payload)
+
+    dashboard = client.get("/api/dashboard", headers=headers).json()
+    progress = client.get("/api/progress", headers=headers).json()
+
+    assert dashboard["correct_once_questions"] >= 1
+    assert dashboard["open_questions"] >= 0
+    assert dashboard["open_questions"] + dashboard["correct_once_questions"] + dashboard[
+        "wrong_questions"
+    ] + dashboard["mastered_questions"] == dashboard["total_questions"]
+    assert any(item["question_id"] == question["question_id"] for item in progress)
+
+
+def test_progress_attempt_sets_leveled_up_when_xp_crosses_threshold() -> None:
+    """A new learner should receive leveled_up after crossing 120 XP."""
+    client = build_client()
+    headers = login_client(client)
+    questions = client.get("/api/questions?month=1").json()
+    assert len(questions) >= 12
+    last = None
+    for question in questions[:12]:
+        last = client.post(
+            "/api/progress/attempt",
+            headers=headers,
+            json={
+                "question_id": question["question_id"],
+                "selected_option_index": _correct_index(question["question_id"]),
+            },
+        )
+        assert last.status_code == 200
+    assert last is not None
+    payload = last.json()
+    assert payload["level"] >= 2
+    assert payload["leveled_up"] is True
 
 
 def test_privacy_export_contains_progress_and_consent() -> None:

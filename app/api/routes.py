@@ -3,15 +3,19 @@
 from fastapi import APIRouter, Header, HTTPException, Query, status
 
 from app.core.config import get_settings
+from app.data.content.helpers import humanize_question_options, humanize_question_prompt
 from app.models.domain import LearningUnit
 from app.schemas.content import (
     ConsentRequest,
     ConsentResponse,
+    ContentStatsResponse,
     ContentGenerationRequest,
     ContentGenerationResponse,
     ContentReviewRequest,
     CurrentLearnerResponse,
     CurriculumMonthResponse,
+    CoachChatRequest,
+    CoachChatResponse,
     CoachPlanResponse,
     CoachTipResponse,
     DashboardSummaryResponse,
@@ -19,7 +23,10 @@ from app.schemas.content import (
     DeleteAccountResponse,
     ExamAnswerSavedResponse,
     ExamChoiceAnswerRequest,
+    ExamMarkToggleRequest,
+    ExamMarkToggleResponse,
     ExamOpenAnswerRequest,
+    ExamSessionProgressResponse,
     ExamSessionStartResponse,
     ExamSessionStateResponse,
     ExamSubmitResponse,
@@ -35,11 +42,13 @@ from app.schemas.content import (
     LogoutResponse,
     OccupationResponse,
     OpenQuestionResponse,
+    OnboardingCompleteResponse,
     PasswordChangeRequest,
     PasswordChangeResponse,
     PracticeExamResponse,
     ProgressAttemptRequest,
     QuestionCategoryResponse,
+    QuestionProgressItemResponse,
     QuestionProgressResponse,
     QuizQuestionPublicResponse,
     QuizQuestionResponse,
@@ -60,6 +69,7 @@ from app.services.database import Database, create_database
 from app.services.progress_service import ProgressService
 from app.services.question_repository import QuestionRepository
 from app.services.source_repository import SourceRepository
+from app.services.platform_repository import PlatformRepository
 
 api_router = APIRouter()
 settings = get_settings()
@@ -95,6 +105,23 @@ def _auth() -> AuthService:
     return auth_service
 
 
+def _auth_profile(learner_id: str) -> dict[str, bool]:
+    """Return onboarding and password flags for one learner."""
+    db = _database()
+    learner = db.get_learner(learner_id)
+    if learner is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Lernkonto wurde nicht gefunden.",
+        )
+    prefs = PlatformRepository(db).get_preferences(learner_id)
+    return {
+        "requires_password_change": bool(learner.get("requires_password_change")),
+        "onboarding_completed": bool(prefs.get("onboarding_completed")),
+        "privacy_consent_accepted": db.has_privacy_consent(learner_id),
+    }
+
+
 def bootstrap_content_store() -> None:
     """Load or seed curriculum content and wire dependent services."""
     global question_repository, progress_service, exam_session_service
@@ -116,6 +143,11 @@ def bootstrap_content_store() -> None:
             seeder.seed_all()
             if not current.content_review_required:
                 _database().approve_all_content()
+        from app.services.platform_seeder import PlatformSeeder
+
+        platform_seeder = PlatformSeeder(_database())
+        if platform_seeder.is_empty():
+            platform_seeder.seed_all()
     question_repository = QuestionRepository(
         database=_database(),
         content_source=source,  # type: ignore[arg-type]
@@ -160,17 +192,29 @@ def raise_bad_request(error: ValueError) -> None:
     ) from error
 
 
-def build_public_question_response(question) -> QuizQuestionPublicResponse:
+def build_public_question_response(
+    question,
+    category_titles: dict[str, str] | None = None,
+) -> QuizQuestionPublicResponse:
     """Return a learner-safe question payload without solution fields."""
+    category_title = (category_titles or {}).get(question.category_slug)
     return QuizQuestionPublicResponse(
         question_id=question.question_id,
         category_slug=question.category_slug,
-        prompt=question.prompt,
-        options=question.options,
+        prompt=humanize_question_prompt(question.prompt, category_title),
+        options=humanize_question_options(question.options, category_title),
         difficulty=question.difficulty,
         exam_style=question.exam_style,
         source_keys=question.source_keys,
     )
+
+
+def _category_title_map(month: int | None = None) -> dict[str, str]:
+    """Build a slug-to-title lookup for question categories."""
+    categories = _questions().list_categories()
+    if month is not None:
+        categories = [category for category in categories if category.month == month]
+    return {category.slug: category.title for category in categories}
 
 
 def build_exam_response(
@@ -188,12 +232,13 @@ def build_exam_response(
             detail="Practice exam not found.",
         )
     exam, questions = result
+    category_titles = _category_title_map()
     return PracticeExamResponse(
         exam_id=exam.exam_id,
         title=exam.title,
         description=exam.description,
         questions=[
-            build_public_question_response(question)
+            build_public_question_response(question, category_titles)
             for question in questions
         ],
         passing_score_percent=exam.passing_score_percent,
@@ -225,7 +270,10 @@ def build_exam_response(
     )
 
 
-def build_learning_unit_response(unit: LearningUnit) -> LearningUnitResponse:
+def build_learning_unit_response(
+    unit: LearningUnit,
+    completed: bool = False,
+) -> LearningUnitResponse:
     """Build one learning unit response from repository data."""
     return LearningUnitResponse(
         slug=unit.slug,
@@ -249,6 +297,7 @@ def build_learning_unit_response(unit: LearningUnit) -> LearningUnitResponse:
         source_keys=unit.source_keys,
         review_status=unit.review_status,
         estimated_minutes=unit.estimated_minutes,
+        completed=completed,
     )
 
 
@@ -272,10 +321,28 @@ def get_session(authorization: str | None) -> LearnerSession:
         ) from error
 
 
+def _category_title(slug: str) -> str:
+    """Turn a category slug into a readable German label."""
+    return slug.replace("-", " ").strip().title()
+
+
 @api_router.get("/health", response_model=HealthResponse)
 def health_check() -> HealthResponse:
     """Return a lightweight health check response."""
     return HealthResponse(status="ok")
+
+
+@api_router.get("/content/stats", response_model=ContentStatsResponse)
+def get_content_stats() -> ContentStatsResponse:
+    """Return public content counts for landing and marketing pages."""
+    questions = _questions()
+    units = questions.list_learning_units()
+    return ContentStatsResponse(
+        quiz_questions=len(questions.list_questions()),
+        learning_units=len(units),
+        exams=len(questions.list_exams()),
+        preview_unit_title=units[0].title if units else "",
+    )
 
 
 @api_router.post("/auth/login", response_model=LoginResponse)
@@ -289,12 +356,14 @@ def login(request: LoginRequest) -> LoginResponse:
         )
     except ValueError as error:
         raise_bad_request(error)
+    profile = _auth_profile(session.learner_id)
     return LoginResponse(
         access_token=session.token,
         learner_id=session.learner_id,
         display_name=session.display_name,
         cohort_code=session.cohort_code,
         role=session.role,
+        **profile,
     )
 
 
@@ -304,11 +373,13 @@ def get_current_learner(
 ) -> CurrentLearnerResponse:
     """Return the authenticated learner profile."""
     session = get_session(authorization)
+    profile = _auth_profile(session.learner_id)
     return CurrentLearnerResponse(
         learner_id=session.learner_id,
         display_name=session.display_name,
         cohort_code=session.cohort_code,
         role=session.role,
+        **profile,
     )
 
 
@@ -370,6 +441,20 @@ def record_privacy_consent(
     )
 
 
+@api_router.post("/auth/onboarding/complete", response_model=OnboardingCompleteResponse)
+def complete_onboarding(
+    authorization: str | None = Header(default=None),
+) -> OnboardingCompleteResponse:
+    """Mark the welcome onboarding as completed for the current learner."""
+    session = get_session(authorization)
+    PlatformRepository(_database()).complete_onboarding(session.learner_id)
+    _database().record_audit_event(
+        event_type="auth.onboarding_completed",
+        learner_id=session.learner_id,
+    )
+    return OnboardingCompleteResponse(onboarding_completed=True)
+
+
 @api_router.get("/privacy/export", response_model=DataExportResponse)
 def export_privacy_data(
     authorization: str | None = Header(default=None),
@@ -403,7 +488,40 @@ def get_dashboard(
 ) -> DashboardSummaryResponse:
     """Return dashboard metrics for the authenticated learner."""
     session = get_session(authorization)
-    return _progress().dashboard_summary(session.learner_id)
+    summary = dict(_progress().dashboard_summary(session.learner_id))
+    gamification = _progress().gamification_summary(session.learner_id)
+    from app.services.platform_service import PlatformService
+
+    extras = PlatformService(_database(), _progress()).dashboard_extras(
+        session.learner_id
+    )
+    units = _questions().list_learning_units()
+    completed = set(extras.get("completed_unit_slugs") or [])
+    next_unit = next((unit for unit in units if unit.slug not in completed), None)
+    total = int(summary["total_questions"] or 1)
+    mastered = int(summary["mastered_questions"])
+    weak = list(summary.get("weak_categories") or [])
+    review_topic = _category_title(str(weak[0]["category_slug"])) if weak else ""
+    summary.update(
+        {
+            "units_completed": extras["units_completed"],
+            "units_total": len(units),
+            "daily_lessons_done": extras["daily_lessons_done"],
+            "daily_lessons_goal": extras["daily_lessons_goal"],
+            "daily_questions_done": extras["daily_questions_done"],
+            "study_minutes_today": extras["study_minutes_today"],
+            "study_minutes_week": extras["study_minutes_week"],
+            "week_minutes": extras["week_minutes"],
+            "continue_title": next_unit.title if next_unit else "",
+            "continue_answered": mastered,
+            "continue_total": total,
+            "readiness_percent": round((mastered / total) * 100) if total else 0,
+            "review_topic": review_topic,
+            "xp_into_level": int(gamification["xp_into_level"]),
+            "xp_per_level": int(gamification["xp_per_level"]),
+        }
+    )
+    return DashboardSummaryResponse(**summary)
 
 
 @api_router.get("/gamification", response_model=GamificationResponse)
@@ -431,6 +549,20 @@ def get_coach_plan(
     )
 
 
+@api_router.post("/coach/chat", response_model=CoachChatResponse)
+def post_coach_chat(
+    request: CoachChatRequest,
+    authorization: str | None = Header(default=None),
+) -> CoachChatResponse:
+    """Return a rule-based coach reply from the current learning plan."""
+    session = get_session(authorization)
+    payload = _progress().coach_chat(session.learner_id, request.message)
+    return CoachChatResponse(
+        reply=str(payload["reply"]),
+        href=str(payload["href"]) if payload.get("href") else None,
+    )
+
+
 @api_router.get("/learning/journey", response_model=list[LearningJourneyMonthResponse])
 def get_learning_journey(
     authorization: str | None = Header(default=None),
@@ -440,6 +572,18 @@ def get_learning_journey(
     return _progress().learning_journey(session.learner_id)
 
 
+@api_router.get("/progress", response_model=list[QuestionProgressItemResponse])
+def list_progress(
+    authorization: str | None = Header(default=None),
+) -> list[QuestionProgressItemResponse]:
+    """Return the authenticated learner's question progress rows."""
+    session = get_session(authorization)
+    return [
+        QuestionProgressItemResponse(**item)
+        for item in _progress().list_question_progress_items(session.learner_id)
+    ]
+
+
 @api_router.post("/progress/attempt", response_model=QuestionProgressResponse)
 def record_progress_attempt(
     request: ProgressAttemptRequest,
@@ -447,6 +591,7 @@ def record_progress_attempt(
 ) -> QuestionProgressResponse:
     """Record one question answer for the authenticated learner."""
     session = get_session(authorization)
+    before = _progress().gamification_summary(session.learner_id)
     try:
         progress, question, is_correct = _progress().record_attempt(
             learner_id=session.learner_id,
@@ -455,6 +600,15 @@ def record_progress_attempt(
         )
     except ValueError as error:
         raise_bad_request(error)
+    from app.services.platform_repository import PlatformRepository
+
+    PlatformRepository(_database()).bump_daily_goal(
+        session.learner_id,
+        questions=1,
+        minutes=1,
+    )
+    after = _progress().gamification_summary(session.learner_id)
+    xp_awarded = max(0, int(after["xp"]) - int(before["xp"]))
     return QuestionProgressResponse(
         question_id=progress.question_id,
         answered_count=progress.answered_count,
@@ -465,6 +619,10 @@ def record_progress_attempt(
         correct_option_index=question.correct_option_index,
         is_correct=is_correct,
         explanation=question.explanation,
+        xp=int(after["xp"]),
+        level=int(after["level"]),
+        xp_awarded=xp_awarded,
+        leveled_up=int(after["level"]) > int(before["level"]),
     )
 
 
@@ -538,10 +696,24 @@ def get_first_chapter() -> FirstChapterResponse:
 @api_router.get("/learning/units", response_model=list[LearningUnitResponse])
 def list_learning_units(
     month: int | None = Query(default=None, ge=1, le=24),
+    authorization: str | None = Header(default=None),
 ) -> list[LearningUnitResponse]:
     """Return the ausformulierte learning units, optionally filtered by month."""
+    completed: set[str] = set()
+    if authorization:
+        try:
+            session = get_session(authorization)
+            from app.services.platform_repository import PlatformRepository
+
+            completed = set(
+                PlatformRepository(_database()).list_completed_unit_slugs(
+                    session.learner_id
+                )
+            )
+        except HTTPException:
+            completed = set()
     return [
-        build_learning_unit_response(unit)
+        build_learning_unit_response(unit, completed=unit.slug in completed)
         for unit in _questions().list_learning_units(month=month)
     ]
 
@@ -576,8 +748,9 @@ def list_questions(
     month: int | None = Query(default=None, ge=1, le=24),
 ) -> list[QuizQuestionPublicResponse]:
     """Return PAL-style practice questions without solution data."""
+    category_titles = _category_title_map(month=month)
     return [
-        build_public_question_response(question)
+        build_public_question_response(question, category_titles)
         for question in _questions().list_questions(
             category_slug=category_slug,
             month=month,
@@ -653,6 +826,50 @@ def get_exam_session_state(
         passing_score_percent=state.passing_score_percent,
         time_limit_minutes=state.time_limit_minutes,
     )
+
+
+@api_router.get(
+    "/exams/sessions/{session_id}/progress",
+    response_model=ExamSessionProgressResponse,
+)
+def get_exam_session_progress(
+    session_id: int,
+    current_question_id: str | None = Query(default=None),
+    authorization: str | None = Header(default=None),
+) -> ExamSessionProgressResponse:
+    """Return live answer, mark, and navigation progress for one exam session."""
+    session = get_session(authorization)
+    try:
+        payload = _exams().get_progress(
+            learner_id=session.learner_id,
+            session_id=session_id,
+            current_question_id=current_question_id,
+        )
+    except ValueError as error:
+        raise_bad_request(error)
+    return ExamSessionProgressResponse(**payload)
+
+
+@api_router.post(
+    "/exams/sessions/{session_id}/marks",
+    response_model=ExamMarkToggleResponse,
+)
+def toggle_exam_question_mark(
+    session_id: int,
+    request: ExamMarkToggleRequest,
+    authorization: str | None = Header(default=None),
+) -> ExamMarkToggleResponse:
+    """Toggle a review mark for one question in an active exam session."""
+    session = get_session(authorization)
+    try:
+        payload = _exams().toggle_mark(
+            learner_id=session.learner_id,
+            session_id=session_id,
+            question_id=request.question_id,
+        )
+    except ValueError as error:
+        raise_bad_request(error)
+    return ExamMarkToggleResponse(**payload)
 
 
 @api_router.post(

@@ -117,6 +117,90 @@ class ExamSessionService:
             "total_choice_questions": len(questions),
         }
 
+    def get_progress(
+        self,
+        learner_id: str,
+        session_id: int,
+        current_question_id: str | None = None,
+    ) -> dict[str, object]:
+        """Return live counts and per-question progress for one active session."""
+        row = self._require_active_session(learner_id, session_id)
+        exam_id = row["exam_public_id"]
+        exam, questions = self._require_exam(exam_id)
+        answers = self.database.list_exam_choice_answers_with_ids(session_id)
+        answer_by_id = {item["question_id"]: item for item in answers}
+        marked_ids = set(self.database.list_exam_marked_question_ids(session_id))
+        resolved_current_id = current_question_id
+        if not resolved_current_id:
+            for question in questions:
+                if question.question_id not in answer_by_id:
+                    resolved_current_id = question.question_id
+                    break
+        if not resolved_current_id and questions:
+            resolved_current_id = questions[-1].question_id
+        current_index = 1
+        current_prompt = None
+        progress_items: list[dict[str, object]] = []
+        for index, question in enumerate(questions, start=1):
+            is_current = question.question_id == resolved_current_id
+            if is_current:
+                current_index = index
+                current_prompt = question.prompt
+            answer = answer_by_id.get(question.question_id)
+            progress_items.append(
+                {
+                    "index": index,
+                    "question_id": question.question_id,
+                    "answered": question.question_id in answer_by_id,
+                    "marked": question.question_id in marked_ids,
+                    "is_current": is_current,
+                    "selected_option_index": (
+                        int(answer["selected_option_index"])
+                        if answer and answer["selected_option_index"] is not None
+                        else None
+                    ),
+                }
+            )
+        total = len(questions)
+        answered_count = len(answer_by_id)
+        return {
+            "session_id": session_id,
+            "exam_id": exam_id,
+            "exam_title": exam.title,
+            "expires_at": row["expires_at"],
+            "total_questions": total,
+            "answered_count": answered_count,
+            "open_count": max(total - answered_count, 0),
+            "marked_count": len(marked_ids),
+            "current_index": current_index,
+            "current_question_id": resolved_current_id,
+            "current_prompt": current_prompt,
+            "progress_percent": round((answered_count / total) * 100) if total else 0,
+            "questions": progress_items,
+        }
+
+    def toggle_mark(
+        self,
+        learner_id: str,
+        session_id: int,
+        question_id: str,
+    ) -> dict[str, object]:
+        """Toggle the review mark for one exam question."""
+        row = self._require_active_session(learner_id, session_id)
+        exam_id = row["exam_public_id"]
+        _exam, questions = self._require_exam(exam_id)
+        if question_id not in {question.question_id for question in questions}:
+            raise ValueError("Frage gehoert nicht zu dieser Pruefung.")
+        quiz_pk = self.database.get_quiz_question_pk(question_id)
+        if quiz_pk is None:
+            raise ValueError("Frage wurde nicht gefunden.")
+        marked = self.database.toggle_exam_mark(session_id, quiz_pk)
+        return {
+            "question_id": question_id,
+            "marked": marked,
+            "marked_count": self.database.count_exam_marks(session_id),
+        }
+
     def record_open_answer(
         self,
         learner_id: str,
@@ -166,6 +250,10 @@ class ExamSessionService:
         open_answers = self.database.list_exam_open_answers(session_id)
         choice_score = sum(1 for item in choice_answers if item["is_correct"])
         choice_total = len(questions)
+        wrong_count = sum(1 for item in choice_answers if not item["is_correct"])
+        unanswered_count = max(choice_total - len(choice_answers), 0)
+        started_at = datetime.fromisoformat(row["started_at"])
+        duration_seconds = max(0, int((datetime.now(tz=UTC) - started_at).total_seconds()))
         open_questions = self.question_repository.list_open_questions(exam.open_question_ids)
         open_max = sum(question.max_points for question in open_questions)
         open_score = sum(
@@ -181,6 +269,7 @@ class ExamSessionService:
             earned = choice_score
         score_percent = round((earned / total_points) * 100, 1) if total_points else 0.0
         passed = score_percent >= exam.passing_score_percent
+        xp_awarded = 200 if passed else 50
         self.database.finalize_exam_session(
             session_id=session_id,
             score_percent=score_percent,
@@ -196,19 +285,25 @@ class ExamSessionService:
                 "passed": passed,
             },
         )
-        weak_categories = self._weak_categories_from_answers(questions, choice_answers)
+        category_stats = self._weak_categories_from_answers(questions, choice_answers)
         return {
             "session_id": session_id,
             "exam_id": exam_id,
+            "exam_title": exam.title,
             "status": "submitted",
             "score_percent": score_percent,
             "passed": passed,
             "passing_score_percent": exam.passing_score_percent,
             "choice_correct": choice_score,
             "choice_total": choice_total,
+            "wrong_count": wrong_count,
+            "unanswered_count": unanswered_count,
+            "duration_seconds": duration_seconds,
+            "xp_awarded": xp_awarded,
             "open_score": open_score,
             "open_max_points": open_max,
-            "weak_categories": weak_categories,
+            "weak_categories": category_stats["weak_categories"],
+            "category_breakdown": category_stats["category_breakdown"],
         }
 
     def _weak_categories_from_answers(
@@ -217,18 +312,41 @@ class ExamSessionService:
         choice_answers: list[dict[str, Any]],
     ) -> list[dict[str, object]]:
         answer_by_pk = {item["quiz_question_id"]: item for item in choice_answers}
-        weak: dict[str, int] = {}
+        stats: dict[str, dict[str, int]] = {}
         for question in questions:
+            slug = question.category_slug
+            bucket = stats.setdefault(
+                slug,
+                {"total_count": 0, "wrong_count": 0},
+            )
+            bucket["total_count"] += 1
             pk = self.database.get_quiz_question_pk(question.question_id)
             if pk is None:
+                bucket["wrong_count"] += 1
                 continue
             answer = answer_by_pk.get(pk)
             if answer is None or not answer["is_correct"]:
-                weak[question.category_slug] = weak.get(question.category_slug, 0) + 1
-        return [
-            {"category_slug": slug, "wrong_count": count}
-            for slug, count in sorted(weak.items(), key=lambda item: item[1], reverse=True)
-        ]
+                bucket["wrong_count"] += 1
+        rows: list[dict[str, object]] = []
+        for slug, data in stats.items():
+            total = data["total_count"]
+            wrong = data["wrong_count"]
+            correct = max(total - wrong, 0)
+            percent = round((correct / total) * 100) if total else 0
+            rows.append(
+                {
+                    "category_slug": slug,
+                    "wrong_count": wrong,
+                    "total_count": total,
+                    "correct_count": correct,
+                    "percent": percent,
+                }
+            )
+        rows.sort(key=lambda item: (int(item["percent"]), -int(item["wrong_count"])))
+        return {
+            "category_breakdown": rows[:5],
+            "weak_categories": [row for row in rows if int(row["wrong_count"]) > 0][:5],
+        }
 
     def _require_exam(self, exam_id: str):
         result = self.question_repository.get_exam(exam_id)

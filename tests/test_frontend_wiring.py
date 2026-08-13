@@ -5,7 +5,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from app.main import create_app
-from app.services.question_repository import QuestionRepository
+from tests.conftest import correct_option_index as _correct_index
 
 
 def build_client() -> TestClient:
@@ -23,12 +23,6 @@ def login(client: TestClient, identifier: str | None = None) -> dict[str, str]:
     )
     assert response.status_code == 200
     return {"Authorization": f"Bearer {response.json()['access_token']}"}
-
-
-def _correct_index(question_id: str) -> int:
-    question = QuestionRepository(content_source="memory").get_question(question_id)
-    assert question is not None
-    return question.correct_option_index
 
 
 def test_auth_me_returns_profile() -> None:

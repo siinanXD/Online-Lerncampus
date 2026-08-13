@@ -12,8 +12,7 @@ window.OLC_ROUTE_CONFIG = {
   "/": { layout: "landing", screen: "s01_5-landing-page", title: "Landing Page", tab: null, num: "01.5" },
   "/level-up": { layout: "auth", screen: "s01_6-level-up-animation", title: "Level-Up Animation", tab: null, num: "01.6" },
   "/dashboard": { layout: "app", screen: "s19_1-home-dashboard", title: "Home Dashboard", tab: "dashboard", num: "19.1", chrome: "gx" },
-  
-  "/dashboard/legacy": { layout: "app", screen: "s03_1-dashboard-default", title: "Dashboard Legacy", tab: "dashboard", num: "03.1" },
+  "/dashboard/legacy": { layout: "app", screen: "s03_1-dashboard-default", title: "Dashboard Legacy", tab: "dashboard", num: "03.1", chrome: "ov" },
   "/lernen/hub-legacy": { layout: "app", screen: "s04_1-lernen-hub", title: "Lernen Hub Legacy", tab: "learn", num: "04.1" },
   "/pruefungen/liste-legacy": { layout: "app", screen: "s06_1-pruefungsliste", title: "Prüfungsliste Legacy", tab: "exam", num: "06.1", chrome: "exam" },
   "/fortschritt/uebersicht-legacy": { layout: "app", screen: "s07_1-fortschritt-uebersicht", title: "Fortschritt Legacy", tab: "progress", num: "07.1", chrome: "fp" },
@@ -31,13 +30,13 @@ window.OLC_ROUTE_CONFIG = {
   "/lernen/video": { layout: "app", screen: "s04_13-video-lektion", title: "Video-Lektion", tab: "learn", num: "04.13", chrome: "formel" },
   "/lernen/detail": { layout: "app", screen: "s04_14-lern-detail", title: "Lern-Detail", tab: "learn", num: "04.14", chrome: "ld" },
   "/lernen/tablet": { layout: "app", screen: "s04_15-lernen-hub-tablet-768px", title: "Lernen Hub — Tablet 768px", tab: "learn", num: "04.15" },
-  "/lernen/lernpfad": { layout: "app", screen: "s04_16-lernpfad-map", title: "Lernpfad — Map", tab: "learn", num: "04.16" },
-  "/lernen/einheit": { layout: "app", screen: "s04_17-lerneinheit-detail", title: "Lerneinheit — Detail", tab: "learn", num: "04.17" },
-  "/lernen/glossar": { layout: "app", screen: "s04_18-glossar-uebersicht", title: "Glossar — Übersicht", tab: "learn", num: "04.18" },
-  "/lernen/flashcard": { layout: "app", screen: "s04_19-formeltrainer-flashcard", title: "Formeltrainer — Flashcard", tab: "learn", num: "04.19" },
-  "/lernen/themen": { layout: "app", screen: "s04_2-themenliste", title: "Themenliste", tab: "learn", num: "04.2", chrome: "learn-drill" },
-  "/lernen/fragen": { layout: "app", screen: "s04_3-fragenliste-alle", title: "Fragenliste — Alle", tab: "learn", num: "04.3", chrome: "learn-drill" },
-  "/lernen/fragen/fehler": { layout: "app", screen: "s04_4-fragenliste-fehler", title: "Fragenliste — Fehler", tab: "learn", num: "04.4", chrome: "learn-drill" },
+  "/lernen/lernpfad": { aliasOf: "/lernen" },
+  "/lernen/einheit": { layout: "app", screen: "s04_17-lerneinheit-detail", title: "Lerneinheit — Detail", tab: "learn", num: "04.17", chrome: "gx" },
+  "/lernen/glossar": { layout: "app", screen: "s04_18-glossar-uebersicht", title: "Glossar — Übersicht", tab: "learn", num: "04.18", chrome: "gx" },
+  "/lernen/flashcard": { layout: "app", screen: "s04_19-formeltrainer-flashcard", title: "Formeltrainer — Flashcard", tab: "learn", num: "04.19", chrome: "formel" },
+  "/lernen/themen": { aliasOf: "/lernen" },
+  "/lernen/fragen": { layout: "app", screen: "s04_3-fragenliste-alle", title: "Fragenliste — Alle Fragen", tab: "learn", num: "04.3", chrome: "gx" },
+  "/lernen/fragen/fehler": { layout: "app", screen: "s04_4-fragenliste-fehler", title: "Fragenliste — Fehler", tab: "learn", num: "04.4", chrome: "gx" },
   "/lernen/frage": { layout: "app", screen: "s04_5-frage-multiple-choice", title: "Frage — Multiple Choice", tab: "learn", num: "04.5", chrome: "q-play" },
   "/lernen/frage/freitext": { layout: "app", screen: "s04_6-frage-freitext", title: "Frage — Freitext", tab: "learn", num: "04.6", chrome: "q-play" },
   "/lernen/feedback/richtig": { layout: "app", screen: "s04_7-feedback-richtig", title: "Feedback — Richtig", tab: "learn", num: "04.7", chrome: "q-play" },
@@ -130,7 +129,7 @@ window.OLC_ROUTE_CONFIG = {
   "/gamification/streaks": { layout: "app", screen: "s18_4-streaks-und-leaderboard", title: "Streaks & Leaderboard", tab: "profile", num: "18.4" },
   "/prototypen": { layout: "auth", screen: "s17_1-user-flows-dokumentation", title: "Prototypen — User Flows", tab: null, num: "17.1" },
   "/funktionen": { aliasOf: "/" },
-  "/lernreise": { aliasOf: "/fortschritt/verlauf" },
+  "/lernreise": { aliasOf: "/lernen" },
   "/defizite": { aliasOf: "/fortschritt" },
   "/review": { aliasOf: "/ausbilder/review" },
   "/datenschutz": { aliasOf: "/mehr/export" },
@@ -257,6 +256,11 @@ function olcCockpitTable(filterRisk = false) {
 
 
 
+window.OLC_OV_NAV = (active) => {
+  const map = { start: "home", more: "profile", reports: "progress" };
+  return window.OLC_GX_NAV(map[active] || active);
+};
+
 window.OLC_GX_NAV = (active) => {
   const tabs = [
     { id: "home", href: "/dashboard", label: "Home", icon: "tab-home.svg", iconMuted: "tab-home-muted.svg" },
@@ -329,19 +333,19 @@ window.OLC_SCREEN_RENDERERS = {
             <span>Neues Passwort</span>
             <div class="input-box">
               <img class="field-leading" src="/static/figma/auth/pw-lock.svg" width="20" height="20" alt="" />
-              <input id="new-password" type="text" name="next" required minlength="8" value="SicheresKennw" placeholder="Neues Passwort" data-pw-live />
+              <input id="new-password" type="password" name="next" required minlength="8" placeholder="Neues Passwort" data-pw-live />
               <button class="field-trailing" type="button" data-toggle-password="#new-password" aria-label="Passwort anzeigen">
                 <img src="/static/figma/auth/pw-eye.svg" width="20" height="20" alt="" />
               </button>
             </div>
           </label>
           <div class="pw-strength" aria-live="polite" data-pw-strength>
-            <div class="pw-strength-bars"><span class="on"></span><span class="on"></span><span></span><span></span></div>
-            <div class="pw-strength-label"><span>Passwortstärke</span><strong>Mittel</strong></div>
+            <div class="pw-strength-bars"><span></span><span></span><span></span><span></span></div>
+            <div class="pw-strength-label"><span>Passwortstärke</span><strong>Schwach</strong></div>
           </div>
           <ul class="pw-checklist" data-pw-checklist>
-            <li class="ok" data-rule="len"><img src="/static/figma/auth/pw-check.svg" width="14" height="14" alt="" /> Mindestens 8 Zeichen</li>
-            <li class="ok" data-rule="case"><img src="/static/figma/auth/pw-check.svg" width="14" height="14" alt="" /> Groß- und Kleinbuchstaben</li>
+            <li data-rule="len"><img src="/static/figma/auth/pw-x.svg" width="14" height="14" alt="" /> Mindestens 8 Zeichen</li>
+            <li data-rule="case"><img src="/static/figma/auth/pw-x.svg" width="14" height="14" alt="" /> Groß- und Kleinbuchstaben</li>
             <li data-rule="num"><img src="/static/figma/auth/pw-x.svg" width="14" height="14" alt="" /> Mindestens eine Zahl</li>
             <li data-rule="special"><img src="/static/figma/auth/pw-x.svg" width="14" height="14" alt="" /> Sonderzeichen</li>
           </ul>
@@ -413,8 +417,8 @@ window.OLC_SCREEN_RENDERERS = {
           <p class="cohort-hint">Falls du einen Code von deinem Ausbilder erhalten hast, gib ihn hier ein.</p>
         </div>
         <div class="auth-actions">
-          <a class="primary-button btn-block btn-pill login-submit" href="/onboarding" data-page-link>Weiter</a>
-          <a class="auth-skip" href="/dashboard" data-page-link>Überspringen</a>
+          <button class="primary-button btn-block btn-pill login-submit" type="button" data-action="save-language">Weiter</button>
+          <a class="auth-skip" href="/onboarding" data-page-link>Überspringen</a>
         </div>
       </div>
     </div>
@@ -451,20 +455,28 @@ window.OLC_SCREEN_RENDERERS = {
   `,
   "s01_5-landing-page": () => `<div class="screen-static" data-screen="s01_5-landing-page"></div>`,
   "s01_6-level-up-animation": () => `
-
-      <div class="auth-card screen-card levelup-card">
-        <div class="level-burst" aria-hidden="true">8</div>
-        <h1>LEVEL UP!</h1>
-        <p>Level 8 erreicht · Neuer Titel: Facharbeiter</p>
-        <ul class="reward-list">
-          <li>+100 Bonus-XP</li>
-          <li>Neues Abzeichen freigeschaltet</li>
-          <li>Freischaltung: Hydraulik</li>
-        </ul>
-        <a class="primary-button btn-block" href="/dashboard" data-page-link>Weiter</a>
-        <p class="muted">Level 9 in 1.550 XP</p>
+    <div class="auth-phone auth-levelup" data-node-id="136:3049" data-name="01.6 Level-Up Animation">
+      <div class="auth-top auth-top-center">
+        <div class="login-status" aria-hidden="true">
+          <span>9:41</span>
+          <span class="login-status-icons">
+            <img class="login-status-icon" src="/static/figma/login/ios-signal.svg" width="17" height="11" alt="" />
+            <img class="login-status-icon" src="/static/figma/login/ios-wifi.svg" width="15" height="11" alt="" />
+            <img class="login-status-icon" src="/static/figma/login/ios-battery.svg" width="25" height="12" alt="" />
+          </span>
+        </div>
       </div>
-    `,
+      <div class="auth-middle levelup-card">
+        <div class="level-burst" data-bind="level-up-num" aria-hidden="true">1</div>
+        <h1>LEVEL UP!</h1>
+        <p data-bind="level-up-summary">Level erreicht</p>
+        <ul class="reward-list" data-bind="level-up-rewards"></ul>
+        <a class="primary-button btn-block btn-pill ob-cta" href="/dashboard" data-bind="level-up-continue" data-page-link>Weiter</a>
+        <p class="muted" data-bind="level-up-next">Nächstes Level</p>
+      </div>
+      <div class="home-indicator" aria-hidden="true"></div>
+    </div>
+  `,
 
   "s19_1-home-dashboard": () => `
     <section class="gx-screen gx-home" data-node-id="159:13">
@@ -483,7 +495,7 @@ window.OLC_SCREEN_RENDERERS = {
             <div class="gx-avatar-ring"><img class="gx-avatar" src="/static/figma/gx/avatar.png" width="44" height="44" alt="" /></div>
             <div class="gx-welcome">
               <p>Guten Morgen,</p>
-              <strong data-bind="greeting-name">Hallo, Max!</strong>
+              <strong data-bind="first-name">Azubi</strong>
             </div>
           </div>
           <span class="gx-level-pill"><span data-bind="level-label">Level 7</span></span>
@@ -499,7 +511,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
         <div class="gx-body">
-          <a class="gx-card gx-continue" href="/lernen" data-page-link>
+          <a class="gx-card gx-continue" href="/lernen/einheit" data-page-link data-action="open-unit">
             <div class="gx-card-head">
               <div>
                 <p class="gx-kicker">AKTIVITÄT FORTSETZEN</p>
@@ -517,7 +529,7 @@ window.OLC_SCREEN_RENDERERS = {
               <div class="gx-ring" aria-hidden="true">
                 <img class="gx-ring-track" src="/static/figma/gx/ring-track.svg" width="56" height="56" alt="" />
                 <img class="gx-ring-fill" src="/static/figma/gx/ring-fill.svg" width="56" height="56" alt="" />
-                <span>60%</span>
+                <span data-bind="daily-pct">0%</span>
               </div>
               <div>
                 <strong data-bind="daily-goal">Tagesziel: 3 von 5 Lektionen</strong>
@@ -528,14 +540,14 @@ window.OLC_SCREEN_RENDERERS = {
           <div class="gx-section">
             <p class="gx-section-label">SCHNELLSTARTER</p>
             <div class="gx-chips">
-              <a class="gx-chip" href="/lernen/fragen" data-page-link><img src="/static/figma/gx/pencil.svg" width="14" height="14" alt="" />Fragen üben</a>
+              <a class="gx-chip" href="/lernen/fragen" data-page-link data-action="practice-questions" data-practice-filter="all"><img src="/static/figma/gx/pencil.svg" width="14" height="14" alt="" />Fragen üben</a>
               <a class="gx-chip" href="/pruefungen" data-page-link><img src="/static/figma/gx/play.svg" width="14" height="14" alt="" />Prüfung simulieren</a>
               <a class="gx-chip" href="/berichtsheft" data-page-link><img src="/static/figma/gx/folder.svg" width="14" height="14" alt="" />Berichtsheft</a>
             </div>
           </div>
           <div class="gx-section">
             <p class="gx-section-label">AKTIVITÄT DIESE WOCHE</p>
-            <div class="gx-week">
+            <div class="gx-week" data-bind="gx-week-days">
               <div class="gx-day done"><i></i><span>Mo</span></div>
               <div class="gx-day done"><i></i><span>Di</span></div>
               <div class="gx-day done"><i></i><span>Mi</span></div>
@@ -565,49 +577,21 @@ window.OLC_SCREEN_RENDERERS = {
     </div>
         <div class="gx-page-header">
           <div class="gx-page-title-row">
-            <h2>Lernpfad</h2>
-            <span class="gx-badge-green">42% abgeschlossen</span>
+            <h2>Lernreise</h2>
+            <span class="gx-badge-green" data-bind="journey-pct">0% abgeschlossen</span>
           </div>
-          <p>Metall — Grundlagen</p>
+          <p data-bind="journey-month-title">24 Monate Ausbildungszeit</p>
         </div>
-        <div class="gx-path">
-          <div class="gx-path-row left">
-            <div class="gx-node done"><img src="/static/figma/gx/check.svg" width="24" height="24" alt="" /></div>
-            <div class="gx-node-text"><strong>Werkstoffkunde</strong><span class="ok">+30 XP</span></div>
-          </div>
-          <div class="gx-path-connector ok" aria-hidden="true"></div>
-          <div class="gx-path-row right">
-            <div class="gx-node-text end"><strong>Messtechnik</strong><span class="ok">+30 XP</span></div>
-            <div class="gx-node done"><img src="/static/figma/gx/check.svg" width="24" height="24" alt="" /></div>
-          </div>
-          <div class="gx-path-connector ok" aria-hidden="true"></div>
-          <div class="gx-path-row left">
-            <div class="gx-node current"><img src="/static/figma/gx/target.svg" width="24" height="24" alt="" /></div>
-            <div class="gx-node-text"><strong>Toleranzen</strong><span class="now">+40 XP</span></div>
-          </div>
-          <div class="gx-path-connector muted" aria-hidden="true"></div>
-          <div class="gx-path-row right">
-            <div class="gx-node-text end"><strong>Drehen</strong><span class="muted">+30 XP</span></div>
-            <div class="gx-node locked"><img src="/static/figma/gx/lock.svg" width="22" height="22" alt="" /></div>
-          </div>
-          <div class="gx-path-connector muted" aria-hidden="true"></div>
-          <div class="gx-path-row left">
-            <div class="gx-node locked"><img src="/static/figma/gx/lock.svg" width="22" height="22" alt="" /></div>
-            <div class="gx-node-text"><strong>Fräsen</strong><span class="muted">+30 XP</span></div>
-          </div>
-          <div class="gx-path-connector muted" aria-hidden="true"></div>
-          <div class="gx-locked-topic">
-            <img src="/static/figma/gx/lock-lg.svg" width="24" height="24" alt="" />
-            <strong>Themengebiet 2: Pneumatik</strong>
-            <span>Noch gesperrt</span>
-          </div>
+        <div class="gx-path" data-bind="gx-journey-live">
+          <p class="muted">Lernreise wird geladen…</p>
         </div>
+        <div class="visually-hidden" data-bind="journey-live" aria-hidden="true"></div>
         <div class="gx-recommend-wrap">
-          <a class="gx-recommend" href="/lernen/frage" data-page-link>
+          <a class="gx-recommend" href="/lernen/einheit" data-page-link data-action="open-unit">
             <img src="/static/figma/gx/compass.svg" width="24" height="24" alt="" />
             <div>
               <p class="gx-kicker">NÄCHSTE EMPFEHLUNG</p>
-              <strong>Lernmodul: Toleranzen &amp; Passungen</strong>
+              <strong data-bind="continue-title">Weiterlernen</strong>
             </div>
             <span class="gx-btn-start">Starten</span>
           </a>
@@ -638,48 +622,44 @@ window.OLC_SCREEN_RENDERERS = {
             <div class="gx-exam-hero-top">
               <div>
                 <p class="gx-kicker light">NÄCHSTE PRÜFUNG</p>
-                <strong>IHK Zwischenprüfung</strong>
+                <strong data-bind="exam-hero-title">IHK Zwischenprüfung</strong>
               </div>
-              <span class="gx-pill-blue">In 47 Tagen</span>
+              <span class="gx-pill-blue" data-bind="readiness-pct">0%</span>
             </div>
             <div class="gx-progress-block light">
-              <div class="gx-progress-meta"><span>Deine IHK-Prüfungsreife</span><strong><span data-bind="readiness-pct">67%</span> bereit</strong></div>
-              <div class="gx-bar dark"><i style="width:67%"></i></div>
+              <div class="gx-progress-meta"><span>Deine IHK-Prüfungsreife</span><strong><span data-bind="readiness-pct">0%</span> bereit</strong></div>
+              <div class="gx-bar dark"><i data-bind="readiness-bar" style="width:0%"></i></div>
             </div>
           </article>
           <div class="gx-section">
-            <p class="gx-section-label">PRÜFUNG SIMULIEREN</p>
-            <div class="gx-sim-grid">
-              <a class="gx-card gx-sim" href="/pruefungen/frage" data-page-link data-action="exam-start-shortcut">
-                <img src="/static/figma/gx/clock.svg" width="24" height="24" alt="" />
-                <strong>Zwischenprüfung</strong>
-                <span>45 Fragen • 60 Min</span>
-                <em class="ok">Bestwert: 72%</em>
-              </a>
-              <a class="gx-card gx-sim" href="/pruefungen/frage" data-page-link data-action="exam-start-shortcut">
-                <img src="/static/figma/gx/star.svg" width="24" height="24" alt="" />
-                <strong>AP Teil 1</strong>
-                <span>Gestreckt • 90 Min</span>
-                <em>Noch kein Wert</em>
-              </a>
+            <p class="gx-section-label">FRAGEN ÜBEN</p>
+            <div class="gx-practice-stats">
+              <button class="gx-stat-tile" type="button" data-action="practice-questions" data-practice-filter="open">
+                <strong data-bind="open-questions">0</strong><span>Offen</span>
+              </button>
+              <button class="gx-stat-tile once" type="button" data-action="practice-questions" data-practice-filter="once">
+                <strong data-bind="correct-once">0</strong><span>1× richtig</span>
+              </button>
+              <button class="gx-stat-tile wrong" type="button" data-action="practice-questions" data-practice-filter="wrong">
+                <strong data-bind="wrong-questions">0</strong><span>Falsch</span>
+              </button>
+              <button class="gx-stat-tile done" type="button" data-action="practice-questions" data-practice-filter="done">
+                <strong data-bind="mastered">0</strong><span>Abgeschlossen</span>
+              </button>
             </div>
+            <button class="gx-practice-cta" type="button" data-action="practice-questions" data-practice-filter="all">Fragen üben</button>
+          </div>
+          <div class="gx-section">
+            <p class="gx-section-label">PRÜFUNGSARTEN</p>
+            <div class="gx-exam-chips" data-bind="exam-kind-chips"></div>
+          </div>
+          <div class="gx-section">
+            <p class="gx-section-label">PRÜFUNG SIMULIEREN</p>
+            <div class="gx-sim-grid"></div>
           </div>
           <div class="gx-section">
             <p class="gx-section-label">LETZTE ERGEBNISSE</p>
-            <div class="gx-results">
-              <a class="gx-card gx-result" href="/pruefungen/bestanden" data-page-link>
-                <div><strong>Teilprüfung: Zwischenprüfung</strong><span>Gestern</span></div>
-                <div class="gx-score ok">72%<i></i></div>
-              </a>
-              <a class="gx-card gx-result" href="/pruefungen/schwach" data-page-link>
-                <div><strong>Themenprüfung: Pneumatik</strong><span>Vor 3 Tagen</span></div>
-                <div class="gx-score warn">65%<i></i></div>
-              </a>
-              <a class="gx-card gx-result" href="/pruefungen/bestanden" data-page-link>
-                <div><strong>Lernbereich: Arbeitssicherheit</strong><span>Vor 1 Woche</span></div>
-                <div class="gx-score ok">88%<i></i></div>
-              </a>
-            </div>
+            <div class="gx-results"></div>
           </div>
         </div>
       </div>
@@ -718,33 +698,20 @@ window.OLC_SCREEN_RENDERERS = {
             </div>
             <img class="gx-divider" src="/static/figma/gx/divider.svg" alt="" />
             <div class="gx-progress-block">
-              <div class="gx-progress-meta"><span>Nächstes Level (Level 8)</span><strong class="gx-xp" data-bind="xp-level">2.450 / 3.000 XP</strong></div>
-              <div class="gx-bar"><i style="width:82%"></i></div>
+              <div class="gx-progress-meta"><span>Nächstes Level (Level <span data-bind="level">1</span>)</span><strong class="gx-xp" data-bind="xp-level">0 / 120 XP</strong></div>
+              <div class="gx-bar"><i data-bind="xp-bar-fill" style="width:0%"></i></div>
             </div>
           </article>
           <div class="gx-section">
             <p class="gx-section-label">DEIN LERNPFAD</p>
-            <div class="gx-card gx-path-list">
-              <div class="gx-path-item"><img src="/static/figma/gx/check-circle.svg" width="18" height="18" alt="" /><div><strong>Metalltechnische Grundlagen</strong><span>Erledigt</span></div></div>
-              <div class="gx-path-item"><img src="/static/figma/gx/fp-clock.svg" width="18" height="18" alt="" /><div><strong>Zwischenprüfungsvorbereitung</strong><span>In Arbeit (45%)</span></div></div>
-              <div class="gx-path-item muted"><img src="/static/figma/gx/fp-lock.svg" width="18" height="18" alt="" /><div><strong>Vertiefungsmodule IHK</strong><span>Nicht gestartet</span></div></div>
+            <div class="gx-card gx-path-list" data-bind="gx-journey-summary-live">
+              <p class="muted">Lernreise wird geladen…</p>
             </div>
           </div>
           <div class="gx-section">
             <p class="gx-section-label">DEINE ERFOLGE</p>
-            <div class="gx-card gx-badges">
-              <div class="gx-badge-row">
-                <div class="gx-badge on"><i>🚀</i><span>Pionier</span></div>
-                <div class="gx-badge on"><i>🔥</i><span>Streak-Pro</span></div>
-                <div class="gx-badge on"><i>💯</i><span>100% Perfekt</span></div>
-                <div class="gx-badge on"><i>⚡</i><span>Speedy</span></div>
-              </div>
-              <div class="gx-badge-row">
-                <div class="gx-badge off"><i>🛡️</i><span>Prüfer</span></div>
-                <div class="gx-badge off"><i>⚙️</i><span>Zahnrad</span></div>
-                <div class="gx-badge off"><i>📐</i><span>Mikrometer</span></div>
-                <div class="gx-badge off"><i>🤖</i><span>KI-Assistent</span></div>
-              </div>
+            <div class="gx-card gx-badges" data-bind="gx-badges-live">
+              <p class="muted">Badges nach Login sichtbar.</p>
             </div>
           </div>
           <div class="gx-section">
@@ -781,20 +748,20 @@ window.OLC_SCREEN_RENDERERS = {
           <img class="gx-avatar-lg" src="/static/figma/gx/avatar-profil.png" width="72" height="72" alt="" />
           <strong data-bind="profile-name">Max Müller</strong>
           <p>Verfahrensmechaniker — 2. Lehrjahr</p>
-          <span class="gx-level-pill soft">Level 7 Lehrling</span>
+          <span class="gx-level-pill soft" data-bind="level-label">Level 1 Lehrling</span>
         </div>
         <div class="gx-stats-panel">
-          <div class="gx-mini-stat"><strong class="blue" data-bind="xp-num">2.450</strong><span>Punkte (XP)</span></div>
-          <div class="gx-mini-stat"><strong class="amber" data-bind="streak-days">12 Tage</strong><span>Streak</span></div>
-          <div class="gx-mini-stat"><strong class="green">8</strong><span>Abzeichen</span></div>
+          <div class="gx-mini-stat"><strong class="blue" data-bind="xp-num">0</strong><span>Punkte (XP)</span></div>
+          <div class="gx-mini-stat"><strong class="amber" data-bind="streak-days">0 Tage</strong><span>Streak</span></div>
+          <div class="gx-mini-stat"><strong class="green" data-bind="badge-count">0</strong><span>Abzeichen</span></div>
         </div>
         <div class="gx-body">
           <a class="gx-card gx-alert" href="/berichtsheft" data-page-link>
             <div>
               <strong>Berichtsheft-Prüfung</strong>
-              <p>Ausbildungsnachweis 12 von 24 Wochen gepflegt</p>
+              <p data-bind="report-summary">Ausbildungsnachweis wird geladen…</p>
             </div>
-            <span class="gx-pill-red">3 fehlen</span>
+            <span class="gx-pill-red" data-bind="report-missing">—</span>
           </a>
           <a class="gx-card gx-coach" href="/mehr/coach" data-page-link>
             <span class="gx-emoji" aria-hidden="true">🤖</span>
@@ -808,6 +775,7 @@ window.OLC_SCREEN_RENDERERS = {
             <p class="gx-section-label sm">EINSTELLUNGEN</p>
             <div class="gx-settings">
               <a href="/mehr/benachrichtigungen" data-page-link><span><img src="/static/figma/gx/bell.svg" width="18" height="18" alt="" />Benachrichtigungen</span><img src="/static/figma/gx/chevron-sm.svg" width="16" height="16" alt="" /></a>
+              <a href="/mehr/darstellung" data-page-link><span><img src="/static/figma/gx/compass.svg" width="18" height="18" alt="" />Darstellung</span><img src="/static/figma/gx/chevron-sm.svg" width="16" height="16" alt="" /></a>
               <a href="/sprache" data-page-link><span><img src="/static/figma/gx/globe.svg" width="18" height="18" alt="" />Sprache</span><img src="/static/figma/gx/chevron-sm.svg" width="16" height="16" alt="" /></a>
               <a href="/dashboard/tagesziel" data-page-link><span><img src="/static/figma/gx/target-dark.svg" width="18" height="18" alt="" />Tagesziel anpassen</span><img src="/static/figma/gx/chevron-sm.svg" width="16" height="16" alt="" /></a>
               <a href="/mehr/export" data-page-link><span><img src="/static/figma/gx/download.svg" width="18" height="18" alt="" />Datenexport (Berichtsheft)</span><img src="/static/figma/gx/chevron-sm.svg" width="16" height="16" alt="" /></a>
@@ -821,104 +789,125 @@ window.OLC_SCREEN_RENDERERS = {
     </section>
   `,
   "s03_1-dashboard-default": () => `
-      <section class="dash-greeting">
-        <div>
-          <h2 data-bind="greeting-name">Hallo, Max!</h2>
-          <p>Bereit für deine tägliche Dosis Wissen?</p>
-        </div>
-        <div class="dash-chips">
-          <span class="chip-streak" title="Streak">
-            <img src="/static/figma/dash/fire.svg" width="16" height="16" alt="" />
-            <span data-bind="streak">12</span>
-          </span>
-          <span class="chip-xp" title="XP">
-            <img src="/static/figma/dash/coins.svg" width="16" height="16" alt="" />
-            <span data-bind="xp">2.450</span>
+    <section class="ov-screen" data-node-id="169:879" data-name="03.1 Dashboard - Default">
+      <div class="ov-main" data-node-id="169:880">
+        <div class="ov-status" data-node-id="169:881" aria-hidden="true">
+          <span>09:41</span>
+          <span class="ov-status-icons">
+            <img src="/static/figma/ov/ios-signal.svg" width="17" height="11" alt="" />
+            <img src="/static/figma/ov/ios-wifi.svg" width="15" height="11" alt="" />
+            <img src="/static/figma/ov/ios-battery.svg" width="25" height="12" alt="" />
           </span>
         </div>
-      </section>
-      <article class="dash-card fortsetzen-card">
-        <div class="topic-icon blue" aria-hidden="true">
-          <img src="/static/figma/dash/gauge.svg" width="22" height="22" alt="" />
-        </div>
-        <div class="fortsetzen-body">
-          <h3 data-bind="continue-title">Pneumatik - Schaltpläne</h3>
+        <header class="ov-header" data-node-id="169:890">
+          <span class="bze-badge">BZE</span>
+          <div class="ov-level" data-node-id="169:893">
+            <span class="level-ring-wrap">
+              <img class="level-ring-track" src="/static/figma/ov/ring-track.svg" width="32" height="32" alt="" />
+              <img class="level-ring-progress" src="/static/figma/ov/ring-progress.svg" width="32" height="32" alt="" />
+              <span class="level-ring" data-bind="level">7</span>
+            </span>
+            <span data-bind="level-caps">LEVEL 7</span>
+          </div>
+          <a class="menu-button" href="/mehr" data-page-link aria-label="Mehr">
+            <img src="/static/figma/ov/menu.svg" width="18" height="18" alt="" />
+          </a>
+        </header>
+        <section class="dash-greeting ov-greeting" data-node-id="169:902">
           <div>
-            <div class="progress-meta">
-              <span>Fortschritt</span>
-              <strong data-bind="continue-progress">12/30 Fragen</strong>
+            <h2 data-bind="greeting-name">Hallo, Max!</h2>
+            <p>Bereit für deine tägliche Dosis Wissen?</p>
+          </div>
+          <div class="dash-chips">
+            <span class="chip-streak" title="Streak">
+              <img src="/static/figma/ov/fire.svg" width="16" height="16" alt="" />
+              <span data-bind="streak">12</span>
+            </span>
+            <span class="chip-xp" title="XP">
+              <img src="/static/figma/ov/coins.svg" width="16" height="16" alt="" />
+              <span data-bind="xp">2.450</span>
+            </span>
+          </div>
+        </section>
+        <div class="ov-cards" data-node-id="169:915">
+          <article class="dash-card fortsetzen-card" data-node-id="169:916">
+            <div class="topic-icon blue" aria-hidden="true">
+              <img src="/static/figma/ov/gauge.svg" width="22" height="22" alt="" />
             </div>
-            <div class="progress-track"><span data-bind="continue-bar" style="width:40%"></span></div>
+            <div class="fortsetzen-body">
+              <h3 data-bind="continue-title">Pneumatik - Schaltpläne</h3>
+              <div>
+                <div class="progress-meta">
+                  <span>Fortschritt</span>
+                  <strong data-bind="continue-progress" data-format="compact">12/30 Fragen</strong>
+                </div>
+                <div class="progress-track"><span data-bind="continue-bar" style="width:40%"></span></div>
+              </div>
+              <div class="fortsetzen-actions">
+                <a class="primary-button ov-fortsetzen-btn" href="/lernen" data-page-link>Fortsetzen</a>
+                <span class="xp-badge">
+                  <img src="/static/figma/ov/bolt.svg" width="14" height="14" alt="" />
+                  +50 XP
+                </span>
+              </div>
+            </div>
+          </article>
+          <article class="dash-card tagesziel-card" data-node-id="169:935">
+            <div class="row-between">
+              <strong>Tagesziel</strong>
+              <span class="tagesziel-meta" data-bind="daily-goal" data-format="meta">3 von 5 Lektionen heute</span>
+            </div>
+            <div class="segmented-progress" data-bind="daily-segments">
+              <span class="filled"></span><span class="filled"></span><span class="filled"></span><span></span><span></span>
+            </div>
+            <p data-bind="daily-remaining" data-format="short">Noch 2 für dein Tagesziel</p>
+          </article>
+          <div class="dash-stats">
+            <article class="stat-tile success">
+              <div class="stat-tile-top">
+                <strong data-bind="readiness">67%</strong>
+                <span class="stat-icon success" aria-hidden="true">
+                  <img src="/static/figma/ov/check.svg" width="14" height="14" alt="" />
+                </span>
+              </div>
+              <span>Prüfungsreife</span>
+            </article>
+            <article class="stat-tile info">
+              <div class="stat-tile-top">
+                <strong data-bind="study-minutes">45 Min</strong>
+                <span class="stat-icon info" aria-hidden="true">
+                  <img src="/static/figma/ov/clock.svg" width="14" height="14" alt="" />
+                </span>
+              </div>
+              <span>Lernzeit heute</span>
+            </article>
           </div>
-          <div class="fortsetzen-actions">
-            <a class="primary-button fortsetzen-btn" href="/lernen" data-page-link>Fortsetzen</a>
-            <span class="xp-badge">
-              <img src="/static/figma/dash/bolt.svg" width="14" height="14" alt="" />
-              +50 XP
-            </span>
-          </div>
+          <article class="dash-card wochenbericht-card" data-node-id="169:961">
+            <div class="row-between">
+              <strong>Wochenbericht</strong>
+              <span data-bind="week-total">3h 20min diese Woche</span>
+            </div>
+            <div class="week-bars" data-bind="week-bars-live" aria-label="Wochenaktivität"></div>
+          </article>
+          <article class="dash-card wiederholung-card" data-node-id="169:987">
+            <div class="topic-icon rose" aria-hidden="true">
+              <img src="/static/figma/ov/cuboid.svg" width="22" height="22" alt="" />
+            </div>
+            <div class="wiederholung-body">
+              <h3 data-bind="review-topic">Wiederholung</h3>
+              <div class="wiederholung-meta">
+                <span class="danger"><span data-bind="wrong">3</span> Fehler zuletzt</span>
+                <a href="/lernen/fragen/fehler" data-page-link>Wiederholen
+                  <img src="/static/figma/ov/chevron.svg" width="10" height="10" alt="" />
+                </a>
+              </div>
+            </div>
+          </article>
         </div>
-      </article>
-      <article class="dash-card tagesziel-card">
-        <div class="row-between">
-          <strong>Tagesziel</strong>
-          <span class="tagesziel-meta" data-bind="daily-goal">3 von 5 Lektionen heute</span>
-        </div>
-        <div class="segmented-progress" data-bind="daily-segments">
-          <span class="filled"></span><span class="filled"></span><span class="filled"></span><span></span><span></span>
-        </div>
-        <p data-bind="daily-remaining">Noch 2 für dein Tagesziel</p>
-      </article>
-      <div class="dash-stats">
-        <article class="stat-tile success">
-          <div class="stat-tile-top">
-            <strong data-bind="readiness">67%</strong>
-            <span class="stat-icon success" aria-hidden="true">
-              <img src="/static/figma/dash/check.svg" width="14" height="14" alt="" />
-            </span>
-          </div>
-          <span>Prüfungsreife</span>
-        </article>
-        <article class="stat-tile info">
-          <div class="stat-tile-top">
-            <strong data-bind="study-minutes">45 Min</strong>
-            <span class="stat-icon info" aria-hidden="true">
-              <img src="/static/figma/dash/clock.svg" width="14" height="14" alt="" />
-            </span>
-          </div>
-          <span>Lernzeit heute</span>
-        </article>
       </div>
-      <article class="dash-card wochenbericht-card">
-        <div class="row-between">
-          <strong>Wochenbericht</strong>
-          <span data-bind="week-total">3h 20min diese Woche</span>
-        </div>
-        <div class="week-bars" aria-label="Wochenaktivität">
-          <div class="week-bar"><i style="height:32px"></i><span>Mo</span></div>
-          <div class="week-bar"><i style="height:45px"></i><span>Di</span></div>
-          <div class="week-bar"><i style="height:20px"></i><span>Mi</span></div>
-          <div class="week-bar"><i style="height:55px"></i><span>Do</span></div>
-          <div class="week-bar"><i style="height:40px"></i><span>Fr</span></div>
-          <div class="week-bar"><i class="empty" style="height:8px"></i><span>Sa</span></div>
-          <div class="week-bar"><i class="empty" style="height:4px"></i><span>So</span></div>
-        </div>
-      </article>
-      <article class="dash-card wiederholung-card">
-        <div class="topic-icon rose" aria-hidden="true">
-          <img src="/static/figma/dash/cuboid.svg" width="22" height="22" alt="" />
-        </div>
-        <div class="wiederholung-body">
-          <h3>Wiederholung: Werkstoffkunde</h3>
-          <div class="wiederholung-meta">
-            <span class="danger"><span data-bind="wrong">3</span> Fehler zuletzt</span>
-            <a href="/lernen/fragen/fehler" data-page-link>Wiederholen
-              <img src="/static/figma/dash/chevron.svg" width="10" height="10" alt="" />
-            </a>
-          </div>
-        </div>
-      </article>
-    `,
+      ${window.OLC_OV_NAV("start")}
+    </section>
+  `,
   "s03_2-dashboard-tagesziel": () => `
       <section class="dash-greeting">
         <div>
@@ -1468,7 +1457,7 @@ window.OLC_SCREEN_RENDERERS = {
             <span class="stat-pill success"><span data-bind="mastered">156</span> beherrscht</span>
             <span class="stat-pill info"><span data-bind="open-questions">23</span> offen</span>
           </div>
-          <a class="primary-button btn-block hub-cta" href="/lernen/fragen" data-page-link>
+          <a class="primary-button btn-block hub-cta" href="/lernen/frage" data-page-link data-action="start-next-unit">
             Starten
             <img src="/static/figma/learn/arrow-right.svg" width="16" height="16" alt="" />
           </a>
@@ -1563,12 +1552,12 @@ window.OLC_SCREEN_RENDERERS = {
               <p>Ein Zylinder, bei dem Druckluft auf beide Seiten des Kolbens wirken kann — für Vor- UND Rückbewegung.</p>
             </div>
             <div class="uebersetz-actions">
-              <button type="button" class="uebersetz-btn primary" data-action="toast" data-toast="Aussprache wird abgespielt">
+              <button type="button" class="uebersetz-btn primary" data-action="speak-translation">
                 <img src="/static/figma/learn2/overlay-volume.svg" width="16" height="16" alt="" /> Aussprache anhören
               </button>
-              <a class="uebersetz-btn secondary" href="/dashboard/merksaetze" data-page-link>
+              <button type="button" class="uebersetz-btn secondary" data-action="bookmark-term">
                 <img src="/static/figma/learn2/overlay-bookmark.svg" width="16" height="16" alt="" /> Zur Merkliste hinzufügen
-              </a>
+              </button>
             </div>
             <div class="overlay-home-indicator dark" aria-hidden="true"></div>
           </aside>
@@ -1774,7 +1763,7 @@ window.OLC_SCREEN_RENDERERS = {
             <img class="vid-poster" src="/static/figma/learn2/vid-player.png" width="358" height="220" alt="" />
             <div class="vid-dim" aria-hidden="true"></div>
             <div class="vid-player-top" aria-hidden="true"></div>
-            <button type="button" class="vid-play-btn" data-action="toast" data-toast="Demo-Video gestartet" aria-label="Abspielen">
+            <button type="button" class="vid-play-btn" data-action="watch-video" aria-label="Abspielen">
               <img src="/static/figma/learn2/vid-play.svg" width="56" height="56" alt="" />
             </button>
             <div class="vid-player-foot">
@@ -1856,19 +1845,19 @@ window.OLC_SCREEN_RENDERERS = {
           <i class="done"></i><i class="done"></i><i class="active"></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
         </div>
         <div class="ld-body">
-          <p class="ld-prompt">Welches hydraulische Bauteil wird durch das unten abgebildete Schaltzeichen dargestellt?</p>
+          <p class="ld-prompt" data-bind="live-question-prompt">Welches hydraulische Bauteil wird durch das unten abgebildete Schaltzeichen dargestellt?</p>
           <div class="ld-media">
             <img src="/static/figma/learn2/ld-symbol.png" width="120" height="120" alt="Schaltzeichen Hydraulikpumpe" />
           </div>
-          <div class="ld-answers">
-            <button type="button" class="ld-answer"><span class="ld-letter">A</span><span>Regelbares Drosselventil</span></button>
-            <button type="button" class="ld-answer selected"><span class="ld-letter">B</span><span>Hydraulikpumpe (konstant)</span></button>
-            <button type="button" class="ld-answer"><span class="ld-letter">C</span><span>Druckbegrenzungsventil</span></button>
-            <button type="button" class="ld-answer"><span class="ld-letter">D</span><span>Wegeventil (3/2 Wege)</span></button>
+          <div class="ld-answers" data-bind="live-answers">
+            <button type="button" class="ld-answer" data-index="0"><span class="ld-letter">A</span><span>Regelbares Drosselventil</span></button>
+            <button type="button" class="ld-answer" data-index="1"><span class="ld-letter">B</span><span>Hydraulikpumpe (konstant)</span></button>
+            <button type="button" class="ld-answer" data-index="2"><span class="ld-letter">C</span><span>Druckbegrenzungsventil</span></button>
+            <button type="button" class="ld-answer" data-index="3"><span class="ld-letter">D</span><span>Wegeventil (3/2 Wege)</span></button>
           </div>
         </div>
         <div class="ld-footer">
-          <a class="ld-submit" href="/lernen/feedback/richtig" data-page-link>Antwort prüfen</a>
+          <button class="ld-submit" type="button" data-action="confirm-answer" disabled>Antwort prüfen</button>
         </div>
       </div>
     `,
@@ -1896,64 +1885,62 @@ window.OLC_SCREEN_RENDERERS = {
       </article>
     `,
   "s04_17-lerneinheit-detail": () => `
-
-      <div class="screen-head"><p class="eyebrow">04.17</p><h2>Lerneinheit — Detail</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <div data-bind="unit-detail"></div>
-    `,
-  "s04_18-glossar-uebersicht": () => `
-
-      <div class="learn-tool-screen">
-        <div class="learn-title-row">
-          <h2 class="page-title">Glossar</h2>
-          <a class="icon-round" href="/lernen" data-page-link aria-label="Zurück">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>
-          </a>
+    <section class="gx-screen gx-einheit">
+      <div class="gx-scroll">
+        <div class="gx-page-header">
+          <div class="gx-page-title-row">
+            <h2>Lerneinheit</h2>
+            <a class="gx-level-pill soft" href="/lernen" data-page-link>Lernreise</a>
+          </div>
+          <p>Theorie, Praxis und Fragen zu dieser Einheit</p>
         </div>
-        <label class="field"><span class="visually-hidden">Suchen</span>
-          <input type="search" placeholder="Fachbegriff suchen…" />
-        </label>
-        <div class="bh-filters">
-          <button class="bh-chip active" type="button">Alle</button>
-          <button class="bh-chip" type="button">Metall</button>
-          <button class="bh-chip" type="button">Kunststoff</button>
-          <button class="bh-chip" type="button">Mathe</button>
-        </div>
-        <div class="glossar-list">
-          <article class="glossar-item">
-            <strong>Abmaß</strong>
-            <p class="muted">Differenz zwischen einem Grenzmaß und dem zugehörigen Nennmaß. Oberes Abmaß (ES/es), Unteres Abmaß (EI/ei).</p>
-            <div class="hub-meta"><span class="tool-chip">Messtechnik</span><span class="tool-chip">Toleranzen</span></div>
-          </article>
-          <article class="glossar-item">
-            <strong>Austenitisches Gefüge</strong>
-            <p class="muted">Kubisch-flächenzentrierte Kristallstruktur, stabil bei hohen Temperaturen, besonders zäh und korrosionsbeständig.</p>
-            <div class="hub-meta"><span class="tool-chip">Metall</span></div>
-          </article>
-          <article class="glossar-item">
-            <strong>Doppeltwirkender Zylinder</strong>
-            <p class="muted">Pneumatikzylinder, der in beide Richtungen mit Druckluft beaufschlagt wird.</p>
-            <div class="hub-meta"><span class="tool-chip">Pneumatik</span></div>
-          </article>
+        <div class="gx-body" data-bind="unit-detail">
+          <p class="muted">Lerneinheit wird geladen…</p>
         </div>
       </div>
-    `,
-  "s04_19-formeltrainer-flashcard": () => `
-
-      <div class="screen-head"><p class="eyebrow">04.19 Werkzeug</p><h2>Formeltrainer — Flashcard</h2>
-        <a class="secondary-button" href="/lernen" data-page-link>Zurueck</a></div>
-      <article class="card tool-stage">
-        <p class="eyebrow">Interaktive Uebung</p>
-        <h3>Formeltrainer — Flashcard</h3>
-        <p class="muted">Demo-Zustand mit realistischen Platzhaltern aus dem Designsystem.</p>
-        <div class="tool-canvas" aria-hidden="true"><span></span><span></span><span></span></div>
-        <div class="hub-meta"><span class="tool-chip">Formeltrainer</span><span class="tool-chip">5🔥</span><span class="tool-chip">Messtechnik — Runde 3</span><span class="tool-chip">Toleranzberechnung</span><span class="tool-chip">T = ES - EI</span></div>
-        <div class="row-actions">
-          <button class="primary-button" type="button" data-action="toast" data-toast="Uebung gespeichert (+15 XP)">Pruefen</button>
-          <button class="secondary-button" type="button" data-action="toast" data-toast="Naechste Aufgabe geladen">Naechste</button>
+      ${window.OLC_GX_NAV("learn")}
+    </section>
+  `,
+  "s04_18-glossar-uebersicht": () => `
+    <section class="gx-screen gx-glossar">
+      <div class="gx-scroll">
+        <div class="gx-page-header">
+          <div class="gx-page-title-row">
+            <h2>Glossar</h2>
+            <a class="gx-level-pill soft" href="/lernen" data-page-link>Zurück</a>
+          </div>
+          <p>Fachbegriffe aus der Ausbildung</p>
         </div>
-      </article>
-    `,
+        <div class="gx-body">
+          <label class="gx-search">
+            <span class="visually-hidden">Suchen</span>
+            <input type="search" data-action="glossary-search" placeholder="Fachbegriff suchen…" />
+          </label>
+          <div class="gx-section" data-bind="glossary-live">
+            <p class="muted">Glossar wird geladen…</p>
+          </div>
+        </div>
+      </div>
+      ${window.OLC_GX_NAV("learn")}
+    </section>
+  `,
+  "s04_19-formeltrainer-flashcard": () => `
+    <section class="gx-screen gx-flashcard">
+      <div class="gx-scroll">
+        <div class="gx-page-header">
+          <div class="gx-page-title-row">
+            <h2>Formeltrainer</h2>
+            <a class="gx-level-pill soft" href="/lernen/formeltrainer" data-page-link>Alle Formeln</a>
+          </div>
+          <p>Präge dir die Formel ein, dann prüfe das Beispiel.</p>
+        </div>
+        <div class="gx-body" data-bind="flashcard-live">
+          <p class="muted">Formel wird geladen…</p>
+        </div>
+      </div>
+      ${window.OLC_GX_NAV("learn")}
+    </section>
+  `,
   "s04_2-themenliste": () => `
       <section class="learn-drill" data-node-id="136:3719">
         <header class="learn-drill-header" data-node-id="136:3731">
@@ -2044,9 +2031,9 @@ window.OLC_SCREEN_RENDERERS = {
       <section class="learn-drill fragen-alle" data-node-id="136:4019">
         <div class="learn-drill-top">
           <header class="learn-drill-header">
-            <a class="learn-back" href="/lernen/themen" data-page-link>
+            <a class="learn-back" href="/lernen" data-page-link>
               <img src="/static/figma/learn2/q-arrow-left.svg" width="20" height="20" alt="" />
-              Pneumatik
+              Lernpfad
             </a>
             <div class="learn-drill-actions">
               <div class="learn-pct-ring" aria-label="Fortschritt 67%">
@@ -2060,14 +2047,15 @@ window.OLC_SCREEN_RENDERERS = {
             </div>
           </header>
           <div class="topic-stats figma-topic-stats">
-            <div class="row-between"><strong>30 Fragen — 12 beherrscht</strong><span class="mastery-pct">40%</span></div>
+            <div class="row-between"><strong>Alle Fragen der Lernreise</strong><span class="mastery-pct">0%</span></div>
             <div class="mastery-track"><span class="mastery-fill" style="width:40%"></span></div>
           </div>
           <div class="filter-pills learn-filters">
-            <a class="filter-pill active" href="/lernen/fragen" data-page-link>Alle</a>
-            <button type="button" class="filter-pill">Offen</button>
-            <a class="filter-pill" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
-            <button type="button" class="filter-pill">Beherrscht</button>
+            <button type="button" class="filter-pill active" data-action="practice-filter" data-practice-filter="all">Alle</button>
+            <button type="button" class="filter-pill" data-action="practice-filter" data-practice-filter="open">Offen</button>
+            <button type="button" class="filter-pill" data-action="practice-filter" data-practice-filter="once">1× richtig</button>
+            <button type="button" class="filter-pill" data-action="practice-filter" data-practice-filter="wrong">Falsch</button>
+            <button type="button" class="filter-pill" data-action="practice-filter" data-practice-filter="done">Abgeschlossen</button>
           </div>
           <div class="question-list figma-qlist" data-static="figma" data-bind="question-list">
             <a class="q-row" href="/lernen/frage" data-page-link>
@@ -2120,16 +2108,17 @@ window.OLC_SCREEN_RENDERERS = {
             </a>
           </div>
         </div>
-        <a class="primary-button btn-block hub-cta learn-all-btn" href="/lernen/frage" data-page-link>Alle lernen</a>
+        <a class="primary-button btn-block hub-cta learn-all-btn" href="/lernen/frage" data-page-link data-action="practice-start">Alle Fragen üben</a>
+        ${window.OLC_GX_NAV("learn")}
       </section>
     `,
   "s04_4-fragenliste-fehler": () => `
       <section class="learn-drill fragen-fehler" data-node-id="136:4241">
         <div class="learn-drill-top">
           <header class="learn-drill-header">
-            <a class="learn-back" href="/lernen/themen" data-page-link>
+            <a class="learn-back" href="/lernen" data-page-link>
               <img src="/static/figma/learn2/q-arrow-left.svg" width="20" height="20" alt="" />
-              Pneumatik
+              Lernpfad
             </a>
             <div class="learn-drill-actions">
               <div class="learn-pct-ring" aria-label="Fortschritt 67%">
@@ -2147,46 +2136,23 @@ window.OLC_SCREEN_RENDERERS = {
             <p>4 Fehler in Pneumatik — Wiederholung empfohlen!</p>
           </div>
           <div class="filter-pills learn-filters">
-            <a class="filter-pill" href="/lernen/fragen" data-page-link>Alle</a>
-            <button type="button" class="filter-pill">Offen</button>
-            <a class="filter-pill active error" href="/lernen/fragen/fehler" data-page-link>Fehler</a>
-            <button type="button" class="filter-pill">Beherrscht</button>
+            <button type="button" class="filter-pill" data-action="practice-filter" data-practice-filter="all">Alle</button>
+            <button type="button" class="filter-pill" data-action="practice-filter" data-practice-filter="open">Offen</button>
+            <button type="button" class="filter-pill" data-action="practice-filter" data-practice-filter="once">1× richtig</button>
+            <button type="button" class="filter-pill active error" data-action="practice-filter" data-practice-filter="wrong">Falsch</button>
+            <button type="button" class="filter-pill" data-action="practice-filter" data-practice-filter="done">Abgeschlossen</button>
           </div>
-          <div class="question-list figma-qlist" data-static="figma" data-bind="question-list">
-            <a class="q-row" href="/lernen/frage" data-page-link>
-              <img class="q-dot" src="/static/figma/learn2/dot-red.svg" width="10" height="10" alt="" />
-              <span>Wozu dient der Kondensatablass in Wartungseinheiten?</span>
-              <span class="diff-bars" aria-hidden="true"><i></i><i></i><i></i></span>
-              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
-            </a>
-            <a class="q-row" href="/lernen/frage" data-page-link>
-              <img class="q-dot" src="/static/figma/learn2/dot-red.svg" width="10" height="10" alt="" />
-              <span>Warum verbrennt Öl bei pneumatischer Kompression?</span>
-              <span class="diff-bars" aria-hidden="true"><i></i><i></i><i></i></span>
-              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
-            </a>
-            <a class="q-row" href="/lernen/frage" data-page-link>
-              <img class="q-dot" src="/static/figma/learn2/dot-red.svg" width="10" height="10" alt="" />
-              <span>Welches Symbol beschreibt ein Wechselventil nach ISO 1219?</span>
-              <span class="diff-bars d2" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
-              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
-            </a>
-            <a class="q-row" href="/lernen/frage" data-page-link>
-              <img class="q-dot" src="/static/figma/learn2/dot-red.svg" width="10" height="10" alt="" />
-              <span>Welcher Leitungsdurchmesser minimiert Strömungsverluste?</span>
-              <span class="diff-bars d2" aria-hidden="true"><i></i><i></i><i class="off"></i></span>
-              <img class="q-chev" src="/static/figma/learn2/q-chevron.svg" width="14" height="14" alt="" />
-            </a>
-          </div>
+          <div class="question-list figma-qlist" data-bind="question-list"></div>
         </div>
-        <a class="primary-button btn-block hub-cta learn-all-btn error-retry-btn" href="/lernen/frage" data-page-link>Fehler wiederholen</a>
+        <a class="primary-button btn-block hub-cta learn-all-btn error-retry-btn" href="/lernen/frage" data-page-link data-action="practice-start">Fehler wiederholen</a>
+        ${window.OLC_GX_NAV("learn")}
       </section>
     `,
   "s04_5-frage-multiple-choice": () => `
       <div class="q-play" data-node-id="136:4345">
         <div class="q-play-main">
           <div class="q-session-header">
-            <a class="q-close-btn" href="/lernen/fragen" data-page-link aria-label="Schliessen">
+            <a class="q-close-btn" href="/lernen" data-page-link aria-label="Schliessen">
               <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
             </a>
             <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:40%"></span></div>
@@ -2212,7 +2178,7 @@ window.OLC_SCREEN_RENDERERS = {
         </div>
         <div class="q-bottom-actions">
           <button class="primary-button btn-block btn-confirm" type="button" data-action="confirm-answer" disabled>Bestätigen</button>
-          <a class="ghost-link" href="/lernen/fragen" data-page-link>Überspringen</a>
+          <a class="ghost-link" href="/lernen" data-page-link>Überspringen</a>
         </div>
       </div>
     `,
@@ -2220,7 +2186,7 @@ window.OLC_SCREEN_RENDERERS = {
       <div class="q-play" data-node-id="136:4401">
         <div class="q-play-main">
           <div class="q-session-header">
-            <a class="q-close-btn" href="/lernen/fragen" data-page-link aria-label="Schliessen">
+            <a class="q-close-btn" href="/lernen" data-page-link aria-label="Schliessen">
               <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
             </a>
             <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:40%"></span></div>
@@ -2246,7 +2212,7 @@ window.OLC_SCREEN_RENDERERS = {
         </div>
         <div class="q-bottom-actions">
           <a class="primary-button btn-block btn-confirm-active" href="/lernen/feedback/richtig" data-page-link>Antwort prüfen</a>
-          <a class="ghost-link" href="/lernen/fragen" data-page-link>Überspringen</a>
+          <a class="ghost-link" href="/lernen" data-page-link>Überspringen</a>
         </div>
       </div>
     `,
@@ -2254,7 +2220,7 @@ window.OLC_SCREEN_RENDERERS = {
       <div class="q-play fb-play ok" data-node-id="136:4446">
         <div class="q-play-main">
           <div class="q-session-header">
-            <a class="q-close-btn" href="/lernen/fragen" data-page-link aria-label="Schliessen">
+            <a class="q-close-btn" href="/lernen" data-page-link aria-label="Schliessen">
               <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
             </a>
             <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:43%"></span></div>
@@ -2297,7 +2263,7 @@ window.OLC_SCREEN_RENDERERS = {
               <span>Merksatz: Einfach = Einseitig + Feder. Doppelt = Doppelseitig Luft.</span>
             </div>
           </article>
-          <a class="success-button btn-block" href="/lernen/frage" data-page-link>Weiter</a>
+          <a class="success-button btn-block" href="/lernen/frage" data-page-link data-learn-action="next">Weiter</a>
         </aside>
       </div>
     `,
@@ -2305,7 +2271,7 @@ window.OLC_SCREEN_RENDERERS = {
       <div class="q-play fb-play bad" data-node-id="136:4520">
         <div class="q-play-main">
           <div class="q-session-header">
-            <a class="q-close-btn" href="/lernen/fragen" data-page-link aria-label="Schliessen">
+            <a class="q-close-btn" href="/lernen" data-page-link aria-label="Schliessen">
               <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
             </a>
             <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:40%"></span></div>
@@ -2351,8 +2317,8 @@ window.OLC_SCREEN_RENDERERS = {
             <p class="fb-explain-text">Doppeltwirkende Zylinder haben nicht zwei Kolben, sondern eine beidseitige Kolbenfläche, die abwechselnd mit Druckluft beaufschlagt wird.</p>
           </article>
           <div class="fb-actions-row">
-            <a class="retry-outline-btn" href="/lernen/frage" data-page-link>Nochmal</a>
-            <a class="primary-button btn-continue" href="/lernen/frage" data-page-link>Weiter</a>
+            <a class="retry-outline-btn" href="/lernen/frage" data-page-link data-learn-action="retry">Nochmal</a>
+            <a class="primary-button btn-continue" href="/lernen/frage" data-page-link data-learn-action="next">Weiter</a>
           </div>
         </aside>
       </div>
@@ -2929,15 +2895,15 @@ window.OLC_SCREEN_RENDERERS = {
           <div class="fk-tz-card">
             <div class="fk-tz-nenn">
               <span>Nennmaß (d):</span>
-              <label class="fk-tz-input"><strong>50</strong><em>mm</em></label>
+              <label class="fk-tz-input"><strong contenteditable="true" data-tz-nominal>50</strong><em>mm</em></label>
             </div>
             <p class="fk-tz-label">ISO-Toleranzklasse</p>
             <div class="fk-tz-iso">
-              <button type="button">H6</button>
-              <button type="button" class="active">H7</button>
-              <button type="button">H8</button>
-              <button type="button">f7</button>
-              <button type="button">g6</button>
+              <button type="button" data-action="tz-iso" data-iso="H6">H6</button>
+              <button type="button" class="active" data-action="tz-iso" data-iso="H7">H7</button>
+              <button type="button" data-action="tz-iso" data-iso="H8">H8</button>
+              <button type="button" data-action="tz-iso" data-iso="f7">f7</button>
+              <button type="button" data-action="tz-iso" data-iso="g6">g6</button>
             </div>
             <hr class="fk-tz-hr" />
             <div class="fk-tz-limits">
@@ -2973,7 +2939,7 @@ window.OLC_SCREEN_RENDERERS = {
             <p class="fk-tz-pass-title">Passungs-Gegenstück (Welle) prüfen</p>
             <div class="fk-tz-pass-row">
               <div class="fk-tz-welle">Welle: <b>50 g6</b></div>
-              <button class="fk-tz-calc" type="button">Berechnen</button>
+              <button class="fk-tz-calc" type="button" data-action="tz-fit">Berechnen</button>
             </div>
             <div class="fk-tz-result">
               <img src="/static/figma/fk/fk-tz-check.svg" width="16" height="16" alt="" />
@@ -3012,11 +2978,11 @@ window.OLC_SCREEN_RENDERERS = {
               </div>
             </div>
             <div class="fk-sg-steps">
-              <div class="fk-sg-step active"><span>1</span><small>Schließen</small></div>
-              <div class="fk-sg-step"><span>2</span><small>Einspritzen</small></div>
-              <div class="fk-sg-step"><span>3</span><small>Nachdrücken</small></div>
-              <div class="fk-sg-step"><span>4</span><small>Kühlen</small></div>
-              <div class="fk-sg-step"><span>5</span><small>Auswerfen</small></div>
+              <div class="fk-sg-step active" data-action="sg-phase" data-phase="0"><span>1</span><small>Schließen</small></div>
+              <div class="fk-sg-step" data-action="sg-phase" data-phase="1"><span>2</span><small>Einspritzen</small></div>
+              <div class="fk-sg-step" data-action="sg-phase" data-phase="2"><span>3</span><small>Nachdrücken</small></div>
+              <div class="fk-sg-step" data-action="sg-phase" data-phase="3"><span>4</span><small>Kühlen</small></div>
+              <div class="fk-sg-step" data-action="sg-phase" data-phase="4"><span>5</span><small>Auswerfen</small></div>
             </div>
           </div>
           <div class="fk-sg-card detail">
@@ -3037,8 +3003,8 @@ window.OLC_SCREEN_RENDERERS = {
             </div>
           </div>
           <div class="fk-sg-nav">
-            <button type="button" class="fk-sg-prev"><img src="/static/figma/fk/fk-sg-arrow-left.svg" width="14" height="14" alt="" />Vorherige</button>
-            <button type="button" class="fk-sg-next">Nächste Phase<img src="/static/figma/fk/fk-sg-arrow-right.svg" width="14" height="14" alt="" /></button>
+            <button type="button" class="fk-sg-prev" data-action="sg-prev"><img src="/static/figma/fk/fk-sg-arrow-left.svg" width="14" height="14" alt="" />Vorherige</button>
+            <button type="button" class="fk-sg-next" data-action="sg-next">Nächste Phase<img src="/static/figma/fk/fk-sg-arrow-right.svg" width="14" height="14" alt="" /></button>
           </div>
           <img class="fk-sg-dots" src="/static/figma/fk/fk-sg-dots.svg" width="64" height="8" alt="" />
         </div>
@@ -3082,12 +3048,12 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
           <p class="fk-ms-q">Welchen Wert zeigt der Messschieber an?</p>
           <div class="fk-ms-options">
-            <button type="button" class="fk-ms-opt"><img src="/static/figma/fk/fk-ms-radio.svg" width="18" height="18" alt="" /><span>23.4 mm</span></button>
-            <button type="button" class="fk-ms-opt"><img src="/static/figma/fk/fk-ms-radio.svg" width="18" height="18" alt="" /><span>23.45 mm</span></button>
-            <button type="button" class="fk-ms-opt selected"><img src="/static/figma/fk/fk-ms-radio-on.svg" width="18" height="18" alt="" /><span>23.5 mm</span></button>
-            <button type="button" class="fk-ms-opt"><img src="/static/figma/fk/fk-ms-radio.svg" width="18" height="18" alt="" /><span>24.5 mm</span></button>
+            <button type="button" class="fk-ms-opt" data-action="ms-select" data-value="23.4"><img src="/static/figma/fk/fk-ms-radio.svg" width="18" height="18" alt="" /><span>23.4 mm</span></button>
+            <button type="button" class="fk-ms-opt" data-action="ms-select" data-value="23.45"><img src="/static/figma/fk/fk-ms-radio.svg" width="18" height="18" alt="" /><span>23.45 mm</span></button>
+            <button type="button" class="fk-ms-opt selected" data-action="ms-select" data-value="23.5"><img src="/static/figma/fk/fk-ms-radio-on.svg" width="18" height="18" alt="" /><span>23.5 mm</span></button>
+            <button type="button" class="fk-ms-opt" data-action="ms-select" data-value="24.5"><img src="/static/figma/fk/fk-ms-radio.svg" width="18" height="18" alt="" /><span>24.5 mm</span></button>
           </div>
-          <button class="fk-ms-submit" type="button" data-action="toast" data-toast="Antwort gespeichert (+15 XP)">Antwort einreichen</button>
+          <button class="fk-ms-submit" type="button" data-action="ms-submit">Antwort einreichen</button>
           <button class="fk-ms-help" type="button">Hilfe: Wie lese ich ab?<img src="/static/figma/fk/fk-ms-chevron-down.svg" width="14" height="14" alt="" /></button>
           <div class="fk-ms-tip">
             <img src="/static/figma/fk/fk-ms-info.svg" width="16" height="16" alt="" />
@@ -3107,40 +3073,7 @@ window.OLC_SCREEN_RENDERERS = {
         <div class="ex-scroll">
           <section class="ex-section">
             <h3 class="ex-section-title">Aktuelle Prüfungen</h3>
-            <article class="ex-card featured">
-              <div class="ex-card-top">
-                <span class="ex-ico purple"><img src="/static/figma/exam/ex-timer.svg" width="22" height="22" alt="" /></span>
-                <div>
-                  <strong>Zwischenprüfung Simulation</strong>
-                  <p>45 Fragen — 60 Minuten</p>
-                </div>
-              </div>
-              <div class="ex-divider" aria-hidden="true"></div>
-              <div class="ex-card-bottom">
-                <div class="ex-best">
-                  <img src="/static/figma/exam/ex-star.svg" width="14" height="14" alt="" />
-                  <span>Beste Note: <b>2 (78%)</b></span>
-                </div>
-                <button class="ex-start purple" type="button" data-action="exam-start-shortcut">Starten</button>
-              </div>
-            </article>
-            <article class="ex-card">
-              <div class="ex-card-top">
-                <span class="ex-ico blue"><img src="/static/figma/exam/ex-settings.svg" width="22" height="22" alt="" /></span>
-                <div>
-                  <strong>Themenprüfung: Pneumatik</strong>
-                  <p>20 Fragen — 30 Minuten</p>
-                </div>
-              </div>
-              <div class="ex-divider" aria-hidden="true"></div>
-              <div class="ex-card-bottom">
-                <div class="ex-attempt">
-                  <img src="/static/figma/exam/ex-alert.svg" width="14" height="14" alt="" />
-                  <span>Noch nicht versucht</span>
-                </div>
-                <button class="ex-start" type="button" data-action="exam-start-shortcut">Starten</button>
-              </div>
-            </article>
+            <div data-bind="exam-list-live"></div>
           </section>
           <section class="ex-section">
             <h3 class="ex-section-title">Prüfungsarten</h3>
@@ -3157,22 +3090,7 @@ window.OLC_SCREEN_RENDERERS = {
               <h3 class="ex-section-title">Letzte Ergebnisse</h3>
               <a href="/pruefungen/uebersicht" data-page-link class="ex-link">Alle Ergebnisse</a>
             </div>
-            <div class="ex-results">
-              <div class="ex-result">
-                <div class="ex-result-left"><span class="ex-dot ok"></span><strong>Zwischenprüfung</strong></div>
-                <div class="ex-result-right"><span class="ex-score ok">72%</span><span class="ex-date">12.03.</span></div>
-              </div>
-              <div class="ex-result-div" aria-hidden="true"></div>
-              <div class="ex-result">
-                <div class="ex-result-left"><span class="ex-dot warn"></span><strong>Pneumatik</strong></div>
-                <div class="ex-result-right"><span class="ex-score warn">65%</span><span class="ex-date">10.03.</span></div>
-              </div>
-              <div class="ex-result-div" aria-hidden="true"></div>
-              <div class="ex-result">
-                <div class="ex-result-left"><span class="ex-dot ok"></span><strong>Arbeitssicherheit</strong></div>
-                <div class="ex-result-right"><span class="ex-score ok">88%</span><span class="ex-date">08.03.</span></div>
-              </div>
-            </div>
+            <div class="ex-results" data-bind="exam-results-live"></div>
           </section>
           <div class="visually-hidden" data-bind="exam-live" aria-hidden="true"></div>
         </div>
@@ -3187,35 +3105,30 @@ window.OLC_SCREEN_RENDERERS = {
           </a>
           <div class="ex-q-timer">
             <img src="/static/figma/exam/ex-q-alarm.svg" width="18" height="18" alt="" />
-            <strong>47:23</strong>
+            <strong data-bind="exam-timer">--:--</strong>
           </div>
-          <span class="ex-q-progress">8/45</span>
+          <span class="ex-q-progress" data-bind="exam-progress-label">0/0</span>
         </header>
         <div class="ex-q-body">
           <article class="ex-q-card">
             <div class="ex-q-meta">
               <div class="ex-q-diff">
-                <span>Frage 8</span>
+                <span data-bind="exam-question-label">Frage 1</span>
                 <i></i><i></i><i class="off"></i>
               </div>
-              <em>Arbeitssicherheit</em>
+              <em data-bind="exam-topic">Prüfung</em>
             </div>
-            <p>Welche Schutzmaßnahme ist beim Arbeiten an drehenden Maschinenteilen ZWINGEND vorgeschrieben?</p>
+            <p data-bind="exam-question-prompt">Frage wird geladen…</p>
           </article>
-          <div class="ex-q-options">
-            <button type="button" class="ex-q-opt selected"><span>A</span><strong>Eng anliegende Kleidung tragen</strong></button>
-            <button type="button" class="ex-q-opt"><span>B</span><strong>Schutzbrille aufsetzen</strong></button>
-            <button type="button" class="ex-q-opt"><span>C</span><strong>Gehörschutz verwenden</strong></button>
-            <button type="button" class="ex-q-opt"><span>D</span><strong>Sicherheitsschuhe anziehen</strong></button>
-          </div>
+          <div class="ex-q-options" data-bind="exam-options"></div>
         </div>
         <footer class="ex-q-footer">
           <div class="ex-q-nav">
-            <a class="ex-q-back" href="/pruefungen/uebersicht" data-page-link>Zurück</a>
-            <button class="ex-q-flag" type="button" aria-label="Markieren">
+            <button class="ex-q-back" type="button" data-exam-action="prev">Zurück</button>
+            <button class="ex-q-flag" type="button" data-exam-action="toggle-mark" aria-label="Markieren">
               <img src="/static/figma/exam/ex-q-bookmark.svg" width="18" height="18" alt="" />
             </button>
-            <a class="ex-q-next" href="/pruefungen/uebersicht" data-page-link>Weiter</a>
+            <button class="ex-q-next" type="button" data-exam-action="next">Weiter</button>
           </div>
         </footer>
       </div>
@@ -3230,62 +3143,16 @@ window.OLC_SCREEN_RENDERERS = {
             <h2>Übersicht</h2>
             <div class="ex-ov-timer">
               <img src="/static/figma/exam/ex-ov-alarm.svg" width="16" height="16" alt="" />
-              <strong>47:23</strong>
+              <strong data-bind="exam-timer">--:--</strong>
             </div>
           </header>
           <div class="ex-ov-body">
-            <div class="ex-ov-grid">
-            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>1</a>
-            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>2</a>
-            <a class="ex-ov-cell answered marked" href="/pruefungen/frage" data-page-link>3<i aria-hidden="true"></i></a>
-            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>4</a>
-            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>5</a>
-            <a class="ex-ov-cell answered marked" href="/pruefungen/frage" data-page-link>6<i aria-hidden="true"></i></a>
-            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>7</a>
-            <a class="ex-ov-cell answered" href="/pruefungen/frage" data-page-link>8</a>
-            <a class="ex-ov-cell current" href="/pruefungen/frage" data-page-link>9</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>10</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>11</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>12</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>13</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>14</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>15</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>16</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>17</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>18</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>19</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>20</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>21</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>22</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>23</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>24</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>25</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>26</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>27</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>28</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>29</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>30</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>31</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>32</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>33</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>34</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>35</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>36</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>37</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>38</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>39</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>40</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>41</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>42</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>43</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>44</a>
-            <a class="ex-ov-cell open" href="/pruefungen/frage" data-page-link>45</a>
-            </div>
+            <div class="ex-ov-grid" data-bind="exam-overview-grid"></div>
             <div class="ex-ov-divider" aria-hidden="true"></div>
             <div class="ex-ov-stats">
-              <div><span>Beantwortet:</span><strong class="blue">8</strong></div>
-              <div><span>Markiert:</span><strong class="orange">2</strong></div>
-              <div><span>Offen:</span><strong>37</strong></div>
+              <div><span>Beantwortet:</span><strong class="blue" data-bind="exam-answered-count">0</strong></div>
+              <div><span>Markiert:</span><strong class="orange" data-bind="exam-marked-count">0</strong></div>
+              <div><span>Offen:</span><strong data-bind="exam-open-count">0</strong></div>
             </div>
             <div class="ex-ov-legend">
               <div><i class="lg-answered"></i>Beantwortet</div>
@@ -3296,7 +3163,7 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
         </div>
         <footer class="ex-ov-footer">
-          <a class="ex-ov-primary" href="/pruefungen/frage" data-page-link>Zur aktuellen Frage</a>
+          <button class="ex-ov-primary" type="button" data-exam-action="goto-current">Zur aktuellen Frage</button>
           <a class="ex-ov-secondary" href="/pruefungen/abgabe" data-page-link>Prüfung abgeben</a>
         </footer>
       </div>
@@ -3310,57 +3177,52 @@ window.OLC_SCREEN_RENDERERS = {
             </a>
             <div class="ex-tm-timer">
               <img src="/static/figma/exam/ex-tm-timer.svg" width="18" height="18" alt="" />
-              <strong>09:42</strong>
+              <strong data-bind="exam-timer">--:--</strong>
             </div>
-            <span class="ex-tm-progress">38/45</span>
+            <span class="ex-tm-progress" data-bind="exam-progress-label">0/0</span>
           </header>
-          <div class="ex-tm-warn">
+          <div class="ex-tm-warn" hidden>
             <img src="/static/figma/exam/ex-tm-alert.svg" width="18" height="18" alt="" />
             <p>Weniger als 10 Minuten verbleibend!</p>
           </div>
           <div class="ex-tm-body">
             <article class="ex-tm-card">
               <div class="ex-tm-meta">
-                <span>Frage 38</span>
-                <em>Maschinensicherheit</em>
+                <span data-bind="exam-question-label">Frage 1</span>
+                <em data-bind="exam-topic">Prüfung</em>
               </div>
-              <p>Welche Verhaltensregel verhindert Unfälle an Antrieben besonders wirksam?</p>
+              <p data-bind="exam-question-prompt">Frage wird geladen…</p>
             </article>
             <a class="ex-tm-jump" href="/pruefungen/uebersicht" data-page-link>
               <img src="/static/figma/exam/ex-tm-flag-off.svg" width="16" height="16" alt="" />
-              <span><em>Markiert:</em> <strong>#3, #6, #22</strong> — Zur Frage springen</span>
+              <span><em>Markiert:</em> <strong>keine</strong> — Zur Frage springen</span>
               <img class="ex-tm-jump-x" src="/static/figma/exam/ex-tm-dismiss.svg" width="14" height="14" alt="" />
             </a>
-            <div class="ex-tm-options">
-              <button type="button" class="ex-tm-opt"><span>A</span><strong>Schutzabdeckung entfernen</strong></button>
-              <button type="button" class="ex-tm-opt"><span>B</span><strong>Sicherheitsschalter überbrücken</strong></button>
-              <button type="button" class="ex-tm-opt"><span>C</span><strong>Haarnetz tragen bei langen Haaren</strong></button>
-              <button type="button" class="ex-tm-opt"><span>D</span><strong>Eng anliegende Kleidung tragen</strong></button>
-            </div>
+            <div class="ex-tm-options" data-bind="exam-options"></div>
           </div>
         </div>
         <footer class="ex-tm-footer">
           <div class="ex-tm-nav">
-            <a class="ex-tm-back" href="/pruefungen/frage" data-page-link>Zurück</a>
-            <button class="ex-tm-flag" type="button" aria-label="Markiert">
+            <button class="ex-tm-back" type="button" data-exam-action="prev">Zurück</button>
+            <button class="ex-tm-flag" type="button" data-exam-action="toggle-mark" aria-label="Markiert">
               <img src="/static/figma/exam/ex-tm-flag.svg" width="18" height="18" alt="" />
             </button>
-            <a class="ex-tm-next" href="/pruefungen/uebersicht" data-page-link>Weiter</a>
+            <button class="ex-tm-next" type="button" data-exam-action="next">Weiter</button>
           </div>
         </footer>
       </div>
     `,
   "s06_5-abgabe-bestaetigung": () => `
-      <div class="ex-screen ex-dark ex-ab-screen" data-node-id="136:8398">
-        <div class="ex-ab-bg" aria-hidden="true">
+      <div class="ex-screen ex-dark ex-ab-screen" data-node-id="171:10854">
+        <div class="ex-ab-bg" aria-hidden="true" data-bind="exam-ab-bg">
           <div class="ex-ab-bg-head">
-            <span>Abschlussprüfung Teil 1</span>
-            <em>45:12 Min</em>
+            <span data-bind="exam-title">Prüfung</span>
+            <em data-bind="exam-timer">--:--</em>
           </div>
-          <div class="ex-ab-bg-bar"><i></i></div>
+          <div class="ex-ab-bg-bar"><i data-bind="exam-progress-bar" style="width:0%"></i></div>
           <div class="ex-ab-bg-card">
-            <strong>Frage 38 von 45</strong>
-            <p>Erklären Sie den Unterschied zwischen einer SPS und einer festverdrahteten Steuerung...</p>
+            <strong data-bind="exam-bg-question-label">Frage 1 von 1</strong>
+            <p data-bind="exam-bg-question-prompt">…</p>
           </div>
         </div>
         <div class="ex-ab-overlay">
@@ -3373,17 +3235,17 @@ window.OLC_SCREEN_RENDERERS = {
               <p>Möchtest du deine Antworten wirklich einreichen und die Prüfung beenden?</p>
             </div>
             <div class="ex-ab-summary">
-              <div><span>Beantwortet:</span><strong class="ok">38 Fragen</strong></div>
-              <div><span>Offen (unbeantwortet):</span><strong class="bad">7 Fragen</strong></div>
-              <div><span>Markiert:</span><strong class="warn">2 Fragen</strong></div>
+              <div><span>Beantwortet:</span><strong class="ok" data-bind="exam-answered-summary">0 Fragen</strong></div>
+              <div><span>Offen (unbeantwortet):</span><strong class="bad" data-bind="exam-open-summary">0 Fragen</strong></div>
+              <div><span>Markiert:</span><strong class="warn" data-bind="exam-marked-summary">0 Fragen</strong></div>
             </div>
             <div class="ex-ab-callout">
               <img src="/static/figma/exam/ex-ab-info.svg" width="18" height="18" alt="" />
               <p>Offene Fragen werden als falsch gewertet.</p>
             </div>
             <div class="ex-ab-actions">
-              <a class="ex-ab-primary" href="/pruefungen/bestanden" data-page-link>Prüfung abgeben</a>
-              <a class="ex-ab-secondary" href="/pruefungen/uebersicht" data-page-link>Zurück zur Prüfung</a>
+              <button class="ex-ab-primary" type="button" data-action="exam-submit-confirm">Prüfung abgeben</button>
+              <a class="ex-ab-secondary" href="/pruefungen/frage" data-page-link>Zurück zur Prüfung</a>
             </div>
           </div>
         </div>
@@ -3394,7 +3256,7 @@ window.OLC_SCREEN_RENDERERS = {
         <div class="ex-rs-scroll">
           <header class="ex-rs-header">
             <h2>Prüfungsergebnis</h2>
-            <span class="ex-rs-xp"><img src="/static/figma/exam/ex-rs-star.svg" width="14" height="14" alt="" />1.450 XP</span>
+            <span class="ex-rs-xp"><img src="/static/figma/exam/ex-rs-star.svg" width="14" height="14" alt="" /><span data-bind="exam-result-xp-total">0 XP</span></span>
           </header>
           <div class="ex-rs-hero">
             <span class="ex-rs-spark s1" aria-hidden="true"></span>
@@ -3408,27 +3270,27 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
           <div class="ex-rs-headline">
             <h3>Bestanden!</h3>
-            <p>Hervorragende Leistung!</p>
+            <p data-bind="exam-result-subtitle">Hervorragende Leistung!</p>
           </div>
           <article class="ex-rs-grade">
             <div class="ex-rs-grade-main">
               <span>Deine Bewertung</span>
-              <div class="ex-rs-note"><strong>Note 2</strong><em>Gut</em></div>
-              <p>78% (35/45 richtig)</p>
+              <div class="ex-rs-note"><strong data-bind="exam-result-grade-note">—</strong><em data-bind="exam-result-grade-label">—</em></div>
+              <p data-bind="exam-result-score-summary">—</p>
             </div>
             <div class="ex-rs-xp-glow">
-              <strong>+200 XP</strong>
+              <strong data-bind="exam-result-xp-awarded">+0 XP</strong>
               <span>Erhalten</span>
             </div>
           </article>
           <article class="ex-rs-stats">
             <h4>Statistik</h4>
-            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-dot-g.svg" width="10" height="10" alt="" />Richtig beantwortet</span><strong>35 Fragen</strong></div>
-            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-dot-r.svg" width="10" height="10" alt="" />Falsch beantwortet</span><strong>8 Fragen</strong></div>
-            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-dot-s.svg" width="10" height="10" alt="" />Offen gelassen</span><strong>2 Fragen</strong></div>
-            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-clock.svg" width="16" height="16" alt="" />Benötigte Zeit</span><strong>52:18 Min</strong></div>
+            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-dot-g.svg" width="10" height="10" alt="" />Richtig beantwortet</span><strong data-bind="exam-result-correct-count">0 Fragen</strong></div>
+            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-dot-r.svg" width="10" height="10" alt="" />Falsch beantwortet</span><strong data-bind="exam-result-wrong-count">0 Fragen</strong></div>
+            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-dot-s.svg" width="10" height="10" alt="" />Offen gelassen</span><strong data-bind="exam-result-open-count">0 Fragen</strong></div>
+            <div class="ex-rs-stat-row"><span><img src="/static/figma/exam/ex-rs-clock.svg" width="16" height="16" alt="" />Benötigte Zeit</span><strong data-bind="exam-result-duration">0:00 Min</strong></div>
             <div class="ex-rs-divider" aria-hidden="true"></div>
-            <div class="ex-rs-record"><img src="/static/figma/exam/ex-rs-record.svg" width="16" height="16" alt="" />Neuer persönlicher Rekord!</div>
+            <div class="ex-rs-record" data-bind="exam-result-record" hidden><img src="/static/figma/exam/ex-rs-record.svg" width="16" height="16" alt="" />Neuer persönlicher Rekord!</div>
           </article>
           <div class="ex-rs-actions">
             <a class="ex-rs-primary" href="/pruefungen/schwach" data-page-link>Auswertung ansehen</a>
@@ -3445,7 +3307,7 @@ window.OLC_SCREEN_RENDERERS = {
         <div class="ex-rs-scroll">
           <header class="ex-rs-header">
             <h2>Prüfungsergebnis</h2>
-            <span class="ex-rs-xp"><img src="/static/figma/exam/ex-rs-star.svg" width="14" height="14" alt="" />1.450 XP</span>
+            <span class="ex-rs-xp"><img src="/static/figma/exam/ex-rs-star.svg" width="14" height="14" alt="" /><span data-bind="exam-result-xp-total">0 XP</span></span>
           </header>
           <div class="ex-rs-hero fail">
             <div class="ex-rs-burst fail">
@@ -3454,16 +3316,16 @@ window.OLC_SCREEN_RENDERERS = {
           </div>
           <div class="ex-rs-headline fail">
             <h3>Nicht bestanden</h3>
-            <p>Das war knapp! Kopf hoch.</p>
+            <p data-bind="exam-result-subtitle">Das war knapp! Kopf hoch.</p>
           </div>
           <article class="ex-rs-grade">
             <div class="ex-rs-grade-main">
               <span>Deine Bewertung</span>
-              <div class="ex-rs-note"><strong>Note 5</strong><em class="bad">Mangelhaft</em></div>
-              <p class="bad">42% (19/45 richtig)</p>
+              <div class="ex-rs-note"><strong data-bind="exam-result-grade-note">—</strong><em class="bad" data-bind="exam-result-grade-label">—</em></div>
+              <p class="bad" data-bind="exam-result-score-summary">—</p>
             </div>
             <div class="ex-rs-xp-soft">
-              <strong>+50 XP</strong>
+              <strong data-bind="exam-result-xp-awarded">+0 XP</strong>
               <span>Teilnahme</span>
             </div>
           </article>
@@ -3472,13 +3334,13 @@ window.OLC_SCREEN_RENDERERS = {
               <img src="/static/figma/exam/ex-fl-book.svg" width="20" height="20" alt="" />
               <strong>Nicht aufgeben!</strong>
             </div>
-            <p>Wiederhole deine Schwachstellen in Steuerungstechnik und lade dein Wissen vor dem nächsten Versuch auf.</p>
+            <p data-bind="exam-result-encourage">Wiederhole deine Schwachstellen und lade dein Wissen vor dem nächsten Versuch auf.</p>
             <a class="ex-rs-encourage-btn" href="/pruefungen/schwach" data-page-link>Schwache Themen ansehen</a>
           </article>
           <div class="ex-rs-mini">
-            <div><span>Richtig</span><strong class="ok">19</strong></div>
-            <div><span>Falsch</span><strong class="bad">23</strong></div>
-            <div><span>Offen</span><strong>3</strong></div>
+            <div><span>Richtig</span><strong class="ok" data-bind="exam-result-correct-num">0</strong></div>
+            <div><span>Falsch</span><strong class="bad" data-bind="exam-result-wrong-num">0</strong></div>
+            <div><span>Offen</span><strong data-bind="exam-result-open-num">0</strong></div>
           </div>
           <div class="ex-rs-actions">
             <a class="ex-rs-primary" href="/pruefungen/schwach" data-page-link>Auswertung</a>
@@ -3494,42 +3356,16 @@ window.OLC_SCREEN_RENDERERS = {
       <div class="ex-screen ex-dark ex-wk-screen" data-node-id="136:8622">
         <div class="ex-wk-scroll">
           <header class="ex-wk-header">
-            <a class="ex-wk-back" href="/pruefungen/durchgefallen" data-page-link aria-label="Zurück">
+            <a class="ex-wk-back" href="/pruefungen" data-bind="weak-back-link" data-page-link aria-label="Zurück">
               <img src="/static/figma/exam/ex-wk-back.svg" width="18" height="18" alt="" />
             </a>
             <h2>Schwache Themen</h2>
-            <span class="ex-rs-xp"><img src="/static/figma/exam/ex-wk-star.svg" width="14" height="14" alt="" />1.450 XP</span>
+            <span class="ex-rs-xp"><img src="/static/figma/exam/ex-wk-star.svg" width="14" height="14" alt="" /><span data-bind="exam-result-xp-total">0 XP</span></span>
           </header>
-          <p class="ex-wk-sub">Basierend auf deiner letzten Prüfung:</p>
-          <div class="ex-wk-list">
-            <article class="ex-wk-card critical">
-              <div class="ex-wk-top"><div class="ex-wk-title"><em>1.</em><strong>Steuerungstechnik</strong></div><span class="ex-wk-badge">Kritisch</span></div>
-              <div class="ex-wk-bar"><div class="ex-wk-bar-track"><i style="width:25%"></i></div><span>2/8 (25%)</span></div>
-              <p>Empfehlung: Kapitel 7 wiederholen</p>
-              <div class="ex-wk-actions"><a href="/lernen" data-page-link>Thema üben</a><img src="/static/figma/exam/ex-wk-chev.svg" width="16" height="16" alt="" /></div>
-            </article>
-            <article class="ex-wk-card weak">
-              <div class="ex-wk-top"><div class="ex-wk-title"><em>2.</em><strong>Hydraulik</strong></div><span class="ex-wk-badge">Schwach</span></div>
-              <div class="ex-wk-bar"><div class="ex-wk-bar-track"><i style="width:43%"></i></div><span>3/7 (43%)</span></div>
-              <p>Empfehlung: Formeln wiederholen</p>
-              <div class="ex-wk-actions"><a href="/lernen" data-page-link>Thema üben</a><img src="/static/figma/exam/ex-wk-chev.svg" width="16" height="16" alt="" /></div>
-            </article>
-            <article class="ex-wk-card fair">
-              <div class="ex-wk-top"><div class="ex-wk-title"><em>3.</em><strong>Elektrotechnik</strong></div><span class="ex-wk-badge">Ausbaufähig</span></div>
-              <div class="ex-wk-bar"><div class="ex-wk-bar-track"><i style="width:50%"></i></div><span>4/8 (50%)</span></div>
-              <div class="ex-wk-actions"><a href="/lernen" data-page-link>Thema üben</a><img src="/static/figma/exam/ex-wk-chev.svg" width="16" height="16" alt="" /></div>
-            </article>
-            <article class="ex-wk-card ok">
-              <div class="ex-wk-top"><div class="ex-wk-title"><em>4.</em><strong>Pneumatik</strong></div><span class="ex-wk-badge">OK</span></div>
-              <div class="ex-wk-bar"><div class="ex-wk-bar-track"><i style="width:71%"></i></div><span>5/7 (71%)</span></div>
-            </article>
-            <article class="ex-wk-card perfect">
-              <div class="ex-wk-top"><div class="ex-wk-title"><em>5.</em><strong>Arbeitssicherheit</strong></div><span class="ex-wk-badge">Perfekt</span></div>
-              <div class="ex-wk-bar"><div class="ex-wk-bar-track"><i style="width:100%"></i></div><span>6/6 (100%)</span></div>
-            </article>
-          </div>
+          <p class="ex-wk-sub" data-bind="weak-topics-sub">Basierend auf deinem Lernstand:</p>
+          <div class="ex-wk-list" data-bind="exam-weak-list"></div>
           <div class="ex-wk-bottom">
-            <a class="ex-rs-primary" href="/lernen" data-page-link>Alle schwachen Themen üben</a>
+            <a class="ex-rs-primary" href="/lernen/fragen/fehler" data-page-link>Alle schwachen Themen üben</a>
           </div>
         </div>
         
@@ -4302,7 +4138,7 @@ window.OLC_SCREEN_RENDERERS = {
             <textarea name="activities" hidden>Drehmaschine einrichten, Werkstück spannen, Schnittdaten berechnen und Probedurchlauf durchgeführt. Fräsarbeiten nach Zeichnung Nr. 8.2 ausgeführt. Kanten entgratet und Maße kontrolliert.</textarea>
           </div>
           <div class="bh-ne-actions">
-            <button class="bh-ne-draft" type="button" data-action="toast" data-toast="Entwurf gespeichert">Als Entwurf speichern</button>
+            <button class="bh-ne-draft" type="button" data-action="save-report-draft">Als Entwurf speichern</button>
             <button class="bh-ne-submit" type="submit">Zur Prüfung einreichen</button>
             <p class="feedback" data-feedback hidden></p>
           </div>
@@ -4360,8 +4196,8 @@ window.OLC_SCREEN_RENDERERS = {
             <p class="bh-ki-suggest-meta">💡 Basierend auf deinem Ausbildungsrahmenplan KW 12</p>
           </div>
           <div class="bh-ki-actions">
-            <button class="bh-ki-ghost" type="button" data-action="toast" data-toast="Vorschlag verworfen">Verwerfen</button>
-            <button class="bh-ki-primary" type="button" data-action="toast" data-toast="Vorschlag übernommen">Übernehmen</button>
+            <button class="bh-ki-ghost" type="button" data-action="dismiss-report-suggest">Verwerfen</button>
+            <button class="bh-ki-primary" type="button" data-action="apply-report-suggest">Übernehmen</button>
           </div>
           <div class="bh-ki-tip">
             <span aria-hidden="true">💡</span>
@@ -4424,7 +4260,7 @@ window.OLC_SCREEN_RENDERERS = {
           <div class="visually-hidden" data-bind="reports-live" aria-hidden="true"></div>
         </div>
         <div class="bh-sig-actions">
-          <button class="bh-sig-submit" type="button" data-action="toast" data-toast="Zur Unterschrift eingereicht">Unterschreiben &amp; Einreichen</button>
+          <button class="bh-sig-submit" type="button" data-action="sign-report">Unterschreiben &amp; Einreichen</button>
         </div>
       </div>
     `,
@@ -4541,7 +4377,7 @@ window.OLC_SCREEN_RENDERERS = {
                   <div><b></b><div><i></i><i></i></div></div>
                 </div>
                 <div class="bh-pdf-cta">
-                  <button type="button" data-action="toast" data-toast="PDF wird vorbereitet…">PDF erstellen</button>
+                  <button type="button" data-action="export-report-pdf">PDF erstellen</button>
                   <p>Geschätzte Größe: ~12 Seiten</p>
                 </div>
               </div>
@@ -4605,7 +4441,7 @@ window.OLC_SCREEN_RENDERERS = {
                 <a href="/mehr/profil" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-user.svg" width="16" height="16" alt="" /></span><span>Profil</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
                 <a href="/mehr/darstellung" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-eye.svg" width="16" height="16" alt="" /></span><span>Darstellung</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
                 <a href="/mehr/benachrichtigungen" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-bell.svg" width="16" height="16" alt="" /></span><span>Benachrichtigungen</span><img class="mehr2-chev" src="/static/figma/mehr/mehr-chevron.svg" width="16" height="16" alt="" /></a>
-                <a class="last" href="/sprache" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-globe.svg" width="16" height="16" alt="" /></span><span>Sprache</span><em>Deutsch</em></a>
+                <a class="last" href="/sprache" data-page-link><span class="mehr2-ico"><img src="/static/figma/mehr/mehr-globe.svg" width="16" height="16" alt="" /></span><span>Sprache</span><em data-bind="language-label">Deutsch</em></a>
               </nav>
             </section>
             <section class="mehr2-section">
@@ -4697,17 +4533,17 @@ window.OLC_SCREEN_RENDERERS = {
             <section class="mp-section">
               <p class="mp-label">Design</p>
               <div class="da-themes">
-                <button type="button" class="da-theme" data-action="toast" data-toast="Hell (Demo)">
+                <button type="button" class="da-theme" data-action="set-theme" data-theme="light">
                   <img src="/static/figma/mehr/da-sun.svg" width="20" height="20" alt="" />
                   <span>Hell</span>
                   <div class="da-mock light"><i></i><b></b><em></em></div>
                 </button>
-                <button type="button" class="da-theme on" data-action="toast" data-toast="Dunkel aktiv">
+                <button type="button" class="da-theme on" data-action="set-theme" data-theme="dark">
                   <img src="/static/figma/mehr/da-moon.svg" width="20" height="20" alt="" />
                   <span>Dunkel</span>
                   <div class="da-mock dark"><i></i><b></b><em></em></div>
                 </button>
-                <button type="button" class="da-theme" data-action="toast" data-toast="System (Demo)">
+                <button type="button" class="da-theme" data-action="set-theme" data-theme="system">
                   <img src="/static/figma/mehr/da-settings.svg" width="20" height="20" alt="" />
                   <span>System</span>
                   <div class="da-mock sys"><i></i><b></b><em></em></div>
@@ -4725,12 +4561,12 @@ window.OLC_SCREEN_RENDERERS = {
               <div class="da-row">
                 <img src="/static/figma/mehr/da-sun2.svg" width="20" height="20" alt="" />
                 <span>Hoher Kontrast</span>
-                <button class="mp-toggle" type="button" aria-pressed="false" data-action="toast" data-toast="Kontrast (Demo)"></button>
+                <button class="mp-toggle" type="button" aria-pressed="false" data-action="toggle-pref" data-pref="high_contrast"></button>
               </div>
               <div class="da-row">
                 <img src="/static/figma/mehr/da-film.svg" width="20" height="20" alt="" />
                 <div><strong>Animationen reduzieren</strong><small>Deaktiviert Konfetti, Level-Up und andere Animationen</small></div>
-                <button class="mp-toggle" type="button" aria-pressed="false" data-action="toast" data-toast="Animationen (Demo)"></button>
+                <button class="mp-toggle" type="button" aria-pressed="false" data-action="toggle-pref" data-pref="reduce_motion"></button>
               </div>
             </div>
           </div>
@@ -4754,17 +4590,17 @@ window.OLC_SCREEN_RENDERERS = {
               <div class="bn-row">
                 <div><strong>Tägliche Erinnerung</strong><small>Erinnere mich an mein tägliches Lernen</small></div>
                 <em class="bn-time">09:00</em>
-                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Tägliche Erinnerung (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toggle-notification" data-setting="daily_reminder"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
               </div>
               <div class="bn-row">
                 <div><strong>Streak in Gefahr</strong><small>Warnung vor dem Verlust der täglichen Serie</small></div>
                 
-                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Streak in Gefahr (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toggle-notification" data-setting="streak_risk"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
               </div>
               <div class="bn-row">
                 <div><strong>Tagesziel nicht erreicht</strong><small>Kurz vor Ende des Tages erinnern</small></div>
                 
-                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Tagesziel nicht erreicht (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toggle-notification" data-setting="daily_goal_missed"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
               </div>
               </div>
             </section>
@@ -4774,17 +4610,17 @@ window.OLC_SCREEN_RENDERERS = {
               <div class="bn-row">
                 <div><strong>Level-Up</strong><small>Gratulation bei Erreichen eines neuen Levels</small></div>
                 
-                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Level-Up (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toggle-notification" data-setting="level_up"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
               </div>
               <div class="bn-row">
                 <div><strong>Neue Badges</strong><small>Erfolgreiche Freischaltung von Abzeichen</small></div>
                 
-                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Neue Badges (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toggle-notification" data-setting="new_badges"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
               </div>
               <div class="bn-row">
                 <div><strong>Prüfungsreife erreicht</strong><small>Benachrichtigung bei 100% Reife</small></div>
                 
-                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Prüfungsreife erreicht (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toggle-notification" data-setting="exam_ready"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
               </div>
               </div>
             </section>
@@ -4794,12 +4630,12 @@ window.OLC_SCREEN_RENDERERS = {
               <div class="bn-row">
                 <div><strong>Fehlende Einträge</strong><small>Erinnerung am Ende der Woche</small></div>
                 
-                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Fehlende Einträge (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toggle-notification" data-setting="missing_reports"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
               </div>
               <div class="bn-row">
                 <div><strong>Freigabe erhalten</strong><small>Feedback vom Ausbilder liegt vor</small></div>
                 
-                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Freigabe erhalten (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toggle-notification" data-setting="report_approved"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
               </div>
               </div>
             </section>
@@ -4809,12 +4645,12 @@ window.OLC_SCREEN_RENDERERS = {
               <div class="bn-row">
                 <div><strong>Neue Inhalte verfügbar</strong><small>Neue Lernkarten und Module für deinen Kurs</small></div>
                 
-                <button class="mp-toggle " type="button" aria-pressed="false" data-action="toast" data-toast="Neue Inhalte verfügbar (Demo)"><img src="/static/figma/mehr/bn-toggle-off.svg" width="44" height="24" alt="" /></button>
+                <button class="mp-toggle " type="button" aria-pressed="false" data-action="toggle-notification" data-setting="new_content"><img src="/static/figma/mehr/bn-toggle-off.svg" width="44" height="24" alt="" /></button>
               </div>
               <div class="bn-row">
                 <div><strong>Wartungsarbeiten</strong><small>Geplante Ausfallzeiten des BZE Campus</small></div>
                 
-                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toast" data-toast="Wartungsarbeiten (Demo)"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
+                <button class="mp-toggle on" type="button" aria-pressed="true" data-action="toggle-notification" data-setting="maintenance"><img src="/static/figma/mehr/bn-toggle-on.svg" width="44" height="24" alt="" /></button>
               </div>
               </div>
             </section>
@@ -4922,18 +4758,18 @@ window.OLC_SCREEN_RENDERERS = {
             </div>
             <div data-bind="coach-live" hidden></div>
           </div>
-          <div class="kc-chips">
-            <button type="button" data-action="toast" data-toast="Übung gestartet (Demo)">Ja, Übung 🔥</button>
-            <button type="button" data-action="toast" data-toast="Andere Frage (Demo)">Andere Frage</button>
-            <button type="button" data-action="toast" data-toast="Alles klar (Demo)">Danke, alles klar!</button>
+            <div class="kc-chips">
+            <button type="button" data-action="coach-chip" data-message="Ja, Übung">Ja, Übung 🔥</button>
+            <button type="button" data-action="coach-chip" data-message="Andere Frage">Andere Frage</button>
+            <button type="button" data-action="coach-chip" data-message="Danke, alles klar!">Danke, alles klar!</button>
           </div>
           <div class="kc-input-wrap">
             <div class="kc-input-bar">
-              <button class="kc-attach" type="button" aria-label="Anhang" data-action="toast" data-toast="Anhang (Demo)">
+              <button class="kc-attach" type="button" aria-label="Anhang" data-action="coach-attach">
                 <img src="/static/figma/mehr/kc-clip.svg" width="20" height="20" alt="" />
               </button>
-              <div class="kc-field"><input type="text" placeholder="Nachricht eingeben..." aria-label="Nachricht" /></div>
-              <button class="kc-send" type="button" data-action="toast" data-toast="Nachricht gesendet (Demo)" aria-label="Senden">
+              <div class="kc-field"><input type="text" placeholder="Nachricht eingeben..." aria-label="Nachricht" data-coach-input /></div>
+              <button class="kc-send" type="button" data-action="coach-send" aria-label="Senden">
                 <img src="/static/figma/mehr/kc-send.svg" width="20" height="20" alt="" />
               </button>
             </div>
@@ -5022,7 +4858,7 @@ window.OLC_SCREEN_RENDERERS = {
             <img src="/static/figma/mehr/lp-chev.svg" width="20" height="20" alt="" />
           </article>
           <div class="lp-actions">
-            <button type="button" class="lp-adjust" data-action="toast" data-toast="Plan anpassen (Demo)">Plan anpassen</button>
+            <button type="button" class="lp-adjust" data-action="coach-chip" data-message="Bitte passe meinen Lernplan an">Plan anpassen</button>
             <a class="lp-ask" href="/mehr/coach" data-page-link>
               <img src="/static/figma/mehr/lp-bot-btn.svg" width="16" height="16" alt="" />
               <span>KI fragen</span>

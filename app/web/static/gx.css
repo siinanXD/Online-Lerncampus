@@ -51,6 +51,9 @@
   min-height: 100dvh;
   max-height: 100dvh;
 }
+body:has(.unit-pager) {
+  overflow: hidden;
+}
 
 .gx-screen {
   display: flex;

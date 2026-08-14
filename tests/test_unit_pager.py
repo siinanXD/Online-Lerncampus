@@ -21,7 +21,7 @@ def test_unit_detail_is_a_no_scroll_pager() -> None:
     assert ".unit-step-actions" in css
     assert "Fragen üben" in app_js
     assert "Wichtigster Begriff" in app_js
-    assert "block.body" not in app_js.split("function factSheetForUnit")[1].split("function coreFormulasForUnit")[0]
+    assert "visualKeyMatches(headingHay, key)" in app_js
 
 
 def test_fact_sheets_cover_deep_topics() -> None:

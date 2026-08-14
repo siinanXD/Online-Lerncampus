@@ -1381,6 +1381,15 @@ function renderReportsMarkup() {
     </div>`;
 }
 
+function resetPagerScroll(host) {
+  window.scrollTo(0, 0);
+  [host, host?.closest(".unit-pager"), host?.closest(".gx-screen"), document.getElementById("screen-root"), document.querySelector(".app-content")]
+    .filter(Boolean)
+    .forEach((node) => {
+      node.scrollTop = 0;
+    });
+}
+
 function compressLine(text, max = 140) {
   const clean = String(text || "").replace(/\s+/g, " ").trim();
   if (!clean) {
@@ -1404,7 +1413,7 @@ function factSheetForUnit(unit) {
   const month = Number(unit?.month) || 0;
   return (window.OLC_FACT_SHEETS || []).find((sheet) => {
     const monthHit = (sheet.months || []).includes(month);
-    const keyHit = (sheet.keys || []).some((key) => headingHay.includes(key));
+    const keyHit = (sheet.keys || []).some((key) => visualKeyMatches(headingHay, key));
     return monthHit || keyHit;
   }) || null;
 }
@@ -3814,6 +3823,7 @@ function renderFormulas(root, formulas) {
         }
       </div>
     </div>`;
+  resetPagerScroll(host);
 }
 
 function renderGlossary(root, terms) {
@@ -3841,6 +3851,7 @@ function renderGlossary(root, terms) {
   const pct = Math.round(((index + 1) / list.length) * 100);
   const visual = visualForContent({
     title: `${item.term} ${item.definition}`,
+    month: item.month || 3,
   });
   host.innerHTML = `
     <div class="unit-step">
@@ -3870,6 +3881,7 @@ function renderGlossary(root, terms) {
         }
       </div>
     </div>`;
+  resetPagerScroll(host);
 }
 
 function renderFlashcard(root, formulas) {
@@ -5534,6 +5546,7 @@ document.addEventListener("click", async (event) => {
       const host = document.querySelector("[data-bind='unit-detail']");
       if (host) {
         host.innerHTML = renderUnitDetailMarkup();
+        resetPagerScroll(host);
       }
       return;
     }
@@ -5543,6 +5556,7 @@ document.addEventListener("click", async (event) => {
       const host = document.querySelector("[data-bind='unit-detail']");
       if (host) {
         host.innerHTML = renderUnitDetailMarkup();
+        resetPagerScroll(host);
       }
       return;
     }

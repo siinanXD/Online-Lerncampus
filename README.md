@@ -51,7 +51,7 @@ Die App ist responsive. `127.0.0.1` funktioniert nur auf dem Rechner, auf dem de
 
 **Gleiches WLAN:** Server mit `--host 0.0.0.0` starten, dann auf dem Handy `http://<LAN-IP>:8000` oeffnen.
 
-**Oeffentliche URL (Railway):** Postgres-Plugin anlegen, `APP_SECRET` setzen, dann deployen. `railway.json` und das `Dockerfile` sind vorbereitet.
+**Oeffentliche URL (Railway):** https://web-production-5f260.up.railway.app
 
 ```bash
 docker build -t online-lerncampus .

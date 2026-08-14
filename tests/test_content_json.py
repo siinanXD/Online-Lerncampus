@@ -9,7 +9,14 @@ from app.data.content_bundle import (
     load_json_bundle,
     load_python_bundle,
 )
-from app.db.dialect import DbDialect, adapt_schema_sql, detect_dialect, insert_ignore_sql
+from app.db.dialect import (
+    DbDialect,
+    adapt_schema_sql,
+    adapt_sql,
+    detect_dialect,
+    group_concat_sql,
+    insert_ignore_sql,
+)
 
 
 def test_python_and_json_bundles_match_question_count(tmp_path: Path) -> None:
@@ -87,3 +94,19 @@ def test_insert_ignore_sql_is_dialect_specific() -> None:
     )
     assert "INSERT OR IGNORE" in sqlite_sql
     assert "ON CONFLICT" in postgres_sql
+
+
+def test_postgres_sql_rewrites_group_concat() -> None:
+    """PostgreSQL has no GROUP_CONCAT; learning queries must use STRING_AGG."""
+    sqlite_sql = (
+        "SELECT GROUP_CONCAT(DISTINCT sd.key) AS source_keys "
+        "FROM source_documents sd"
+    )
+    postgres_sql = adapt_sql(sqlite_sql, DbDialect.POSTGRESQL)
+    assert "GROUP_CONCAT" not in postgres_sql.upper()
+    assert "STRING_AGG(DISTINCT sd.key, ',')" in postgres_sql
+    assert group_concat_sql("qc.slug", DbDialect.SQLITE) == "GROUP_CONCAT(DISTINCT qc.slug)"
+    assert (
+        group_concat_sql("qc.slug", DbDialect.POSTGRESQL)
+        == "STRING_AGG(DISTINCT qc.slug, ',')"
+    )

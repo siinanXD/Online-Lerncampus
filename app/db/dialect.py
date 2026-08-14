@@ -43,12 +43,32 @@ def detect_dialect(database_url: str) -> DbDialect:
     raise ValueError("DATABASE_URL must use sqlite:/// or postgresql://")
 
 
+def group_concat_sql(expression: str, dialect: DbDialect, *, distinct: bool = True) -> str:
+    """Return a comma-separated aggregate for the target dialect."""
+    prefix = "DISTINCT " if distinct else ""
+    if dialect is DbDialect.SQLITE:
+        return f"GROUP_CONCAT({prefix}{expression})"
+    return f"STRING_AGG({prefix}{expression}, ',')"
+
+
 def adapt_sql(sql: str, dialect: DbDialect) -> str:
     """Translate SQLite-style SQL to the target dialect when needed."""
     if dialect is DbDialect.SQLITE:
         return sql
     adapted = sql.replace("?", "%s")
     adapted = adapted.replace("INSERT OR IGNORE", "INSERT")
+    adapted = re.sub(
+        r"GROUP_CONCAT\(DISTINCT\s+([^)]+)\)",
+        r"STRING_AGG(DISTINCT \1, ',')",
+        adapted,
+        flags=re.IGNORECASE,
+    )
+    adapted = re.sub(
+        r"GROUP_CONCAT\(([^)]+)\)",
+        r"STRING_AGG(\1, ',')",
+        adapted,
+        flags=re.IGNORECASE,
+    )
     return adapted
 
 

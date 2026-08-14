@@ -5,6 +5,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from app.main import create_app
+from tests.conftest import staff_login
 
 
 def build_client() -> TestClient:
@@ -200,8 +201,8 @@ def test_content_flag_and_leaderboard() -> None:
 def test_staff_and_admin_endpoints() -> None:
     client = build_client()
     learner_headers = login(client, f"azubi-{uuid4()}")
-    trainer_headers = login(client, f"trainer-{uuid4()}", role_prefix="trainer")
-    admin_headers = login(client, f"admin-{uuid4()}", role_prefix="admin")
+    trainer_headers, _trainer = staff_login(client, "trainer")
+    admin_headers, _admin = staff_login(client, "admin", platform_admin=True)
 
     assert client.get("/api/trainer/learners", headers=learner_headers).status_code == 403
     learners = client.get("/api/trainer/learners", headers=trainer_headers)

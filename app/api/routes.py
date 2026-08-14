@@ -1,8 +1,8 @@
 """HTTP routes for learning content, sources, and review workflows."""
 
-from fastapi import APIRouter, Header, HTTPException, Query, status
+from fastapi import APIRouter, Header, HTTPException, Query, Response, status
 
-from app.core.config import get_settings
+from app.core.config import SESSION_COOKIE_NAME, get_settings
 from app.data.content.helpers import humanize_question_options, humanize_question_prompt
 from app.models.domain import LearningUnit
 from app.schemas.content import (
@@ -122,6 +122,26 @@ def _auth_profile(learner_id: str) -> dict[str, bool]:
     }
 
 
+def _bootstrap_platform_admin() -> None:
+    """Provision the configured platform admin once at startup."""
+    current = get_settings()
+    identifier = current.bootstrap_admin_identifier.strip()
+    password = current.bootstrap_admin_password.strip()
+    if not identifier or not password:
+        return
+    try:
+        _auth().provision_user(
+            identifier=identifier,
+            password=password,
+            role="admin",
+            display_name="Plattform-Admin",
+            is_platform_admin=True,
+        )
+    except ValueError as error:
+        if "existiert bereits" not in str(error):
+            raise
+
+
 def bootstrap_content_store() -> None:
     """Load or seed curriculum content and wire dependent services."""
     global question_repository, progress_service, exam_session_service
@@ -141,13 +161,16 @@ def bootstrap_content_store() -> None:
         seeder = ContentSeeder(_database(), bundle=bundle)
         if seeder.is_empty():
             seeder.seed_all()
-            if not current.content_review_required:
-                _database().approve_all_content()
+            # The curated seed bundle is editorially reviewed content, so it
+            # goes live immediately. The review gate still applies to newly
+            # generated drafts from the content factory.
+            _database().approve_all_content()
         from app.services.platform_seeder import PlatformSeeder
 
         platform_seeder = PlatformSeeder(_database())
         if platform_seeder.is_empty():
             platform_seeder.seed_all()
+    _bootstrap_platform_admin()
     question_repository = QuestionRepository(
         database=_database(),
         content_source=source,  # type: ignore[arg-type]
@@ -182,6 +205,25 @@ def _progress() -> ProgressService:
         bootstrap_content_store()
     assert progress_service is not None
     return progress_service
+
+
+def set_session_cookie(response: Response, token: str) -> None:
+    """Attach the HttpOnly session cookie for browser clients."""
+    current = get_settings()
+    response.set_cookie(
+        key=SESSION_COOKIE_NAME,
+        value=token,
+        max_age=current.session_ttl_hours * 3600,
+        httponly=True,
+        secure=current.is_production_like,
+        samesite="lax",
+        path="/",
+    )
+
+
+def clear_session_cookie(response: Response) -> None:
+    """Remove the HttpOnly session cookie."""
+    response.delete_cookie(key=SESSION_COOKIE_NAME, path="/")
 
 
 def raise_bad_request(error: ValueError) -> None:
@@ -346,7 +388,7 @@ def get_content_stats() -> ContentStatsResponse:
 
 
 @api_router.post("/auth/login", response_model=LoginResponse)
-def login(request: LoginRequest) -> LoginResponse:
+def login(request: LoginRequest, response: Response) -> LoginResponse:
     """Create a pseudonymous learner session."""
     try:
         session = _auth().login(
@@ -356,6 +398,7 @@ def login(request: LoginRequest) -> LoginResponse:
         )
     except ValueError as error:
         raise_bad_request(error)
+    set_session_cookie(response, session.token)
     profile = _auth_profile(session.learner_id)
     return LoginResponse(
         access_token=session.token,
@@ -390,8 +433,12 @@ def get_current_learner(
 
 
 @api_router.post("/auth/logout", response_model=LogoutResponse)
-def logout(authorization: str | None = Header(default=None)) -> LogoutResponse:
+def logout(
+    response: Response,
+    authorization: str | None = Header(default=None),
+) -> LogoutResponse:
     """Revoke the current bearer token."""
+    clear_session_cookie(response)
     try:
         _auth().logout(authorization)
     except ValueError as error:
@@ -480,11 +527,13 @@ def export_privacy_data(
 
 @api_router.delete("/privacy/account", response_model=DeleteAccountResponse)
 def delete_privacy_account(
+    response: Response,
     authorization: str | None = Header(default=None),
 ) -> DeleteAccountResponse:
     """Delete the authenticated learner's account and learning data."""
     session = get_session(authorization)
     _progress().delete_learner_data(session.learner_id)
+    clear_session_cookie(response)
     return DeleteAccountResponse(deleted=True)
 
 
@@ -955,8 +1004,11 @@ def submit_exam_session(
 )
 def generate_content(
     request: ContentGenerationRequest,
+    authorization: str | None = Header(default=None),
 ) -> ContentGenerationResponse:
     """Create a draft learning mission from verified curriculum context."""
+    session = get_session(authorization)
+    require_role(session, "reviewer", "trainer", "admin")
     try:
         return content_factory.generate_draft(request)
     except ValueError as error:
@@ -964,8 +1016,13 @@ def generate_content(
 
 
 @api_router.post("/content/review", response_model=ContentGenerationResponse)
-def review_content(request: ContentReviewRequest) -> ContentGenerationResponse:
+def review_content(
+    request: ContentReviewRequest,
+    authorization: str | None = Header(default=None),
+) -> ContentGenerationResponse:
     """Review a draft learning mission and return its updated status."""
+    session = get_session(authorization)
+    require_role(session, "reviewer", "trainer", "admin")
     try:
         return content_factory.review_draft(request)
     except ValueError as error:

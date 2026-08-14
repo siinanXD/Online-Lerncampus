@@ -5,6 +5,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from app.main import create_app
+from tests.conftest import staff_login
 
 
 def build_client() -> TestClient:
@@ -43,7 +44,7 @@ def test_reviewer_role_can_list_pending_content() -> None:
     """Staff logins must expose the DB-backed review queue."""
     _reset_one_unit_to_draft()
     client = build_client()
-    headers = login(client, f"reviewer-{uuid4()}")
+    headers, _payload = staff_login(client, "reviewer")
     response = client.get("/api/content/review/pending", headers=headers)
     assert response.status_code == 200
     payload = response.json()
@@ -67,7 +68,7 @@ def test_reviewer_can_approve_learning_unit() -> None:
     """Approved content must become visible when review gate is enabled."""
     _reset_one_unit_to_draft()
     client = build_client()
-    headers = login(client, f"reviewer-{uuid4()}")
+    headers, _payload = staff_login(client, "reviewer")
     pending = client.get("/api/content/review/pending", headers=headers).json()
     unit = next(item for item in pending if item["entity_type"] == "learning_unit")
     response = client.post(

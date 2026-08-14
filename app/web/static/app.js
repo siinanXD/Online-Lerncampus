@@ -52,7 +52,9 @@ const state = {
   allQuestions: [],
   examKindFilter: "alle",
   currentExamQuestionIndex: 0,
-  accessToken: localStorage.getItem("ol_access_token"),
+  // The session token lives in an HttpOnly cookie; localStorage only keeps a
+  // non-sensitive marker so the UI knows a session exists after a reload.
+  accessToken: localStorage.getItem("ol_session_active") === "1" ? "cookie-session" : null,
   learnerId: localStorage.getItem("ol_learner_id"),
   role: localStorage.getItem("ol_role") || "learner",
   displayName: localStorage.getItem("ol_display_name") || "",
@@ -80,7 +82,9 @@ function resolveRoute(pathname = window.location.pathname) {
 }
 
 function authHeaders() {
-  return state.accessToken ? { Authorization: `Bearer ${state.accessToken}` } : {};
+  // Authentication happens via the HttpOnly session cookie, which the
+  // browser attaches automatically on same-origin requests.
+  return {};
 }
 
 function isLoggedIn() {
@@ -117,6 +121,7 @@ function clearSession() {
   state.gamification = null;
   state.coachPlan = null;
   state.pendingReviews = [];
+  localStorage.removeItem("ol_session_active");
   localStorage.removeItem("ol_access_token");
   localStorage.removeItem("ol_learner_id");
   localStorage.removeItem("ol_role");
@@ -235,12 +240,13 @@ async function login(identifier, password, cohortCode) {
       cohort_code: cohortCode || null,
     }),
   });
-  state.accessToken = session.access_token;
+  state.accessToken = "cookie-session";
   state.learnerId = session.learner_id;
   state.role = session.role || "learner";
   state.displayName = session.display_name || "";
   persistTenantProfile(session);
-  localStorage.setItem("ol_access_token", session.access_token);
+  localStorage.setItem("ol_session_active", "1");
+  localStorage.removeItem("ol_access_token");
   localStorage.setItem("ol_learner_id", session.learner_id);
   localStorage.setItem("ol_role", state.role);
   localStorage.setItem("ol_display_name", state.displayName);

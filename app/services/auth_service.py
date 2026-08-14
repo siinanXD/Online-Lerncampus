@@ -1,5 +1,6 @@
 """Pseudonymous authentication service for the MVP."""
 
+import time
 from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
@@ -8,6 +9,11 @@ from secrets import token_urlsafe
 from typing import Any
 
 import bcrypt
+
+MIN_PASSWORD_LENGTH = 8
+LOGIN_MAX_FAILURES = 5
+LOGIN_LOCKOUT_SECONDS = 15 * 60
+DEMO_LEARNER_IDENTIFIERS = frozenset({"demo-azubi"})
 
 
 @dataclass(frozen=True)
@@ -41,6 +47,7 @@ class AuthService:
         self.database = database
         self.app_secret = app_secret
         self.session_ttl_hours = session_ttl_hours
+        self._failed_logins: dict[str, list[float]] = {}
 
     def login(
         self,
@@ -54,18 +61,17 @@ class AuthService:
         clean_cohort = cohort_code.strip() if cohort_code else None
         if len(clean_identifier) < 3:
             raise ValueError("Benutzername oder E-Mail ist zu kurz.")
-        if len(clean_password) < 4:
-            raise ValueError("Passwort ist zu kurz.")
-        role, display_name = self._resolve_role(clean_identifier)
         identifier_hash = self._build_identifier_hash(clean_identifier)
+        self._enforce_login_rate_limit(identifier_hash)
         learner_id = f"learner_{identifier_hash[:16]}"
         existing = self.database.get_learner_by_identifier_hash(identifier_hash)
         is_new_learner = existing is None
-        is_platform_admin = (
-            role == "admin" and clean_identifier.startswith("admin-")
-            if is_new_learner
-            else bool((existing or {}).get("is_platform_admin"))
-        )
+        # Roles are never derived from the login input. New self-registered
+        # accounts always start as plain learners; staff accounts must be
+        # provisioned through provision_user by an existing admin.
+        role = "learner"
+        display_name = "Azubi"
+        is_platform_admin = bool((existing or {}).get("is_platform_admin"))
         from app.db.tenant_schema import DEFAULT_TENANT_ID
         from app.services.tenant_repository import TenantRepository
 
@@ -79,14 +85,17 @@ class AuthService:
         elif tenant_id is None:
             tenant_id = DEFAULT_TENANT_ID
         if is_new_learner:
+            self._validate_new_password(clean_password)
             password_hash = self._hash_password(clean_password)
         else:
             stored_hash = existing.get("password_hash")
             if stored_hash:
                 if not self._verify_password(clean_password, stored_hash):
+                    self._record_login_failure(identifier_hash)
                     raise ValueError("Passwort ist falsch.")
                 password_hash = None
             else:
+                self._validate_new_password(clean_password)
                 password_hash = self._hash_password(clean_password)
             if existing.get("tenant_id") and not is_platform_admin:
                 tenant_id = existing.get("tenant_id") or tenant_id
@@ -107,6 +116,7 @@ class AuthService:
         )
         if is_new_learner and self._requires_initial_password_change(clean_identifier):
             self.database.set_requires_password_change(learner_id, True)
+        self._clear_login_failures(identifier_hash)
         from app.services.platform_repository import PlatformRepository
 
         PlatformRepository(self.database).ensure_learner_defaults(learner_id)
@@ -153,8 +163,7 @@ class AuthService:
         clean_password = password.strip()
         if len(clean_identifier) < 3:
             raise ValueError("Benutzername oder E-Mail ist zu kurz.")
-        if len(clean_password) < 4:
-            raise ValueError("Passwort ist zu kurz.")
+        self._validate_new_password(clean_password)
         from app.db.tenant_schema import DEFAULT_TENANT_ID
         from app.services.platform_repository import PlatformRepository
         from app.services.tenant_repository import TenantRepository
@@ -337,24 +346,40 @@ class AuthService:
         ).hexdigest()
 
     @staticmethod
-    def _resolve_role(identifier: str) -> tuple[str, str]:
-        """Map demo login prefixes to staff roles."""
-        if identifier.startswith("admin-"):
-            return "admin", "Admin"
-        if identifier.startswith("reviewer-"):
-            return "reviewer", "Reviewer"
-        if identifier.startswith("trainer-"):
-            return "trainer", "Trainer"
-        return "learner", "Azubi"
-
-    @staticmethod
     def _requires_initial_password_change(identifier: str) -> bool:
         """Return True when a fresh learner must visit the password screen first."""
-        if identifier in {"demo-azubi", "admin-demo", "trainer-demo", "reviewer-demo"}:
-            return False
-        if identifier.startswith(("admin-", "trainer-", "reviewer-")):
-            return False
-        return True
+        return identifier not in DEMO_LEARNER_IDENTIFIERS
+
+    @staticmethod
+    def _validate_new_password(password: str) -> None:
+        """Enforce the minimum password policy for newly created accounts."""
+        if len(password) < MIN_PASSWORD_LENGTH:
+            raise ValueError(
+                f"Passwort muss mindestens {MIN_PASSWORD_LENGTH} Zeichen haben."
+            )
+
+    def _enforce_login_rate_limit(self, identifier_hash: str) -> None:
+        """Reject logins for an identifier with too many recent failures."""
+        now = time.monotonic()
+        recent = [
+            moment
+            for moment in self._failed_logins.get(identifier_hash, [])
+            if now - moment < LOGIN_LOCKOUT_SECONDS
+        ]
+        self._failed_logins[identifier_hash] = recent
+        if len(recent) >= LOGIN_MAX_FAILURES:
+            raise ValueError(
+                "Zu viele fehlgeschlagene Anmeldeversuche. "
+                "Bitte in 15 Minuten erneut versuchen."
+            )
+
+    def _record_login_failure(self, identifier_hash: str) -> None:
+        """Track one failed password attempt for rate limiting."""
+        self._failed_logins.setdefault(identifier_hash, []).append(time.monotonic())
+
+    def _clear_login_failures(self, identifier_hash: str) -> None:
+        """Reset the failure counter after a successful login."""
+        self._failed_logins.pop(identifier_hash, None)
 
     def _hash_token(self, token: str) -> str:
         """Build a non-reversible hash for a bearer token."""

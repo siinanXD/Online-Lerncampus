@@ -34,6 +34,61 @@ def isolated_test_environment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     get_settings.cache_clear()
 
 
+STAFF_TEST_PASSWORD = "Staff-Pass1!"
+
+
+def provision_staff(
+    role: str = "trainer",
+    *,
+    cohort_code: str | None = None,
+    tenant_id: str | None = None,
+    platform_admin: bool = False,
+    identifier: str | None = None,
+    password: str = STAFF_TEST_PASSWORD,
+) -> tuple[str, str]:
+    """Create a staff account directly, as an admin would via the API."""
+    from uuid import uuid4
+
+    from app.api import routes
+
+    routes.bootstrap_content_store()
+    account = identifier or f"{role}-{uuid4()}"
+    routes._auth().provision_user(
+        identifier=account,
+        password=password,
+        role=role,
+        cohort_code=cohort_code,
+        tenant_id=tenant_id,
+        is_platform_admin=platform_admin,
+    )
+    return account, password
+
+
+def staff_login(
+    client,
+    role: str = "trainer",
+    *,
+    cohort_code: str | None = None,
+    tenant_id: str | None = None,
+    platform_admin: bool = False,
+) -> tuple[dict[str, str], dict[str, object]]:
+    """Provision a staff account and return auth headers plus login payload."""
+    identifier, password = provision_staff(
+        role,
+        cohort_code=cohort_code,
+        tenant_id=tenant_id,
+        platform_admin=platform_admin,
+    )
+    response = client.post(
+        "/api/auth/login",
+        json={"identifier": identifier, "password": password},
+    )
+    assert response.status_code == 200, response.text
+    payload = response.json()
+    headers = {"Authorization": f"Bearer {payload['access_token']}"}
+    return headers, payload
+
+
 def correct_option_index(question_id: str) -> int:
     """Return the correct option index from the app's content store."""
     from app.api import routes

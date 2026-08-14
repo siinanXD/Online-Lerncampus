@@ -46,7 +46,7 @@ def main() -> None:
     parser.add_argument(
         "--approve",
         action="store_true",
-        help="Mark imported learning content as approved.",
+        help="Deprecated: seeded content is always approved automatically.",
     )
     args = parser.parse_args()
 
@@ -84,8 +84,9 @@ def main() -> None:
         return
 
     counts = seeder.seed_all(force=args.force)
-    if args.approve or not settings.content_review_required:
-        database.approve_all_content()
+    # Curated seed bundles are editorially reviewed and go live immediately;
+    # the review gate only applies to newly generated drafts.
+    database.approve_all_content()
     from app.services.platform_seeder import PlatformSeeder
 
     platform_counts = PlatformSeeder(database).seed_all(force=args.force)

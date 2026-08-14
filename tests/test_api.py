@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 
 from app.main import create_app
 from tests.conftest import correct_option_index as _correct_index
+from tests.conftest import staff_login
 
 
 def build_client() -> TestClient:
@@ -186,8 +187,10 @@ def test_curriculum_endpoint_returns_24_months() -> None:
 def test_generate_content_endpoint() -> None:
     """Ensure the generation endpoint returns a draft mission."""
     client = build_client()
+    headers, _payload = staff_login(client, "reviewer")
     response = client.post(
         "/api/content/generate",
+        headers=headers,
         json={
             "occupation_slug": "maschinen-und-anlagenfuehrer",
             "specialization_slug": "metall-und-kunststofftechnik",
@@ -205,8 +208,10 @@ def test_generate_content_endpoint() -> None:
 def test_generate_content_endpoint_rejects_unknown_month() -> None:
     """Ensure invalid generation context returns a client error."""
     client = build_client()
+    headers, _payload = staff_login(client, "reviewer")
     response = client.post(
         "/api/content/generate",
+        headers=headers,
         json={
             "occupation_slug": "maschinen-und-anlagenfuehrer",
             "month": 25,

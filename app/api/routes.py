@@ -161,8 +161,10 @@ def bootstrap_content_store() -> None:
         seeder = ContentSeeder(_database(), bundle=bundle)
         if seeder.is_empty():
             seeder.seed_all()
-            if not current.content_review_required:
-                _database().approve_all_content()
+            # The curated seed bundle is editorially reviewed content, so it
+            # goes live immediately. The review gate still applies to newly
+            # generated drafts from the content factory.
+            _database().approve_all_content()
         from app.services.platform_seeder import PlatformSeeder
 
         platform_seeder = PlatformSeeder(_database())

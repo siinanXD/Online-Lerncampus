@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 260" role="img" aria-labelledby="t d">
+  <title id="t">Einfach- und doppeltwirkender Zylinder</title>
+  <desc id="d">Links einfachwirkend mit Feder, rechts doppeltwirkend mit zwei Luftanschlüssen.</desc>
+  <rect width="680" height="260" fill="#f8fafc"/>
+  <g fill="none" stroke="#0f172a" stroke-width="2.2">
+    <rect x="40" y="78" width="240" height="70" rx="4"/>
+    <rect x="40" y="96" width="70" height="34" fill="#cbd5e1" stroke="#0f172a"/>
+    <path d="M110 113 H290"/>
+    <path d="M70 148 V170 H50"/>
+    <path d="M168 90 q18 23 0 46" />
+    <path d="M186 90 q18 23 0 46"/>
+    <path d="M204 90 q18 23 0 46"/>
+    <rect x="380" y="78" width="250" height="70" rx="4"/>
+    <rect x="380" y="96" width="78" height="34" fill="#93c5fd" stroke="#0f172a"/>
+    <path d="M458 113 H640"/>
+    <path d="M410 148 V170 H392"/>
+    <path d="M530 148 V170 H548"/>
+  </g>
+  <circle cx="50" cy="170" r="5" fill="#1d4ed8"/>
+  <circle cx="392" cy="170" r="5" fill="#1d4ed8"/>
+  <circle cx="548" cy="170" r="5" fill="#1d4ed8"/>
+  <text x="40" y="58" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="800" fill="#0f172a">Einfachwirkend</text>
+  <text x="380" y="58" font-family="Inter, Arial, sans-serif" font-size="14" font-weight="800" fill="#0f172a">Doppeltwirkend</text>
+  <text x="40" y="208" font-family="Inter, Arial, sans-serif" font-size="12" fill="#475569">Luft nur in eine Richtung, Rückstellung durch Feder</text>
+  <text x="380" y="208" font-family="Inter, Arial, sans-serif" font-size="12" fill="#475569">Luft für Vor- und Rückhub, zwei Anschlüsse</text>
+</svg>

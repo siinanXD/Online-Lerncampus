@@ -92,7 +92,18 @@ class ContentRepository:
             query += " AND cm.month = ?"
             params.append(month)
         query += """
-            GROUP BY qq.id
+            GROUP BY
+                qq.id,
+                qq.question_id,
+                qc.slug,
+                qq.prompt,
+                qq.options_json,
+                qq.correct_option_index,
+                qq.explanation,
+                qq.difficulty,
+                qq.exam_style,
+                cm.month,
+                qc.subchapter_number
             ORDER BY cm.month, qc.subchapter_number, qq.question_id
         """
         with self.database._transaction() as connection:
@@ -119,7 +130,16 @@ class ContentRepository:
                 ON csl.entity_type = 'quiz_question' AND csl.entity_id = qq.id
             LEFT JOIN source_documents sd ON sd.id = csl.source_id
             WHERE qq.question_id = ? AND qq.is_active = 1{review_sql}
-            GROUP BY qq.id
+            GROUP BY
+                qq.id,
+                qq.question_id,
+                qc.slug,
+                qq.prompt,
+                qq.options_json,
+                qq.correct_option_index,
+                qq.explanation,
+                qq.difficulty,
+                qq.exam_style
         """
         with self.database._transaction() as connection:
             row = connection.execute(query, (question_id, *review_params)).fetchone()
@@ -155,7 +175,17 @@ class ContentRepository:
             query += " AND cm.month = ?"
             params.append(month)
         query += """
-            GROUP BY lu.id
+            GROUP BY
+                lu.id,
+                lu.slug,
+                cm.month,
+                lu.position,
+                lu.title,
+                lu.subtitle,
+                lu.learning_goals_json,
+                lu.practice_task,
+                lu.estimated_minutes,
+                lu.review_status
             ORDER BY cm.month, lu.position
         """
         with self.database._transaction() as connection:
@@ -194,7 +224,13 @@ class ContentRepository:
             LEFT JOIN source_documents sd ON sd.id = csl.source_id
             WHERE oq.question_id IN ({placeholders})
                 AND oq.is_active = 1{review_sql}
-            GROUP BY oq.id
+            GROUP BY
+                oq.id,
+                oq.question_id,
+                qc.slug,
+                oq.prompt,
+                oq.answer_format,
+                oq.sample_solution
         """
         with self.database._transaction() as connection:
             rows = connection.execute(query, (*question_ids, *review_params)).fetchall()

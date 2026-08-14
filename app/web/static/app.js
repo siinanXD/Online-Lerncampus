@@ -60,6 +60,9 @@ const state = {
   tenantName: localStorage.getItem("ol_tenant_name") || "",
   isPlatformAdmin: localStorage.getItem("ol_platform_admin") === "1",
   currentPath: "/",
+  unitStepIndex: 0,
+  formulaIndex: 0,
+  glossaryIndex: 0,
 };
 
 const routeConfig = window.OLC_ROUTE_CONFIG || {};
@@ -143,6 +146,64 @@ function escapeHtml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function visualCoverForMonth(month) {
+  const entry =
+    (window.OLC_VISUALS?.months || {})[Number(month)] || window.OLC_VISUALS?.months?.[1];
+  if (!entry) {
+    return null;
+  }
+  return {
+    src: `/static/visuals/${entry.file}`,
+    alt: entry.alt,
+    caption: entry.alt,
+  };
+}
+
+function visualKeyMatches(haystack, key) {
+  const escaped = String(key).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return new RegExp(`(^|[^a-zäöü0-9])${escaped}(?![a-zäöü0-9])`, "i").test(haystack);
+}
+
+function visualForContent({ month, title, prompt, categorySlug } = {}) {
+  const haystack = [title, prompt, categorySlug]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  const figures = window.OLC_VISUALS?.figures || [];
+  const match = figures.find((fig) => fig.keys.some((key) => visualKeyMatches(haystack, key)));
+  if (match) {
+    return match;
+  }
+  const fromSlug = Number(String(categorySlug || "").match(/^m(\d{2})/)?.[1]);
+  return visualCoverForMonth(fromSlug || month || state.learnMonth || 1);
+}
+
+function renderVisualFigure(visual, className) {
+  if (!visual?.src) {
+    return "";
+  }
+  const caption = visual.caption || visual.alt || "";
+  return `<figure class="${className}">
+    <img src="${escapeHtml(visual.src)}" alt="${escapeHtml(visual.alt || "")}" />
+    ${caption ? `<figcaption>${escapeHtml(caption)}</figcaption>` : ""}
+  </figure>`;
+}
+
+function fillVisualSlot(slot, visual) {
+  if (!slot) {
+    return;
+  }
+  if (!visual?.src) {
+    slot.hidden = true;
+    slot.innerHTML = "";
+    return;
+  }
+  slot.hidden = false;
+  slot.innerHTML = `<img src="${escapeHtml(visual.src)}" alt="${escapeHtml(visual.alt || "")}" width="680" height="260" />${
+    visual.caption ? `<figcaption>${escapeHtml(visual.caption)}</figcaption>` : ""
+  }`;
 }
 
 async function fetchJson(url, options = {}) {
@@ -1119,6 +1180,14 @@ function bindLiveData(root, config) {
   if (livePrompt && state.questions.length && !isFeedbackScreen && isLearnQuestionScreen) {
     const question = state.questions[state.currentQuestionIndex % state.questions.length];
     livePrompt.textContent = question.prompt;
+    fillVisualSlot(
+      root.querySelector("[data-bind='question-media']"),
+      visualForContent({
+        prompt: question.prompt,
+        categorySlug: question.category_slug,
+        month: state.learnMonth,
+      }),
+    );
     if (liveAnswers) {
       const letters = ["A", "B", "C", "D", "E", "F"];
       liveAnswers.innerHTML = question.options
@@ -1312,6 +1381,179 @@ function renderReportsMarkup() {
     </div>`;
 }
 
+function resetPagerScroll(host) {
+  window.scrollTo(0, 0);
+  [host, host?.closest(".unit-pager"), host?.closest(".gx-screen"), document.getElementById("screen-root"), document.querySelector(".app-content")]
+    .filter(Boolean)
+    .forEach((node) => {
+      node.scrollTop = 0;
+    });
+}
+
+function compressLine(text, max = 140) {
+  const clean = String(text || "").replace(/\s+/g, " ").trim();
+  if (!clean) {
+    return "";
+  }
+  if (clean.length <= max) {
+    return clean;
+  }
+  const dot = clean.indexOf(". ");
+  const sentence = dot > 20 && dot < max ? clean.slice(0, dot + 1) : "";
+  if (sentence) {
+    return sentence;
+  }
+  return `${clean.slice(0, max - 1)}…`;
+}
+
+function factSheetForUnit(unit) {
+  const headingHay = `${unit?.title || ""} ${unit?.subtitle || ""} ${(unit?.theory_blocks || [])
+    .map((block) => block.heading || "")
+    .join(" ")}`.toLowerCase();
+  const month = Number(unit?.month) || 0;
+  return (window.OLC_FACT_SHEETS || []).find((sheet) => {
+    const monthHit = (sheet.months || []).includes(month);
+    const keyHit = (sheet.keys || []).some((key) => visualKeyMatches(headingHay, key));
+    return monthHit || keyHit;
+  }) || null;
+}
+
+function coreFormulasForUnit(unit) {
+  const month = Number(unit?.month) || 0;
+  const headingHay = `${unit?.title || ""} ${unit?.subtitle || ""} ${(unit?.theory_blocks || [])
+    .map((block) => block.heading || "")
+    .join(" ")}`.toLowerCase();
+  return (window.OLC_CORE_FORMULAS || []).filter((item) => {
+    const monthHit = (item.months || []).includes(month);
+    const textHit =
+      headingHay.includes((item.title || "").toLowerCase()) ||
+      headingHay.includes((item.slug || "").replace(/-/g, " "));
+    return monthHit || textHit;
+  });
+}
+
+function buildUnitSteps(unit) {
+  const visual = visualForContent({
+    month: unit.month,
+    title: `${unit.title} ${unit.subtitle || ""}`,
+    categorySlug: (unit.category_slugs || [])[0],
+  });
+  const steps = [
+    {
+      kind: "intro",
+      kicker: `Monat ${unit.month} · Einheit ${unit.position || 1}`,
+      title: unit.title,
+      body: compressLine(unit.subtitle || (unit.learning_goals || [])[0] || "", 90),
+      visual,
+    },
+  ];
+  (unit.theory_blocks || []).slice(0, 2).forEach((block) => {
+    const points = (block.key_points || []).slice(0, 2);
+    steps.push({
+      kind: "theory",
+      kicker: "Merken",
+      title: block.heading || unit.title,
+      points: points.length ? points : [compressLine(block.body, 90)],
+      visual: visualForContent({
+        month: unit.month,
+        title: `${block.heading || ""} ${unit.title}`,
+        categorySlug: (unit.category_slugs || [])[0],
+      }),
+    });
+  });
+  const sheet = factSheetForUnit(unit);
+  if (sheet) {
+    steps.push({
+      kind: "facts",
+      kicker: "Wichtigste Kenndaten",
+      title: sheet.title,
+      headers: sheet.headers,
+      rows: (sheet.rows || []).slice(0, 4),
+      note: sheet.note,
+      visual: visualForContent({
+        month: unit.month,
+        title: sheet.title,
+        categorySlug: (unit.category_slugs || [])[0],
+      }),
+    });
+  }
+  Object.entries(unit.glossary || {})
+    .slice(0, 3)
+    .forEach(([term, definition]) => {
+      steps.push({
+        kind: "term",
+        kicker: "Wichtigster Begriff",
+        title: term,
+        body: compressLine(definition, 110),
+        visual: visualForContent({
+          month: unit.month,
+          title: `${term} ${definition}`,
+          categorySlug: (unit.category_slugs || [])[0],
+        }),
+      });
+    });
+  coreFormulasForUnit(unit).slice(0, 1).forEach((formula) => {
+    steps.push({
+      kind: "formula",
+      kicker: "Kernformel",
+      title: formula.title,
+      expression: formula.expression,
+      legend: (formula.legend || []).slice(0, 3),
+      example: compressLine(formula.example, 90),
+      visual: visualForContent({
+        month: unit.month,
+        title: `${formula.title} ${formula.expression || ""}`,
+        categorySlug: (unit.category_slugs || [])[0],
+      }),
+    });
+  });
+  steps.push({
+    kind: "practice",
+    kicker: "Sichern",
+    title: "Jetzt mit Fragen üben",
+    body: "Eine Karte, dann Weiter — danach kurze Bildfragen.",
+    visual,
+  });
+  return steps;
+}
+
+function renderUnitStepBody(step) {
+  if (step.kind === "facts") {
+    const head = (step.headers || []).map((cell) => `<th>${escapeHtml(cell)}</th>`).join("");
+    const rows = (step.rows || [])
+      .map(
+        (row) =>
+          `<tr>${row.map((cell) => `<td>${escapeHtml(cell)}</td>`).join("")}</tr>`,
+      )
+      .join("");
+    return `<table class="unit-fact-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>
+      ${step.note ? `<p class="unit-step-note">${escapeHtml(step.note)}</p>` : ""}`;
+  }
+  if (step.kind === "terms" || step.kind === "term") {
+    if (step.terms?.length) {
+      return `<ul class="unit-term-list">${(step.terms || [])
+        .map(([term, definition]) => `<li><strong>${escapeHtml(term)}</strong> ${escapeHtml(compressLine(definition, 90))}</li>`)
+        .join("")}</ul>`;
+    }
+    return `${step.body ? `<p class="unit-step-body">${escapeHtml(step.body)}</p>` : ""}`;
+  }
+  if (step.kind === "formula") {
+    const legend = (step.legend || [])
+      .map((item) => `<span><b>${escapeHtml(item.symbol)}</b> ${escapeHtml(item.meaning)}</span>`)
+      .join("");
+    return `<p class="unit-formula">${escapeHtml(step.expression)}</p>
+      <div class="unit-legend">${legend}</div>
+      ${step.example ? `<p class="unit-step-note">${escapeHtml(step.example)}</p>` : ""}`;
+  }
+  const points = (step.points || [])
+    .slice(0, 3)
+    .map((point) => `<li>${escapeHtml(compressLine(point, 90))}</li>`)
+    .join("");
+  return `${step.body ? `<p class="unit-step-body">${escapeHtml(step.body)}</p>` : ""}
+    ${points ? `<ul class="unit-key-list">${points}</ul>` : ""}
+    ${step.note ? `<p class="unit-step-note">${escapeHtml(step.note)}</p>` : ""}`;
+}
+
 function renderUnitsMarkup() {
   if (!state.units.length) {
     return `<p class="muted">Keine Lerneinheiten geladen.</p>`;
@@ -1333,48 +1575,38 @@ function renderUnitDetailMarkup() {
     return `<p class="muted">Lerneinheit wählen.</p>
       <div data-bind-nested="units">${renderUnitsMarkup()}</div>`;
   }
-  const theory = (unit.theory_blocks || [])
-    .map(
-      (block) => `
-      <article class="gx-card">
-        <p class="gx-kicker">${escapeHtml(block.heading || "Fachkunde")}</p>
-        <strong>${escapeHtml(block.heading || unit.title)}</strong>
-        <p>${escapeHtml(block.body || "")}</p>
-        <ul class="gx-key-list">${(block.key_points || [])
-          .map((point) => `<li>${escapeHtml(point)}</li>`)
-          .join("")}</ul>
-        ${(block.norm_references || []).length
-          ? `<p class="muted">${escapeHtml(block.norm_references.join(" · "))}</p>`
-          : ""}
-      </article>`,
-    )
-    .join("");
-  const glossaryEntries = Object.entries(unit.glossary || {});
-  const glossary = glossaryEntries.length
-    ? `<article class="gx-card">
-        <p class="gx-kicker">Glossar</p>
-        <ul class="gx-key-list">${glossaryEntries
-          .map(([term, definition]) => `<li><strong>${escapeHtml(term)}</strong> — ${escapeHtml(definition)}</li>`)
-          .join("")}</ul>
-        <a class="gx-chip" href="/lernen/glossar" data-page-link>Alle Begriffe</a>
-      </article>`
-    : "";
+  const steps = buildUnitSteps(unit);
+  const index = Math.max(0, Math.min(Number(state.unitStepIndex) || 0, steps.length - 1));
+  state.unitStepIndex = index;
+  const step = steps[index];
+  const isLast = index >= steps.length - 1;
+  const pct = Math.round(((index + 1) / steps.length) * 100);
+  const nextLabel = isLast ? "Fragen üben" : "Weiter";
+  const nextAction = isLast
+    ? `data-action="start-unit" data-unit-slug="${escapeHtml(unit.slug)}"`
+    : `data-action="unit-step-next"`;
   return `
-    <article class="gx-card gx-continue">
-      <p class="gx-kicker">Monat ${unit.month} · Einheit ${unit.position || 1}</p>
-      <strong>${escapeHtml(unit.title)}</strong>
-      <p>${escapeHtml(unit.subtitle || unit.practice_task || "")}</p>
-    </article>
-    ${theory || `<article class="gx-card"><p>${escapeHtml(unit.practice_task || "Keine Theorie hinterlegt.")}</p></article>`}
-    ${glossary}
-    <div class="gx-section">
-      <p class="gx-section-label">WEITERLERNEN</p>
-      <div class="gx-chips">
-        <a class="gx-chip" href="/lernen/frage" data-page-link data-action="start-unit" data-unit-slug="${escapeHtml(unit.slug)}">Fragen üben</a>
-        <a class="gx-chip" href="/lernen/formeltrainer" data-page-link>Formeltrainer</a>
-        <a class="gx-chip" href="/lernen/video" data-page-link>Video</a>
-        <a class="gx-chip" href="/lernen/fehlerdiagnose" data-page-link>Fehlerdiagnose</a>
-        <a class="gx-chip" href="/fachkunde/einheit" data-page-link data-unit-slug="${escapeHtml(unit.slug)}">Fachkunde</a>
+    <div class="unit-step">
+      <header class="unit-step-header">
+        <a class="q-close-btn" href="/lernen" data-page-link aria-label="Schliessen">
+          <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
+        </a>
+        <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:${pct}%"></span></div>
+        <span class="q-tracker">${index + 1}/${steps.length}</span>
+      </header>
+      <div class="unit-step-main">
+        ${renderVisualFigure(step.visual, "unit-step-visual")}
+        <p class="gx-kicker">${escapeHtml(step.kicker || "")}</p>
+        <h3 class="unit-step-title">${escapeHtml(step.title || unit.title)}</h3>
+        ${renderUnitStepBody(step)}
+      </div>
+      <div class="unit-step-actions">
+        ${
+          index > 0
+            ? `<button class="ghost-link" type="button" data-action="unit-step-back">Zurück</button>`
+            : `<span></span>`
+        }
+        <button class="primary-button btn-block" type="button" ${nextAction}>${nextLabel}</button>
       </div>
     </div>`;
 }
@@ -1436,11 +1668,15 @@ function renderGxJourneyLive() {
         const index = units.findIndex((item) => item.slug === unit.slug);
         return !unit.completed && index > currentIndex;
       });
+      const cover = visualCoverForMonth(month);
       const header = `
         <div class="gx-path-month${lockedMonth ? " is-locked" : ""}">
-          <span>Monat ${month}${meta.checkpoint ? " · Checkpoint" : ""}</span>
-          <strong>${escapeHtml(title)}</strong>
-          <em>${doneCount}/${monthUnits.length} Einheiten</em>
+          ${cover ? `<img class="gx-path-cover" src="${escapeHtml(cover.src)}" alt="${escapeHtml(cover.alt)}" />` : ""}
+          <div class="gx-path-month-copy">
+            <span>Monat ${month}${meta.checkpoint ? " · Checkpoint" : ""}</span>
+            <strong>${escapeHtml(title)}</strong>
+            <em>${doneCount}/${monthUnits.length} Einheiten</em>
+          </div>
         </div>`;
       const nodes = monthUnits
         .map((unit) => {
@@ -1457,18 +1693,26 @@ function renderGxJourneyLive() {
               : `<img src="/static/figma/gx/target.svg" width="24" height="24" alt="" />`;
           const xp = unitXpReward(unit, isCurrent);
           const status = done ? `+${xp} XP` : locked ? "Noch gesperrt" : `+${xp} XP`;
+          const thumb = visualForContent({
+            month,
+            title: unit.title,
+            categorySlug: (unit.category_slugs || [])[0],
+          });
           const action = locked
             ? `type="button" data-action="toast" data-toast="Noch gesperrt"`
             : `href="/lernen/einheit" data-page-link data-action="open-unit" data-unit-slug="${escapeHtml(unit.slug)}"`;
           const tag = locked ? "button" : "a";
+          const thumbImg = thumb
+            ? `<img class="gx-node-thumb" src="${escapeHtml(thumb.src)}" alt="" />`
+            : "";
           return `
         <${tag} class="gx-path-row ${side}${locked ? " is-locked" : ""}" ${action}>
-          ${side === "left" ? `<div class="gx-node ${nodeClass}">${icon}</div>` : ""}
+          ${side === "left" ? `<div class="gx-node ${nodeClass}">${thumbImg}${icon}</div>` : ""}
           <div class="gx-node-text${side === "right" ? " end" : ""}">
             <strong>${escapeHtml(unit.title)}</strong>
             <span class="${done ? "ok" : locked ? "muted" : "now"}">${escapeHtml(status)}</span>
           </div>
-          ${side === "right" ? `<div class="gx-node ${nodeClass}">${icon}</div>` : ""}
+          ${side === "right" ? `<div class="gx-node ${nodeClass}">${thumbImg}${icon}</div>` : ""}
         </${tag}>`;
         })
         .join("");
@@ -1793,6 +2037,14 @@ function bindExamLiveScreens(root, config) {
     if (promptEl) {
       promptEl.textContent = current.prompt;
     }
+    fillVisualSlot(
+      root.querySelector("[data-bind='exam-question-media']"),
+      visualForContent({
+        prompt: current.prompt,
+        categorySlug: current.category_slug,
+        title: exam.title,
+      }),
+    );
     root.querySelectorAll("[data-bind='exam-topic']").forEach((el) => {
       el.textContent = exam.title || "Prüfung";
     });
@@ -1842,6 +2094,14 @@ function bindExamLiveScreens(root, config) {
       if (promptEl) {
         promptEl.textContent = current.prompt;
       }
+      fillVisualSlot(
+        root.querySelector("[data-bind='exam-question-media']"),
+        visualForContent({
+          prompt: current.prompt,
+          categorySlug: current.category_slug,
+          title: exam.title,
+        }),
+      );
       root.querySelectorAll("[data-bind='exam-topic']").forEach((el) => {
         el.textContent = exam.title || "Prüfung";
       });
@@ -2352,6 +2612,10 @@ async function openLearnUnit(slug) {
   } catch {
     state.activeUnit = unit;
   }
+  state.unitStepIndex = 0;
+  if (!state.formulas.length) {
+    state.formulas = await fetchJson("/api/formulas").catch(() => []);
+  }
   await navigateTo("/lernen/einheit");
 }
 
@@ -2404,6 +2668,14 @@ function bindLearnPractice(root, config) {
   if (prompt) {
     prompt.textContent = attempt.prompt;
   }
+  fillVisualSlot(
+    root.querySelector("[data-bind='question-media']"),
+    visualForContent({
+      prompt: attempt.prompt,
+      categorySlug: attempt.category_slug,
+      month: state.learnMonth,
+    }),
+  );
   const answers = root.querySelector(".fb-answers");
   if (answers) {
     answers.innerHTML = (attempt.options || [])
@@ -3486,46 +3758,72 @@ async function bindPlatformTools(root, config) {
   }
 }
 
+function coreFormulaCards(formulas) {
+  const slugs = window.OLC_CORE_FORMULA_SLUGS || [];
+  const catalog = window.OLC_CORE_FORMULAS || [];
+  const cards = slugs
+    .map((slug) => {
+      const fromCatalog = catalog.find((item) => item.slug === slug);
+      const fromApi = (formulas || []).find((item) => item.slug === slug);
+      if (!fromCatalog && !fromApi) {
+        return null;
+      }
+      return { ...(fromApi || {}), ...(fromCatalog || {}) };
+    })
+    .filter(Boolean);
+  return cards.length ? cards : (formulas || []).slice(0, 9);
+}
+
 function renderFormulas(root, formulas) {
-  const scroll = root.querySelector(".formel-scroll");
-  if (!scroll || !formulas.length) {
+  const host =
+    root.querySelector("[data-bind='formula-live']") || root.querySelector(".formel-scroll");
+  if (!host || !formulas.length) {
     return;
   }
-  const chips = scroll.querySelector(".formel-chips");
-  const topics = ["alle", ...new Set(formulas.map((item) => item.topic))];
-  if (chips) {
-    chips.innerHTML = topics
-      .map(
-        (topic, index) =>
-          `<button type="button" class="formel-chip${index === 0 ? " active" : ""}" data-action="filter-formulas" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`,
-      )
-      .join("");
-  }
-  const cards = formulas
-    .map((formula, index) => {
-      if (index === 0) {
-        const legend = (formula.legend || [])
-          .map((item) => `<div><b>${escapeHtml(item.symbol)}</b><span>${escapeHtml(item.meaning)}</span></div>`)
-          .join("");
-        return `<article class="formel-card expanded">
-          <div class="formel-card-head"><div><strong>${escapeHtml(formula.title)}</strong><p>${escapeHtml(formula.topic)}</p></div></div>
-          <div class="formel-box">${escapeHtml(formula.expression)}</div>
-          <div class="formel-legend">${legend}</div>
-          <div class="formel-example"><p class="formel-example-label">Beispiel:</p><p>${escapeHtml(formula.example)}</p></div>
-          <div class="formel-card-foot">
-            <span class="formel-diff">${escapeHtml(formula.difficulty)}</span>
-            <button type="button" class="formel-practice" data-action="practice-formula" data-slug="${escapeHtml(formula.slug)}">Ueben <span>+10 XP</span></button>
-          </div>
-        </article>`;
-      }
-      return `<button type="button" class="formel-card collapsed" data-action="practice-formula" data-slug="${escapeHtml(formula.slug)}">
-        <div class="formel-card-left"><strong>${escapeHtml(formula.title)}</strong><span class="formel-eq">${escapeHtml(formula.expression)}</span></div>
-        <div class="formel-card-right"><span class="formel-diff">${escapeHtml(formula.difficulty)}</span></div>
-      </button>`;
-    })
+  const cards = coreFormulaCards(formulas);
+  const index = Math.max(0, Math.min(Number(state.formulaIndex) || 0, cards.length - 1));
+  state.formulaIndex = index;
+  const formula = cards[index];
+  const legend = (formula.legend || [])
+    .slice(0, 3)
+    .map((item) => `<span><b>${escapeHtml(item.symbol)}</b> ${escapeHtml(item.meaning)}</span>`)
     .join("");
-  const chipHtml = chips ? chips.outerHTML : "";
-  scroll.innerHTML = `${chipHtml}${cards}<p class="formel-all-btn">${formulas.length} Formeln geladen</p>`;
+  const pct = Math.round(((index + 1) / cards.length) * 100);
+  const visual = visualForContent({
+    title: `${formula.title} ${formula.topic || ""} ${formula.expression || ""}`,
+    month: formula.months?.[0] || 8,
+  });
+  host.innerHTML = `
+    <div class="unit-step formel-step">
+      <header class="unit-step-header">
+        <a class="q-close-btn" href="/lernen" data-page-link aria-label="Schliessen">
+          <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
+        </a>
+        <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:${pct}%"></span></div>
+        <span class="q-tracker">${index + 1}/${cards.length}</span>
+      </header>
+      <div class="unit-step-main">
+        ${renderVisualFigure(visual, "unit-step-visual")}
+        <p class="gx-kicker">Kernformel · ${escapeHtml(formula.topic || "Formel")}</p>
+        <h3 class="unit-step-title">${escapeHtml(formula.title)}</h3>
+        <p class="unit-formula">${escapeHtml(formula.expression)}</p>
+        <div class="unit-legend">${legend}</div>
+        <p class="unit-step-note">${escapeHtml(compressLine(formula.example, 90))}</p>
+      </div>
+      <div class="unit-step-actions">
+        ${
+          index > 0
+            ? `<button class="ghost-link" type="button" data-action="formula-step-back">Zurück</button>`
+            : `<span></span>`
+        }
+        ${
+          index < cards.length - 1
+            ? `<button class="primary-button btn-block" type="button" data-action="formula-step-next">Weiter</button>`
+            : `<button class="primary-button btn-block" type="button" data-action="practice-formula" data-slug="${escapeHtml(formula.slug)}">Üben</button>`
+        }
+      </div>
+    </div>`;
+  resetPagerScroll(host);
 }
 
 function renderGlossary(root, terms) {
@@ -3533,29 +3831,57 @@ function renderGlossary(root, terms) {
   if (!host) {
     return;
   }
-  const grouped = new Map();
+  const core = window.OLC_CORE_TERMS || [];
+  const extras = [];
+  const seen = new Set(core.map((item) => item.term));
   (terms || []).forEach((item) => {
-    const key = item.term || item.translation;
-    if (!grouped.has(key)) {
-      grouped.set(key, []);
+    if (item.term && item.definition && !seen.has(item.term)) {
+      extras.push({ term: item.term, definition: item.definition });
+      seen.add(item.term);
     }
-    grouped.get(key).push(item);
   });
-  host.innerHTML = grouped.size
-    ? [...grouped.entries()]
-        .map(([term, rows]) => {
-          const definition = rows.find((row) => row.definition)?.definition || rows[0].translation;
-          const langs = rows
-            .map((row) => `${row.language.toUpperCase()}: ${row.translation}`)
-            .join(" · ");
-          return `<article class="gx-card gx-glossar-item">
-            <strong>${escapeHtml(term)}</strong>
-            <p>${escapeHtml(definition)}</p>
-            <span class="muted">${escapeHtml(langs)}</span>
-          </article>`;
-        })
-        .join("")
-    : `<p class="muted">Keine Begriffe gefunden.</p>`;
+  const list = core.length ? core : extras.slice(0, 12);
+  if (!list.length) {
+    host.innerHTML = `<p class="muted">Keine Begriffe gefunden.</p>`;
+    return;
+  }
+  const index = Math.max(0, Math.min(Number(state.glossaryIndex) || 0, list.length - 1));
+  state.glossaryIndex = index;
+  const item = list[index];
+  const pct = Math.round(((index + 1) / list.length) * 100);
+  const visual = visualForContent({
+    title: `${item.term} ${item.definition}`,
+    month: item.month || 3,
+  });
+  host.innerHTML = `
+    <div class="unit-step">
+      <header class="unit-step-header">
+        <a class="q-close-btn" href="/lernen" data-page-link aria-label="Schliessen">
+          <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
+        </a>
+        <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:${pct}%"></span></div>
+        <span class="q-tracker">${index + 1}/${list.length}</span>
+      </header>
+      <div class="unit-step-main">
+        ${renderVisualFigure(visual, "unit-step-visual")}
+        <p class="gx-kicker">Wichtigste Begriffe</p>
+        <h3 class="unit-step-title">${escapeHtml(item.term)}</h3>
+        <p class="unit-step-body">${escapeHtml(item.definition)}</p>
+      </div>
+      <div class="unit-step-actions">
+        ${
+          index > 0
+            ? `<button class="ghost-link" type="button" data-action="glossary-step-back">Zurück</button>`
+            : `<span></span>`
+        }
+        ${
+          index < list.length - 1
+            ? `<button class="primary-button btn-block" type="button" data-action="glossary-step-next">Weiter</button>`
+            : `<a class="primary-button btn-block" href="/lernen" data-page-link>Zur Lernreise</a>`
+        }
+      </div>
+    </div>`;
+  resetPagerScroll(host);
 }
 
 function renderFlashcard(root, formulas) {
@@ -4224,6 +4550,7 @@ async function resetProgress() {
 
 async function loadUnitBySlug(slug) {
   state.activeUnit = await fetchJson(`/api/learning/units/${slug}`);
+  state.unitStepIndex = 0;
 }
 
 async function loadCurriculumBundle() {
@@ -5211,6 +5538,40 @@ document.addEventListener("click", async (event) => {
     if (target.dataset.learnAction === "next") {
       event.preventDefault();
       await advanceLearnQuestion(false);
+      return;
+    }
+    if (target.dataset.action === "unit-step-next") {
+      event.preventDefault();
+      state.unitStepIndex = (Number(state.unitStepIndex) || 0) + 1;
+      const host = document.querySelector("[data-bind='unit-detail']");
+      if (host) {
+        host.innerHTML = renderUnitDetailMarkup();
+        resetPagerScroll(host);
+      }
+      return;
+    }
+    if (target.dataset.action === "unit-step-back") {
+      event.preventDefault();
+      state.unitStepIndex = Math.max(0, (Number(state.unitStepIndex) || 0) - 1);
+      const host = document.querySelector("[data-bind='unit-detail']");
+      if (host) {
+        host.innerHTML = renderUnitDetailMarkup();
+        resetPagerScroll(host);
+      }
+      return;
+    }
+    if (target.dataset.action === "formula-step-next" || target.dataset.action === "formula-step-back") {
+      event.preventDefault();
+      state.formulaIndex =
+        (Number(state.formulaIndex) || 0) + (target.dataset.action === "formula-step-next" ? 1 : -1);
+      renderFormulas(document.getElementById("screen-root") || document, state.formulas || []);
+      return;
+    }
+    if (target.dataset.action === "glossary-step-next" || target.dataset.action === "glossary-step-back") {
+      event.preventDefault();
+      state.glossaryIndex =
+        (Number(state.glossaryIndex) || 0) + (target.dataset.action === "glossary-step-next" ? 1 : -1);
+      renderGlossary(document.getElementById("screen-root") || document, []);
       return;
     }
     if (target.dataset.action === "start-unit" || target.dataset.action === "start-next-unit") {

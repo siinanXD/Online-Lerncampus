@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import re
 from enum import StrEnum
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
 
 
 class DbDialect(StrEnum):
@@ -13,15 +14,41 @@ class DbDialect(StrEnum):
     POSTGRESQL = "postgresql"
 
 
+def normalize_database_url(database_url: str) -> str:
+    """Rewrite Railway-style Postgres URLs so psycopg can connect."""
+    url = (database_url or "").strip()
+    if url.startswith("postgres://"):
+        url = "postgresql://" + url[len("postgres://") :]
+    if not (
+        url.startswith("postgresql://") or url.startswith("postgresql+psycopg://")
+    ):
+        return url
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+    if "sslmode" not in query and host and not (
+        host in {"localhost", "127.0.0.1"} or host.endswith(".railway.internal")
+    ):
+        query["sslmode"] = "require"
+    return urlunparse(parsed._replace(query=urlencode(query)))
+
+
 def detect_dialect(database_url: str) -> DbDialect:
     """Return the dialect for one database URL."""
-    if database_url.startswith("postgresql://") or database_url.startswith(
-        "postgres://"
-    ):
+    url = normalize_database_url(database_url)
+    if url.startswith("postgresql://") or url.startswith("postgres://"):
         return DbDialect.POSTGRESQL
-    if database_url.startswith("sqlite:///"):
+    if url.startswith("sqlite:///"):
         return DbDialect.SQLITE
     raise ValueError("DATABASE_URL must use sqlite:/// or postgresql://")
+
+
+def group_concat_sql(expression: str, dialect: DbDialect, *, distinct: bool = True) -> str:
+    """Return a comma-separated aggregate for the target dialect."""
+    prefix = "DISTINCT " if distinct else ""
+    if dialect is DbDialect.SQLITE:
+        return f"GROUP_CONCAT({prefix}{expression})"
+    return f"STRING_AGG({prefix}{expression}, ',')"
 
 
 def adapt_sql(sql: str, dialect: DbDialect) -> str:
@@ -30,6 +57,18 @@ def adapt_sql(sql: str, dialect: DbDialect) -> str:
         return sql
     adapted = sql.replace("?", "%s")
     adapted = adapted.replace("INSERT OR IGNORE", "INSERT")
+    adapted = re.sub(
+        r"GROUP_CONCAT\(DISTINCT\s+([^)]+)\)",
+        r"STRING_AGG(DISTINCT \1, ',')",
+        adapted,
+        flags=re.IGNORECASE,
+    )
+    adapted = re.sub(
+        r"GROUP_CONCAT\(([^)]+)\)",
+        r"STRING_AGG(\1, ',')",
+        adapted,
+        flags=re.IGNORECASE,
+    )
     return adapted
 
 

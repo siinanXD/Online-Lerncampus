@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 260" role="img" aria-labelledby="t d">
+  <title id="t">CNC-Achsen X Y Z</title>
+  <desc id="d">Rechtssystem: X nach rechts, Y nach hinten, Z nach oben.</desc>
+  <rect width="680" height="260" fill="#f8fafc"/>
+  <g stroke-linecap="round" fill="none">
+    <path d="M240 170 L500 170" stroke="#1d4ed8" stroke-width="5"/>
+    <path d="M240 170 L140 210" stroke="#0f766e" stroke-width="5"/>
+    <path d="M240 170 L240 48" stroke="#c2410c" stroke-width="5"/>
+    <path d="M500 170 l-16 -10 M500 170 l-16 10" stroke="#1d4ed8" stroke-width="5"/>
+    <path d="M140 210 l16 -2 M140 210 l8 -16" stroke="#0f766e" stroke-width="5"/>
+    <path d="M240 48 l-10 16 M240 48 l10 16" stroke="#c2410c" stroke-width="5"/>
+  </g>
+  <g font-family="Inter, Arial, sans-serif" font-size="22" font-weight="800">
+    <text x="512" y="176" fill="#1d4ed8">X</text>
+    <text x="108" y="224" fill="#0f766e">Y</text>
+    <text x="252" y="46" fill="#c2410c">Z</text>
+  </g>
+  <rect x="430" y="40" width="210" height="86" rx="12" fill="#fff" stroke="#e2e8f0"/>
+  <text x="446" y="68" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">X: Tisch längs</text>
+  <text x="446" y="90" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">Y: Tisch quer</text>
+  <text x="446" y="112" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">Z: Werkzeug / Spindel</text>
+</svg>

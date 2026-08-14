@@ -25,7 +25,7 @@ window.OLC_ROUTE_CONFIG = {
   "/dashboard/tablet": { layout: "app", screen: "s03_8-dashboard-tablet-768px", title: "Dashboard — Tablet 768px", tab: "dashboard", num: "03.8", chrome: "tablet" },
   "/lernen": { layout: "app", screen: "s19_2-lernen-journey", title: "Lernen Journey", tab: "learn", num: "19.2", chrome: "gx" },
   "/lernen/uebersetzung": { layout: "app", screen: "s04_10-uebersetzungshilfe-overlay", title: "Übersetzungshilfe Overlay", tab: "learn", num: "04.10", chrome: "q-overlay" },
-  "/lernen/formeltrainer": { layout: "app", screen: "s04_11-formeltrainer", title: "Formeltrainer", tab: "learn", num: "04.11", chrome: "formel" },
+  "/lernen/formeltrainer": { layout: "app", screen: "s04_11-formeltrainer", title: "Formeltrainer", tab: "learn", num: "04.11", chrome: "gx" },
   "/lernen/fehlerdiagnose": { layout: "app", screen: "s04_12-fehlerdiagnose", title: "Fehlerdiagnose", tab: "learn", num: "04.12", chrome: "formel" },
   "/lernen/video": { layout: "app", screen: "s04_13-video-lektion", title: "Video-Lektion", tab: "learn", num: "04.13", chrome: "formel" },
   "/lernen/detail": { layout: "app", screen: "s04_14-lern-detail", title: "Lern-Detail", tab: "learn", num: "04.14", chrome: "ld" },
@@ -45,7 +45,7 @@ window.OLC_ROUTE_CONFIG = {
   "/fachkunde": { layout: "app", screen: "s05_1-fachkunde-einstieg", title: "Fachkunde — Einstieg", tab: "learn", num: "05.1", chrome: "fk" },
   "/fachkunde/freigabe": { layout: "app", screen: "s05_10-lerneinheit-freigabe", title: "Lerneinheit — Freigabe", tab: "learn", num: "05.10", chrome: "fk" },
   "/fachkunde/lernpfad": { layout: "app", screen: "s05_2-fachkunde-lernpfad", title: "Fachkunde — Lernpfad", tab: "learn", num: "05.2", chrome: "fk" },
-  "/fachkunde/einheit": { layout: "app", screen: "s05_3-fachkunde-lerneinheit", title: "Fachkunde — Lerneinheit", tab: "learn", num: "05.3", chrome: "fk" },
+  "/fachkunde/einheit": { layout: "app", screen: "s04_17-lerneinheit-detail", title: "Fachkunde — Lerneinheit", tab: "learn", num: "05.3", chrome: "gx" },
   "/fachkunde/glossar": { layout: "app", screen: "s05_4-fachkunde-glossar", title: "Fachkunde — Glossar", tab: "learn", num: "05.4", chrome: "fk" },
   "/fachkunde/abschluss": { layout: "app", screen: "s05_5-lektion-abgeschlossen", title: "Lektion abgeschlossen", tab: "learn", num: "05.5", chrome: "fk" },
   "/fachkunde/bausteine": { layout: "app", screen: "s05_6-lernbausteine-uebersicht", title: "Lernbausteine Übersicht", tab: "learn", num: "05.6", chrome: "fk" },
@@ -1517,89 +1517,12 @@ window.OLC_SCREEN_RENDERERS = {
       </div>
     `,
   "s04_11-formeltrainer": () => `
-      <div class="formel-screen" data-node-id="136:4763">
-        <header class="formel-header">
-          <div class="formel-header-left">
-            <a class="formel-icon-btn" href="/lernen" data-page-link aria-label="Zurück">
-              <img src="/static/figma/learn2/ft-chevron-left.svg" width="16" height="16" alt="" />
-            </a>
-            <h2 class="formel-title">05.7 Formeltrainer</h2>
-          </div>
-          <button type="button" class="formel-icon-btn calc" aria-label="Rechner" data-action="toast" data-toast="Rechner folgt">
-            <img src="/static/figma/learn2/ft-calculator.svg" width="18" height="18" alt="" />
-          </button>
-        </header>
-        <div class="formel-scroll">
-          <div class="formel-chips" role="tablist" aria-label="Themen">
-            <button type="button" class="formel-chip">Alle</button>
-            <button type="button" class="formel-chip active">Pneumatik</button>
-            <button type="button" class="formel-chip">Hydraulik</button>
-            <button type="button" class="formel-chip">Messtechnik</button>
-            <button type="button" class="formel-chip">Physik</button>
-          </div>
-          <article class="formel-card expanded">
-            <div class="formel-card-head">
-              <div>
-                <strong>Kolbenkraft (Pneumatik)</strong>
-                <p>Theorie &amp; Berechnung</p>
-              </div>
-              <img src="/static/figma/learn2/ft-chevron-up.svg" width="16" height="16" alt="" />
-            </div>
-            <div class="formel-box">F = p × A</div>
-            <div class="formel-legend">
-              <div><b>F</b><span>= Kraft [N]</span></div>
-              <div><b>p</b><span>= Druck [Pa oder bar]</span></div>
-              <div><b>A</b><span>= Kolbenfläche [m² oder cm²]</span></div>
-            </div>
-            <img class="formel-divider" src="/static/figma/learn2/ft-divider.svg" width="318" height="1" alt="" />
-            <div class="formel-example">
-              <p class="formel-example-label">Beispiel:</p>
-              <p>Bei p = 6 bar und A = 20 cm²: <strong>F = 6 × 20 = 120 N</strong></p>
-            </div>
-            <div class="formel-card-foot">
-              <span class="formel-diff">Mittel <img src="/static/figma/learn2/ft-dots-mittel.svg" width="24" height="6" alt="" /></span>
-              <a class="formel-practice" href="/lernen/flashcard" data-page-link>Üben <span>+10 XP</span></a>
-            </div>
-          </article>
-          <a class="formel-card collapsed" href="/lernen/flashcard" data-page-link>
-            <div class="formel-card-left">
-              <strong>Druck (allgemein)</strong>
-              <span class="formel-eq">p = F / A</span>
-            </div>
-            <div class="formel-card-right">
-              <span class="formel-diff">Leicht <img src="/static/figma/learn2/ft-dot-leicht.svg" width="6" height="6" alt="" /></span>
-              <img src="/static/figma/learn2/ft-chevron-down.svg" width="16" height="16" alt="" />
-            </div>
-          </a>
-          <a class="formel-card collapsed" href="/lernen/flashcard" data-page-link>
-            <div class="formel-card-left">
-              <strong>Volumenstrom</strong>
-              <span class="formel-eq">Q = A × v</span>
-            </div>
-            <div class="formel-card-right">
-              <span class="formel-diff">Schwer <img src="/static/figma/learn2/ft-dots-schwer.svg" width="24" height="6" alt="" /></span>
-              <img src="/static/figma/learn2/ft-chevron-down.svg" width="16" height="16" alt="" />
-            </div>
-          </a>
-          <a class="formel-card collapsed" href="/lernen/flashcard" data-page-link>
-            <div class="formel-card-left">
-              <strong>Übersetzungsverhältnis</strong>
-              <span class="formel-eq">i = n₁ / n₂</span>
-            </div>
-            <div class="formel-card-right">
-              <span class="formel-diff">Mittel <img src="/static/figma/learn2/ft-dots-mittel.svg" width="24" height="6" alt="" /></span>
-              <img src="/static/figma/learn2/ft-chevron-down.svg" width="16" height="16" alt="" />
-            </div>
-          </a>
-          <button type="button" class="formel-all-btn" data-action="toast" data-toast="Alle Formeln folgen">
-            Alle 24 Formeln anzeigen
-            <img src="/static/figma/learn2/ft-search.svg" width="18" height="18" alt="" />
-          </button>
-        </div>
-        ${window.OLC_GX_NAV("learn")}
-        <div class="formel-home-indicator" aria-hidden="true"></div>
+    <section class="gx-screen gx-formel unit-pager">
+      <div class="unit-pager-frame" data-bind="formula-live">
+        <p class="muted">Kernformeln werden geladen…</p>
       </div>
-    `,
+    </section>
+  `,
   "s04_12-fehlerdiagnose": () => `
       <div class="formel-screen fd-screen" data-node-id="136:4890">
         <header class="formel-header">

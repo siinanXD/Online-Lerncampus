@@ -20,6 +20,8 @@ def test_unit_detail_is_a_no_scroll_pager() -> None:
     assert "overflow: hidden" in css
     assert ".unit-step-actions" in css
     assert "Fragen üben" in app_js
+    assert "Wichtigster Begriff" in app_js
+    assert "block.body" not in app_js.split("function factSheetForUnit")[1].split("function coreFormulasForUnit")[0]
 
 
 def test_fact_sheets_cover_deep_topics() -> None:
@@ -30,13 +32,18 @@ def test_fact_sheets_cover_deep_topics() -> None:
     assert "vc = (π × d × n) / 1000" in catalog
     assert "ρ = m / V" in catalog
     assert "Messschieber" in catalog
+    assert "n = (vc × 1000) / (π × d)" in catalog
     for month in (2, 3, 6, 8, 9, 13, 16, 22):
         assert f"{month}" in catalog
 
 
 def test_formula_and_glossary_use_continue_cards() -> None:
     app_js = APP_JS.read_text(encoding="utf-8")
+    screens = SCREENS.read_text(encoding="utf-8")
     assert "formula-step-next" in app_js
     assert "glossary-step-next" in app_js
     assert "OLC_CORE_FORMULA_SLUGS" in app_js
     assert "Wichtigste Begriffe" in app_js
+    assert 'data-bind="formula-live"' in screens
+    assert "Alle 24 Formeln" not in screens
+    assert 'screen: "s04_17-lerneinheit-detail"' in screens.split('"/fachkunde/einheit"')[1][:400]

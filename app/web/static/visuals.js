@@ -91,7 +91,6 @@ window.OLC_FACT_SHEETS = [
       ["S235JR", "7,85 g/cm³", "Rm 360–510 N/mm²"],
       ["C45", "7,85 g/cm³", "C ≈ 0,45 %, vergütbar"],
       ["Aluminium", "2,70 g/cm³", "Schmelzpunkt 660 °C"],
-      ["Kupfer", "8,96 g/cm³", "Schmelzpunkt 1085 °C"],
       ["PA 6", "1,13 g/cm³", "vor Spritzguss trocknen"],
     ],
     note: "Richtwerte für die IHK-Praxis. Im Betrieb gilt das Werkstoffzeugnis.",
@@ -103,7 +102,6 @@ window.OLC_FACT_SHEETS = [
     headers: ["Mittel / Passung", "Wert", "Einsatz"],
     rows: [
       ["Messschieber 1/20", "0,05 mm", "Außen, Innen, Tiefe"],
-      ["Messschieber 1/50", "0,02 mm", "feinere Ablesung"],
       ["Bügelmessschraube", "0,01 mm", "Durchmesser"],
       ["20 H7", "+21 / 0 µm", "Bohrung Spiel"],
       ["20 h6", "0 / −13 µm", "Welle Spiel"],
@@ -224,6 +222,53 @@ window.OLC_CORE_FORMULAS = [
     ],
     example: "R = 24 Ω, I = 0,5 A → U = 12 V.",
   },
+  {
+    slug: "druck-allgemein",
+    months: [8],
+    title: "Druck",
+    expression: "p = F / A",
+    legend: [
+      { symbol: "p", meaning: "Druck [Pa oder bar]" },
+      { symbol: "F", meaning: "Kraft [N]" },
+      { symbol: "A", meaning: "Fläche" },
+    ],
+    example: "200 N auf 0,01 m² → 20 000 Pa = 0,2 bar.",
+  },
+  {
+    slug: "drehzahl",
+    months: [9, 10, 15],
+    title: "Drehzahl",
+    expression: "n = (vc × 1000) / (π × d)",
+    legend: [
+      { symbol: "n", meaning: "1/min" },
+      { symbol: "vc", meaning: "m/min" },
+      { symbol: "d", meaning: "mm" },
+    ],
+    example: "vc = 100 m/min, d = 50 mm → n ≈ 637 1/min.",
+  },
+  {
+    slug: "kreisflaeche",
+    months: [8, 9],
+    title: "Kreisfläche",
+    expression: "A = π × d² / 4",
+    legend: [
+      { symbol: "A", meaning: "Fläche [mm²]" },
+      { symbol: "d", meaning: "Durchmesser [mm]" },
+    ],
+    example: "d = 20 mm → A ≈ 314 mm².",
+  },
+  {
+    slug: "drehmoment",
+    months: [9, 10],
+    title: "Drehmoment",
+    expression: "M = F × r",
+    legend: [
+      { symbol: "M", meaning: "Nm" },
+      { symbol: "F", meaning: "Kraft [N]" },
+      { symbol: "r", meaning: "Hebelarm [m]" },
+    ],
+    example: "50 N × 0,2 m = 10 Nm.",
+  },
 ];
 
 window.OLC_CORE_FORMULA_SLUGS = [
@@ -246,7 +291,8 @@ window.OLC_CORE_TERMS = [
   { term: "Toleranz", definition: "Zulässige Abweichung vom Nennmaß (ISO 286)." },
   { term: "Passung", definition: "Spiel, Übergang oder Übermaß zwischen Bohrung und Welle." },
   { term: "Pneumatik", definition: "Energieübertragung mit Druckluft, oft 6 bar." },
-  { term: "Doppeltwirkender Zylinder", definition: "Luft wirkt auf beide Kolbenseiten für Vor- und Rückhub." },
+  { term: "Thermoplast", definition: "Weichbarer Kunststoff, z. B. PE, PP, PA. Vor Spritzguss oft trocknen." },
+  { term: "Zylinder", definition: "Doppeltwirkend: Luft auf beide Kolbenseiten für Vor- und Rückhub." },
   { term: "Drehzahl", definition: "Umdrehungen der Spindel pro Minute (1/min)." },
   { term: "Schnittgeschwindigkeit", definition: "vc in m/min, abhängig von Werkstoff und Schneidstoff." },
   { term: "Not-Halt", definition: "Stoppt gefährliche Bewegung. Energiekreis danach prüfen." },

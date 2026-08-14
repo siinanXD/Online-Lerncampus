@@ -1398,13 +1398,13 @@ function compressLine(text, max = 140) {
 }
 
 function factSheetForUnit(unit) {
-  const haystack = `${unit?.title || ""} ${unit?.subtitle || ""} ${(unit?.theory_blocks || [])
-    .map((block) => `${block.heading} ${block.body}`)
+  const headingHay = `${unit?.title || ""} ${unit?.subtitle || ""} ${(unit?.theory_blocks || [])
+    .map((block) => block.heading || "")
     .join(" ")}`.toLowerCase();
   const month = Number(unit?.month) || 0;
   return (window.OLC_FACT_SHEETS || []).find((sheet) => {
     const monthHit = (sheet.months || []).includes(month);
-    const keyHit = (sheet.keys || []).some((key) => haystack.includes(key));
+    const keyHit = (sheet.keys || []).some((key) => headingHay.includes(key));
     return monthHit || keyHit;
   }) || null;
 }
@@ -1434,22 +1434,20 @@ function buildUnitSteps(unit) {
       kind: "intro",
       kicker: `Monat ${unit.month} · Einheit ${unit.position || 1}`,
       title: unit.title,
-      body: compressLine(unit.subtitle || (unit.learning_goals || [])[0] || "", 110),
-      points: (unit.learning_goals || []).slice(0, 3),
+      body: compressLine(unit.subtitle || (unit.learning_goals || [])[0] || "", 90),
       visual,
     },
   ];
   (unit.theory_blocks || []).slice(0, 2).forEach((block) => {
+    const points = (block.key_points || []).slice(0, 2);
     steps.push({
       kind: "theory",
-      kicker: "Fachkunde",
+      kicker: "Merken",
       title: block.heading || unit.title,
-      body: compressLine(block.body, 120),
-      points: (block.key_points || []).slice(0, 3),
-      note: (block.norm_references || []).slice(0, 2).join(" · "),
+      points: points.length ? points : [compressLine(block.body, 90)],
       visual: visualForContent({
         month: unit.month,
-        title: `${block.heading || ""} ${block.body || ""}`,
+        title: `${block.heading || ""} ${unit.title}`,
         categorySlug: (unit.category_slugs || [])[0],
       }),
     });
@@ -1461,7 +1459,7 @@ function buildUnitSteps(unit) {
       kicker: "Wichtigste Kenndaten",
       title: sheet.title,
       headers: sheet.headers,
-      rows: sheet.rows,
+      rows: (sheet.rows || []).slice(0, 4),
       note: sheet.note,
       visual: visualForContent({
         month: unit.month,
@@ -1470,32 +1468,41 @@ function buildUnitSteps(unit) {
       }),
     });
   }
-  const terms = Object.entries(unit.glossary || {}).slice(0, 4);
-  if (terms.length) {
-    steps.push({
-      kind: "terms",
-      kicker: "Wichtigste Begriffe",
-      title: "Diese vier Begriffe merken",
-      terms,
-      visual,
+  Object.entries(unit.glossary || {})
+    .slice(0, 3)
+    .forEach(([term, definition]) => {
+      steps.push({
+        kind: "term",
+        kicker: "Wichtigster Begriff",
+        title: term,
+        body: compressLine(definition, 110),
+        visual: visualForContent({
+          month: unit.month,
+          title: `${term} ${definition}`,
+          categorySlug: (unit.category_slugs || [])[0],
+        }),
+      });
     });
-  }
   coreFormulasForUnit(unit).slice(0, 1).forEach((formula) => {
     steps.push({
       kind: "formula",
       kicker: "Kernformel",
       title: formula.title,
       expression: formula.expression,
-      legend: formula.legend || [],
-      example: compressLine(formula.example, 110),
-      visual,
+      legend: (formula.legend || []).slice(0, 3),
+      example: compressLine(formula.example, 90),
+      visual: visualForContent({
+        month: unit.month,
+        title: `${formula.title} ${formula.expression || ""}`,
+        categorySlug: (unit.category_slugs || [])[0],
+      }),
     });
   });
   steps.push({
     kind: "practice",
     kicker: "Sichern",
     title: "Jetzt mit Fragen üben",
-    body: "Kurze Bildfragen zu dieser Einheit.",
+    body: "Eine Karte, dann Weiter — danach kurze Bildfragen.",
     visual,
   });
   return steps;
@@ -1513,10 +1520,13 @@ function renderUnitStepBody(step) {
     return `<table class="unit-fact-table"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table>
       ${step.note ? `<p class="unit-step-note">${escapeHtml(step.note)}</p>` : ""}`;
   }
-  if (step.kind === "terms") {
-    return `<ul class="unit-term-list">${(step.terms || [])
-      .map(([term, definition]) => `<li><strong>${escapeHtml(term)}</strong> ${escapeHtml(compressLine(definition, 90))}</li>`)
-      .join("")}</ul>`;
+  if (step.kind === "terms" || step.kind === "term") {
+    if (step.terms?.length) {
+      return `<ul class="unit-term-list">${(step.terms || [])
+        .map(([term, definition]) => `<li><strong>${escapeHtml(term)}</strong> ${escapeHtml(compressLine(definition, 90))}</li>`)
+        .join("")}</ul>`;
+    }
+    return `${step.body ? `<p class="unit-step-body">${escapeHtml(step.body)}</p>` : ""}`;
   }
   if (step.kind === "formula") {
     const legend = (step.legend || [])
@@ -3739,31 +3749,58 @@ async function bindPlatformTools(root, config) {
   }
 }
 
+function coreFormulaCards(formulas) {
+  const slugs = window.OLC_CORE_FORMULA_SLUGS || [];
+  const catalog = window.OLC_CORE_FORMULAS || [];
+  const cards = slugs
+    .map((slug) => {
+      const fromCatalog = catalog.find((item) => item.slug === slug);
+      const fromApi = (formulas || []).find((item) => item.slug === slug);
+      if (!fromCatalog && !fromApi) {
+        return null;
+      }
+      return { ...(fromApi || {}), ...(fromCatalog || {}) };
+    })
+    .filter(Boolean);
+  return cards.length ? cards : (formulas || []).slice(0, 9);
+}
+
 function renderFormulas(root, formulas) {
-  const scroll = root.querySelector(".formel-scroll");
-  if (!scroll || !formulas.length) {
+  const host =
+    root.querySelector("[data-bind='formula-live']") || root.querySelector(".formel-scroll");
+  if (!host || !formulas.length) {
     return;
   }
-  const slugs = window.OLC_CORE_FORMULA_SLUGS || [];
-  const list = slugs
-    .map((slug) => formulas.find((item) => item.slug === slug))
-    .filter(Boolean);
-  const cards = list.length ? list : formulas.slice(0, 9);
+  const cards = coreFormulaCards(formulas);
   const index = Math.max(0, Math.min(Number(state.formulaIndex) || 0, cards.length - 1));
   state.formulaIndex = index;
   const formula = cards[index];
   const legend = (formula.legend || [])
+    .slice(0, 3)
     .map((item) => `<span><b>${escapeHtml(item.symbol)}</b> ${escapeHtml(item.meaning)}</span>`)
     .join("");
   const pct = Math.round(((index + 1) / cards.length) * 100);
-  scroll.innerHTML = `
+  const visual = visualForContent({
+    title: `${formula.title} ${formula.topic || ""} ${formula.expression || ""}`,
+    month: formula.months?.[0] || 8,
+  });
+  host.innerHTML = `
     <div class="unit-step formel-step">
-      <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:${pct}%"></span></div>
-      <p class="gx-kicker">Kernformel ${index + 1}/${cards.length} · ${escapeHtml(formula.topic || "")}</p>
-      <h3 class="unit-step-title">${escapeHtml(formula.title)}</h3>
-      <p class="unit-formula">${escapeHtml(formula.expression)}</p>
-      <div class="unit-legend">${legend}</div>
-      <p class="unit-step-note">${escapeHtml(compressLine(formula.example, 120))}</p>
+      <header class="unit-step-header">
+        <a class="q-close-btn" href="/lernen" data-page-link aria-label="Schliessen">
+          <img src="/static/figma/learn2/q-x-close.svg" width="14" height="14" alt="" />
+        </a>
+        <div class="q-progress-track" aria-hidden="true"><span class="q-progress-fill" style="width:${pct}%"></span></div>
+        <span class="q-tracker">${index + 1}/${cards.length}</span>
+      </header>
+      <div class="unit-step-main">
+        ${renderVisualFigure(visual, "unit-step-visual")}
+        <p class="gx-kicker">Kernformel · ${escapeHtml(formula.topic || "Formel")}</p>
+        <h3 class="unit-step-title">${escapeHtml(formula.title)}</h3>
+        <p class="unit-formula">${escapeHtml(formula.expression)}</p>
+        <div class="unit-legend">${legend}</div>
+        <p class="unit-step-note">${escapeHtml(compressLine(formula.example, 90))}</p>
+      </div>
       <div class="unit-step-actions">
         ${
           index > 0
@@ -3802,6 +3839,9 @@ function renderGlossary(root, terms) {
   state.glossaryIndex = index;
   const item = list[index];
   const pct = Math.round(((index + 1) / list.length) * 100);
+  const visual = visualForContent({
+    title: `${item.term} ${item.definition}`,
+  });
   host.innerHTML = `
     <div class="unit-step">
       <header class="unit-step-header">
@@ -3812,6 +3852,7 @@ function renderGlossary(root, terms) {
         <span class="q-tracker">${index + 1}/${list.length}</span>
       </header>
       <div class="unit-step-main">
+        ${renderVisualFigure(visual, "unit-step-visual")}
         <p class="gx-kicker">Wichtigste Begriffe</p>
         <h3 class="unit-step-title">${escapeHtml(item.term)}</h3>
         <p class="unit-step-body">${escapeHtml(item.definition)}</p>
@@ -4497,6 +4538,7 @@ async function resetProgress() {
 
 async function loadUnitBySlug(slug) {
   state.activeUnit = await fetchJson(`/api/learning/units/${slug}`);
+  state.unitStepIndex = 0;
 }
 
 async function loadCurriculumBundle() {

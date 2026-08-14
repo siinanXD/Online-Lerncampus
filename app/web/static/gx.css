@@ -45,7 +45,8 @@
 .app-frame[data-chrome="gx"]:has(.gx-home),
 .app-frame[data-chrome="gx"]:has(.gx-lernen),
 .app-frame[data-chrome="gx"]:has(.gx-fortschritt),
-.app-frame[data-chrome="gx"]:has(.gx-profil) {
+.app-frame[data-chrome="gx"]:has(.gx-profil),
+.app-frame[data-chrome="gx"]:has(.unit-pager) {
   height: 100dvh;
   min-height: 100dvh;
   max-height: 100dvh;
@@ -1153,6 +1154,7 @@
   flex: 1;
   min-height: 0;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 .unit-step-header {
   display: flex;
@@ -1172,17 +1174,21 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
 }
 .unit-step-visual {
   margin: 0;
+  flex: 1 1 38%;
+  min-height: 140px;
+  max-height: 240px;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #e2e8f0;
 }
 .unit-step-visual img {
   width: 100%;
-  height: 132px;
+  height: 100%;
   object-fit: cover;
-  border-radius: 14px;
-  background: #e2e8f0;
   display: block;
 }
 .unit-step-visual figcaption {
@@ -1190,10 +1196,14 @@
 }
 .unit-step-title {
   margin: 0;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 800;
-  line-height: 1.25;
+  line-height: 1.2;
   color: #0f172a;
+}
+.unit-step-main .gx-kicker {
+  margin: 0;
+  letter-spacing: 0.08em;
 }
 .unit-step-body,
 .unit-key-list,
@@ -1277,6 +1287,7 @@
   height: 100%;
 }
 .gx-einheit.unit-pager .gx-nav,
-.gx-glossar.unit-pager .gx-nav {
+.gx-glossar.unit-pager .gx-nav,
+.gx-formel.unit-pager .gx-nav {
   display: none;
 }

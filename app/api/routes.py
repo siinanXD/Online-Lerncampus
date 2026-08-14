@@ -122,6 +122,26 @@ def _auth_profile(learner_id: str) -> dict[str, bool]:
     }
 
 
+def _bootstrap_platform_admin() -> None:
+    """Provision the configured platform admin once at startup."""
+    current = get_settings()
+    identifier = current.bootstrap_admin_identifier.strip()
+    password = current.bootstrap_admin_password.strip()
+    if not identifier or not password:
+        return
+    try:
+        _auth().provision_user(
+            identifier=identifier,
+            password=password,
+            role="admin",
+            display_name="Plattform-Admin",
+            is_platform_admin=True,
+        )
+    except ValueError as error:
+        if "existiert bereits" not in str(error):
+            raise
+
+
 def bootstrap_content_store() -> None:
     """Load or seed curriculum content and wire dependent services."""
     global question_repository, progress_service, exam_session_service
@@ -148,6 +168,7 @@ def bootstrap_content_store() -> None:
         platform_seeder = PlatformSeeder(_database())
         if platform_seeder.is_empty():
             platform_seeder.seed_all()
+    _bootstrap_platform_admin()
     question_repository = QuestionRepository(
         database=_database(),
         content_source=source,  # type: ignore[arg-type]
@@ -955,8 +976,11 @@ def submit_exam_session(
 )
 def generate_content(
     request: ContentGenerationRequest,
+    authorization: str | None = Header(default=None),
 ) -> ContentGenerationResponse:
     """Create a draft learning mission from verified curriculum context."""
+    session = get_session(authorization)
+    require_role(session, "reviewer", "trainer", "admin")
     try:
         return content_factory.generate_draft(request)
     except ValueError as error:
@@ -964,8 +988,13 @@ def generate_content(
 
 
 @api_router.post("/content/review", response_model=ContentGenerationResponse)
-def review_content(request: ContentReviewRequest) -> ContentGenerationResponse:
+def review_content(
+    request: ContentReviewRequest,
+    authorization: str | None = Header(default=None),
+) -> ContentGenerationResponse:
     """Review a draft learning mission and return its updated status."""
+    session = get_session(authorization)
+    require_role(session, "reviewer", "trainer", "admin")
     try:
         return content_factory.review_draft(request)
     except ValueError as error:

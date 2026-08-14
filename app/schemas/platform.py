@@ -392,7 +392,7 @@ class AdminUserCreateRequest(BaseModel):
     """Provision a learner or staff account."""
 
     identifier: str = Field(min_length=3, max_length=120)
-    password: str = Field(min_length=4, max_length=120)
+    password: str = Field(min_length=8, max_length=120)
     role: str = Field(pattern="^(learner|reviewer|trainer|admin)$")
     display_name: str | None = Field(default=None, max_length=80)
     cohort_code: str | None = Field(default=None, max_length=40)

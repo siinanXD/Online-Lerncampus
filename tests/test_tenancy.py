@@ -5,6 +5,7 @@ from uuid import uuid4
 from fastapi.testclient import TestClient
 
 from app.main import create_app
+from tests.conftest import staff_login
 
 
 def build_client() -> TestClient:
@@ -37,7 +38,7 @@ def login_prefixed(
 
 def test_seeded_tenants_and_login_scope() -> None:
     client = build_client()
-    admin, payload = login(client, f"admin-{uuid4()}")
+    admin, payload = staff_login(client, "admin", platform_admin=True)
     tenants = client.get("/api/tenants", headers=admin)
     assert tenants.status_code == 200
     slugs = {row["slug"] for row in tenants.json()}
@@ -60,8 +61,8 @@ def test_trainer_cannot_see_other_tenant_learners() -> None:
     bze_id = bze_payload["learner_id"]
     demo_id = demo_payload["learner_id"]
 
-    bze_trainer, _bze_tr = login_prefixed(client, "trainer-bze", "BZE-2026-F")
-    demo_trainer, _demo_tr = login_prefixed(client, "trainer-demo", "DEMO-2026-A")
+    bze_trainer, _bze_tr = staff_login(client, "trainer", cohort_code="BZE-2026-F")
+    demo_trainer, _demo_tr = staff_login(client, "trainer", cohort_code="DEMO-2026-A")
 
     bze_rows = client.get("/api/trainer/learners", headers=bze_trainer)
     demo_rows = client.get("/api/trainer/learners", headers=demo_trainer)
@@ -102,7 +103,7 @@ def test_trainer_reports_are_tenant_scoped() -> None:
         )
         assert created.status_code == 201, created.text
 
-    bze_trainer, _trainer = login_prefixed(client, "trainer-bze", "BZE-2026-F")
+    bze_trainer, _trainer = staff_login(client, "trainer", cohort_code="BZE-2026-F")
     reports = client.get("/api/trainer/reports", headers=bze_trainer)
     assert reports.status_code == 200
     learner_ids = {row["learner_id"] for row in reports.json()}
@@ -114,7 +115,7 @@ def test_platform_admin_sees_all_and_can_create_tenant() -> None:
     client = build_client()
     login_prefixed(client, "azubi-bze", "BZE-2026-F")
     login_prefixed(client, "azubi-demo", "DEMO-2026-A")
-    admin, _admin = login(client, f"admin-{uuid4()}")
+    admin, _admin = staff_login(client, "admin", platform_admin=True)
     users = client.get("/api/admin/users", headers=admin)
     assert users.status_code == 200
     tenants = {row.get("tenant_id") for row in users.json()}
@@ -153,7 +154,7 @@ def test_platform_admin_sees_all_and_can_create_tenant() -> None:
 
 def test_trainer_cannot_create_tenants() -> None:
     client = build_client()
-    trainer, _payload = login_prefixed(client, "trainer", "BZE-2026-F")
+    trainer, _payload = staff_login(client, "trainer", cohort_code="BZE-2026-F")
     denied = client.post(
         "/api/tenants",
         headers=trainer,

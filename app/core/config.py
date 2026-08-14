@@ -2,13 +2,20 @@
 
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+from app.db.dialect import normalize_database_url
+
 INSECURE_APP_SECRETS = frozenset(
-    {"local-dev-change-me", "change-this-before-production"}
+    {
+        "",
+        "local-dev-change-me",
+        "change-this-before-production",
+        "bitte-aendern",
+    }
 )
-MIN_PRODUCTION_SECRET_LENGTH = 32
+MIN_PRODUCTION_SECRET_LENGTH = 16
 SESSION_COOKIE_NAME = "ol_session"
 
 
@@ -51,6 +58,12 @@ class Settings(BaseSettings):
         populate_by_name=True,
     )
 
+    @field_validator("database_url")
+    @classmethod
+    def _normalize_database_url(cls, value: str) -> str:
+        """Accept Railway postgres:// URLs and add SSL for public hosts."""
+        return normalize_database_url(value)
+
     @property
     def is_production_like(self) -> bool:
         """Return True for any environment that is not local development."""
@@ -76,6 +89,13 @@ class Settings(BaseSettings):
                 "Unsichere Konfiguration fuer APP_ENV="
                 f"{self.app_env!r}: " + " ".join(problems)
             )
+
+    def require_production_secret(self) -> None:
+        """Backward-compatible wrapper around assert_production_safety."""
+        try:
+            self.assert_production_safety()
+        except RuntimeError as error:
+            raise ValueError(str(error)) from error
 
     @property
     def allowed_origins(self) -> list[str]:

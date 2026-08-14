@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 260" role="img" aria-labelledby="t d">
+  <title id="t">5/2-Wegeventil ISO 1219</title>
+  <desc id="d">Schaltzeichen eines 5/2-Wegeventils mit Feder und Magnet, Anschluss 1, 2, 3, 4, 5.</desc>
+  <rect width="680" height="260" fill="#f8fafc"/>
+  <g fill="none" stroke="#0f172a" stroke-width="2.4">
+    <rect x="170" y="70" width="90" height="90"/>
+    <rect x="260" y="70" width="90" height="90"/>
+    <path d="M215 70 L215 40 M305 160 L305 190"/>
+    <path d="M190 160 L190 190 M215 160 L215 190 M240 160 L240 190"/>
+    <path d="M280 70 L280 40 M305 70 L305 40 M330 70 L330 40"/>
+    <path d="M190 190 L190 210 M240 190 L240 210"/>
+    <path d="M170 115 H140 M350 115 H380"/>
+    <rect x="92" y="92" width="48" height="46"/>
+    <path d="M92 115 H70"/>
+    <path d="M380 115 h24"/>
+    <path d="M404 96 v38 l18 -19 z"/>
+  </g>
+  <g fill="#0f172a" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="800">
+    <text x="184" y="208">2</text>
+    <text x="209" y="208">3</text>
+    <text x="234" y="208">4</text>
+    <text x="274" y="32">5</text>
+    <text x="299" y="32">1</text>
+    <text x="324" y="32">3</text>
+    <text x="78" y="86">a</text>
+    <text x="430" y="120">b</text>
+  </g>
+  <path d="M200 88 l30 24 -30 24" fill="none" stroke="#1d4ed8" stroke-width="2.4"/>
+  <path d="M200 136 h30" stroke="#1d4ed8" stroke-width="2.4"/>
+  <path d="M290 88 l30 24 -30 24" fill="none" stroke="#0f172a" stroke-width="2.4"/>
+  <path d="M290 112 h30" stroke="#0f172a" stroke-width="2.4"/>
+  <text x="24" y="236" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">5/2-Wegeventil, feder-rückgestellt, elektromagnetisch betätigt</text>
+</svg>

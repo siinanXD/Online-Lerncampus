@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 260" role="img" aria-labelledby="t d">
+  <title id="t">Spritzgießzyklus</title>
+  <desc id="d">Vier Phasen: Schließen, Einspritzen, Nachdruck/Kühlen, Öffnen und Entformen.</desc>
+  <rect width="680" height="260" fill="#f8fafc"/>
+  <g font-family="Inter, Arial, sans-serif">
+    <circle cx="90" cy="110" r="42" fill="#dbeafe" stroke="#1d4ed8" stroke-width="3"/>
+    <circle cx="250" cy="110" r="42" fill="#cffafe" stroke="#0f766e" stroke-width="3"/>
+    <circle cx="410" cy="110" r="42" fill="#ffedd5" stroke="#c2410c" stroke-width="3"/>
+    <circle cx="570" cy="110" r="42" fill="#ede9fe" stroke="#6d28d9" stroke-width="3"/>
+    <text x="90" y="106" text-anchor="middle" font-size="18" font-weight="800" fill="#1e3a8a">1</text>
+    <text x="250" y="106" text-anchor="middle" font-size="18" font-weight="800" fill="#134e4a">2</text>
+    <text x="410" y="106" text-anchor="middle" font-size="18" font-weight="800" fill="#9a3412">3</text>
+    <text x="570" y="106" text-anchor="middle" font-size="18" font-weight="800" fill="#5b21b6">4</text>
+    <text x="90" y="178" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Schließen</text>
+    <text x="250" y="178" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Einspritzen</text>
+    <text x="410" y="178" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Nachdruck</text>
+    <text x="570" y="178" text-anchor="middle" font-size="13" font-weight="700" fill="#0f172a">Entformen</text>
+    <text x="90" y="198" text-anchor="middle" font-size="11" fill="#64748b">Werkzeug zu</text>
+    <text x="250" y="198" text-anchor="middle" font-size="11" fill="#64748b">Schmelze füllt</text>
+    <text x="410" y="198" text-anchor="middle" font-size="11" fill="#64748b">Kühlen / Halten</text>
+    <text x="570" y="198" text-anchor="middle" font-size="11" fill="#64748b">Teil auswerfen</text>
+  </g>
+  <path d="M132 110 H208 M292 110 H368 M452 110 H528" stroke="#94a3b8" stroke-width="3" marker-end="url(#a)"/>
+  <defs>
+    <marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+      <path d="M0 0 L8 4 L0 8 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+  <text x="24" y="240" font-family="Inter, Arial, sans-serif" font-size="13" font-weight="700" fill="#0f172a">Zyklus wiederholt sich, bis die Losgröße erreicht ist</text>
+</svg>

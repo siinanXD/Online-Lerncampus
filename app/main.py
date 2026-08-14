@@ -23,6 +23,7 @@ async def lifespan(app: FastAPI):
 def create_app() -> FastAPI:
     """Create and configure the FastAPI application."""
     settings = get_settings()
+    settings.require_production_secret()
     app = FastAPI(
         title=settings.app_name,
         debug=settings.app_debug,

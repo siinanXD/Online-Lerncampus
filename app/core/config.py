@@ -2,8 +2,17 @@
 
 from functools import lru_cache
 
-from pydantic import Field
+from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+from app.db.dialect import normalize_database_url
+
+_WEAK_SECRETS = {
+    "",
+    "local-dev-change-me",
+    "change-this-before-production",
+    "bitte-aendern",
+}
 
 
 class Settings(BaseSettings):
@@ -37,6 +46,12 @@ class Settings(BaseSettings):
         populate_by_name=True,
     )
 
+    @field_validator("database_url")
+    @classmethod
+    def _normalize_database_url(cls, value: str) -> str:
+        """Accept Railway postgres:// URLs and add SSL for public hosts."""
+        return normalize_database_url(value)
+
     @property
     def allowed_origins(self) -> list[str]:
         """Return configured CORS origins as a clean list."""
@@ -45,6 +60,16 @@ class Settings(BaseSettings):
             for origin in self.allowed_origins_raw.split(",")
             if origin.strip()
         ]
+
+    def require_production_secret(self) -> None:
+        """Refuse to boot in production with a placeholder APP_SECRET."""
+        if self.app_env != "production":
+            return
+        secret = self.app_secret.strip()
+        if secret in _WEAK_SECRETS or len(secret) < 16:
+            raise ValueError(
+                "APP_SECRET must be a random value with at least 16 characters in production."
+            )
 
 
 @lru_cache

@@ -15,10 +15,10 @@ COPY alembic.ini pyproject.toml ./
 
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONPATH=/app
-ENV APP_ENV=preview
+ENV APP_ENV=production
 ENV APP_DEBUG=false
 ENV CONTENT_SEED_ON_STARTUP=true
-ENV DATABASE_URL=sqlite:///./data/local.db
+ENV CONTENT_REVIEW_REQUIRED=false
 
 RUN mkdir -p /app/data
 

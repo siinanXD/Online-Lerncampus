@@ -11,7 +11,7 @@ from typing import Any
 
 from app.db.connection import DbConnection
 from app.db.content_schema import initialize_content_schema
-from app.db.dialect import DbDialect
+from app.db.dialect import DbDialect, normalize_database_url
 from app.db.platform_schema import initialize_platform_schema
 from app.db.tenant_schema import initialize_tenant_schema
 from app.models.progress import QuestionProgress
@@ -32,8 +32,8 @@ class Database:
 
     def __init__(self, database_url: str) -> None:
         """Open the configured database and initialize its schema."""
-        self.database_url = database_url
-        self._db = DbConnection(database_url)
+        self.database_url = normalize_database_url(database_url)
+        self._db = DbConnection(self.database_url)
         self._initialize_schema()
 
     @property

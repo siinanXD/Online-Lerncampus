@@ -9,7 +9,7 @@ from pathlib import Path
 from threading import RLock
 from typing import Any
 
-from app.db.dialect import DbDialect, adapt_schema_sql, adapt_sql, detect_dialect
+from app.db.dialect import DbDialect, adapt_schema_sql, adapt_sql, detect_dialect, normalize_database_url
 
 
 class DbConnection:
@@ -17,8 +17,8 @@ class DbConnection:
 
     def __init__(self, database_url: str) -> None:
         """Open a SQLite or PostgreSQL connection."""
-        self.database_url = database_url
-        self.dialect = detect_dialect(database_url)
+        self.database_url = normalize_database_url(database_url)
+        self.dialect = detect_dialect(self.database_url)
         self._lock = RLock()
         if self.dialect is DbDialect.SQLITE:
             database_path = Path(database_url.removeprefix("sqlite:///")).resolve()
@@ -33,7 +33,7 @@ class DbConnection:
             import psycopg
             from psycopg.rows import dict_row
 
-            self._connection = psycopg.connect(database_url, row_factory=dict_row)
+            self._connection = psycopg.connect(self.database_url, row_factory=dict_row, autocommit=False)
 
     @contextmanager
     def transaction(self) -> Iterator["DbConnection"]:

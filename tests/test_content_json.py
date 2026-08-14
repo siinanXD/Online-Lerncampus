@@ -33,6 +33,30 @@ def test_detect_dialect_supports_sqlite_and_postgresql() -> None:
         detect_dialect("postgresql://user:pass@localhost/lerncampus")
         is DbDialect.POSTGRESQL
     )
+    assert (
+        detect_dialect("postgres://user:pass@localhost/lerncampus")
+        is DbDialect.POSTGRESQL
+    )
+
+
+def test_normalize_database_url_rewrites_railway_postgres() -> None:
+    """Railway still emits postgres:// and public hosts need SSL."""
+    from app.db.dialect import normalize_database_url
+
+    local = normalize_database_url("postgres://user:pass@localhost:5432/db")
+    assert local.startswith("postgresql://")
+    assert "sslmode" not in local
+
+    internal = normalize_database_url(
+        "postgresql://user:pass@postgres.railway.internal:5432/railway"
+    )
+    assert "sslmode" not in internal
+
+    public = normalize_database_url(
+        "postgres://user:pass@shuttle.proxy.rlwy.net:1234/railway"
+    )
+    assert public.startswith("postgresql://")
+    assert "sslmode=require" in public
 
 
 def test_postgres_schema_adaptation_rewrites_autoincrement() -> None:

@@ -1411,16 +1411,16 @@ function factSheetForUnit(unit) {
 
 function coreFormulasForUnit(unit) {
   const month = Number(unit?.month) || 0;
-  const fromCatalog = (window.OLC_CORE_FORMULAS || []).filter((item) =>
-    (item.months || []).includes(month),
-  );
-  if (fromCatalog.length) {
-    return fromCatalog;
-  }
-  const live = (state.formulas || []).filter((item) =>
-    (window.OLC_CORE_FORMULA_SLUGS || []).includes(item.slug),
-  );
-  return live.slice(0, 1);
+  const headingHay = `${unit?.title || ""} ${unit?.subtitle || ""} ${(unit?.theory_blocks || [])
+    .map((block) => block.heading || "")
+    .join(" ")}`.toLowerCase();
+  return (window.OLC_CORE_FORMULAS || []).filter((item) => {
+    const monthHit = (item.months || []).includes(month);
+    const textHit =
+      headingHay.includes((item.title || "").toLowerCase()) ||
+      headingHay.includes((item.slug || "").replace(/-/g, " "));
+    return monthHit || textHit;
+  });
 }
 
 function buildUnitSteps(unit) {

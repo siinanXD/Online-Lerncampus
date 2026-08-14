@@ -9,6 +9,7 @@ INSECURE_APP_SECRETS = frozenset(
     {"local-dev-change-me", "change-this-before-production"}
 )
 MIN_PRODUCTION_SECRET_LENGTH = 32
+SESSION_COOKIE_NAME = "ol_session"
 
 
 class Settings(BaseSettings):

@@ -110,6 +110,62 @@ def test_bootstrap_admin_is_provisioned(monkeypatch: pytest.MonkeyPatch) -> None
     assert payload["is_platform_admin"] is True
 
 
+def test_login_sets_httponly_session_cookie() -> None:
+    client = build_client()
+    response = login_payload(client, f"azubi-{uuid4()}")
+    assert response.status_code == 200
+    set_cookie = response.headers.get("set-cookie", "")
+    assert "ol_session=" in set_cookie
+    assert "HttpOnly" in set_cookie
+    assert "SameSite=lax" in set_cookie
+    # The cookie alone must authenticate follow-up requests.
+    me = client.get("/api/auth/me")
+    assert me.status_code == 200
+    assert me.json()["role"] == "learner"
+
+
+def test_logout_clears_session_cookie() -> None:
+    client = build_client()
+    assert login_payload(client, f"azubi-{uuid4()}").status_code == 200
+    assert client.get("/api/auth/me").status_code == 200
+    logout = client.post("/api/auth/logout")
+    assert logout.status_code == 200
+    assert 'ol_session=""' in logout.headers.get("set-cookie", "")
+    assert client.get("/api/auth/me").status_code == 401
+
+
+def test_bearer_header_still_works_for_api_clients() -> None:
+    client = build_client()
+    payload = login_payload(client, f"azubi-{uuid4()}").json()
+    client.cookies.clear()
+    headers = {"Authorization": f"Bearer {payload['access_token']}"}
+    assert client.get("/api/auth/me", headers=headers).status_code == 200
+
+
+def test_security_headers_are_present() -> None:
+    client = build_client()
+    for path in ("/", "/api/health"):
+        response = client.get(path)
+        assert response.status_code == 200
+        assert "default-src 'self'" in response.headers["content-security-policy"]
+        assert response.headers["x-content-type-options"] == "nosniff"
+        assert response.headers["x-frame-options"] == "DENY"
+        assert response.headers["referrer-policy"] == "same-origin"
+        assert "camera=()" in response.headers["permissions-policy"]
+        # HSTS only outside local development.
+        assert "strict-transport-security" not in response.headers
+
+
+def test_index_has_no_inline_script() -> None:
+    """CSP forbids inline scripts, so index.html must only load static files."""
+    from pathlib import Path
+
+    html = Path("app/web/index.html").read_text(encoding="utf-8")
+    for line in html.splitlines():
+        if "<script" in line:
+            assert 'src="/static/' in line, line
+
+
 def test_production_env_rejects_insecure_defaults(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

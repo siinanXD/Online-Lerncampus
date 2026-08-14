@@ -80,3 +80,175 @@ window.OLC_VISUALS = {
     },
   ],
 };
+
+window.OLC_FACT_SHEETS = [
+  {
+    months: [3, 13],
+    keys: ["werkstoff", "stahl", "thermoplast", "dichte", "aluminium"],
+    title: "Kenndaten Werkstoffe",
+    headers: ["Werkstoff", "Dichte", "Merkmal"],
+    rows: [
+      ["S235JR", "7,85 g/cm³", "Rm 360–510 N/mm²"],
+      ["C45", "7,85 g/cm³", "C ≈ 0,45 %, vergütbar"],
+      ["Aluminium", "2,70 g/cm³", "Schmelzpunkt 660 °C"],
+      ["Kupfer", "8,96 g/cm³", "Schmelzpunkt 1085 °C"],
+      ["PA 6", "1,13 g/cm³", "vor Spritzguss trocknen"],
+    ],
+    note: "Richtwerte für die IHK-Praxis. Im Betrieb gilt das Werkstoffzeugnis.",
+  },
+  {
+    months: [6, 16],
+    keys: ["mess", "toleranz", "nonius", "passung", "prüf"],
+    title: "Kenndaten Prüfen",
+    headers: ["Mittel / Passung", "Wert", "Einsatz"],
+    rows: [
+      ["Messschieber 1/20", "0,05 mm", "Außen, Innen, Tiefe"],
+      ["Messschieber 1/50", "0,02 mm", "feinere Ablesung"],
+      ["Bügelmessschraube", "0,01 mm", "Durchmesser"],
+      ["20 H7", "+21 / 0 µm", "Bohrung Spiel"],
+      ["20 h6", "0 / −13 µm", "Welle Spiel"],
+    ],
+    note: "ISO 286 / DIN 862. Ablesung immer zweimal prüfen.",
+  },
+  {
+    months: [8],
+    keys: ["pneumatik", "druckluft", "zylinder", "ventil"],
+    title: "Kenndaten Pneumatik",
+    headers: ["Größe", "Wert", "Merksatz"],
+    rows: [
+      ["Betriebsdruck", "6 bar", "typisch in der Lehre"],
+      ["1 bar", "10 N/cm²", "≈ 0,1 N/mm²"],
+      ["Kolbenkraft", "F = p × A", "Einheiten angleichen"],
+      ["5/2-Ventil", "5 Anschlüsse", "2 Schaltstellungen"],
+    ],
+    note: "Druckluft ist Energie — vor dem Öffnen entlüften.",
+  },
+  {
+    months: [9, 10, 15],
+    keys: ["drehen", "fraesen", "span", "schnitt", "drehzahl"],
+    title: "Kenndaten Zerspanung",
+    headers: ["Größe", "Formel / Wert", "Hinweis"],
+    rows: [
+      ["Schnittgeschwindigkeit", "vc = (π × d × n) / 1000", "m/min"],
+      ["Drehzahl", "n = (vc × 1000) / (π × d)", "1/min"],
+      ["vc Stahl (HM)", "80–150 m/min", "Kühlung beachten"],
+      ["vc Alu (HM)", "200–400 m/min", "Aufbauschneide meiden"],
+    ],
+    note: "Werte sind Richtwerte. Immer Tabelle der Maschine / des Werkzeugs nutzen.",
+  },
+  {
+    months: [2],
+    keys: ["sicherheit", "psa", "arbeitsschutz", "unfall"],
+    title: "Kenndaten Sicherheit",
+    headers: ["Thema", "Wert / Regel", "Praxis"],
+    rows: [
+      ["Gehörschutz", "ab 85 dB(A)", "dauerhaft tragen"],
+      ["Not-Halt", "Stoppt Bewegung", "Energie nicht immer frei"],
+      ["PSA", "nach Gefährdung", "vor Schicht prüfen"],
+      ["S3-Schuh", "durchtrittsicher", "in der Fertigung Pflicht"],
+    ],
+    note: "Betriebliche Unterweisung und SDB gehen vor Faustregeln.",
+  },
+  {
+    months: [22],
+    keys: ["spritz", "kunststoff", "granulat"],
+    title: "Kenndaten Kunststoff",
+    headers: ["Phase / Stoff", "Kennwert", "Fehler wenn falsch"],
+    rows: [
+      ["Zyklus", "Schließen → Spritz → Nachdruck → Öffnen", "unvollständiges Teil"],
+      ["PA 6", "trocknen 80 °C", "Schlieren, Blasen"],
+      ["PE-LD", "ρ ≈ 0,92 g/cm³", "niedrige Festigkeit"],
+      ["Werkzeug", "temperieren", "Verzug"],
+    ],
+    note: "Parameter immer am Maschinenprotokoll sichern.",
+  },
+];
+
+window.OLC_CORE_FORMULAS = [
+  {
+    slug: "dichte",
+    months: [3, 13, 22],
+    title: "Dichte",
+    expression: "ρ = m / V",
+    legend: [
+      { symbol: "ρ", meaning: "Dichte [g/cm³]" },
+      { symbol: "m", meaning: "Masse" },
+      { symbol: "V", meaning: "Volumen" },
+    ],
+    example: "Stahl 7,85 g/cm³ · Aluminium 2,70 g/cm³ · PA6 1,13 g/cm³",
+  },
+  {
+    slug: "kolbenkraft",
+    months: [8],
+    title: "Kolbenkraft",
+    expression: "F = p × A",
+    legend: [
+      { symbol: "F", meaning: "Kraft [N]" },
+      { symbol: "p", meaning: "Druck [bar]" },
+      { symbol: "A", meaning: "Fläche [cm²]" },
+    ],
+    example: "6 bar × 20 cm² × 10 = 1200 N (Faustformel mit bar und cm²).",
+  },
+  {
+    slug: "schnittgeschwindigkeit",
+    months: [9, 10, 15],
+    title: "Schnittgeschwindigkeit",
+    expression: "vc = (π × d × n) / 1000",
+    legend: [
+      { symbol: "vc", meaning: "m/min" },
+      { symbol: "d", meaning: "Durchmesser [mm]" },
+      { symbol: "n", meaning: "Drehzahl [1/min]" },
+    ],
+    example: "d = 50 mm, n = 800 1/min → vc ≈ 126 m/min.",
+  },
+  {
+    slug: "toleranz-grenzmass",
+    months: [6, 16],
+    title: "Grenzmaße",
+    expression: "Gomax = N + ES",
+    legend: [
+      { symbol: "N", meaning: "Nennmaß" },
+      { symbol: "ES", meaning: "oberes Abmaß" },
+    ],
+    example: "20 H7 (+0,021/0): Gomax 20,021 mm, Gomin 20,000 mm.",
+  },
+  {
+    slug: "ohmsches-gesetz",
+    months: [17],
+    title: "Ohmsches Gesetz",
+    expression: "U = R × I",
+    legend: [
+      { symbol: "U", meaning: "Spannung [V]" },
+      { symbol: "R", meaning: "Widerstand [Ω]" },
+      { symbol: "I", meaning: "Strom [A]" },
+    ],
+    example: "R = 24 Ω, I = 0,5 A → U = 12 V.",
+  },
+];
+
+window.OLC_CORE_FORMULA_SLUGS = [
+  "dichte",
+  "kolbenkraft",
+  "druck-allgemein",
+  "schnittgeschwindigkeit",
+  "drehzahl",
+  "kreisflaeche",
+  "toleranz-grenzmass",
+  "ohmsches-gesetz",
+  "drehmoment",
+];
+
+window.OLC_CORE_TERMS = [
+  { term: "Werkstoff", definition: "Metall oder Kunststoff, aus dem das Teil gefertigt wird." },
+  { term: "Dichte", definition: "Masse pro Volumen. Stahl ≈ 7,85 g/cm³, Aluminium ≈ 2,70 g/cm³." },
+  { term: "Messschieber", definition: "Prüfmittel mit Hauptmaß und Nonius, typisch 0,05 oder 0,02 mm." },
+  { term: "Nonius", definition: "Hilfsskala für Zehntel- oder Fünfzigstelmillimeter." },
+  { term: "Toleranz", definition: "Zulässige Abweichung vom Nennmaß (ISO 286)." },
+  { term: "Passung", definition: "Spiel, Übergang oder Übermaß zwischen Bohrung und Welle." },
+  { term: "Pneumatik", definition: "Energieübertragung mit Druckluft, oft 6 bar." },
+  { term: "Doppeltwirkender Zylinder", definition: "Luft wirkt auf beide Kolbenseiten für Vor- und Rückhub." },
+  { term: "Drehzahl", definition: "Umdrehungen der Spindel pro Minute (1/min)." },
+  { term: "Schnittgeschwindigkeit", definition: "vc in m/min, abhängig von Werkstoff und Schneidstoff." },
+  { term: "Not-Halt", definition: "Stoppt gefährliche Bewegung. Energiekreis danach prüfen." },
+  { term: "PSA", definition: "Persönliche Schutzausrüstung nach Gefährdungsbeurteilung." },
+];

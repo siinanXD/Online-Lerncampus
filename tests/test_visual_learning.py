@@ -24,7 +24,12 @@ def test_visual_catalog_covers_all_months_and_is_linked() -> None:
     assert html.index("/static/visuals.js") < html.index("/static/app.js")
     assert "function visualKeyMatches" in app_js
     assert "fillVisualSlot" in app_js
-    assert "unit-hero-visual" in app_js
+    assert "function buildUnitSteps" in app_js
+    assert "unit-step-visual" in app_js
+    assert "OLC_FACT_SHEETS" in catalog
+    assert "Kenndaten Werkstoffe" in catalog
+    assert "OLC_CORE_FORMULAS" in catalog
+    assert "OLC_CORE_TERMS" in catalog
     assert 'data-bind="question-media"' in screens
     assert 'data-bind="exam-question-media"' in screens
 

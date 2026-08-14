@@ -1837,43 +1837,17 @@ window.OLC_SCREEN_RENDERERS = {
       </article>
     `,
   "s04_17-lerneinheit-detail": () => `
-    <section class="gx-screen gx-einheit">
-      <div class="gx-scroll">
-        <div class="gx-page-header">
-          <div class="gx-page-title-row">
-            <h2>Lerneinheit</h2>
-            <a class="gx-level-pill soft" href="/lernen" data-page-link>Lernreise</a>
-          </div>
-          <p>Theorie, Praxis und Fragen zu dieser Einheit</p>
-        </div>
-        <div class="gx-body" data-bind="unit-detail">
-          <p class="muted">Lerneinheit wird geladen…</p>
-        </div>
+    <section class="gx-screen gx-einheit unit-pager">
+      <div class="unit-pager-frame" data-bind="unit-detail">
+        <p class="muted">Lerneinheit wird geladen…</p>
       </div>
-      ${window.OLC_GX_NAV("learn")}
     </section>
   `,
   "s04_18-glossar-uebersicht": () => `
-    <section class="gx-screen gx-glossar">
-      <div class="gx-scroll">
-        <div class="gx-page-header">
-          <div class="gx-page-title-row">
-            <h2>Glossar</h2>
-            <a class="gx-level-pill soft" href="/lernen" data-page-link>Zurück</a>
-          </div>
-          <p>Fachbegriffe aus der Ausbildung</p>
-        </div>
-        <div class="gx-body">
-          <label class="gx-search">
-            <span class="visually-hidden">Suchen</span>
-            <input type="search" data-action="glossary-search" placeholder="Fachbegriff suchen…" />
-          </label>
-          <div class="gx-section" data-bind="glossary-live">
-            <p class="muted">Glossar wird geladen…</p>
-          </div>
-        </div>
+    <section class="gx-screen gx-glossar unit-pager">
+      <div class="unit-pager-frame" data-bind="glossary-live">
+        <p class="muted">Glossar wird geladen…</p>
       </div>
-      ${window.OLC_GX_NAV("learn")}
     </section>
   `,
   "s04_19-formeltrainer-flashcard": () => `

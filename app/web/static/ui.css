@@ -6852,7 +6852,7 @@ body[data-page-layout="auth"] .auth-root:has(.proto-flows) {
   padding: 12px 16px 20px;
   flex: 1;
   min-height: 0;
-  overflow: auto;
+  overflow: hidden;
 }
 .formel-chips {
   display: flex;
